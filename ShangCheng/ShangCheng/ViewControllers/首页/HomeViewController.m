@@ -29,7 +29,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    
+    //这是一个测试，你看看行不
     
     [self.collectionView registerNib:[UINib nibWithNibName:@"ImageCollectionReusableView" bundle:nil] forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"imageHeader"];
     [self.collectionView registerNib:[UINib nibWithNibName:@"MaxSaleHotCollectionReusableView" bundle:nil] forSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:@"maxSaleHotFooter"];
