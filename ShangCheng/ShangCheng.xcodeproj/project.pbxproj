@@ -29,6 +29,7 @@
 		4534146A1DE297C5005B7FF1 /* ShoppingCarModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 453414691DE297C5005B7FF1 /* ShoppingCarModel.m */; };
 		453B697A1DED18C4003533C0 /* ProductClassModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 453B69791DED18C4003533C0 /* ProductClassModel.m */; };
 		453B697D1DED6C73003533C0 /* IndexButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 453B697C1DED6C73003533C0 /* IndexButton.m */; };
+		4549896A1DFAA90F00A24F56 /* PreviewOrderViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 454989691DFAA90F00A24F56 /* PreviewOrderViewController.m */; };
 		454A68771DF9446D0058CF5C /* OrderListOneTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 454A68751DF9446D0058CF5C /* OrderListOneTableViewCell.m */; };
 		454A68781DF9446D0058CF5C /* OrderListOneTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 454A68761DF9446D0058CF5C /* OrderListOneTableViewCell.xib */; };
 		454A687C1DF9447F0058CF5C /* OrderListTwoTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 454A687A1DF9447F0058CF5C /* OrderListTwoTableViewCell.m */; };
@@ -39,6 +40,10 @@
 		454A68871DF944BF0058CF5C /* OrderListFootOneTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 454A68851DF944BF0058CF5C /* OrderListFootOneTableViewCell.xib */; };
 		454A688B1DF944D20058CF5C /* OrderListFootTwoTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 454A68891DF944D20058CF5C /* OrderListFootTwoTableViewCell.m */; };
 		454A688C1DF944D20058CF5C /* OrderListFootTwoTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 454A688A1DF944D20058CF5C /* OrderListFootTwoTableViewCell.xib */; };
+		456253A71DFD2EFC00440FDC /* SelectCouponViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 456253A61DFD2EFC00440FDC /* SelectCouponViewController.m */; };
+		456253AA1DFD315B00440FDC /* CouponModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 456253A91DFD315B00440FDC /* CouponModel.m */; };
+		456253B11DFD540900440FDC /* CouponTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 456253AF1DFD540900440FDC /* CouponTableViewCell.m */; };
+		456253B21DFD540900440FDC /* CouponTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 456253B01DFD540900440FDC /* CouponTableViewCell.xib */; };
 		4569A6E41DE81F2A006C885B /* ProductDetailModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 4569A6DE1DE81F2A006C885B /* ProductDetailModel.m */; };
 		4569A6E51DE81F2A006C885B /* ProductModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 4569A6E01DE81F2A006C885B /* ProductModel.m */; };
 		4569A6ED1DE830C1006C885B /* ProductDetailOneTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 4569A6EC1DE830C1006C885B /* ProductDetailOneTableViewCell.m */; };
@@ -119,6 +124,7 @@
 		45C6C9901DF6643000151587 /* OrderListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 45C6C98F1DF6643000151587 /* OrderListViewController.m */; };
 		45C6C9931DF6692900151587 /* LineButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 45C6C9921DF6692900151587 /* LineButton.m */; };
 		45C6C9971DF6A7D600151587 /* SupOrderModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 45C6C9961DF6A7D600151587 /* SupOrderModel.m */; };
+		45D1633B1DFBA0D30024561F /* PreviewOrderTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 45D1633A1DFBA0D30024561F /* PreviewOrderTableViewCell.m */; };
 		45FD135C1DDDAFD40064AFB3 /* AlertManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 45FD135B1DDDAFD40064AFB3 /* AlertManager.m */; };
 /* End PBXBuildFile section */
 
@@ -181,6 +187,8 @@
 		453B69791DED18C4003533C0 /* ProductClassModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProductClassModel.m; sourceTree = "<group>"; };
 		453B697B1DED6C73003533C0 /* IndexButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IndexButton.h; sourceTree = "<group>"; };
 		453B697C1DED6C73003533C0 /* IndexButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IndexButton.m; sourceTree = "<group>"; };
+		454989681DFAA90F00A24F56 /* PreviewOrderViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreviewOrderViewController.h; sourceTree = "<group>"; };
+		454989691DFAA90F00A24F56 /* PreviewOrderViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PreviewOrderViewController.m; sourceTree = "<group>"; };
 		454A68741DF9446D0058CF5C /* OrderListOneTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OrderListOneTableViewCell.h; sourceTree = "<group>"; };
 		454A68751DF9446D0058CF5C /* OrderListOneTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OrderListOneTableViewCell.m; sourceTree = "<group>"; };
 		454A68761DF9446D0058CF5C /* OrderListOneTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = OrderListOneTableViewCell.xib; sourceTree = "<group>"; };
@@ -196,6 +204,13 @@
 		454A68881DF944D20058CF5C /* OrderListFootTwoTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OrderListFootTwoTableViewCell.h; sourceTree = "<group>"; };
 		454A68891DF944D20058CF5C /* OrderListFootTwoTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OrderListFootTwoTableViewCell.m; sourceTree = "<group>"; };
 		454A688A1DF944D20058CF5C /* OrderListFootTwoTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = OrderListFootTwoTableViewCell.xib; sourceTree = "<group>"; };
+		456253A51DFD2EFC00440FDC /* SelectCouponViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectCouponViewController.h; sourceTree = "<group>"; };
+		456253A61DFD2EFC00440FDC /* SelectCouponViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SelectCouponViewController.m; sourceTree = "<group>"; };
+		456253A81DFD315B00440FDC /* CouponModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CouponModel.h; sourceTree = "<group>"; };
+		456253A91DFD315B00440FDC /* CouponModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CouponModel.m; sourceTree = "<group>"; };
+		456253AE1DFD540900440FDC /* CouponTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CouponTableViewCell.h; sourceTree = "<group>"; };
+		456253AF1DFD540900440FDC /* CouponTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CouponTableViewCell.m; sourceTree = "<group>"; };
+		456253B01DFD540900440FDC /* CouponTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CouponTableViewCell.xib; sourceTree = "<group>"; };
 		4569A6DD1DE81F2A006C885B /* ProductDetailModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProductDetailModel.h; sourceTree = "<group>"; };
 		4569A6DE1DE81F2A006C885B /* ProductDetailModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProductDetailModel.m; sourceTree = "<group>"; };
 		4569A6DF1DE81F2A006C885B /* ProductModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProductModel.h; sourceTree = "<group>"; };
@@ -355,6 +370,8 @@
 		45C6C9921DF6692900151587 /* LineButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LineButton.m; sourceTree = "<group>"; };
 		45C6C9951DF6A7D600151587 /* SupOrderModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SupOrderModel.h; sourceTree = "<group>"; };
 		45C6C9961DF6A7D600151587 /* SupOrderModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SupOrderModel.m; sourceTree = "<group>"; };
+		45D163391DFBA0D30024561F /* PreviewOrderTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreviewOrderTableViewCell.h; sourceTree = "<group>"; };
+		45D1633A1DFBA0D30024561F /* PreviewOrderTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PreviewOrderTableViewCell.m; sourceTree = "<group>"; };
 		45FD135A1DDDAFD40064AFB3 /* AlertManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AlertManager.h; sourceTree = "<group>"; };
 		45FD135B1DDDAFD40064AFB3 /* AlertManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AlertManager.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -416,6 +433,8 @@
 			children = (
 				4531AC7F1DE0450C00FC7C37 /* ShoppingCarTableViewCell.h */,
 				4531AC801DE0450C00FC7C37 /* ShoppingCarTableViewCell.m */,
+				45D163391DFBA0D30024561F /* PreviewOrderTableViewCell.h */,
+				45D1633A1DFBA0D30024561F /* PreviewOrderTableViewCell.m */,
 			);
 			path = "购物车";
 			sourceTree = "<group>";
@@ -425,6 +444,8 @@
 			children = (
 				4531AC831DE0455A00FC7C37 /* ShoppingCarViewController.h */,
 				4531AC841DE0455A00FC7C37 /* ShoppingCarViewController.m */,
+				454989681DFAA90F00A24F56 /* PreviewOrderViewController.h */,
+				454989691DFAA90F00A24F56 /* PreviewOrderViewController.m */,
 			);
 			path = "购物车";
 			sourceTree = "<group>";
@@ -873,6 +894,9 @@
 				454A68881DF944D20058CF5C /* OrderListFootTwoTableViewCell.h */,
 				454A68891DF944D20058CF5C /* OrderListFootTwoTableViewCell.m */,
 				454A688A1DF944D20058CF5C /* OrderListFootTwoTableViewCell.xib */,
+				456253AE1DFD540900440FDC /* CouponTableViewCell.h */,
+				456253AF1DFD540900440FDC /* CouponTableViewCell.m */,
+				456253B01DFD540900440FDC /* CouponTableViewCell.xib */,
 			);
 			path = "订单";
 			sourceTree = "<group>";
@@ -882,6 +906,8 @@
 			children = (
 				45C6C98E1DF6643000151587 /* OrderListViewController.h */,
 				45C6C98F1DF6643000151587 /* OrderListViewController.m */,
+				456253A51DFD2EFC00440FDC /* SelectCouponViewController.h */,
+				456253A61DFD2EFC00440FDC /* SelectCouponViewController.m */,
 			);
 			path = "订单";
 			sourceTree = "<group>";
@@ -889,6 +915,8 @@
 		45C6C9941DF6A79A00151587 /* 订单 */ = {
 			isa = PBXGroup;
 			children = (
+				456253A81DFD315B00440FDC /* CouponModel.h */,
+				456253A91DFD315B00440FDC /* CouponModel.m */,
 				45C6C9951DF6A7D600151587 /* SupOrderModel.h */,
 				45C6C9961DF6A7D600151587 /* SupOrderModel.m */,
 			);
@@ -1018,6 +1046,7 @@
 				457F354C1DBF62A500809062 /* HotCollectionReusableView.xib in Resources */,
 				45A839351DC7307B009F1DE4 /* MJRefresh.bundle in Resources */,
 				457F35051DBF3E0600809062 /* Main.storyboard in Resources */,
+				456253B21DFD540900440FDC /* CouponTableViewCell.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1046,14 +1075,17 @@
 				45A8395C1DC730D9009F1DE4 /* NetManager.m in Sources */,
 				45A8394A1DC7307C009F1DE4 /* SDWebImageDownloader.m in Sources */,
 				45A839551DC7307C009F1DE4 /* SVIndefiniteAnimatedView.m in Sources */,
+				456253B11DFD540900440FDC /* CouponTableViewCell.m in Sources */,
 				45A839511DC7307C009F1DE4 /* UIImage+WebP.m in Sources */,
 				45A839341DC7307B009F1DE4 /* AFURLSessionManager.m in Sources */,
 				453B697A1DED18C4003533C0 /* ProductClassModel.m in Sources */,
+				456253A71DFD2EFC00440FDC /* SelectCouponViewController.m in Sources */,
 				454A68811DF944A60058CF5C /* OrderListThreeTableViewCell.m in Sources */,
 				45A839581DC7307C009F1DE4 /* SVProgressHUD.m in Sources */,
 				4594C2EC1DC9821B0005D5B1 /* MineCollectionViewCellOne.m in Sources */,
 				45A839561DC7307C009F1DE4 /* SVProgressAnimatedView.m in Sources */,
 				4569A6E41DE81F2A006C885B /* ProductDetailModel.m in Sources */,
+				456253AA1DFD315B00440FDC /* CouponModel.m in Sources */,
 				45A839311DC7307B009F1DE4 /* AFURLConnectionOperation.m in Sources */,
 				4513E71B1DC32A4B00734AF6 /* CategoryCollectionViewCell.m in Sources */,
 				45A8393B1DC7307B009F1DE4 /* UIScrollView+MJRefresh.m in Sources */,
@@ -1065,6 +1097,7 @@
 				45A8394B1DC7307C009F1DE4 /* SDWebImageDownloaderOperation.m in Sources */,
 				45A8392E1DC7307B009F1DE4 /* AFHTTPSessionManager.m in Sources */,
 				4569A6F11DE83163006C885B /* ProductDetailViewController.m in Sources */,
+				45D1633B1DFBA0D30024561F /* PreviewOrderTableViewCell.m in Sources */,
 				45A839491DC7307C009F1DE4 /* SDWebImageDecoder.m in Sources */,
 				45B845351DF14E79000AE652 /* MemberInfoModel.m in Sources */,
 				45A8392F1DC7307B009F1DE4 /* AFNetworkReachabilityManager.m in Sources */,
@@ -1079,6 +1112,7 @@
 				459E53221DEEAAAA00F84314 /* ProductFormatModel.m in Sources */,
 				45A839521DC7307C009F1DE4 /* UIImageView+HighlightedWebCache.m in Sources */,
 				454A687C1DF9447F0058CF5C /* OrderListTwoTableViewCell.m in Sources */,
+				4549896A1DFAA90F00A24F56 /* PreviewOrderViewController.m in Sources */,
 				457F34FC1DBF3E0600809062 /* main.m in Sources */,
 				453138A71DE57E6F00AC89EB /* InterfaceManager.m in Sources */,
 				4569A6ED1DE830C1006C885B /* ProductDetailOneTableViewCell.m in Sources */,

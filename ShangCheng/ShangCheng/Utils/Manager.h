@@ -15,6 +15,7 @@
 #import "ProductClassModel.h"
 #import "ProductFormatModel.h"
 #import "SupOrderModel.h"
+#import "CouponModel.h"
 #import "AlertManager.h"
 typedef void(^SuccessResult)(id successResult);
 typedef void(^FailResult)(NSString *failResultStr);
@@ -64,10 +65,23 @@ typedef void(^FailResult)(NSString *failResultStr);
 //计算购物车选择的金额
 - (float)selectProductTotalPrice;
 
-#pragma mark - 订单 -
-//订单列表。 pageIndex页数,pageSize多少数据
-- (void)getOrderListDataWithUserID:(NSString *)userID withOrderStatus:(NSString *)orderStatus withPageIndex:(NSString *)pageIndex withPageSize:(NSString *)pageSize downPushRefresh:(BOOL)downPushRefresh withUpPushReload:(BOOL)upPushReload withOrderListSuccessResult:(SuccessResult)orderListSuccessResult withOrderListFailResult:(FailResult)orderListFailResult;
+//立即支付，进入预订单
+- (void)httpOrderPreviewWithShoppingCarIDArr:(NSMutableArray *)shoppingCarIDArr withPreviewSuccessResult:(SuccessResult)previewSuccessResult withPreviewFailResult:(FailResult)previewFailResult;
 
+
+#pragma mark - 订单 -
+//优惠券列表
+- (void)httpCouponListWithUserID:(NSString *)userID withCouponSuccessResult:(SuccessResult )couponSuccessResult withCouponFailResult:(FailResult)couponFailResult;
+
+//计算优惠券的金额
+- (void)httpComputeCouponMoneyWithUserID:(NSString *)userID withCouponID:(NSString *)couponID withShoppingCarIDArr:(NSArray *)shoppingCarIDArr withComputeMoneySuccessResult:(SuccessResult)computeMoneySuccessResult withComputeMoneyFailResult:(FailResult)computeMoneyFailResult;
+
+
+//订单列表。 pageIndex页数,pageSize多少数据
+- (void)getOrderListDataWithUserID:(NSString *)userID withProduct:(NSString *)product withCode:(NSString *)code withOrderStatus:(NSString *)orderStatus withPageIndex:(NSString *)pageIndex withPageSize:(NSString *)pageSize downPushRefresh:(BOOL)downPushRefresh withUpPushReload:(BOOL)upPushReload withOrderListSuccessResult:(SuccessResult)orderListSuccessResult withOrderListFailResult:(FailResult)orderListFailResult;
+
+//生成订单
+- (void)creatOrderWithUserID:(NSString *)userID withReceivedID:(NSString *)receivedID withTotalAmount:(NSString *)totalAmount withDiscount:(NSString *)discount withCouponId:(NSString *)couponId withArr:(NSMutableArray *)itemArr withOrderSuccessResult:(SuccessResult)orderSuccessResult withOrderFailResult:(FailResult)orderFailResult;
 
 #pragma mark - 登录注册 -
 //登录
@@ -87,4 +101,13 @@ typedef void(^FailResult)(NSString *failResultStr);
 - (void)httpCheckMobileCodeWithMobileNumber:(NSString *)mobileNumber withCode:(NSString *)code withCodeSuccessResult:(SuccessResult)codeSuccessResult withCodeFailResult:(FailResult)codeFailResult;
 //注册功能
 - (void)httpRegisterWithMobileNumber:(NSString *)mobileNumber withPassword:(NSString *)password withUserType:(NSString *)usertType withAreaId:(NSString *)areaId withRegisterSuccess:(SuccessResult )registerSuccessResult withRegisterFailResult:(FailResult)registerFailResult;
+
+
+
+#pragma mark - 其他 -
+//获取当前时间
+- (NSString *)getNowTimeStr; 
+
+
+
 @end

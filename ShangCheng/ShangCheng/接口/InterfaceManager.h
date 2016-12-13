@@ -30,11 +30,17 @@
 - (NSString *)getShoppingCarProductUrlWithUserId:(NSString *)userId;
 //删除购物车中的某些产品
 - (NSString *)deleteShoppingCarProductUrlWithShoppingCarID:(NSString *)shoppingCarID withSecret:(NSString *)secret;
-
+- (NSString *)orderPreviewUrl;
 #pragma mark - 订单 -
-//订单列表 -1全部、0,1B,1A待付款、1,进行中、9已完成
-- (NSString *)orderListWithUserID:(NSString *)userID withOrderStatus:(NSString *)orderStatus withPageIndex:(NSString *)pageIndex withPageSize:(NSString *)pageSize;
+//优惠卷
+- (NSString *)getCouponListWithUserId:(NSString *)userID;
+//计算优惠卷的金额
+- (NSString *)computeCouponMoneyPOST;
 
+//订单列表 -1全部、0,1B,1A待付款、1,进行中、9已完成
+- (NSString *)orderListWithUserID:(NSString *)userID withProduct:(NSString *)product withCode:(NSString *)code withOrderStatus:(NSString *)orderStatus withPageIndex:(NSString *)pageIndex withPageSize:(NSString *)pageSize;
+//生成订单
+- (NSString *)creatOrderPOSTUrl;
 
 #pragma mark - 登录注册 -
 //登录接口

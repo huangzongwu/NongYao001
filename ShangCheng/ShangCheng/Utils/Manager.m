@@ -157,7 +157,8 @@
         }
     }
     
-    NSDictionary *valueDic = @{@"userid":self.memberInfoModel.u_id,@"sid":productDetailModel.productModel.productFormatID,@"number":tempProductCount};
+    NSArray *itemArr = @[@{@"sid":productDetailModel.productModel.productFormatID,@"number":tempProductCount}];
+    NSDictionary *valueDic = @{@"userid":self.memberInfoModel.u_id,@"item":itemArr};
     
     //给value加密
     NSString *secretStr = [self digest:[NSString stringWithFormat:@"%@Nongyao_Com001", [self dictionaryToJson:@[valueDic]]]];
@@ -241,7 +242,7 @@
             [tempShoppingCarModel setValuesForKeysWithDictionary:tempJsonDic];
             tempShoppingCarModel.shoppingCarProduct = tempProductModel;
             tempShoppingCarModel.isSelectedShoppingCar = NO;
-            
+            tempShoppingCarModel.productErrorMsg = @"";
             //加到数组中
             [self.shoppingCarDataSourceArr addObject:tempShoppingCarModel];
         }
@@ -310,7 +311,7 @@
     NSDictionary *valueDic = @{@"userid":self.memberInfoModel.u_id,@"number":tempCountStr};
     
     //给value加密
-    NSString *secretStr = [self digest:[NSString stringWithFormat:@"%@Nongyao_Com001", [self dictionaryToJson:valueDic]]];
+    NSString *secretStr = [self digest:[NSString stringWithFormat:@"%@Nongyao_Com001", [self dictionaryToJson:@[valueDic]]]];
     
     NSDictionary *parametersDic = @{@"m":secretStr,@"value":@[valueDic]};
     
@@ -351,8 +352,93 @@
     return totalPrice;
 }
 
+//立即支付，进入预订单
+- (void)httpOrderPreviewWithShoppingCarIDArr:(NSMutableArray *)shoppingCarIDArr withPreviewSuccessResult:(SuccessResult)previewSuccessResult withPreviewFailResult:(FailResult)previewFailResult {
+    
+    NSMutableArray *valueArr = [NSMutableArray array];
+    for (NSString *shoppingID in shoppingCarIDArr) {
+        [valueArr addObject:@{@"cartid":shoppingID}];        
+    }
+
+    //给value加密
+    NSString *secretStr = [self digest:[NSString stringWithFormat:@"%@Nongyao_Com001", [self dictionaryToJson:valueArr]]];
+    
+    NSDictionary *parametersDic = @{@"m":secretStr,@"value":valueArr};
+
+    
+    [[NetManager shareInstance] postRequestWithURL:[[InterfaceManager shareInstance] orderPreviewUrl] withParameters:parametersDic withContentTypes:nil withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+        NSLog(@"%ld ",operation.response.statusCode);
+        previewSuccessResult(successResult);
+    } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
+        NSLog(@"%ld -- %@",operation.response.statusCode,errorResult);
+        
+
+    }];
+    
+}
 
 #pragma mark - 订单 -
+//优惠券
+- (void)httpCouponListWithUserID:(NSString *)userID withCouponSuccessResult:(SuccessResult )couponSuccessResult withCouponFailResult:(FailResult)couponFailResult {
+    
+    [[NetManager shareInstance] getRequestWithURL:[[InterfaceManager shareInstance] getCouponListWithUserId:userID] withParameters:nil withContentTypes:nil withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+        
+        NSLog(@"%ld",operation.response.statusCode);
+        NSLog(@"%@",[self dictionaryToJson:successResult]);
+        //解析
+        if (operation.response.statusCode == 200) {
+            [self analyzeCouponDataArr:successResult withCouponSuccessResult:couponSuccessResult];
+
+        }
+        
+    } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
+        NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
+    }];
+    
+}
+
+
+- (void)analyzeCouponDataArr:(NSArray *)couponDataArr withCouponSuccessResult:(SuccessResult )couponSuccessResult {
+    
+    NSMutableArray *couponArr = [NSMutableArray array];
+    
+    for (NSDictionary *couponDataDic in couponDataArr) {
+        CouponModel *couponModel = [[CouponModel alloc] init];
+        [couponModel setValuesForKeysWithDictionary:couponDataDic];
+        [couponArr addObject:couponModel];
+    }
+    
+    couponSuccessResult(couponArr);
+}
+
+//计算优惠券的金额
+- (void)httpComputeCouponMoneyWithUserID:(NSString *)userID withCouponID:(NSString *)couponID withShoppingCarIDArr:(NSArray *)shoppingCarIDArr withComputeMoneySuccessResult:(SuccessResult)computeMoneySuccessResult withComputeMoneyFailResult:(FailResult)computeMoneyFailResult {
+
+    NSMutableArray *idArr = [NSMutableArray array];
+    for (NSString *shoppingID in shoppingCarIDArr) {
+        [idArr addObject:@{@"cartid":shoppingID}];
+    }
+    NSArray *valueArr = @[@{@"userid":userID,@"couponid":couponID,@"item":idArr}];
+    
+    //给value加密
+    NSString *secretStr = [self digest:[NSString stringWithFormat:@"%@Nongyao_Com001", [self dictionaryToJson:valueArr]]];
+    
+    NSDictionary *parametersDic = @{@"m":secretStr,@"value":valueArr};
+    
+    [[NetManager shareInstance] postRequestWithURL:[[InterfaceManager shareInstance] computeCouponMoneyPOST] withParameters:parametersDic withContentTypes:@"string" withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+        
+        NSLog(@"%ld",operation.response.statusCode);
+        NSLog(@"%@",[[NSString alloc] initWithData:successResult encoding:NSUTF8StringEncoding]);
+        
+        computeMoneySuccessResult([[NSString alloc] initWithData:successResult encoding:NSUTF8StringEncoding]);
+    } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
+        NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
+
+    }];
+    
+}
+
+
 - (NSMutableDictionary *)orderListDataSourceDic {
     if (_orderListDataSourceDic == nil) {
         self.orderListDataSourceDic = [NSMutableDictionary dictionaryWithObjectsAndKeys:[NSMutableArray array],@"1",[NSMutableArray array],@"2",[NSMutableArray array],@"3",[NSMutableArray array],@"4", nil];
@@ -360,7 +446,7 @@
     return _orderListDataSourceDic;
 }
 //订单列表。 pageIndex页数,pageSize多少数据
-- (void)getOrderListDataWithUserID:(NSString *)userID withOrderStatus:(NSString *)orderStatus withPageIndex:(NSString *)pageIndex withPageSize:(NSString *)pageSize downPushRefresh:(BOOL)downPushRefresh withUpPushReload:(BOOL)upPushReload withOrderListSuccessResult:(SuccessResult)orderListSuccessResult withOrderListFailResult:(FailResult)orderListFailResult {
+- (void)getOrderListDataWithUserID:(NSString *)userID withProduct:(NSString *)product withCode:(NSString *)code withOrderStatus:(NSString *)orderStatus withPageIndex:(NSString *)pageIndex withPageSize:(NSString *)pageSize downPushRefresh:(BOOL)downPushRefresh withUpPushReload:(BOOL)upPushReload withOrderListSuccessResult:(SuccessResult)orderListSuccessResult withOrderListFailResult:(FailResult)orderListFailResult {
     NSString *orderStatusPar ;
     //全部
     if ([orderStatus isEqualToString:@"1"]) {
@@ -387,7 +473,7 @@
             [orderListArr removeAllObjects];
         }
         //请求数据
-        [[NetManager shareInstance] getRequestWithURL:[[InterfaceManager shareInstance] orderListWithUserID:userID withOrderStatus:orderStatusPar withPageIndex:pageIndex withPageSize:pageSize] withParameters:nil withContentTypes:nil withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+        [[NetManager shareInstance] getRequestWithURL:[[InterfaceManager shareInstance] orderListWithUserID:userID withProduct:product withCode:code withOrderStatus:orderStatusPar withPageIndex:pageIndex withPageSize:pageSize] withParameters:nil withContentTypes:nil withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
             NSLog(@"%ld -- %@",operation.response.statusCode,successResult);
             NSLog(@"%@",[self dictionaryToJson:successResult]);
             if (operation.response.statusCode == 200) {
@@ -408,7 +494,7 @@
         NSMutableArray *orderListArr = [self.orderListDataSourceDic objectForKey:orderStatus];
         if (orderListArr.count == 0) {
             //如果没有数据，就请求
-            [[NetManager shareInstance] getRequestWithURL:[[InterfaceManager shareInstance] orderListWithUserID:userID withOrderStatus:orderStatusPar withPageIndex:pageIndex withPageSize:pageSize] withParameters:nil withContentTypes:nil withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+            [[NetManager shareInstance] getRequestWithURL:[[InterfaceManager shareInstance] orderListWithUserID:userID withProduct:product withCode:code withOrderStatus:orderStatusPar withPageIndex:pageIndex withPageSize:pageSize] withParameters:nil withContentTypes:nil withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
                 NSLog(@"%ld -- %@",operation.response.statusCode,successResult);
                 NSLog(@"%@",[self dictionaryToJson:successResult]);
                 if (operation.response.statusCode == 200) {
@@ -444,6 +530,37 @@
     }
     
     orderListSuccessResult(self.orderListDataSourceDic);
+    
+}
+
+//生成订单
+- (void)creatOrderWithUserID:(NSString *)userID withReceivedID:(NSString *)receivedID withTotalAmount:(NSString *)totalAmount withDiscount:(NSString *)discount withCouponId:(NSString *)couponId withArr:(NSMutableArray *)itemArr withOrderSuccessResult:(SuccessResult)orderSuccessResult withOrderFailResult:(FailResult)orderFailResult {
+
+    NSMutableArray *carIDArr = [NSMutableArray array];
+    for (ShoppingCarModel *shoppingModel in itemArr) {
+        [carIDArr addObject:@{@"cartid":shoppingModel.c_id}];
+    }
+
+    NSDictionary *valueDic = @{@"userid":userID,@"receiveid":receivedID,@"discount":discount,@"totalamount":totalAmount,@"couponid":couponId,@"facilitytype":@"4",@"item":carIDArr};
+    
+    
+    //给value加密
+    NSString *secretStr = [self digest:[NSString stringWithFormat:@"%@Nongyao_Com001", [self dictionaryToJson:@[valueDic]]]];
+    
+    NSDictionary *parametersDic = @{@"m":secretStr,@"value":@[valueDic]};
+
+    [[NetManager shareInstance] postRequestWithURL:[[InterfaceManager shareInstance] creatOrderPOSTUrl] withParameters:parametersDic withContentTypes:@"string" withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+        
+        NSLog(@"%ld",operation.response.statusCode);
+        NSLog(@"%@",[[NSString alloc] initWithData:successResult encoding:NSUTF8StringEncoding]);
+
+    } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
+        
+        NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
+
+    }];
+    
+    
     
 }
 
@@ -697,8 +814,8 @@
     
     
 }
-
-#pragma mark - 将字典变为json格式的字符串 -
+#pragma mark - 其他 -
+//将字典变为json格式的字符串 -
 - (NSString *)dictionaryToJson:(id )dic {
     
     NSError *parseError = nil;
@@ -720,5 +837,17 @@
     
     return oldJsonStr;
 }
+
+- (NSString *)getNowTimeStr {
+    NSDate *date = [NSDate date]; // 获得时间对象
+    NSDateFormatter *forMatter = [[NSDateFormatter alloc] init];
+    
+    [forMatter setDateFormat:@"yyyy.MM.dd HH:mm:ss"];
+    
+    NSString *dateStr = [forMatter stringFromDate:date];
+    NSLog(@"%@",dateStr);
+    return dateStr;
+}
+
 
 @end

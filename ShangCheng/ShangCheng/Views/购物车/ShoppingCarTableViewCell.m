@@ -13,7 +13,7 @@
 - (void)updateCellWithCellIndex:(NSIndexPath *)cellIndex {
 
     //得到模型
-    ShoppingCarModel *tempShoppingCarModel = [[[Manager shareInstance] shoppingCarDataSourceArr] objectAtIndex:cellIndex.row];
+    ShoppingCarModel *tempShoppingCarModel = [[[Manager shareInstance] shoppingCarDataSourceArr] objectAtIndex:cellIndex.section];
     //是否被选择状态
     if (tempShoppingCarModel.isSelectedShoppingCar == YES) {
         self.selectButton.backgroundColor = [UIColor redColor];
@@ -36,7 +36,7 @@
     //得到这个cell的index
     NSIndexPath *cellIndex = [((UITableView *)self.superview.superview) indexPathForCell:self];
     //得到模型
-    ShoppingCarModel *tempShoppingCarModel = [[[Manager shareInstance] shoppingCarDataSourceArr] objectAtIndex:cellIndex.row];
+    ShoppingCarModel *tempShoppingCarModel = [[[Manager shareInstance] shoppingCarDataSourceArr] objectAtIndex:cellIndex.section];
     
     //增加数量
     Manager *manager = [Manager shareInstance];
@@ -57,7 +57,7 @@
     //得到这个cell的index
     NSIndexPath *cellIndex = [((UITableView *)self.superview.superview) indexPathForCell:self];
     //得到模型
-    ShoppingCarModel *tempShoppingCarModel = [[[Manager shareInstance] shoppingCarDataSourceArr] objectAtIndex:cellIndex.row];
+    ShoppingCarModel *tempShoppingCarModel = [[[Manager shareInstance] shoppingCarDataSourceArr] objectAtIndex:cellIndex.section];
 
     
     //减少数量
@@ -79,8 +79,8 @@
 - (IBAction)deleteButtonAction:(UIButton *)sender {
     //得到这个cell的index
     NSIndexPath *cellIndex = [((UITableView *)self.superview.superview) indexPathForCell:self];
-    
-    [[Manager shareInstance] deleteShoppingCarWithProductIndexSet:[NSMutableIndexSet indexSetWithIndex:cellIndex.row] WithSuccessResult:^(id successResult) {
+//    NSLog(@"%ld---%ld",cellIndex.section,cellIndex.row);
+    [[Manager shareInstance] deleteShoppingCarWithProductIndexSet:[NSMutableIndexSet indexSetWithIndex:cellIndex.section] WithSuccessResult:^(id successResult) {
         
         //删除成功，block返回到控制器刷新
         self.deleteSuccessBlock(cellIndex);
@@ -95,7 +95,7 @@
     //得到这个cell的index
     NSIndexPath *cellIndex = [((UITableView *)self.superview.superview) indexPathForCell:self];
     //得到模型
-    ShoppingCarModel *tempShoppingCarModel = [[[Manager shareInstance] shoppingCarDataSourceArr] objectAtIndex:cellIndex.row];
+    ShoppingCarModel *tempShoppingCarModel = [[[Manager shareInstance] shoppingCarDataSourceArr] objectAtIndex:cellIndex.section];
     //改变状态
     tempShoppingCarModel.isSelectedShoppingCar = !tempShoppingCarModel.isSelectedShoppingCar;
     if (tempShoppingCarModel.isSelectedShoppingCar == YES) {

@@ -66,16 +66,16 @@
     Manager *manager = [Manager shareInstance];
     //登录了，才可以请求数据。默认请求全部数据
     if ([manager isLoggedInStatus] == YES) {
-        [self httpOrderListWithPageIndex:@"1" withDownPushRefresh:NO withUpPushRoload:NO withTableView:self.allTableView];
+        [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:@"1" withDownPushRefresh:NO withUpPushRoload:NO withTableView:self.allTableView];
     }
 }
 
 //请求订单数据
-- (void)httpOrderListWithPageIndex:(NSString *)pageIndex withDownPushRefresh:(BOOL)downPushRefresh withUpPushRoload:(BOOL)upPushRoload withTableView:(UITableView *)tempTableView  {
+- (void)httpOrderListWithProduct:(NSString *)product withCode:(NSString *)code withPageIndex:(NSString *)pageIndex withDownPushRefresh:(BOOL)downPushRefresh withUpPushRoload:(BOOL)upPushRoload withTableView:(UITableView *)tempTableView  {
     
     Manager *manager = [Manager shareInstance];
     
-    [manager getOrderListDataWithUserID:manager.memberInfoModel.u_id withOrderStatus:self.orderStateStr withPageIndex:pageIndex withPageSize:@"4" downPushRefresh:downPushRefresh withUpPushReload:upPushRoload withOrderListSuccessResult:^(id successResult) {
+    [manager getOrderListDataWithUserID:manager.memberInfoModel.u_id withProduct:product withCode:code withOrderStatus:self.orderStateStr withPageIndex:pageIndex withPageSize:@"4" downPushRefresh:downPushRefresh withUpPushReload:upPushRoload withOrderListSuccessResult:^(id successResult) {
         [tempTableView reloadData];
     } withOrderListFailResult:^(NSString *failResultStr) {
         NSLog(@"%@", failResultStr);
@@ -93,7 +93,7 @@
     Manager *manager = [Manager shareInstance];
     //登录了，才可以请求数据。默认请求全部数据
     if ([manager isLoggedInStatus] == YES) {
-        [self httpOrderListWithPageIndex:@"1" withDownPushRefresh:NO withUpPushRoload:NO withTableView:self.allTableView];
+        [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:@"1" withDownPushRefresh:NO withUpPushRoload:NO withTableView:self.allTableView];
     }
 
 }
@@ -107,7 +107,7 @@
     Manager *manager = [Manager shareInstance];
     //登录了，才可以请求数据。默认请求全部数据
     if ([manager isLoggedInStatus] == YES) {
-        [self httpOrderListWithPageIndex:@"1" withDownPushRefresh:NO withUpPushRoload:NO withTableView:self.waitPayTableView];
+        [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:@"1" withDownPushRefresh:NO withUpPushRoload:NO withTableView:self.waitPayTableView];
     }
 
 
@@ -122,7 +122,7 @@
     Manager *manager = [Manager shareInstance];
     //登录了，才可以请求数据。默认请求全部数据
     if ([manager isLoggedInStatus] == YES) {
-        [self httpOrderListWithPageIndex:@"1" withDownPushRefresh:NO withUpPushRoload:NO withTableView:self.goOnTableView];
+        [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:@"1" withDownPushRefresh:NO withUpPushRoload:NO withTableView:self.goOnTableView];
     }
 
 
@@ -137,7 +137,7 @@
     Manager *manager = [Manager shareInstance];
     //登录了，才可以请求数据。默认请求全部数据
     if ([manager isLoggedInStatus] == YES) {
-        [self httpOrderListWithPageIndex:@"1" withDownPushRefresh:NO withUpPushRoload:NO withTableView:self.finishTableView];
+        [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:@"1" withDownPushRefresh:NO withUpPushRoload:NO withTableView:self.finishTableView];
     }
     
 }

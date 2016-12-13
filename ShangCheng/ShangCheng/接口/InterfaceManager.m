@@ -74,16 +74,35 @@
 - (NSString *)deleteShoppingCarProductUrlWithShoppingCarID:(NSString *)shoppingCarID withSecret:(NSString *)secret {
 //    return [NSString stringWithFormat:@"%@/ShoppingCart",self.baseUrl];
     return [NSString stringWithFormat:@"%@/ShoppingCart?id=%@&m=%@",self.baseUrl,shoppingCarID,secret];
-    
+}
+
+//预订单
+- (NSString *)orderPreviewUrl {
+    return [NSString stringWithFormat:@"%@/OrderPreview",self.baseUrl];
 }
 
 #pragma mark - 订单 -
-//订单列表 -1全部、0,1B,1A待付款、1,进行中、9已完成
-- (NSString *)orderListWithUserID:(NSString *)userID withOrderStatus:(NSString *)orderStatus withPageIndex:(NSString *)pageIndex withPageSize:(NSString *)pageSize {
-    
-    return [NSString stringWithFormat:@"%@/OrderGenerated?id=%@&status=%@&pageindex=%@&pagesize=%@",self.baseUrl,userID,orderStatus,pageIndex,pageSize];
+//优惠券
+- (NSString *)getCouponListWithUserId:(NSString *)userID {
+    return [NSString stringWithFormat:@"%@/coupon?id=%@",self.baseUrl,userID];
 }
 
+//计算优惠卷的金额
+- (NSString *)computeCouponMoneyPOST {
+    return [NSString stringWithFormat:@"%@/couponcalc",self.baseUrl];
+}
+
+
+//订单列表 -1全部、0,1B,1A待付款、1,进行中、9已完成
+- (NSString *)orderListWithUserID:(NSString *)userID withProduct:(NSString *)product withCode:(NSString *)code withOrderStatus:(NSString *)orderStatus withPageIndex:(NSString *)pageIndex withPageSize:(NSString *)pageSize {
+
+    return [NSString stringWithFormat:@"%@/OrderGenerated?id=%@&product=%@&code=%@&status=%@&pageindex=%@&pagesize=%@",self.baseUrl,userID,product,code,orderStatus,pageIndex,pageSize];
+}
+
+//生成订单
+- (NSString *)creatOrderPOSTUrl {
+    return [NSString stringWithFormat:@"%@/OrderGenerated",self.baseUrl];
+}
 
 #pragma mark - 登录注册 -
 //登录接口

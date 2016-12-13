@@ -8,6 +8,7 @@
 
 #import "ShoppingCarViewController.h"
 #import "ShoppingCarTableViewCell.h"
+#import "PreviewOrderViewController.h"
 #import "Manager.h"
 @interface ShoppingCarViewController ()<UITableViewDataSource,UITableViewDelegate>
 //判断是否需要刷新
@@ -76,18 +77,74 @@
 
 }
 
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+#pragma mark - TableView delegate -
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     return [Manager shareInstance].shoppingCarDataSourceArr.count;
+
 }
+
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return 1;
+}
+//分区尾部，用于显示问题产品
+- (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section {
+    Manager *manager = [Manager shareInstance];
+    ShoppingCarModel *shoppingModel = manager.shoppingCarDataSourceArr[section];
+    
+    UIView *footView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, kScreenW, 20)];
+    footView.backgroundColor = [UIColor redColor];
+
+    UILabel *errorLabel = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, kScreenW, 20)];
+    [footView addSubview:errorLabel];
+    
+    
+    if (![shoppingModel.productErrorMsg isEqualToString:@""]) {
+        //有问题的产品
+        footView.hidden = NO;
+        errorLabel.text = shoppingModel.productErrorMsg;
+
+    }else{
+        //没有问题
+        footView.hidden = YES;
+    }
+    return footView;
+
+}
+
+//分区尾，有问题的显示分区尾
+- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
+    Manager *manager = [Manager shareInstance];
+    ShoppingCarModel *shoppingModel = manager.shoppingCarDataSourceArr[section];
+    if (![shoppingModel.productErrorMsg isEqualToString:@""]) {
+        //有问题的产品
+        return 20;
+        
+    }else {
+        //没有问题不用显示尾部
+        return 1;
+    }
+    
+}
+
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
+    return 15;
+}
+
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     ShoppingCarTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"shoppingCarCell" forIndexPath:indexPath];
     Manager *manager = [Manager shareInstance];
-
+    
     //删除block
     cell.deleteSuccessBlock = ^(NSIndexPath *deletePath) {
+        NSLog(@"%ld--%ld",deletePath.section,deletePath.row);
         //删除TableView的ui
-        [tableView deleteRowsAtIndexPaths:@[deletePath] withRowAnimation:UITableViewRowAnimationNone];
+        NSIndexSet *deleteIndexSet = [NSIndexSet indexSetWithIndex:deletePath.section];
+        [tableView deleteSections:deleteIndexSet withRowAnimation:UITableViewRowAnimationNone];
+        
         //刷新一下全选按钮
         if (manager.isAllSelectForShoppingCar == YES) {
             self.allSelectButton.backgroundColor = [UIColor redColor];
@@ -178,9 +235,6 @@
     }
     //计算总价格
     self.priceLabel.text = [NSString stringWithFormat:@"￥%.2f",[manager selectProductTotalPrice]];
-
-    
-    
     
 }
 
@@ -201,15 +255,7 @@
     }
     //删除
     [[Manager shareInstance] deleteShoppingCarWithProductIndexSet:deleteIndexSet WithSuccessResult:^(id successResult) {
-        //刷新UI
-        NSMutableArray *deleteIndexArr = [NSMutableArray array];
-        //遍历删除的集合，弄成数组
-        [(NSIndexSet *)successResult enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL * _Nonnull stop) {
-            //
-            NSIndexPath *tempIndexPath = [NSIndexPath indexPathForRow:idx inSection:0];
-            [deleteIndexArr addObject:tempIndexPath];
-        }];
-        [self.shoppingTableView deleteRowsAtIndexPaths:deleteIndexArr withRowAnimation:UITableViewRowAnimationNone];
+        [self.shoppingTableView deleteSections:deleteIndexSet withRowAnimation:UITableViewRowAnimationNone];
         
         //需要刷新全选按钮
         if (manager.isAllSelectForShoppingCar == YES) {
@@ -226,21 +272,91 @@
     }];
 }
 
+//立即支付按钮
+- (IBAction)payButtonAction:(UIButton *)sender {
+#warning 有选择才能点击立即支付
+    
+    Manager *manager = [Manager shareInstance];
+    //将选择的产品下标记录一下，主要用户刷新UI
+    NSMutableIndexSet *selectIndexSet = [NSMutableIndexSet indexSet];
+    //将选择的产品id记录一下，传给接口
+    NSMutableArray *shoppingCarIdArr = [NSMutableArray array];
+    for (int i = 0; i < manager.shoppingCarDataSourceArr.count; i++) {
+        ShoppingCarModel *shoppingCarModel = manager.shoppingCarDataSourceArr[i];
+        //清空所有的问题产品信息
+        shoppingCarModel.productErrorMsg = @"";
+        
+        if (shoppingCarModel.isSelectedShoppingCar == YES) {
+            //如果选中了这个产品，那么产品下标家属indexSet中,产品id加入数组，
+            [selectIndexSet addIndex:i];
+            [shoppingCarIdArr addObject:shoppingCarModel.c_id];
+        }
+    }
 
+    //调用订单预支付接口，看看哪些产品不能生成订单
+    [manager httpOrderPreviewWithShoppingCarIDArr:shoppingCarIdArr withPreviewSuccessResult:^(id successResult) {
+        
+        if ([[successResult objectForKey:@"code"] integerValue] == 200) {
+            //全部产品成功,即可生成订单了，跳转到下一页，在跳转下一页的时候，先清空一下上次有错误的产品UI
+            [self.shoppingTableView reloadData];
+            //跳转
+            [self performSegueWithIdentifier:@"toPreviewOrderVC" sender:sender];
+            
+            
+        }else if ([[successResult objectForKey:@"code"] integerValue] == 400) {
+            //有些产品不成功
+            NSArray *contentArr = [successResult objectForKey:@"content"];
+            for (NSDictionary *contentDic in contentArr) {
+                //遍历返回的不成功的产品,在购物车数组中，做标记
+                for (ShoppingCarModel *tempShoppingCarModel in manager.shoppingCarDataSourceArr) {
+                    if ([tempShoppingCarModel.c_id isEqualToString:[contentDic objectForKey:@"cartid"]]) {
+                        //找到问题产品。做标记
+                        tempShoppingCarModel.productErrorMsg = [contentDic objectForKey:@"message"];
+                        
+                    }
+                }
+            }
+            //刷新UI,展示问题产品
+            [self.shoppingTableView reloadSections:selectIndexSet withRowAnimation:UITableViewRowAnimationNone];
+            
+        }
+        
+    } withPreviewFailResult:^(NSString *failResultStr) {
+        
+    }];
+    
+    
+}
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
 
-/*
+
 #pragma mark - Navigation
 
 // In a storyboard-based application, you will often want to do a little preparation before navigation
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    Manager *manager = [Manager shareInstance];
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
+    if ([segue.identifier isEqualToString:@"toPreviewOrderVC"]) {
+        NSMutableArray *selectArr = [NSMutableArray array];
+        //找到选择的产品数据
+        for (ShoppingCarModel *tempModel in manager.shoppingCarDataSourceArr) {
+            if (tempModel.isSelectedShoppingCar == YES) {
+                //选择了这个产品，加入数组中
+                [selectArr addObject:tempModel];
+            }
+        }
+        
+        PreviewOrderViewController *previewOrderVC = [segue destinationViewController];
+        previewOrderVC.selectedProductArr = selectArr;
+
+    }
+    
 }
-*/
+
 
 @end

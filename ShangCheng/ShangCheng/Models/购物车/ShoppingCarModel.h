@@ -22,6 +22,8 @@
 @property (nonatomic,strong)NSString *totalprice;
 //商品是否被选中
 @property (nonatomic,assign)BOOL isSelectedShoppingCar;
+//商品错误信息
+@property (nonatomic,strong)NSString *productErrorMsg;
 
 - (void)setValue:(id)value forUndefinedKey:(NSString *)key ;
 
