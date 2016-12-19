@@ -24,6 +24,8 @@
     // Do any additional setup after loading the view.
 #warning 假数据，地区
     self.areaID = @"22143";
+    
+    
 }
 
 //注册

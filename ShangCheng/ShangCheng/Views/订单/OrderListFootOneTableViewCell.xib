@@ -26,24 +26,44 @@
                             <constraint firstAttribute="height" constant="30" id="Oa1-0g-2q8"/>
                         </constraints>
                         <state key="normal" title="去付款"/>
+                        <connections>
+                            <action selector="orderPayAction:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="u21-WH-Lbx"/>
+                        </connections>
                     </button>
                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ULT-kh-MpR" customClass="IndexButton">
-                        <rect key="frame" x="150" y="5" width="70" height="30"/>
+                        <rect key="frame" x="80" y="5" width="70" height="30"/>
                         <constraints>
-                            <constraint firstAttribute="width" constant="70" id="cL3-vl-YUE"/>
-                            <constraint firstAttribute="height" constant="30" id="nPA-mF-QaC"/>
+                            <constraint firstAttribute="width" constant="70" id="L4O-Yq-AUs"/>
+                            <constraint firstAttribute="height" constant="30" id="zPi-vP-9c8"/>
                         </constraints>
                         <state key="normal" title="取消订单"/>
+                        <connections>
+                            <action selector="cancelOrderAction:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="Bn8-Rk-Pkp"/>
+                        </connections>
+                    </button>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="IiI-mv-Xt2" customClass="IndexButton">
+                        <rect key="frame" x="160" y="5" width="70" height="30"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="30" id="4v4-cD-RI5"/>
+                            <constraint firstAttribute="width" constant="70" id="cwg-XK-zE7"/>
+                        </constraints>
+                        <state key="normal" title="确认付款"/>
+                        <connections>
+                            <action selector="enterPayAction:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="UzN-CQ-Mwp"/>
+                        </connections>
                     </button>
                 </subviews>
                 <constraints>
-                    <constraint firstItem="OhS-C7-ors" firstAttribute="leading" secondItem="ULT-kh-MpR" secondAttribute="trailing" constant="20" id="7ui-ln-dfg"/>
+                    <constraint firstItem="IiI-mv-Xt2" firstAttribute="leading" secondItem="ULT-kh-MpR" secondAttribute="trailing" constant="10" id="JQZ-8X-yZz"/>
                     <constraint firstAttribute="trailing" secondItem="OhS-C7-ors" secondAttribute="trailing" constant="10" id="OPK-Ab-mCj"/>
+                    <constraint firstItem="IiI-mv-Xt2" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="5" id="Oru-WD-9bM"/>
+                    <constraint firstItem="ULT-kh-MpR" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="5" id="a8f-bd-kuq"/>
+                    <constraint firstItem="OhS-C7-ors" firstAttribute="leading" secondItem="IiI-mv-Xt2" secondAttribute="trailing" constant="10" id="dZc-Bt-8WT"/>
                     <constraint firstItem="OhS-C7-ors" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="5" id="k0e-3b-I7F"/>
-                    <constraint firstItem="ULT-kh-MpR" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="5" id="xOb-9D-ebG"/>
                 </constraints>
             </tableViewCellContentView>
             <connections>
+                <outlet property="enterPayButton" destination="IiI-mv-Xt2" id="bZq-Xs-Imb"/>
                 <outlet property="orderCancelButton" destination="ULT-kh-MpR" id="UQw-fO-oQ8"/>
                 <outlet property="orderPayButton" destination="OhS-C7-ors" id="4oa-ly-M0B"/>
             </connections>

@@ -1,0 +1,27 @@
+[
+	{"img":"",
+	"bankName":"中国工商银行",
+	"bankNumber":"卡号：6222 3000 6535 5748",
+    "isSelect":"YES"},
+
+	{"img":"",
+	"bankName":"中国农业银行",
+	"bankNumber":"卡号：6228 4507 1807 2954 079",
+    "isSelect":"NO"},
+
+	{"img":"",
+	"bankName":"中国建设银行",
+	"bankNumber":"卡号：6227 0024 3313 0035 938",
+    "isSelect":"NO"},
+
+	{"img":"",
+	"bankName":"中国邮政储蓄银行",
+	"bankNumber":"卡号：6210 9849 1000 0814 409",
+    "isSelect":"NO"},
+ 
+	{"img":"",
+	"bankName":"中国农村信用社",
+	"bankNumber":"卡号：6229 9110 0801 2773 10",
+    "isSelect":"NO"}
+
+]

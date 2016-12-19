@@ -28,9 +28,9 @@
 
 - (NSString *)mainUrl {
     //托管服务器
-//    return @"http://api.nzw0.com:8001/";
+    return @"http://api.nzw0.com:8001/";
     //本地
-    return @"http://192.168.0.233:5260/";
+//    return @"http://192.168.0.233:5260/";
 }
 
 - (NSString *)baseUrl {
@@ -103,6 +103,25 @@
 - (NSString *)creatOrderPOSTUrl {
     return [NSString stringWithFormat:@"%@/OrderGenerated",self.baseUrl];
 }
+
+//取消订单
+- (NSString *)cancelOrderWithOrderID:(NSString *)orderId {
+    return [NSString stringWithFormat:@"%@/CancelOrder?id=%@",self.baseUrl,orderId];
+}
+
+
+#pragma mark - 支付 -
+//支付前验证
+- (NSString *)paybeforeVerifyPOST {
+    return [NSString stringWithFormat:@"%@/OrderPaymentVerify",self.baseUrl];
+}
+#pragma mark - 个人信息 -
+//查询个人余额
+- (NSString *)searchUserAmountWithUserID:(NSString *)userID {
+    return [NSString stringWithFormat:@"%@/UserAmount?id=%@",self.baseUrl,userID];
+}
+
+
 
 #pragma mark - 登录注册 -
 //登录接口

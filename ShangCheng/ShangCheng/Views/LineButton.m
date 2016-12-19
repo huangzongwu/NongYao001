@@ -7,19 +7,35 @@
 //
 
 #import "LineButton.h"
+@interface LineButton ()
+@property (nonatomic,strong)UIView *lineView;
+
+@end
 
 @implementation LineButton
 
 
 // Only override drawRect: if you perform custom drawing.
 // An empty implementation adversely affects performance during animation.
-- (void)drawRect:(CGRect)rect {
-    // Drawing code
+
+- (instancetype)initWithCoder:(NSCoder *)aDecoder {
+    self = [super initWithCoder:aDecoder];
+    if (self) {
+        [self addLineView];
+    }
+    return self;
+}
+
+- (void)addLineView {
     
-    self.line = [[UIView alloc] initWithFrame:CGRectMake(0, rect.size.height-2, rect.size.width, 2)];
-    self.line.backgroundColor = [UIColor redColor];
-    [self addSubview:self.line];
+    self.lineView = [[UIView alloc] initWithFrame:CGRectMake(0, self.bounds.size.height-2, self.bounds.size.width, 2)];
+    self.lineView.backgroundColor = self.lineColor;
+    [self addSubview:self.lineView];
     
+}
+
+- (void)setLineColor:(UIColor *)lineColor {
+    self.lineView.backgroundColor = lineColor;
 }
 
 

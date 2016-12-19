@@ -210,6 +210,8 @@
 - (void)httpShoppingCarDataWithUserId:(NSString *)userId WithSuccessResult:(SuccessResult)shoppingCarSuccessResult withFailResult:(FailResult)failResult {
     
     [[NetManager shareInstance] getRequestWithURL:[[InterfaceManager shareInstance] getShoppingCarProductUrlWithUserId:userId] withParameters:nil withContentTypes:nil withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+        //清空原有数据
+        self.shoppingCarDataSourceArr = nil;
         
         NSLog(@"--%ld",operation.response.statusCode);
         if (operation.response.statusCode == 200) {
@@ -441,44 +443,55 @@
 
 - (NSMutableDictionary *)orderListDataSourceDic {
     if (_orderListDataSourceDic == nil) {
-        self.orderListDataSourceDic = [NSMutableDictionary dictionaryWithObjectsAndKeys:[NSMutableArray array],@"1",[NSMutableArray array],@"2",[NSMutableArray array],@"3",[NSMutableArray array],@"4", nil];
+
+        self.orderListDataSourceDic = [NSMutableDictionary dictionary];
+        for (int i = 1; i <= 4; i++) {
+            NSMutableDictionary *tempDic = [NSMutableDictionary dictionaryWithObjectsAndKeys:[NSMutableArray array],@"content", @"0",@"totalpages", nil];
+
+            [self.orderListDataSourceDic setObject:tempDic forKey:[NSString stringWithFormat:@"%d",i]];
+            
+        }
+        
     }
     return _orderListDataSourceDic;
 }
 //订单列表。 pageIndex页数,pageSize多少数据
-- (void)getOrderListDataWithUserID:(NSString *)userID withProduct:(NSString *)product withCode:(NSString *)code withOrderStatus:(NSString *)orderStatus withPageIndex:(NSString *)pageIndex withPageSize:(NSString *)pageSize downPushRefresh:(BOOL)downPushRefresh withUpPushReload:(BOOL)upPushReload withOrderListSuccessResult:(SuccessResult)orderListSuccessResult withOrderListFailResult:(FailResult)orderListFailResult {
-    NSString *orderStatusPar ;
+- (void)getOrderListDataWithUserID:(NSString *)userID withProduct:(NSString *)product withCode:(NSString *)code withWhichTableView:(NSString *)whichTableView withPageIndex:(NSString *)pageIndex withPageSize:(NSString *)pageSize downPushRefresh:(BOOL)downPushRefresh withUpPushReload:(BOOL)upPushReload withOrderListSuccessResult:(SuccessResult)orderListSuccessResult withOrderListFailResult:(FailResult)orderListFailResult {
+    NSString *orderStatusStr ;
     //全部
-    if ([orderStatus isEqualToString:@"1"]) {
-        orderStatusPar = @"";
+    if ([whichTableView isEqualToString:@"1"]) {
+        orderStatusStr = @"";
     }
     //待付款
-    if ([orderStatus isEqualToString:@"2"]) {
-        orderStatusPar = @"0,1B,1A";
+    if ([whichTableView isEqualToString:@"2"]) {
+        orderStatusStr = @"0,1B,1A";
     }
     //进行中
-    if ([orderStatus isEqualToString:@"3"]) {
-        orderStatusPar = @"1";
+    if ([whichTableView isEqualToString:@"3"]) {
+        orderStatusStr = @"1";
     }
     //已完成
-    if ([orderStatus isEqualToString:@"4"]) {
-        orderStatusPar = @"9";
+    if ([whichTableView isEqualToString:@"4"]) {
+        orderStatusStr = @"9";
     }
     
     //如果是下拉刷新,或者是下拉加载，都要请求数据
     if (downPushRefresh == YES || upPushReload == YES) {
         //如果是下拉刷新，需要清空数据
         if (downPushRefresh == YES) {
-            NSMutableArray *orderListArr = [self.orderListDataSourceDic objectForKey:orderStatus];
+            NSMutableArray *orderListArr = [[self.orderListDataSourceDic objectForKey:whichTableView] objectForKey:@"content"];
             [orderListArr removeAllObjects];
         }
         //请求数据
-        [[NetManager shareInstance] getRequestWithURL:[[InterfaceManager shareInstance] orderListWithUserID:userID withProduct:product withCode:code withOrderStatus:orderStatusPar withPageIndex:pageIndex withPageSize:pageSize] withParameters:nil withContentTypes:nil withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+        [[NetManager shareInstance] getRequestWithURL:[[InterfaceManager shareInstance] orderListWithUserID:userID withProduct:product withCode:code withOrderStatus:orderStatusStr withPageIndex:pageIndex withPageSize:pageSize] withParameters:nil withContentTypes:nil withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
             NSLog(@"%ld -- %@",operation.response.statusCode,successResult);
             NSLog(@"%@",[self dictionaryToJson:successResult]);
             if (operation.response.statusCode == 200) {
                 //解析
-                [self analyzeOrderListWithJsonArr:successResult withOrderStatus:orderStatus withOrderListSuccessResult:orderListSuccessResult withOrderListFailResult:orderListFailResult];
+
+                [self analyzeOrderListWithJsonDic:successResult withOrderStatus:whichTableView withOrderListSuccessResult:orderListSuccessResult withOrderListFailResult:orderListFailResult];
+
+
                 
             }
         } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
@@ -491,15 +504,17 @@
         
     }else {
         //既不是上拉刷新，也不是加载，那就看原来有没有数据，如果有，就不用请求，如果没有在请求
-        NSMutableArray *orderListArr = [self.orderListDataSourceDic objectForKey:orderStatus];
+        NSMutableArray *orderListArr = [[self.orderListDataSourceDic objectForKey:whichTableView] objectForKey:@"content"];
         if (orderListArr.count == 0) {
             //如果没有数据，就请求
-            [[NetManager shareInstance] getRequestWithURL:[[InterfaceManager shareInstance] orderListWithUserID:userID withProduct:product withCode:code withOrderStatus:orderStatusPar withPageIndex:pageIndex withPageSize:pageSize] withParameters:nil withContentTypes:nil withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+            [[NetManager shareInstance] getRequestWithURL:[[InterfaceManager shareInstance] orderListWithUserID:userID withProduct:product withCode:code withOrderStatus:orderStatusStr withPageIndex:pageIndex withPageSize:pageSize] withParameters:nil withContentTypes:nil withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
                 NSLog(@"%ld -- %@",operation.response.statusCode,successResult);
                 NSLog(@"%@",[self dictionaryToJson:successResult]);
                 if (operation.response.statusCode == 200) {
                     //解析
-                    [self analyzeOrderListWithJsonArr:successResult withOrderStatus:orderStatus withOrderListSuccessResult:orderListSuccessResult withOrderListFailResult:orderListFailResult];
+                        [self analyzeOrderListWithJsonDic:successResult withOrderStatus:whichTableView withOrderListSuccessResult:orderListSuccessResult withOrderListFailResult:orderListFailResult];
+
+                    
                     
                 }
             } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
@@ -518,14 +533,30 @@
 }
 
 //解析订单列表
-- (void)analyzeOrderListWithJsonArr:(NSArray *)jsonArr withOrderStatus:(NSString *)orderStatus withOrderListSuccessResult:(SuccessResult)orderListSuccessResult withOrderListFailResult:(FailResult)orderListFailResult {
+- (void)analyzeOrderListWithJsonDic:(NSDictionary *)jsonDic withOrderStatus:(NSString *)orderStatus withOrderListSuccessResult:(SuccessResult)orderListSuccessResult withOrderListFailResult:(FailResult)orderListFailResult {
     //得到模型数组
-    NSMutableArray *orderListArr = [self.orderListDataSourceDic objectForKey:orderStatus];
+    NSMutableDictionary *orderListDic = [self.orderListDataSourceDic objectForKey:orderStatus];
+    NSLog(@"%@",[self dictionaryToJson:jsonDic]);
+    [orderListDic setObject:[jsonDic objectForKey:@"totalpages"] forKey:@"totalpages"];
+    NSMutableArray *orderListArr = [orderListDic objectForKey:@"content"];
     
-    for (NSDictionary *jsonDic in jsonArr) {
+    for (NSDictionary *contentDic in [jsonDic objectForKey:@"content"]) {
+        
+        NSMutableArray *sonOrderArr = [NSMutableArray array];
+        
+        NSArray *itemArr = [contentDic objectForKey:@"item"];
+        for (NSDictionary *itemDic in itemArr) {
+            SonOrderModel *sonOrderModel = [[SonOrderModel alloc] init];
+            [sonOrderModel setValuesForKeysWithDictionary:itemDic];
+            [sonOrderArr addObject:sonOrderModel];
+        }
+        
         SupOrderModel *supOrderModel = [[SupOrderModel alloc] init];
-        [supOrderModel setValuesForKeysWithDictionary:jsonDic];
+        [supOrderModel setValuesForKeysWithDictionary:contentDic];
+        supOrderModel.subOrderArr = sonOrderArr;
+        supOrderModel.isSelectOrder = NO;
         //加入数组
+        
         [orderListArr addObject:supOrderModel];
     }
     
@@ -552,16 +583,150 @@
     [[NetManager shareInstance] postRequestWithURL:[[InterfaceManager shareInstance] creatOrderPOSTUrl] withParameters:parametersDic withContentTypes:@"string" withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
         
         NSLog(@"%ld",operation.response.statusCode);
-        NSLog(@"%@",[[NSString alloc] initWithData:successResult encoding:NSUTF8StringEncoding]);
+
+        NSString *successStr = [[NSString alloc]initWithData:successResult encoding:NSUTF8StringEncoding];
+        successStr = [successStr stringByReplacingOccurrencesOfString:@"\"" withString:@""];
+        NSLog(@"%@",successStr);
+
+        
+        orderSuccessResult(successStr);
+        // 发送通知到购物车界面，刷新
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"refreshShoppingCarVC" object:self userInfo:nil];
+#warning 通知订单列表界面刷新
 
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
+        NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
+        orderFailResult([operation.responseObject objectForKey:@"Message"]);
+
+    }];
+}
+
+//取消订单
+- (void)cancelOrderWithUserID:(NSString *)userID wiOrderID:(NSString *)orderID withCancelSuccessResult:(SuccessResult )cancelSuccessResult withCancelFailResult:(FailResult)cancelFailResult {
+    
+    NSDictionary *valueDic = @{@"userid":userID};
+    
+    //给value加密
+    NSString *secretStr = [self digest:[NSString stringWithFormat:@"%@Nongyao_Com001", [self dictionaryToJson:@[valueDic]]]];
+    
+    NSDictionary *parametersDic = @{@"m":secretStr,@"value":@[valueDic]};
+
+    
+    [[NetManager shareInstance] putRequestWithURL:[[InterfaceManager shareInstance] cancelOrderWithOrderID:orderID] withParameters:parametersDic withContentTypes:@"string" withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+        NSLog(@"%ld",operation.response.statusCode);
+        NSLog(@"%@",[[NSString alloc] initWithData:successResult encoding:NSUTF8StringEncoding]);
+        if (operation.response.statusCode == 200) {
+            /*取消订单成功后，需要做的操作
+             1、在全部订单数据源中，将这个订单的状态改为9，值为已结束，(包括父订单和子订单)
+             2、在待付款数据源中，将这个订单删除
+             3、在已完成数据源中，将这个订单添加进去
+             */
+            //将取消后的订单，封装为模型
+            SupOrderModel *changedOrderModel = [[SupOrderModel alloc] init];
+            changedOrderModel.p_id = orderID;
+            
+            [self cancelOrderUpdateDataSourceWithChangedOrder:changedOrderModel];
+            
+            //取消订单后，就可以刷新UI了，用block返回刷新
+            cancelSuccessResult(self.orderListDataSourceDic);
+            
+        }
         
+    } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
+        NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
+
+    }];
+}
+
+//取消订单后，改变数据源的操作
+- (void)cancelOrderUpdateDataSourceWithChangedOrder:(SupOrderModel *)changedOrder {
+    /*取消订单成功后，需要做的操作
+     1、在全部订单数据源中，将这个订单的状态改为9，值为已结束，(包括父订单和子订单)
+     2、在待付款数据源中，将这个订单删除
+     3、在已完成数据源中，将这个订单添加进去
+     */
+    
+//    SupOrderModel *tempFinishModel = [[SupOrderModel alloc] init];
+    
+    //1、改变全部订单的数据源。
+    //从全部订单中，找到这个产品
+    NSMutableArray *allOrderArr = [[self.orderListDataSourceDic objectForKey:@"1"] objectForKey:@"content"];
+    for (SupOrderModel *tempSupOrderModel in allOrderArr) {
+        if ([tempSupOrderModel.p_id isEqualToString:changedOrder.p_id]) {
+            //找到这个订单后，改变父订单状态为9,值为已结束
+            tempSupOrderModel.p_status = @"9";
+            tempSupOrderModel.statusvalue = @"已结束";
+            
+            //修改子订单,改变子订单状态为9，值为已结束
+            for (SonOrderModel *tempSonOrderModel in tempSupOrderModel.subOrderArr) {
+                tempSonOrderModel.o_status = @"9";
+                tempSonOrderModel.statusvalue = @"已经结束";
+            }
+            
+
+            
+        }
+    }
+    
+    //2、改变待付款的数据源
+    //从待付款订单中，找到这个订单
+    NSMutableArray *waitOrderArr = [[self.orderListDataSourceDic objectForKey:@"2"] objectForKey:@"content"];
+    
+    for (SupOrderModel *tempSupOrderModel in waitOrderArr) {
+        if ([tempSupOrderModel.p_id isEqualToString:changedOrder.p_id]) {
+            //找到后，删除
+            [waitOrderArr removeObject:tempSupOrderModel];
+            //立刻跳出循环，否则会崩溃，因为不许循环删除同时进行，
+            break;
+        }
+    }
+    
+    //3、在已完成中添加这个订单
+//    NSMutableArray *finishOrderArr = [[self.orderListDataSourceDic objectForKey:@"4"] objectForKey:@"content"];
+//    [finishOrderArr addObject:changedOrder];
+    
+    
+}
+
+
+#pragma mark - 支付 -
+//支付前验证
+- (void)paybeforeVerifyWithUserId:(NSString *)userID withTotalAmount:(NSString *)totalAmount withBalance:(NSString *)balance withPayAmount:(NSString *)payAmount withOrderIdArr:(NSArray *)orderIdArr withVerifySuccessBlock:(SuccessResult )verifySuccessBlock withVerfityFailBlock:(FailResult)verfityFailBlock {
+    NSMutableArray *itemArr = [NSMutableArray array];
+    for (NSString *tempOrder in orderIdArr) {
+        [itemArr addObject:@{@"pid":tempOrder}];
+    }
+
+    NSDictionary *valueDic = @{@"userid":userID,@"totalamount":totalAmount,@"balance":balance,@"payamount":payAmount,@"item":itemArr};
+    
+    
+    //给value加密
+    NSString *secretStr = [self digest:[NSString stringWithFormat:@"%@Nongyao_Com001", [self dictionaryToJson:@[valueDic]]]];
+    
+    NSDictionary *parametersDic = @{@"m":secretStr,@"value":@[valueDic]};
+
+    
+    [[NetManager shareInstance] postRequestWithURL:[[InterfaceManager shareInstance] paybeforeVerifyPOST] withParameters:parametersDic withContentTypes:@"string" withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+        NSLog(@"%ld",operation.response.statusCode);
+        NSLog(@"%@",[[NSString alloc] initWithData:successResult encoding:NSUTF8StringEncoding]);
+    } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
 
     }];
     
-    
-    
+}
+
+#pragma mark - 个人信息 -
+- (void)searchUserAmount:(NSString *)userId withAmountSuccessBlock:(SuccessResult )amountSuccessBlock withAmountFailBlock:(FailResult)amountFailBlcok {
+    [[NetManager shareInstance] getRequestWithURL:[[InterfaceManager shareInstance] searchUserAmountWithUserID:userId] withParameters:nil withContentTypes:nil withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+        NSLog(@"%ld",operation.response.statusCode);
+        amountSuccessBlock(successResult);
+        
+        
+    } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
+        NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
+
+    }];
 }
 
 

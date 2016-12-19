@@ -33,5 +33,8 @@
 @property (nonatomic,strong)NSString *p_account_num;//支付账号
 @property (nonatomic,strong)NSString *p_time_pay;//支付时间
 
+//是否被选择,主要用于订单列表中
+@property (nonatomic,assign)BOOL isSelectOrder;
+
 - (void)setValue:(id)value forUndefinedKey:(NSString *)key;
 @end

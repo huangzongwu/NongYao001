@@ -9,5 +9,9 @@
 #import <UIKit/UIKit.h>
 
 @interface LineButton : UIButton
-@property (nonatomic,strong)UIView *line;
+
+@property (nonatomic,strong)IBInspectable UIColor *lineColor;
+
+- (void)setLineColor:(UIColor *)lineColor;
+
 @end

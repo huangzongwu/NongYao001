@@ -9,6 +9,7 @@
 #import "PreviewOrderViewController.h"
 #import "PreviewOrderTableViewCell.h"
 #import "SelectCouponViewController.h"
+#import "PayViewController.h"
 #import "Manager.h"
 #import "AlertManager.h"
 @interface PreviewOrderViewController ()<UITableViewDataSource,UITableViewDelegate>
@@ -35,6 +36,7 @@
 //底部的实付款Label
 @property (weak, nonatomic) IBOutlet UILabel *bottomPayMoneyLabel;
 
+@property (nonatomic,strong)NSString *creatOrderId;
 
 
 @end
@@ -151,6 +153,12 @@
     Manager *manager = [Manager shareInstance];
     [manager creatOrderWithUserID:manager.memberInfoModel.u_id withReceivedID:@"A90F69B863C7468883FAA64AA0CE0B9A" withTotalAmount:[NSString stringWithFormat:@"%f",[self computeProductTotalPrice]] withDiscount:[self.saleMoneyDic objectForKey:@"saleMoney"] withCouponId:[self.saleMoneyDic objectForKey:@"couponId"] withArr:self.selectedProductArr withOrderSuccessResult:^(id successResult) {
         
+        self.creatOrderId = successResult;
+        
+        //提交订单后，就进入支付界面
+        [self performSegueWithIdentifier:@"previewOrderVCToPayVC" sender:sender];
+        
+        
     } withOrderFailResult:^(NSString *failResultStr) {
         
     }];
@@ -171,28 +179,37 @@
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
-    
-    //大于等于1000才能进入优惠券界面
-    if ([self computeProductTotalPrice] >= 1000) {
-        //将产品模型传值到选择优惠券界面
-        SelectCouponViewController *selectCouponVC = [segue destinationViewController];
-        selectCouponVC.previewOrderProductArr = self.selectedProductArr;
-        selectCouponVC.couponDicBlock = ^(NSDictionary *couponDicBlock){
-            //优惠金额赋值
-            self.saleMoneyDic = couponDicBlock;
-            //刷新footView 的ui
-            [self upFootview];
+    //选择优惠劵
+    if ([segue.identifier isEqualToString:@"toSelectCouponVC"]) {
+        //大于等于1000才能进入优惠券界面
+        if ([self computeProductTotalPrice] >= 1000) {
+            //将产品模型传值到选择优惠券界面
+            SelectCouponViewController *selectCouponVC = [segue destinationViewController];
+            selectCouponVC.previewOrderProductArr = self.selectedProductArr;
+            selectCouponVC.couponDicBlock = ^(NSDictionary *couponDicBlock){
+                //优惠金额赋值
+                self.saleMoneyDic = couponDicBlock;
+                //刷新footView 的ui
+                [self upFootview];
+                
+                self.bottomPayMoneyLabel.text = [NSString stringWithFormat:@"实付款：￥%.2f", [self computeProductTotalPrice] - [[self.saleMoneyDic objectForKey:@"saleMoney"] integerValue]];
+                
+            };
             
-            self.bottomPayMoneyLabel.text = [NSString stringWithFormat:@"实付款：￥%.2f", [self computeProductTotalPrice] - [[self.saleMoneyDic objectForKey:@"saleMoney"] integerValue]];
+        }else {
+            //
+            AlertManager *alertManager = [AlertManager shareIntance];
+            [alertManager showAlertViewWithTitle:nil withMessage:@"优惠券不可用" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
+        }
 
-        };
-
-    }else {
-        //
-        AlertManager *alertManager = [AlertManager shareIntance];
-        [alertManager showAlertViewWithTitle:nil withMessage:@"优惠券不可用" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
     }
     
+    //提交订单，进入支付界面
+    if ([segue.identifier isEqualToString:@"previewOrderVCToPayVC"]) {
+        PayViewController *payVC = [segue destinationViewController];
+        payVC.orderIDArr = @[self.creatOrderId];
+        payVC.totalAmountFloat = [self computeProductTotalPrice] - [[self.saleMoneyDic objectForKey:@"saleMoney"] integerValue];
+    }
 }
 
 

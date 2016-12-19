@@ -7,8 +7,18 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "SupOrderModel.h"
+#import "IndexButton.h"
+typedef void(^SelectButtonBlock)(IndexButton *selectButton);
 
 @interface OrderListTwoTableViewCell : UITableViewCell
+//选中的button
+@property (weak, nonatomic) IBOutlet IndexButton *selectOrderButton;
+@property (nonatomic,strong)SelectButtonBlock selectButtonBlock;
+
+//选择button的宽度
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *selectButtonWidthLayout;
+
 //订单号
 @property (weak, nonatomic) IBOutlet UILabel *orderNumberLabel;
 //订单状态
@@ -21,5 +31,10 @@
 @property (weak, nonatomic) IBOutlet UILabel *productCountLabel;
 //价格
 @property (weak, nonatomic) IBOutlet UILabel *orderPriceLabel;
+
+
+- (void)updateOrderLIstOneCellWithModel:(SupOrderModel *)model withWhichTableView:(NSString *)whichTableView withCellIndex:(NSIndexPath *)cellIndex;
+
+
 
 @end

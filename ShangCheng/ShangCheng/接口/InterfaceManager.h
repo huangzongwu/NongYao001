@@ -41,6 +41,16 @@
 - (NSString *)orderListWithUserID:(NSString *)userID withProduct:(NSString *)product withCode:(NSString *)code withOrderStatus:(NSString *)orderStatus withPageIndex:(NSString *)pageIndex withPageSize:(NSString *)pageSize;
 //生成订单
 - (NSString *)creatOrderPOSTUrl;
+//取消订单
+- (NSString *)cancelOrderWithOrderID:(NSString *)orderId;
+
+#pragma mark - 支付 -
+//支付前验证
+- (NSString *)paybeforeVerifyPOST;
+
+#pragma mark - 个人信息 -
+//查询个人余额
+- (NSString *)searchUserAmountWithUserID:(NSString *)userID;
 
 #pragma mark - 登录注册 -
 //登录接口
