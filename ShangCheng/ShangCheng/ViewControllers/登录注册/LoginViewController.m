@@ -9,19 +9,119 @@
 #import "LoginViewController.h"
 #import "RegisterAlertView.h"
 #import "Manager.h"
-@interface LoginViewController ()
+@interface LoginViewController ()<UITextFieldDelegate>
 @property (weak, nonatomic) IBOutlet UIScrollView *loginScrollView;
 @property (nonatomic,strong)RegisterAlertView *registerAlertView;
+
+//密码登录中的账号
+@property (weak, nonatomic) IBOutlet UITextField *passwordLoginIDTextField;
+//密码登录中的密码
+@property (weak, nonatomic) IBOutlet UITextField *passwordLoginPasswordTextField;
+//密码登录中的登录按钮
+@property (weak, nonatomic) IBOutlet UIButton *passwordLoginButton;
+
+
+//验证码登录中的账号
+@property (weak, nonatomic) IBOutlet UITextField *codeLoginIDTextField;
+//验证码登录中的密码
+@property (weak, nonatomic) IBOutlet UITextField *codeLoginCodeTextField;
+//验证码登录中的登录按钮
+@property (weak, nonatomic) IBOutlet UIButton *codeLoginButton;
+
+
+
+
 @end
 
 @implementation LoginViewController
 
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
+
+    //密码登录状态
+    if (self.loginScrollView.contentOffset.x == 0) {
+        BOOL isRed = NO;
+        //id输入框的操作，只有密码输入框有内容，才有可能会变红
+        if (textField == self.passwordLoginIDTextField && self.passwordLoginPasswordTextField.text.length > 0) {
+            /*下面两个满足一个就变红
+             1、id输入框在输入内容，
+             2、id输入框消去内容，没有消除完
+             */
+            if (string.length > 0) {
+                isRed = YES;
+            }
+            //如果id输入框在消去内容，
+            if (string.length == 0 && range.location > 0) {
+                isRed = YES;
+            }
+        }
+        
+        //密码输入框，同上
+        if (textField == self.passwordLoginPasswordTextField && self.passwordLoginIDTextField.text.length > 0) {
+            if (string.length > 0 ) {
+                isRed = YES;
+            }
+            if (string.length == 0 && range.location > 0) {
+                isRed = YES;
+            }
+        }
+        
+        if (isRed == YES) {
+            self.passwordLoginButton.enabled = YES;
+            self.passwordLoginButton.backgroundColor = kColor(208,23,21, 1);
+        }else {
+            self.passwordLoginButton.enabled = NO;
+            self.passwordLoginButton.backgroundColor = kColor(238, 238, 238, 1);
+        }
+    }
+    
+    //验证码登录状态
+    if (self.loginScrollView.contentOffset.x == kScreenW) {
+        
+        BOOL isRed = NO;
+        //id输入框的操作，只有验证码输入框有内容，才有可能会变红
+        if (textField == self.codeLoginIDTextField && self.codeLoginCodeTextField.text.length > 0) {
+            /*下面两个满足一个就变红
+             1、id输入框在输入内容，
+             2、id输入框消去内容，没有消除完
+             */
+            if (string.length > 0) {
+                isRed = YES;
+            }
+            //如果id输入框在消去内容，
+            if (string.length == 0 && range.location > 0) {
+                isRed = YES;
+            }
+        }
+        
+        //密码输入框，同上
+        if (textField == self.codeLoginCodeTextField && self.codeLoginIDTextField.text.length > 0) {
+            if (string.length > 0 ) {
+                isRed = YES;
+            }
+            if (string.length == 0 && range.location > 0) {
+                isRed = YES;
+            }
+        }
+        
+        if (isRed == YES) {
+            //红色可点击
+            self.codeLoginButton.enabled = YES;
+            self.codeLoginButton.backgroundColor = kColor(208,23,21, 1);
+        }else {
+            //灰色不可点击
+            self.codeLoginButton.enabled = NO;
+            self.codeLoginButton.backgroundColor = kColor(238, 238, 238, 1);
+        }
+
+    }
+    return YES;
+}
+
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    UIBarButtonItem *backButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"返回" style:UIBarButtonItemStyleDone target:self action:@selector(dismissVCAction)];
-    self.navigationItem.leftBarButtonItem = backButtonItem;
-    
+
     //注册按钮点击后出现的注册类型视图
     UIWindow *window = [[UIApplication sharedApplication].windows lastObject];
     
@@ -53,8 +153,13 @@
 #pragma mark - 登录 -
 //密码登录按钮
 - (IBAction)loginButtonOneAction:(UIButton *)sender {
+    NSString *loginID = @"admin";
+    NSString *loginPassword = @"nongyao001";
+//    NSString *loginID = self.passwordLoginIDTextField.text;
+//    NSString *loginPassword = self.passwordLoginPasswordTextField.text ;
+    
     Manager *manager = [Manager shareInstance];
-    [manager loginActionWithUserID:@"admin" withPassword:[manager digest:@"nongyao001"] withLoginSuccessResult:^(id successResult) {
+    [manager loginActionWithUserID:loginID withPassword:[manager digest:loginPassword] withLoginSuccessResult:^(id successResult) {
         
         [self dismissViewControllerAnimated:YES completion:nil];
         

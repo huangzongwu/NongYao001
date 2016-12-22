@@ -51,7 +51,15 @@
     //开始get请求
     [manager GET:requestURL parameters:parameterStr success:^(AFHTTPRequestOperation *operation, id responseObject) {
         //请求成功
-        
+        //如果返回的是字符串，就消除双引号。因为返回如果是字符串，就会带双引号
+        if ([contentType isEqualToString:@"string"]) {
+            
+            NSString *responseObjectStr = [[NSString alloc]initWithData:responseObject encoding:NSUTF8StringEncoding];
+
+            responseObjectStr = [responseObjectStr stringByReplacingOccurrencesOfString:@"\"" withString:@""];
+            responseObject = responseObjectStr;
+        }
+
         successResult(operation, responseObject);
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         //请求失败
@@ -90,7 +98,15 @@
     
     
     [manager POST:requestURL parameters:parameterStr success:^(AFHTTPRequestOperation *operation, id responseObject) {
-        
+        //如果返回的是字符串，就消除双引号。因为返回如果是字符串，就会带双引号
+        if ([contentType isEqualToString:@"string"]) {
+            
+            NSString *responseObjectStr = [[NSString alloc]initWithData:responseObject encoding:NSUTF8StringEncoding];
+            
+            responseObjectStr = [responseObjectStr stringByReplacingOccurrencesOfString:@"\"" withString:@""];
+            responseObject = responseObjectStr;
+        }
+
         //打印结果
 //       NSLog(@"%@", [self dictionaryToJson:responseObject]);
         successResult(operation ,responseObject);
@@ -127,6 +143,15 @@
     
     [manager DELETE:requestURL parameters:parameterStr success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
         //请求成功
+        //如果返回的是字符串，就消除双引号。因为返回如果是字符串，就会带双引号
+        if ([contentType isEqualToString:@"string"]) {
+            
+            NSString *responseObjectStr = [[NSString alloc]initWithData:responseObject encoding:NSUTF8StringEncoding];
+            
+            responseObjectStr = [responseObjectStr stringByReplacingOccurrencesOfString:@"\"" withString:@""];
+            responseObject = responseObjectStr;
+        }
+
         successResult(operation ,responseObject);
 
     } failure:^(AFHTTPRequestOperation * _Nonnull operation, NSError * _Nonnull error) {
@@ -160,6 +185,15 @@
     
     [manager PUT:requestURL parameters:parameterStr success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
         //成功结果
+        //如果返回的是字符串，就消除双引号。因为返回如果是字符串，就会带双引号
+        if ([contentType isEqualToString:@"string"]) {
+            
+            NSString *responseObjectStr = [[NSString alloc]initWithData:responseObject encoding:NSUTF8StringEncoding];
+            
+            responseObjectStr = [responseObjectStr stringByReplacingOccurrencesOfString:@"\"" withString:@""];
+            responseObject = responseObjectStr;
+        }
+
         successResult(operation ,responseObject);
     } failure:^(AFHTTPRequestOperation * _Nonnull operation, NSError * _Nonnull error) {
         //请求失败

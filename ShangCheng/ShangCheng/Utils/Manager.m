@@ -432,7 +432,7 @@
         NSLog(@"%ld",operation.response.statusCode);
         NSLog(@"%@",[[NSString alloc] initWithData:successResult encoding:NSUTF8StringEncoding]);
         
-        computeMoneySuccessResult([[NSString alloc] initWithData:successResult encoding:NSUTF8StringEncoding]);
+        computeMoneySuccessResult(successResult);
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
 
@@ -584,12 +584,12 @@
         
         NSLog(@"%ld",operation.response.statusCode);
 
-        NSString *successStr = [[NSString alloc]initWithData:successResult encoding:NSUTF8StringEncoding];
-        successStr = [successStr stringByReplacingOccurrencesOfString:@"\"" withString:@""];
-        NSLog(@"%@",successStr);
+//        NSString *successStr = [[NSString alloc]initWithData:successResult encoding:NSUTF8StringEncoding];
+//        successStr = [successStr stringByReplacingOccurrencesOfString:@"\"" withString:@""];
+//        NSLog(@"%@",successStr);
 
         
-        orderSuccessResult(successStr);
+        orderSuccessResult(successResult);
         // 发送通知到购物车界面，刷新
         [[NSNotificationCenter defaultCenter] postNotificationName:@"refreshShoppingCarVC" object:self userInfo:nil];
 #warning 通知订单列表界面刷新
@@ -708,13 +708,48 @@
     
     [[NetManager shareInstance] postRequestWithURL:[[InterfaceManager shareInstance] paybeforeVerifyPOST] withParameters:parametersDic withContentTypes:@"string" withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
         NSLog(@"%ld",operation.response.statusCode);
-        NSLog(@"%@",[[NSString alloc] initWithData:successResult encoding:NSUTF8StringEncoding]);
+        if (operation.response.statusCode == 200) {
+//            NSString *payID = [[NSString alloc] initWithData:successResult encoding:NSUTF8StringEncoding];
+//            payID = [payID stringByReplacingOccurrencesOfString:@"\"" withString:@""];
+            NSLog(@"payId = %@",successResult);
+            
+            //将支付id返回
+            verifySuccessBlock(successResult);
+        }
+        
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
 
     }];
     
 }
+
+//支付宝获取签名 dataStr是待签名的字符串
+- (void)aliPaySignDataStr:(NSString *)dataStr withSignSuccessResult:(SuccessResult)signSuccessResult withSignFailResult:(FailResult)signFailResult {
+
+    NSDictionary *valueDic = @{@"data":dataStr};
+    
+    
+    //给value加密
+    NSString *secretStr = [self digest:[NSString stringWithFormat:@"%@Nongyao_Com001", [self dictionaryToJson:@[valueDic]]]];
+    
+    NSDictionary *parametersDic = @{@"m":secretStr,@"value":@[valueDic]};
+
+    
+    [[NetManager shareInstance] postRequestWithURL:[[InterfaceManager shareInstance] AliPaySignPOST] withParameters:parametersDic withContentTypes:nil withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+        NSLog(@"%ld",operation.response.statusCode);
+        if (operation.response.statusCode == 200) {
+            //返回block
+            signSuccessResult(successResult);
+        }
+    } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
+        NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
+
+    }];
+}
+
+
+
 
 #pragma mark - 个人信息 -
 - (void)searchUserAmount:(NSString *)userId withAmountSuccessBlock:(SuccessResult )amountSuccessBlock withAmountFailBlock:(FailResult)amountFailBlcok {
@@ -731,7 +766,7 @@
 
 
 #pragma mark - 注册登录 -
-//登录
+//密码登录
 - (void)loginActionWithUserID:(NSString *)userID withPassword:(NSString *)password withLoginSuccessResult:(SuccessResult )loginSuccessResult withLoginFailResult:(FailResult)loginFailResult {
     //清空原有的个人数据
     self.memberInfoModel = nil;
@@ -740,7 +775,7 @@
     //参数.密码需要md5加密
     NSDictionary *parameter = @{@"loginname": userID, @"password": password,@"facility":@"4"};
 
-    [netManager postRequestWithURL:[[InterfaceManager shareInstance] loginPOSTUrl] withParameters:parameter withContentTypes:nil withHeaderArr:nil withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+    [netManager postRequestWithURL:[[InterfaceManager shareInstance] loginPOSTAndPUTUrl] withParameters:parameter withContentTypes:nil withHeaderArr:nil withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
         //得到网络请求状态码
         NSLog(@"%ld",operation.response.statusCode);
         if (operation.response.statusCode == 200) {
@@ -778,6 +813,59 @@
         }
         
     }];
+}
+
+
+//验证码登录
+- (void)loginActionWithMobile:(NSString *)mobile withMobileCode:(NSString *)mobileCode withLoginSuccessResult:(SuccessResult)loginSuccessResult withLoginFailResult:(FailResult)loginFailResult {
+    /*
+    //清空原有的个人数据
+    self.memberInfoModel = nil;
+    //    {"loginname":"admin","password":"3CBFCCCB67766883CF4F03B74A763CDC","facility":"1"}
+    NetManager *netManager = [NetManager shareInstance];
+    //参数.密码需要md5加密
+    NSDictionary *parameter = @{@"tel": mobile, @"code": mobileCode,@"facility":@"4"};
+    
+    [netManager putRequestWithURL:[[InterfaceManager shareInstance] loginPOSTAndPUTUrl] withParameters:parameter withContentTypes:nil withHeaderArr:nil withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+        //得到网络请求状态码
+        NSLog(@"%ld",operation.response.statusCode);
+        if (operation.response.statusCode == 200) {
+            //登录成功，
+            //解析数据，保存到本地
+            BOOL locationResult = [self analyzeMemberWithJsonDic:successResult[0] withPassword:password];
+            //如果存入本地成功
+            if (locationResult == YES) {
+                loginSuccessResult(successResult);
+                
+#warning 登录成功发送通知
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"logedIn" object:self userInfo:nil];
+                
+            }else{
+                loginFailResult(@"未知错误，登录失败，请稍后再试");
+                
+            }
+            
+        }else{
+            loginFailResult(@"未知服务器错误，请联系客服");
+            
+        }
+        
+    } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
+        
+        //得到网络请求状态码
+        NSLog(@"%ld -- %@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]);
+        
+        if (operation.response.statusCode == 400 ) {
+            loginFailResult([operation.responseObject objectForKey:@"Message"]);
+        }else if(operation.response.statusCode == 500) {
+            loginFailResult(@"未知服务器错误，请联系客服");
+        }else {
+            loginFailResult(@"网络连接失败，请检查网络后重试");
+        }
+        
+    }];
+*/
+    
 }
 
 - (BOOL)analyzeMemberWithJsonDic:(NSDictionary *)jsonDic withPassword:(NSString *)password {
@@ -968,10 +1056,11 @@
     
     [[NetManager shareInstance] postRequestWithURL:[[InterfaceManager shareInstance] registerPOSTUrl] withParameters:parametersStr withContentTypes:@"string" withHeaderArr:nil withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
         
-        NSLog(@"%@",[[NSString alloc] initWithData:successResult encoding:NSUTF8StringEncoding]  );
+//        NSLog(@"%@",[[NSString alloc] initWithData:successResult encoding:NSUTF8StringEncoding]  );
         NSLog(@"%ld",operation.response.statusCode);
         
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
+
         NSLog(@"请求失败 %ld--%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]);
 
     }];

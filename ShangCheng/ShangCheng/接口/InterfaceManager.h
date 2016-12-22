@@ -48,13 +48,16 @@
 //支付前验证
 - (NSString *)paybeforeVerifyPOST;
 
+//支付宝获取签名
+- (NSString *)AliPaySignPOST ;
+
 #pragma mark - 个人信息 -
 //查询个人余额
 - (NSString *)searchUserAmountWithUserID:(NSString *)userID;
 
 #pragma mark - 登录注册 -
 //登录接口
-- (NSString *)loginPOSTUrl ;
+- (NSString *)loginPOSTAndPUTUrl ;
 //获取验证码
 - (NSString *)mobileCodePOST ;
 //检测验证码

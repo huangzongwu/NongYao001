@@ -89,13 +89,19 @@ typedef void(^FailResult)(NSString *failResultStr);
 #pragma mark - 支付 -
 //支付前验证
 - (void)paybeforeVerifyWithUserId:(NSString *)userID withTotalAmount:(NSString *)totalAmount withBalance:(NSString *)balance withPayAmount:(NSString *)payAmount withOrderIdArr:(NSArray *)orderIdArr withVerifySuccessBlock:(SuccessResult )verifySuccessBlock withVerfityFailBlock:(FailResult)verfityFailBlock;
+
+//支付宝获取签名 dataStr是待签名的字符串
+- (void)aliPaySignDataStr:(NSString *)dataStr withSignSuccessResult:(SuccessResult)signSuccessResult withSignFailResult:(FailResult)signFailResult;
 #pragma mark - 个人信息 -
 //获取个人信息的余额
 - (void)searchUserAmount:(NSString *)userId withAmountSuccessBlock:(SuccessResult )amountSuccessBlock withAmountFailBlock:(FailResult)amountFailBlcok;
 
 #pragma mark - 登录注册 -
-//登录
+//密码登录
 - (void)loginActionWithUserID:(NSString *)userID withPassword:(NSString *)password withLoginSuccessResult:(SuccessResult )loginSuccessResult withLoginFailResult:(FailResult)loginFailResult;
+//验证码登录
+- (void)loginActionWithMobile:(NSString *)mobile withMobileCode:(NSString *)mobileCode withLoginSuccessResult:(SuccessResult)loginSuccessResult withLoginFailResult:(FailResult)loginFailResult;
+
 //MD5加密
 - (NSString *)digest:(NSString *)sourceStr ;
 //判断现在是否是登录状态

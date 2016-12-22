@@ -72,7 +72,7 @@
     //网络请求计算优惠券金额
     [manager httpComputeCouponMoneyWithUserID:manager.memberInfoModel.u_id withCouponID:tempModel.c_id withShoppingCarIDArr:shoppingCarIdArr withComputeMoneySuccessResult:^(id successResult) {
         //去掉“”引号
-        successResult = [(NSString *)successResult stringByReplacingOccurrencesOfString:@"\"" withString:@""];
+//        successResult = [(NSString *)successResult stringByReplacingOccurrencesOfString:@"\"" withString:@""];
         //返回到预订单界面
         self.couponDicBlock(@{@"couponId":tempModel.c_id,@"saleCode":tempModel.c_code,@"saleMoney":successResult});
         //

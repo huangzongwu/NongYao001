@@ -88,6 +88,13 @@
 
 }
 
+- (IBAction)cellTapAction:(UITapGestureRecognizer *)sender {
+    
+    NSLog(@"aa");
+}
+
+
+
 - (void)awakeFromNib {
     [super awakeFromNib];
     // Initialization code

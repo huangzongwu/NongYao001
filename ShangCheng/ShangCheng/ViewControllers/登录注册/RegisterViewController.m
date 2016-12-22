@@ -52,10 +52,7 @@
 
 //下一步
 - (IBAction)nextButtonAction:(UIButton *)sender {
-    
-    [self performSegueWithIdentifier:@"registerNext" sender:sender];
 
-/*
     if (self.mobileNumberTextField.text.length == 11 ) {
         if (self.codeTextField.text.length > 0) {
             
@@ -81,7 +78,7 @@
     }else {
         NSLog(@"请输入正确的手机号");
     }
-    */
+    
 }
 
 

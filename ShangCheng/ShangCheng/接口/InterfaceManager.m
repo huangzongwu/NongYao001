@@ -31,6 +31,8 @@
     return @"http://api.nzw0.com:8001/";
     //本地
 //    return @"http://192.168.0.233:5260/";
+
+    
 }
 
 - (NSString *)baseUrl {
@@ -115,6 +117,13 @@
 - (NSString *)paybeforeVerifyPOST {
     return [NSString stringWithFormat:@"%@/OrderPaymentVerify",self.baseUrl];
 }
+//支付宝获取签名
+- (NSString *)AliPaySignPOST {
+    return [NSString stringWithFormat:@"%@/Alipay",self.baseUrl];
+}
+
+
+
 #pragma mark - 个人信息 -
 //查询个人余额
 - (NSString *)searchUserAmountWithUserID:(NSString *)userID {
@@ -125,7 +134,7 @@
 
 #pragma mark - 登录注册 -
 //登录接口
-- (NSString *)loginPOSTUrl {
+- (NSString *)loginPOSTAndPUTUrl {
     return [NSString stringWithFormat:@"%@/userlogin",self.baseUrl];
 }
 

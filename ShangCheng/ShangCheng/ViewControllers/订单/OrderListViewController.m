@@ -12,6 +12,7 @@
 #import "OrderListTwoTableViewCell.h"
 #import "OrderListFootOneTableViewCell.h"
 #import "OrderListFootTwoTableViewCell.h"
+#import "OrderDetailViewController.h"
 #import "LineButton.h"
 #import "Manager.h"
 @interface OrderListViewController ()<UITableViewDataSource,UITableViewDelegate>
@@ -351,6 +352,30 @@
     
 }
 
+
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    NSMutableArray *dataArr;
+    if (tableView == self.allTableView) {
+        dataArr = [[[Manager shareInstance].orderListDataSourceDic objectForKey:@"1"] objectForKey:@"content"];
+    }
+    if (tableView == self.waitPayTableView) {
+        dataArr = [[[Manager shareInstance].orderListDataSourceDic objectForKey:@"2"] objectForKey:@"content"];
+    }
+    if (tableView == self.goOnTableView) {
+        dataArr = [[[Manager shareInstance].orderListDataSourceDic objectForKey:@"3"] objectForKey:@"content"];
+    }
+    if (tableView == self.finishTableView) {
+        dataArr = [[[Manager shareInstance].orderListDataSourceDic objectForKey:@"4"] objectForKey:@"content"];
+    }
+    
+    SupOrderModel *supOrderModel = dataArr[indexPath.section];
+    
+    [self performSegueWithIdentifier:@"OrderListToOrderDetailVC" sender:supOrderModel];
+    
+}
+
 #pragma mark - 合并付款 和 合并确认 -
 - (IBAction)payTogetherAction:(UIButton *)sender {
     //
@@ -404,6 +429,13 @@
         PayViewController *payVC = [segue destinationViewController];
         payVC.orderIDArr = payVCIdArr;
         payVC.totalAmountFloat = payVCTotalAmount;
+    }
+    
+    if ([segue.identifier isEqualToString:@"OrderListToOrderDetailVC"]) {
+        OrderDetailViewController *orderDetailVC = [segue destinationViewController];
+        orderDetailVC.tempSupOrderModel = (SupOrderModel *)sender;
+        
+        
     }
     
 }

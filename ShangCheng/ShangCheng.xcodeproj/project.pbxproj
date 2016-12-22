@@ -38,6 +38,7 @@
 		454A68871DF944BF0058CF5C /* OrderListFootOneTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 454A68851DF944BF0058CF5C /* OrderListFootOneTableViewCell.xib */; };
 		454A688B1DF944D20058CF5C /* OrderListFootTwoTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 454A68891DF944D20058CF5C /* OrderListFootTwoTableViewCell.m */; };
 		454A688C1DF944D20058CF5C /* OrderListFootTwoTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 454A688A1DF944D20058CF5C /* OrderListFootTwoTableViewCell.xib */; };
+		454D97511E0A639D00E3FB76 /* CALayer+LayerColor.m in Sources */ = {isa = PBXBuildFile; fileRef = 454D97501E0A639D00E3FB76 /* CALayer+LayerColor.m */; };
 		456253A71DFD2EFC00440FDC /* SelectCouponViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 456253A61DFD2EFC00440FDC /* SelectCouponViewController.m */; };
 		456253AA1DFD315B00440FDC /* CouponModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 456253A91DFD315B00440FDC /* CouponModel.m */; };
 		456253B11DFD540900440FDC /* CouponTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 456253AF1DFD540900440FDC /* CouponTableViewCell.m */; };
@@ -46,7 +47,14 @@
 		4569A6E51DE81F2A006C885B /* ProductModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 4569A6E01DE81F2A006C885B /* ProductModel.m */; };
 		4569A6ED1DE830C1006C885B /* ProductDetailOneTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 4569A6EC1DE830C1006C885B /* ProductDetailOneTableViewCell.m */; };
 		4569A6F11DE83163006C885B /* ProductDetailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4569A6F01DE83163006C885B /* ProductDetailViewController.m */; };
+		456D54251E08DCE800C9355F /* OrderDetailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 456D54241E08DCE800C9355F /* OrderDetailViewController.m */; };
+		456D54281E09167300C9355F /* OrderDetailOneTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 456D54271E09167300C9355F /* OrderDetailOneTableViewCell.m */; };
+		456D542B1E09168100C9355F /* OrderDetailTwoTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 456D542A1E09168100C9355F /* OrderDetailTwoTableViewCell.m */; };
+		456D542E1E09169700C9355F /* OrderDetailFootOneTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 456D542D1E09169700C9355F /* OrderDetailFootOneTableViewCell.m */; };
+		456D54311E0916A300C9355F /* OrderDetailFootTwoTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 456D54301E0916A300C9355F /* OrderDetailFootTwoTableViewCell.m */; };
 		45732FDE1DEC0E8F00DAC0C4 /* ProductDetailHeaderTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 45732FDD1DEC0E8F00DAC0C4 /* ProductDetailHeaderTableViewCell.m */; };
+		45769DDE1E0A794700BD8387 /* s_icon_back@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 45769DDC1E0A794700BD8387 /* s_icon_back@2x.png */; };
+		45769DDF1E0A794700BD8387 /* s_icon_back@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 45769DDD1E0A794700BD8387 /* s_icon_back@3x.png */; };
 		457F34FC1DBF3E0600809062 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 457F34FB1DBF3E0600809062 /* main.m */; };
 		457F34FF1DBF3E0600809062 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 457F34FE1DBF3E0600809062 /* AppDelegate.m */; };
 		457F35051DBF3E0600809062 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 457F35031DBF3E0600809062 /* Main.storyboard */; };
@@ -229,6 +237,8 @@
 		454A68881DF944D20058CF5C /* OrderListFootTwoTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OrderListFootTwoTableViewCell.h; sourceTree = "<group>"; };
 		454A68891DF944D20058CF5C /* OrderListFootTwoTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OrderListFootTwoTableViewCell.m; sourceTree = "<group>"; };
 		454A688A1DF944D20058CF5C /* OrderListFootTwoTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = OrderListFootTwoTableViewCell.xib; sourceTree = "<group>"; };
+		454D974F1E0A639D00E3FB76 /* CALayer+LayerColor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "CALayer+LayerColor.h"; sourceTree = "<group>"; };
+		454D97501E0A639D00E3FB76 /* CALayer+LayerColor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "CALayer+LayerColor.m"; sourceTree = "<group>"; };
 		456253A51DFD2EFC00440FDC /* SelectCouponViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectCouponViewController.h; sourceTree = "<group>"; };
 		456253A61DFD2EFC00440FDC /* SelectCouponViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SelectCouponViewController.m; sourceTree = "<group>"; };
 		456253A81DFD315B00440FDC /* CouponModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CouponModel.h; sourceTree = "<group>"; };
@@ -244,8 +254,20 @@
 		4569A6EC1DE830C1006C885B /* ProductDetailOneTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProductDetailOneTableViewCell.m; sourceTree = "<group>"; };
 		4569A6EF1DE83163006C885B /* ProductDetailViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProductDetailViewController.h; sourceTree = "<group>"; };
 		4569A6F01DE83163006C885B /* ProductDetailViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProductDetailViewController.m; sourceTree = "<group>"; };
+		456D54231E08DCE800C9355F /* OrderDetailViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OrderDetailViewController.h; sourceTree = "<group>"; };
+		456D54241E08DCE800C9355F /* OrderDetailViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OrderDetailViewController.m; sourceTree = "<group>"; };
+		456D54261E09167300C9355F /* OrderDetailOneTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OrderDetailOneTableViewCell.h; sourceTree = "<group>"; };
+		456D54271E09167300C9355F /* OrderDetailOneTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OrderDetailOneTableViewCell.m; sourceTree = "<group>"; };
+		456D54291E09168100C9355F /* OrderDetailTwoTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OrderDetailTwoTableViewCell.h; sourceTree = "<group>"; };
+		456D542A1E09168100C9355F /* OrderDetailTwoTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OrderDetailTwoTableViewCell.m; sourceTree = "<group>"; };
+		456D542C1E09169700C9355F /* OrderDetailFootOneTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OrderDetailFootOneTableViewCell.h; sourceTree = "<group>"; };
+		456D542D1E09169700C9355F /* OrderDetailFootOneTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OrderDetailFootOneTableViewCell.m; sourceTree = "<group>"; };
+		456D542F1E0916A300C9355F /* OrderDetailFootTwoTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OrderDetailFootTwoTableViewCell.h; sourceTree = "<group>"; };
+		456D54301E0916A300C9355F /* OrderDetailFootTwoTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OrderDetailFootTwoTableViewCell.m; sourceTree = "<group>"; };
 		45732FDC1DEC0E8F00DAC0C4 /* ProductDetailHeaderTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProductDetailHeaderTableViewCell.h; sourceTree = "<group>"; };
 		45732FDD1DEC0E8F00DAC0C4 /* ProductDetailHeaderTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProductDetailHeaderTableViewCell.m; sourceTree = "<group>"; };
+		45769DDC1E0A794700BD8387 /* s_icon_back@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "s_icon_back@2x.png"; sourceTree = "<group>"; };
+		45769DDD1E0A794700BD8387 /* s_icon_back@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "s_icon_back@3x.png"; sourceTree = "<group>"; };
 		457F34F71DBF3E0600809062 /* ShangCheng.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ShangCheng.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		457F34FB1DBF3E0600809062 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		457F34FD1DBF3E0600809062 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -563,6 +585,8 @@
 		45258BAB1DC19E5500127B56 /* Other */ = {
 			isa = PBXGroup;
 			children = (
+				454D974F1E0A639D00E3FB76 /* CALayer+LayerColor.h */,
+				454D97501E0A639D00E3FB76 /* CALayer+LayerColor.m */,
 				4594C3021DC9E9F20005D5B1 /* mineDataSource.json */,
 				45AF31E11E0639C000C1FFD1 /* bankJson.json */,
 			);
@@ -751,6 +775,8 @@
 		457F352F1DBF408E00809062 /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				45769DDC1E0A794700BD8387 /* s_icon_back@2x.png */,
+				45769DDD1E0A794700BD8387 /* s_icon_back@3x.png */,
 				4594C2FC1DC9D4AE0005D5B1 /* test.png */,
 			);
 			path = Images;
@@ -1192,6 +1218,14 @@
 				454A68881DF944D20058CF5C /* OrderListFootTwoTableViewCell.h */,
 				454A68891DF944D20058CF5C /* OrderListFootTwoTableViewCell.m */,
 				454A688A1DF944D20058CF5C /* OrderListFootTwoTableViewCell.xib */,
+				456D54261E09167300C9355F /* OrderDetailOneTableViewCell.h */,
+				456D54271E09167300C9355F /* OrderDetailOneTableViewCell.m */,
+				456D54291E09168100C9355F /* OrderDetailTwoTableViewCell.h */,
+				456D542A1E09168100C9355F /* OrderDetailTwoTableViewCell.m */,
+				456D542C1E09169700C9355F /* OrderDetailFootOneTableViewCell.h */,
+				456D542D1E09169700C9355F /* OrderDetailFootOneTableViewCell.m */,
+				456D542F1E0916A300C9355F /* OrderDetailFootTwoTableViewCell.h */,
+				456D54301E0916A300C9355F /* OrderDetailFootTwoTableViewCell.m */,
 				456253AE1DFD540900440FDC /* CouponTableViewCell.h */,
 				456253AF1DFD540900440FDC /* CouponTableViewCell.m */,
 				456253B01DFD540900440FDC /* CouponTableViewCell.xib */,
@@ -1208,6 +1242,8 @@
 			children = (
 				45C6C98E1DF6643000151587 /* OrderListViewController.h */,
 				45C6C98F1DF6643000151587 /* OrderListViewController.m */,
+				456D54231E08DCE800C9355F /* OrderDetailViewController.h */,
+				456D54241E08DCE800C9355F /* OrderDetailViewController.m */,
 				456253A51DFD2EFC00440FDC /* SelectCouponViewController.h */,
 				456253A61DFD2EFC00440FDC /* SelectCouponViewController.m */,
 				4584C23C1DFF8EDF000AC275 /* PayViewController.h */,
@@ -1298,7 +1334,8 @@
 				TargetAttributes = {
 					457F34F61DBF3E0600809062 = {
 						CreatedOnToolsVersion = 8.0;
-						ProvisioningStyle = Automatic;
+						DevelopmentTeam = JRH48P873J;
+						ProvisioningStyle = Manual;
 					};
 					457F350F1DBF3E0600809062 = {
 						CreatedOnToolsVersion = 8.0;
@@ -1346,7 +1383,9 @@
 				4594C2FD1DC9D4AE0005D5B1 /* test.png in Resources */,
 				454A688C1DF944D20058CF5C /* OrderListFootTwoTableViewCell.xib in Resources */,
 				454A68871DF944BF0058CF5C /* OrderListFootOneTableViewCell.xib in Resources */,
+				45769DDF1E0A794700BD8387 /* s_icon_back@3x.png in Resources */,
 				45A839571DC7307C009F1DE4 /* SVProgressHUD.bundle in Resources */,
+				45769DDE1E0A794700BD8387 /* s_icon_back@2x.png in Resources */,
 				457F35471DBF619B00809062 /* ImageCollectionReusableView.xib in Resources */,
 				4513E7181DC3253300734AF6 /* MaxSaleHotCollectionReusableView.xib in Resources */,
 				454A68781DF9446D0058CF5C /* OrderListOneTableViewCell.xib in Resources */,
@@ -1392,6 +1431,7 @@
 				453B697A1DED18C4003533C0 /* ProductClassModel.m in Sources */,
 				4584C2C41DFFEC94000AC275 /* DataSigner.m in Sources */,
 				456253A71DFD2EFC00440FDC /* SelectCouponViewController.m in Sources */,
+				456D542E1E09169700C9355F /* OrderDetailFootOneTableViewCell.m in Sources */,
 				45A839581DC7307C009F1DE4 /* SVProgressHUD.m in Sources */,
 				4594C2EC1DC9821B0005D5B1 /* MineCollectionViewCellOne.m in Sources */,
 				45A839561DC7307C009F1DE4 /* SVProgressAnimatedView.m in Sources */,
@@ -1412,6 +1452,7 @@
 				45D1633B1DFBA0D30024561F /* PreviewOrderTableViewCell.m in Sources */,
 				45A839491DC7307C009F1DE4 /* SDWebImageDecoder.m in Sources */,
 				45B845351DF14E79000AE652 /* MemberInfoModel.m in Sources */,
+				456D54311E0916A300C9355F /* OrderDetailFootTwoTableViewCell.m in Sources */,
 				45A8392F1DC7307B009F1DE4 /* AFNetworkReachabilityManager.m in Sources */,
 				45A839431DC7307C009F1DE4 /* UIView+SDExtension.m in Sources */,
 				452679D91DF402F300D5E8D1 /* RegisterTwoViewController.m in Sources */,
@@ -1452,6 +1493,7 @@
 				45A839451DC7307C009F1DE4 /* NSData+GIF.m in Sources */,
 				45A839301DC7307B009F1DE4 /* AFSecurityPolicy.m in Sources */,
 				4584C2411DFFAB06000AC275 /* PayTableViewCell.m in Sources */,
+				456D54281E09167300C9355F /* OrderDetailOneTableViewCell.m in Sources */,
 				45A839401DC7307B009F1DE4 /* TAPageControl.m in Sources */,
 				457F35371DBF410C00809062 /* HomeViewController.m in Sources */,
 				4513E71E1DC32C8100734AF6 /* TodaySaleImageCollectionViewCell.m in Sources */,
@@ -1473,6 +1515,7 @@
 				454A688B1DF944D20058CF5C /* OrderListFootTwoTableViewCell.m in Sources */,
 				45A839481DC7307C009F1DE4 /* SDWebImageCompat.m in Sources */,
 				45258BB11DC206CD00127B56 /* Manager.m in Sources */,
+				456D54251E08DCE800C9355F /* OrderDetailViewController.m in Sources */,
 				4513E7241DC32DD900734AF6 /* DetailVerticalCollectionViewCell.m in Sources */,
 				45A839441DC7307C009F1DE4 /* MKAnnotationView+WebCache.m in Sources */,
 				4584C2C81DFFEC94000AC275 /* openssl_wrapper.m in Sources */,
@@ -1489,6 +1532,8 @@
 				454A68861DF944BF0058CF5C /* OrderListFootOneTableViewCell.m in Sources */,
 				45A839541DC7307C009F1DE4 /* UIView+WebCacheOperation.m in Sources */,
 				45A839471DC7307C009F1DE4 /* SDImageCache.m in Sources */,
+				454D97511E0A639D00E3FB76 /* CALayer+LayerColor.m in Sources */,
+				456D542B1E09168100C9355F /* OrderDetailTwoTableViewCell.m in Sources */,
 				45A839331DC7307B009F1DE4 /* AFURLResponseSerialization.m in Sources */,
 				45FD135C1DDDAFD40064AFB3 /* AlertManager.m in Sources */,
 				4513E7171DC3253300734AF6 /* MaxSaleHotCollectionReusableView.m in Sources */,
@@ -1638,6 +1683,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer: Mingzhu Jiang (6P73W6477C)";
+				DEVELOPMENT_TEAM = JRH48P873J;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/ShangCheng/第三方/aliPay",
@@ -1645,6 +1692,7 @@
 				GCC_PREFIX_HEADER = "$(SRCROOT)/ShangCheng/PrefixHeader.pch";
 				HEADER_SEARCH_PATHS = "$(SRCROOT)/ShangCheng/第三方/aliPay";
 				INFOPLIST_FILE = ShangCheng/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1652,6 +1700,8 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.zhennong.ShangCheng;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE_SPECIFIER = ShangChengDevelopment;
 			};
 			name = Debug;
 		};
@@ -1659,6 +1709,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer: Mingzhu Jiang (6P73W6477C)";
+				DEVELOPMENT_TEAM = JRH48P873J;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/ShangCheng/第三方/aliPay",
@@ -1666,6 +1718,7 @@
 				GCC_PREFIX_HEADER = "$(SRCROOT)/ShangCheng/PrefixHeader.pch";
 				HEADER_SEARCH_PATHS = "$(SRCROOT)/ShangCheng/第三方/aliPay";
 				INFOPLIST_FILE = ShangCheng/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1673,6 +1726,8 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.zhennong.ShangCheng;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE_SPECIFIER = ShangChengDevelopment;
 			};
 			name = Release;
 		};

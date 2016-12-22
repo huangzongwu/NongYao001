@@ -71,14 +71,16 @@
                     <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ODf-9A-pKE">
                         <rect key="frame" x="0.0" y="25" width="320" height="70"/>
                         <subviews>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="jGc-Oo-fid">
-                                <rect key="frame" x="0.0" y="0.0" width="400" height="70"/>
+                            <view contentMode="scaleToFill" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="jGc-Oo-fid">
+                                <rect key="frame" x="0.0" y="0.0" width="203" height="70"/>
                                 <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="400" id="fKv-tC-9ff"/>
                                 </constraints>
                             </view>
                         </subviews>
+                        <color key="backgroundColor" red="0.0" green="1" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                        <gestureRecognizers/>
                         <constraints>
                             <constraint firstAttribute="trailing" secondItem="jGc-Oo-fid" secondAttribute="trailing" id="8GJ-28-gHh"/>
                             <constraint firstItem="jGc-Oo-fid" firstAttribute="leading" secondItem="ODf-9A-pKE" secondAttribute="leading" id="8WL-dR-Nlo"/>
