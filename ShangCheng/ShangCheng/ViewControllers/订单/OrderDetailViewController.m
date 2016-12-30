@@ -11,6 +11,7 @@
 #import "OrderDetailTwoTableViewCell.h"
 #import "OrderDetailFootOneTableViewCell.h"
 #import "OrderDetailFootTwoTableViewCell.h"
+#import "ProductDetailViewController.h"
 
 @interface OrderDetailViewController ()<UITableViewDelegate,UITableViewDataSource>
 //头部View的控件
@@ -25,6 +26,9 @@
 //收货地址
 @property (weak, nonatomic) IBOutlet UILabel *addressLabel;
 
+//底部商品总额等信息数据
+@property (nonatomic,strong)NSArray *cellTwoDataSource;
+
 @end
 
 @implementation OrderDetailViewController
@@ -33,7 +37,18 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     
+    //更新头部
     [self updateHeaderView];
+//self.tempSupOrderModel.p_o_price_total
+    
+    NSDictionary *dic1 =@{@"商品总额":self.tempSupOrderModel.p_o_price_total};
+    NSDictionary *dic2 =@{@"优惠金额":self.tempSupOrderModel.p_discount};
+    NSDictionary *dic3 =@{@"数量":self.tempSupOrderModel.p_num};
+    NSDictionary *dic4 =@{@"下单时间":self.tempSupOrderModel.p_time_create};
+
+    self.cellTwoDataSource = @[dic1,dic2,dic3,dic4];
+    
+    
     
     
 }
@@ -66,7 +81,7 @@
     if (section < self.tempSupOrderModel.subOrderArr.count) {
         return 1;
     }else {
-        return 6;
+        return 4;
     }
     
 }
@@ -87,7 +102,7 @@
         //待付款和待确认的没有footView
         SonOrderModel *tempSonOrderModel = self.tempSupOrderModel.subOrderArr[section];
         if ([tempSonOrderModel.o_status isEqualToString:@"0"] || [tempSonOrderModel.o_status isEqualToString:@"1A"] || [tempSonOrderModel.o_status isEqualToString:@"1B"]) {
-            return 0;
+            return 1;
         }else {
             return 40;
         }
@@ -101,15 +116,14 @@
     //返回值就是区页脚。那么我们就让他返回footViewCell
     if (section < self.tempSupOrderModel.subOrderArr.count) {
         OrderDetailFootOneTableViewCell *footViewCellOne = [tableView dequeueReusableCellWithIdentifier:@"footViewOne"];
-        
-        
+        [footViewCellOne updateOrderDetailFootOneCell:self.tempSupOrderModel.subOrderArr[section]];
         
         return footViewCellOne;
 
     }else {
-        OrderDetailFootOneTableViewCell *footViewCellTwo = [tableView dequeueReusableCellWithIdentifier:@"footViewTwo"];
+        OrderDetailFootTwoTableViewCell *footViewCellTwo = [tableView dequeueReusableCellWithIdentifier:@"footViewTwo"];
         
-        
+        [footViewCellTwo updateOrderDetailTwoFootCell:self.tempSupOrderModel];
         return footViewCellTwo;
 
     }
@@ -126,7 +140,8 @@
         return oneCell;
         
     }else{
-        OrderDetailOneTableViewCell *twoCell = [tableView dequeueReusableCellWithIdentifier:@"orderDetailTwoCell" forIndexPath:indexPath];
+        OrderDetailTwoTableViewCell *twoCell = [tableView dequeueReusableCellWithIdentifier:@"orderDetailTwoCell" forIndexPath:indexPath];
+        [twoCell updateOrderDetailTwoCellDataSourceDic:self.cellTwoDataSource[indexPath.row]];
         return twoCell;
     }
     
@@ -135,7 +150,13 @@
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    
+    if (indexPath.section < self.tempSupOrderModel.subOrderArr.count) {
+        SonOrderModel *tempSonOrderModel = self.tempSupOrderModel.subOrderArr[indexPath.section];
+        [self performSegueWithIdentifier:@"orderToDetailVC" sender:tempSonOrderModel.o_product_id];
+        
+        
+    }
+
 }
 
 
@@ -144,14 +165,18 @@
     // Dispose of any resources that can be recreated.
 }
 
-/*
+
 #pragma mark - Navigation
 
 // In a storyboard-based application, you will often want to do a little preparation before navigation
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
+    ProductDetailViewController *productDetailVC = [segue destinationViewController];
+    productDetailVC.productID = sender;
+    
+    
 }
-*/
+
 
 @end

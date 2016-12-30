@@ -7,11 +7,12 @@
 //
 
 #import <UIKit/UIKit.h>
-
+#import "SupOrderModel.h"
 @interface OrderDetailFootTwoTableViewCell : UITableViewCell
 //需付款
 @property (weak, nonatomic) IBOutlet UILabel *needPayPriceLabel;
-//下单时间
-@property (weak, nonatomic) IBOutlet UILabel *orderTimeLabel;
+//付款时间
+@property (weak, nonatomic) IBOutlet UILabel *payTimeLabel;
 
+- (void)updateOrderDetailTwoFootCell:(SupOrderModel *)tempSupModel;
 @end

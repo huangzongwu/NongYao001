@@ -130,7 +130,16 @@
     return [NSString stringWithFormat:@"%@/UserAmount?id=%@",self.baseUrl,userID];
 }
 
+//收货地址列表
+- (NSString *)receiveAddressWithUserIdOrReceiveId:(NSString *)userIdOrReceiveId {
+    return [NSString stringWithFormat:@"%@/Receive?id=%@",self.baseUrl,userIdOrReceiveId];
+}
 
+//收货地址
+- (NSString *)receiveAddressBase {
+    return [NSString stringWithFormat:@"%@/Receive",self.baseUrl];
+
+}
 
 #pragma mark - 登录注册 -
 //登录接口
@@ -150,6 +159,12 @@
 //注册接口
 - (NSString *)registerPOSTUrl {
     return [NSString stringWithFormat:@"%@/User",self.baseUrl];
+}
+
+#pragma mark - 其他 -
+//地区信息
+- (NSString *)getAreaTree {
+    return [NSString stringWithFormat:@"%@/area?tree=",self.baseUrl];
 }
 
 

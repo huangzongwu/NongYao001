@@ -16,8 +16,7 @@
 @property (weak, nonatomic) IBOutlet IndexButton *buttonOne;
 //右边第二个button
 @property (weak, nonatomic) IBOutlet IndexButton *buttonTwo;
-//右边第三个button
-@property (weak, nonatomic) IBOutlet IndexButton *buttonThree;
+
 
 - (void)updateOrderDetailFootOneCell:(SonOrderModel *)tempSonOrderModel;
 

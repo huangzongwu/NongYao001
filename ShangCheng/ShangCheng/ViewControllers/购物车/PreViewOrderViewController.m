@@ -8,10 +8,12 @@
 
 #import "PreviewOrderViewController.h"
 #import "PreviewOrderTableViewCell.h"
+#import "ReceiveAddressViewController.h"
 #import "SelectCouponViewController.h"
 #import "PayViewController.h"
 #import "Manager.h"
 #import "AlertManager.h"
+
 @interface PreviewOrderViewController ()<UITableViewDataSource,UITableViewDelegate>
 //couponId:优惠卷id  saleCode:优惠码  saleMoney:优惠金额
 @property (nonatomic,strong)NSDictionary *saleMoneyDic;
@@ -38,7 +40,16 @@
 
 @property (nonatomic,strong)NSString *creatOrderId;
 
+//------收货地址-----------
+//收货地址控件
+@property (weak, nonatomic) IBOutlet UILabel *selectReceiveNameAndMobileLabel;
 
+@property (weak, nonatomic) IBOutlet UILabel *selectReceiveAddressLabel;
+
+//收货地址列表
+@property (nonatomic,strong)NSMutableArray *receiveAddressListArr;
+//选择的收货地址
+@property (nonatomic,strong)ReceiveAddressModel *selectReceiveModel;
 @end
 
 @implementation PreviewOrderViewController
@@ -55,8 +66,39 @@
    //底部实付款
     self.bottomPayMoneyLabel.text = [NSString stringWithFormat:@"实付款：￥%.2f", [self computeProductTotalPrice] - [[self.saleMoneyDic objectForKey:@"saleMoney"] integerValue]];
     
+    //网络请求收货地址
+    [manager receiveAddressListWithUserIdOrReceiveId:manager.memberInfoModel.u_id withAddressListSuccess:^(id successResult) {
+        self.receiveAddressListArr = successResult;
+        for (ReceiveAddressModel *tempModel in self.receiveAddressListArr) {
+            if (tempModel.defaultAddress == YES) {
+                self.selectReceiveModel = tempModel;
+                //刷新收货地址UI
+                [self updateReceiveViewUI];
+                
+                break;
+            }
+
+        }
+        
+    } withAddressListFail:^(NSString *failResultStr) {
+        
+    }];
+
 }
 
+//刷新收货地址UI
+- (void)updateReceiveViewUI {
+    NSString *phoneStr = @"";
+    if (self.selectReceiveModel.receiveMobile != nil && self.selectReceiveModel.receiveMobile.length == 11) {
+        phoneStr = self.selectReceiveModel.receiveMobile;
+    }else if (self.selectReceiveModel.receiveTel != nil && self.selectReceiveModel.receiveTel.length == 11) {
+        phoneStr = self.selectReceiveModel.receiveTel;
+    }
+
+    self.selectReceiveNameAndMobileLabel.text = [NSString stringWithFormat:@"%@  %@",self.selectReceiveModel.receiverName,phoneStr];
+    
+    self.selectReceiveAddressLabel.text = [NSString stringWithFormat:@"%@ %@ %@ %@",self.selectReceiveModel.capitalname,self.selectReceiveModel.cityname,self.selectReceiveModel.countyname,self.selectReceiveModel.receiveAddress];
+}
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
@@ -179,6 +221,19 @@
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
+    //选择收货地址
+    if ([segue.identifier isEqualToString:@"previewOrderToAddressListVC"]) {
+        ReceiveAddressViewController *receiveAddressVC = [segue destinationViewController];
+        receiveAddressVC.receiveAddressArr = self.receiveAddressListArr;
+        receiveAddressVC.selectModelBlock = ^(ReceiveAddressModel *tempModel){
+            self.selectReceiveModel = tempModel;
+            //刷新UI
+            [self updateReceiveViewUI];
+        };
+        
+    }
+    
+    
     //选择优惠劵
     if ([segue.identifier isEqualToString:@"toSelectCouponVC"]) {
         //大于等于1000才能进入优惠券界面
@@ -210,6 +265,8 @@
         payVC.orderIDArr = @[self.creatOrderId];
         payVC.totalAmountFloat = [self computeProductTotalPrice] - [[self.saleMoneyDic objectForKey:@"saleMoney"] integerValue];
     }
+    
+    
 }
 
 

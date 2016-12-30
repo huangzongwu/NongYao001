@@ -23,13 +23,16 @@
 
 //验证码登录中的账号
 @property (weak, nonatomic) IBOutlet UITextField *codeLoginIDTextField;
-//验证码登录中的密码
+//验证码登录中的验证码
 @property (weak, nonatomic) IBOutlet UITextField *codeLoginCodeTextField;
 //验证码登录中的登录按钮
 @property (weak, nonatomic) IBOutlet UIButton *codeLoginButton;
+//获取验证码按钮
+@property (weak, nonatomic) IBOutlet UIButton *getCodeButton;
 
-
-
+//定时器
+@property (nonatomic,strong)NSTimer *tempTimer;
+@property (nonatomic,assign)NSInteger countDownTime;//倒计时秒数
 
 @end
 
@@ -118,11 +121,26 @@
 }
 
 
+
+
+- (void)viewDidDisappear:(BOOL)animated {
+    [super viewDidDisappear:animated];
+    //定制器取消
+    [self endTimeDown];
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-
     //注册按钮点击后出现的注册类型视图
+    [self showRegisterAlertView];
+    
+    //设置倒计时初始值
+    self.countDownTime = 60;
+
+}
+
+- (void)showRegisterAlertView {
     UIWindow *window = [[UIApplication sharedApplication].windows lastObject];
     
     self.registerAlertView = [[[NSBundle mainBundle] loadNibNamed:@"RegisterAlertView" owner:self options:nil] firstObject];
@@ -135,21 +153,83 @@
             //跳转到普通用户注册
             UINavigationController *registerNav = [weakVC.storyboard instantiateViewControllerWithIdentifier:@"registerNavigationController"];
             [weakVC presentViewController:registerNav animated:YES completion:nil];
-
+            
         }
         if ([toRegisterVCStr isEqualToString:@"supplierVC"]) {
             //跳转到供应商注册
-//            UINavigationController *registerNav = [weakVC.storyboard instantiateViewControllerWithIdentifier:@"RegisterNavigationController"];
-//            [weakVC presentViewController:registerNav animated:YES completion:nil];
-
+            //            UINavigationController *registerNav = [weakVC.storyboard instantiateViewControllerWithIdentifier:@"RegisterNavigationController"];
+            //            [weakVC presentViewController:registerNav animated:YES completion:nil];
+            
         }
     };
 
-   
+}
+
+#pragma mark - 获取验证码 和 倒计时 -
+//开始倒计时
+- (void)startTimeDown {
+    //开始60秒倒计时
+    self.tempTimer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(timerAction:) userInfo:nil repeats:YES];
     
-    
+    //按钮不可点击
+    self.getCodeButton.enabled = NO;
+    [self.getCodeButton setTitle:[NSString stringWithFormat:@"倒计时 %ld",self.countDownTime] forState:UIControlStateNormal];
+    //背景变灰色
+    self.getCodeButton.backgroundColor = kColor(153, 153, 153, 1);
+}
+//倒计时结束
+- (void)endTimeDown {
+    //倒计时回归
+    self.countDownTime = 60;
+    //停止倒计时
+    [self.tempTimer invalidate];
+    //按钮可以点击
+    self.getCodeButton.enabled = YES;
+    [self.getCodeButton setTitle:@"获取验证码" forState:UIControlStateNormal];
+    //背景色变红
+    self.getCodeButton.backgroundColor = kColor(208, 23, 84, 1);
     
 }
+- (void)timerAction:(NSTimer *)timer {
+    NSLog(@"aaaaaaaa");
+    self.countDownTime--;
+    //    NSLog(@"倒计时 %ld",self.countDownTime);
+    self.getCodeButton.titleLabel.text = [NSString stringWithFormat:@"倒计时(%ld)",self.countDownTime];
+    [self.getCodeButton setTitle:[NSString stringWithFormat:@"倒计时(%ld)",self.countDownTime] forState:UIControlStateNormal];
+    if (self.countDownTime == 0) {
+        //倒计时结束
+        [self endTimeDown];
+        
+    }
+}
+
+//获取验证码
+- (IBAction)getLoginCodeButtonAction:(UIButton *)sender {
+    if (self.codeLoginIDTextField.text.length == 11) {
+        Manager *manager = [Manager shareInstance];
+        [manager httpMobileCodeWithMobileNumber:self.codeLoginIDTextField.text withCodeSuccessResult:^(id successResult) {
+            if ([successResult isEqualToString:@"200"]) {
+                AlertManager *alert = [AlertManager shareIntance];
+                [alert showAlertViewWithTitle:nil withMessage:@"短信验证码发送成功，请注意查收" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
+                    //发送成功后，开始倒计时
+                    [self startTimeDown];
+                    
+                }];
+            }
+
+        } withCodeFailResult:^(NSString *failResultStr) {
+            
+        }];
+
+    }else {
+        AlertManager *alert = [AlertManager shareIntance];
+        [alert showAlertViewWithTitle:nil withMessage:@"请输入正确的手机号" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
+    }
+    
+}
+
+
+
 #pragma mark - 登录 -
 //密码登录按钮
 - (IBAction)loginButtonOneAction:(UIButton *)sender {
@@ -172,6 +252,18 @@
 
 //验证码登录按钮
 - (IBAction)loginButtonTwoAction:(UIButton *)sender {
+    NSString *loginTel = self.codeLoginIDTextField.text;
+    NSString *loginCode = self.codeLoginCodeTextField.text;
+    Manager *manager = [Manager shareInstance];
+    [manager loginActionWithMobile:loginTel withMobileCode:loginCode withLoginSuccessResult:^(id successResult) {
+        
+        [self dismissViewControllerAnimated:YES completion:nil];
+
+    } withLoginFailResult:^(NSString *failResultStr) {
+        
+    }];
+    
+    
     
 }
 
@@ -183,6 +275,8 @@
 }
 //从短信界面到密码登录界面
 - (IBAction)toPasswordLoginView:(UIButton *)sender {
+    //重置验证码
+    [self endTimeDown];
     
     self.loginScrollView.contentOffset = CGPointMake(0, 0);
 
@@ -214,9 +308,10 @@
 - (IBAction)messageToForgetVCAction:(UIButton *)sender {
 }
 
-- (void)dismissVCAction {
+- (IBAction)leftBarButtonAction:(UIBarButtonItem *)sender {
     [self dismissViewControllerAnimated:YES completion:nil];
 }
+
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

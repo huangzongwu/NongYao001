@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "IndexButton.h"
-//用户buttonblock,liangg 两个参数，分别是index和功能描述
+//用户buttonblock,buttonActionStr 两个参数，分别是index和功能描述
 typedef void(^FootOneButtonBlock)(NSIndexPath * buttonIndex , NSString *buttonActionStr);
 
 @interface OrderListFootOneTableViewCell : UITableViewCell

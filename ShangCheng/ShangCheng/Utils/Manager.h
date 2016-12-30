@@ -18,6 +18,7 @@
 #import "CouponModel.h"
 #import "AlertManager.h"
 #import "SonOrderModel.h"
+#import "ReceiveAddressModel.h"
 typedef void(^SuccessResult)(id successResult);
 typedef void(^FailResult)(NSString *failResultStr);
 
@@ -36,6 +37,9 @@ typedef void(^FailResult)(NSString *failResultStr);
 //订单列表的数据源 : 1-全部、2-待付款、3-进行中、4-已完成
 @property (nonatomic,strong)NSMutableDictionary *orderListDataSourceDic;
 
+//地区信息数组
+@property (nonatomic,strong)NSArray *areaArr;
+
 
 + (Manager *)shareInstance;
 
@@ -43,9 +47,9 @@ typedef void(^FailResult)(NSString *failResultStr);
 //首页产品 cnum是热销产品的个数，rnum是推荐产品的个数
 - (void)httpHomeProductWithCnum:(NSString *)cnum withRnum:(NSString *)rnum withSuccessHomeResult:(SuccessResult)successHomeResult withFailHomeResult:(FailResult)failHomeResult;
 //获取产品详情
-- (void)httpProductDetailInfoWithProductDetailModel:(ProductDetailModel *)productDetailModel withSuccessDetailResult:(SuccessResult)successDetailResult withFailDetailResult:(FailResult)failDetailResult;
+- (void)httpProductDetailInfoWithProductID:(NSString *)productId withProductDetailModel:(ProductDetailModel *)productDetailModel withSuccessDetailResult:(SuccessResult)successDetailResult withFailDetailResult:(FailResult)failDetailResult;
 //获取产品的所有规格
-- (void)httpProductAllFarmatInfoWithProductDetailModel:(ProductDetailModel *)productDetailModel withSuccessFarmatResult:(SuccessResult)successFarmatResult withFailFarmatResult:(FailResult)failFarmatResult;
+- (void)httpProductAllFarmatInfoWithProductID:(NSString *)productId  withProductDetailModel:(ProductDetailModel *)productDetailModel withSuccessFarmatResult:(SuccessResult)successFarmatResult withFailFarmatResult:(FailResult)failFarmatResult;
 
 #pragma mark - 购物车 -
 //将产品加入购物车
@@ -53,6 +57,10 @@ typedef void(^FailResult)(NSString *failResultStr);
 
 //判断是否全选
 - (void)isAllSelectForShoppingCarAction ;
+//判断是否有选择产品
+- (BOOL)isSelectAnyOneProduct;
+//所有选择的产品的总件数
+- (NSInteger )isSelectProductCount;
 
 //得到购物车网络数据
 - (void)httpShoppingCarDataWithUserId:(NSString *)userId WithSuccessResult:(SuccessResult)shoppingCarSuccessResult withFailResult:(FailResult)failResult ;
@@ -84,8 +92,8 @@ typedef void(^FailResult)(NSString *failResultStr);
 //生成订单
 - (void)creatOrderWithUserID:(NSString *)userID withReceivedID:(NSString *)receivedID withTotalAmount:(NSString *)totalAmount withDiscount:(NSString *)discount withCouponId:(NSString *)couponId withArr:(NSMutableArray *)itemArr withOrderSuccessResult:(SuccessResult)orderSuccessResult withOrderFailResult:(FailResult)orderFailResult;
 
-//取消订单
-- (void)cancelOrderWithUserID:(NSString *)userID wiOrderID:(NSString *)orderID withCancelSuccessResult:(SuccessResult )cancelSuccessResult withCancelFailResult:(FailResult)cancelFailResult;
+//取消父订单
+- (void)cancelSupOrderWithUserID:(NSString *)userID wiOrderID:(NSString *)orderID withCancelSuccessResult:(SuccessResult )cancelSuccessResult withCancelFailResult:(FailResult)cancelFailResult;
 #pragma mark - 支付 -
 //支付前验证
 - (void)paybeforeVerifyWithUserId:(NSString *)userID withTotalAmount:(NSString *)totalAmount withBalance:(NSString *)balance withPayAmount:(NSString *)payAmount withOrderIdArr:(NSArray *)orderIdArr withVerifySuccessBlock:(SuccessResult )verifySuccessBlock withVerfityFailBlock:(FailResult)verfityFailBlock;
@@ -95,6 +103,11 @@ typedef void(^FailResult)(NSString *failResultStr);
 #pragma mark - 个人信息 -
 //获取个人信息的余额
 - (void)searchUserAmount:(NSString *)userId withAmountSuccessBlock:(SuccessResult )amountSuccessBlock withAmountFailBlock:(FailResult)amountFailBlcok;
+//获取收货地址列表
+- (void)receiveAddressListWithUserIdOrReceiveId:(NSString *)userIdOrReceiveId withAddressListSuccess:(SuccessResult)addressListSuccessBlock withAddressListFail:(FailResult)addressListFailBlock;
+
+//修改某个收货地址
+- (void)motifyReceiveAddressWithReceiveAddressModel:(ReceiveAddressModel *)tempReceiveAddressModel withMotifySuccess:(SuccessResult )motifySuccess withMotifyFail:(FailResult)motifyFail;
 
 #pragma mark - 登录注册 -
 //密码登录
@@ -124,6 +137,7 @@ typedef void(^FailResult)(NSString *failResultStr);
 //获取当前时间
 - (NSString *)getNowTimeStr; 
 
-
+//获取地区信息
+- (void)httpAreaTreeWithSuccessAreaInfo:(SuccessResult )successAreaInfo withFailAreaInfo:(FailResult)failAreaInfo ;
 
 @end

@@ -263,7 +263,7 @@
             //取消订单
             if ([buttonActionStr isEqualToString:@"cancelOrder"]) {
                 SupOrderModel *selectModel = modelArr[buttonIndex.section];
-                [manager cancelOrderWithUserID:manager.memberInfoModel.u_id wiOrderID:selectModel.p_id withCancelSuccessResult:^(id successResult) {
+                [manager cancelSupOrderWithUserID:manager.memberInfoModel.u_id wiOrderID:selectModel.p_id withCancelSuccessResult:^(id successResult) {
                     //取消订单后，刷新 当前TableView。其他的在切换的时候刷新
                     [tableView reloadData];
                     
@@ -280,7 +280,15 @@
         
         OrderListFootTwoTableViewCell *footTwoCell = [tableView dequeueReusableCellWithIdentifier:@"orderListFootTwoCell"];
         footTwoCell.orderDetailInfoButton.indexForButton = [NSIndexPath indexPathForRow:0 inSection:section];
-        
+        //查看详情按钮
+        footTwoCell.footTwoButtonBlock = ^(NSIndexPath * buttonIndex){
+            NSArray *modelArr = [[manager.orderListDataSourceDic objectForKey:self.whichTableView] objectForKey:@"content"];
+            
+            SupOrderModel *selectModel = modelArr[buttonIndex.section];
+            [self performSegueWithIdentifier:@"OrderListToOrderDetailVC" sender:selectModel];
+
+            
+        };
         return footTwoCell;
     }
 }
@@ -302,7 +310,6 @@
     if (tableView == self.finishTableView) {
         dataArr = [[[Manager shareInstance].orderListDataSourceDic objectForKey:@"4"] objectForKey:@"content"];
     }
-    
     
     SupOrderModel *supOrderModel = dataArr[indexPath.section];
     

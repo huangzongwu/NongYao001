@@ -28,6 +28,9 @@
     if (_timeout_express.length > 0) {
         [tmpDict setObject:_timeout_express forKey:@"timeout_express"];
     }
+    if (_passback_params.length > 0) {
+        [tmpDict setObject:_passback_params forKey:@"passback_params"];
+    }
     
     // NOTE: 转变得到json string
     NSData* tmpData = [NSJSONSerialization dataWithJSONObject:tmpDict options:0 error:nil];

@@ -16,9 +16,9 @@
     ShoppingCarModel *tempShoppingCarModel = [[[Manager shareInstance] shoppingCarDataSourceArr] objectAtIndex:cellIndex.section];
     //是否被选择状态
     if (tempShoppingCarModel.isSelectedShoppingCar == YES) {
-        self.selectButton.backgroundColor = [UIColor redColor];
+        [self.selectButton setBackgroundImage:[UIImage imageNamed:@"g_btn_select"] forState:UIControlStateNormal];
     }else {
-        self.selectButton.backgroundColor = [UIColor lightGrayColor];
+        [self.selectButton setBackgroundImage:[UIImage imageNamed:@"g_btn_normal"] forState:UIControlStateNormal];
     }
     
     self.titleLabel.text = tempShoppingCarModel.shoppingCarProduct.productTitle;
@@ -100,10 +100,10 @@
     tempShoppingCarModel.isSelectedShoppingCar = !tempShoppingCarModel.isSelectedShoppingCar;
     if (tempShoppingCarModel.isSelectedShoppingCar == YES) {
         //如果选择了
-        sender.backgroundColor = [UIColor redColor];
+        [self.selectButton setBackgroundImage:[UIImage imageNamed:@"g_btn_select"] forState:UIControlStateNormal];
         
     }else {
-        sender.backgroundColor = [UIColor lightGrayColor];
+        [self.selectButton setBackgroundImage:[UIImage imageNamed:@"g_btn_normal"] forState:UIControlStateNormal];
         
     }
     

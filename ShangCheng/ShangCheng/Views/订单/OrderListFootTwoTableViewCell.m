@@ -9,6 +9,10 @@
 #import "OrderListFootTwoTableViewCell.h"
 
 @implementation OrderListFootTwoTableViewCell
+- (IBAction)orderDetailInfo:(IndexButton *)sender {
+    
+    self.footTwoButtonBlock(sender.indexForButton);
+}
 
 - (void)awakeFromNib {
     [super awakeFromNib];

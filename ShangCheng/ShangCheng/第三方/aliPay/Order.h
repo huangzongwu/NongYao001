@@ -33,6 +33,8 @@
 // NOTE: 销售产品码，商家和支付宝签约的产品码 (如 QUICK_MSECURITY_PAY)
 @property (nonatomic, copy) NSString *product_code;
 
+@property (nonatomic,strong) NSString *passback_params;
+
 @end
 
 

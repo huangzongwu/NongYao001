@@ -256,7 +256,7 @@
         [manager paybeforeVerifyWithUserId:manager.memberInfoModel.u_id withTotalAmount:[NSString stringWithFormat:@"%.2f",self.totalAmountFloat] withBalance:[NSString stringWithFormat:@"%.2f",self.useBalanceFloat] withPayAmount:[NSString stringWithFormat:@"%.2f",self.totalAmountFloat-self.useBalanceFloat] withOrderIdArr:self.orderIDArr withVerifySuccessBlock:^(id successResult) {
             
             //验证成功，可以支付了。，
-            [self startPayActionWithPayID:successResult withPayMoney:[NSString stringWithFormat:@"%.2f",self.totalAmountFloat-self.useBalanceFloat]];
+            [self startPayActionWithPayID:[successResult objectForKey:@"tradeno"] withAppId:[successResult objectForKey:@"appid"] withPayMoney:[NSString stringWithFormat:@"%.2f",self.totalAmountFloat-self.useBalanceFloat]];
             
         } withVerfityFailBlock:^(NSString *failResultStr) {
             
@@ -310,10 +310,10 @@
 }
 
 //开始支付
-- (void)startPayActionWithPayID:(NSString *)payID withPayMoney:(NSString *)payMoney {
+- (void)startPayActionWithPayID:(NSString *)payID withAppId:(NSString *)appID withPayMoney:(NSString *)payMoney {
     //支付宝
     if (self.payKindInt == 0) {
-        [self aliPayActionWithPayID:payID withPayMoney:payMoney];
+        [self aliPayActionWithPayID:payID withAppId:appID withPayMoney:payMoney];
     }
     
     
@@ -322,7 +322,7 @@
 
 
 #pragma mark - 支付宝支付 -
-- (void)aliPayActionWithPayID:(NSString *)payId withPayMoney:(NSString *)payMoney {
+- (void)aliPayActionWithPayID:(NSString *)payId withAppId:(NSString *)appId withPayMoney:(NSString *)payMoney {
     
     //重要说明
     //这里只是为了方便直接向商户展示支付宝的整个支付流程；所以Demo中加签过程直接放在客户端完成；
@@ -331,7 +331,7 @@
     /*============================================================================*/
     /*=======================需要填写商户app申请的===================================*/
     /*============================================================================*/
-    NSString *appID = @"2016072900114888";
+//    NSString *appID = appId;
 //    NSString *privateKey = @"";
     /*============================================================================*/
     /*============================================================================*/
@@ -353,16 +353,22 @@
     /*
      *生成订单信息及签名
      */
+    //userid
+    NSString *tempUserId = [Manager shareInstance].memberInfoModel.u_id;
+    NSString *tempPayType = @"支付宝";
+    NSString *tempTotalamount = [NSString stringWithFormat:@"%.2f",self.totalAmountFloat ]; //订单总额;
+    NSString *tempBalance = [NSString stringWithFormat:@"%.2f",self.useBalanceFloat ];
+    
     //将商品信息赋予AlixPayOrder的成员变量
     Order* order = [Order new];
     
     // NOTE: app_id设置
-    order.app_id = appID;
+    order.app_id = appId;
     
     // NOTE: 支付接口名称
     order.method = @"alipay.trade.app.pay";
     order.format = @"json";
-    order.return_url = @"http://www.nongyao001.com";
+    order.notify_url = @"http://118.178.224.54:8001/api/AlipayNotifyUrl";
     
     // NOTE: 参数编码格式
     order.charset = @"utf-8";
@@ -377,26 +383,32 @@
     
     // NOTE: sign_type设置
     order.sign_type = @"RSA";
+    //回传参数
+
     
     // NOTE: 商品数据
     order.biz_content = [BizContent new];
-//    order.biz_content.seller_id = @"2088011595840869";
-    order.biz_content.body = @"我是测试数据";
+    order.biz_content.body = @"导演最帅";
     order.biz_content.subject = @"1";
     //支付ID
     order.biz_content.out_trade_no = payId; //订单ID（由商家自行制定）
     order.biz_content.timeout_express = @"30m"; //超时时间设置
-    order.biz_content.total_amount = payMoney; //商品价格
+    order.biz_content.total_amount = @"0.01"; //商品价格
+
+    NSString *tempPassback_params = (NSString *)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault, (CFStringRef)[self dictionaryToJson:@{@"userid":tempUserId,@"paytype":tempPayType,@"totalamount":tempTotalamount,@"balance":tempBalance}], NULL, (CFStringRef)@"!*'();:@&=+ $,./?%#[]", kCFStringEncodingUTF8));
+
+    order.biz_content.passback_params = tempPassback_params;
     
     //将商品信息拼接成字符串
     NSString *orderInfo = [order orderInfoEncoded:NO];
     NSString *orderInfoEncoded = [order orderInfoEncoded:YES];
     NSLog(@"orderSpec = %@",orderInfo);
+    NSLog(@"orderSpec2222 = %@",orderInfoEncoded);
 
     // NOTE: 获取私钥并将商户信息签名，外部商户的加签过程请务必放在服务端，防止公私钥数据泄露；
     //       需要遵循RSA签名规范，并将签名字符串base64编码和UrlEncode
     //开始签名接口
-    [[Manager shareInstance] aliPaySignDataStr:orderInfo withSignSuccessResult:^(id successResult) {
+    [[Manager shareInstance] aliPaySignDataStr:orderInfoEncoded withSignSuccessResult:^(id successResult) {
         
         //签名后的字符串
         NSString *signedString = [successResult objectForKey:@"sign"];
@@ -459,6 +471,19 @@
 }
 
 
+#pragma mark - 将字典变为json格式的字符串 -
+- (NSString *)dictionaryToJson:(id )dic {
+    
+    NSError *parseError = nil;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:dic options:NSJSONWritingPrettyPrinted error:&parseError];
+    NSString *tempStr = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    
+    tempStr = [tempStr stringByReplacingOccurrencesOfString:@"\n" withString:@""];
+    tempStr = [tempStr stringByReplacingOccurrencesOfString:@" " withString:@""];
+    
+    return tempStr;
+    
+}
 
 
 - (void)didReceiveMemoryWarning {

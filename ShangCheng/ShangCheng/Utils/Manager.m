@@ -83,9 +83,9 @@
 
 
 //获取产品详情
-- (void)httpProductDetailInfoWithProductDetailModel:(ProductDetailModel *)productDetailModel withSuccessDetailResult:(SuccessResult)successDetailResult withFailDetailResult:(FailResult)failDetailResult {
+- (void)httpProductDetailInfoWithProductID:(NSString *)productId withProductDetailModel:(ProductDetailModel *)productDetailModel withSuccessDetailResult:(SuccessResult)successDetailResult withFailDetailResult:(FailResult)failDetailResult {
 
-    [[NetManager shareInstance] getRequestWithURL:[[InterfaceManager shareInstance] productDetailURLWithProductID:productDetailModel.productModel.productID] withParameters:nil withContentTypes:nil withHeaderArr:nil withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+    [[NetManager shareInstance] getRequestWithURL:[[InterfaceManager shareInstance] productDetailURLWithProductID:productId] withParameters:nil withContentTypes:nil withHeaderArr:nil withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
         
         if (operation.response.statusCode == 200) {
             //网络成功，解析数据
@@ -119,9 +119,9 @@
 }
 
 //获取产品的所有规格
-- (void)httpProductAllFarmatInfoWithProductDetailModel:(ProductDetailModel *)productDetailModel withSuccessFarmatResult:(SuccessResult)successFarmatResult withFailFarmatResult:(FailResult)failFarmatResult {
+- (void)httpProductAllFarmatInfoWithProductID:(NSString *)productId  withProductDetailModel:(ProductDetailModel *)productDetailModel withSuccessFarmatResult:(SuccessResult)successFarmatResult withFailFarmatResult:(FailResult)failFarmatResult {
 
-    [[NetManager shareInstance] getRequestWithURL:[[InterfaceManager shareInstance] productAllFarmatWithProductID:productDetailModel.productModel.productID] withParameters:nil withContentTypes:nil withHeaderArr:nil withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+    [[NetManager shareInstance] getRequestWithURL:[[InterfaceManager shareInstance] productAllFarmatWithProductID:productId] withParameters:nil withContentTypes:nil withHeaderArr:nil withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
         //解析
         [self analyzeProductAllFarmatInfoWithJsonArr:successResult withProductDetailModel:productDetailModel withSuccessFarmatResult:successFarmatResult withFailFarmatResult:failFarmatResult];
         
@@ -192,8 +192,7 @@
             if (tempModel.isSelectedShoppingCar == NO) {
                 
                 self.isAllSelectForShoppingCar = NO;
-                //计算金额
-
+                
                 return ;
             }
         }
@@ -205,6 +204,38 @@
     }
     
 }
+
+
+//判断是否有选择产品
+- (BOOL)isSelectAnyOneProduct {
+    //如果有一个被选择，那么就返回yes；否则就是no
+    if (self.shoppingCarDataSourceArr.count > 0) {
+        for (ShoppingCarModel *tempModel in self.shoppingCarDataSourceArr) {
+            if (tempModel.isSelectedShoppingCar == YES) {
+                
+                return YES;
+            }
+        }
+    }
+    return NO;
+}
+
+//所有选择的产品的总件数
+- (NSInteger )isSelectProductCount {
+    NSInteger isSelectCount = 0;
+    if (self.shoppingCarDataSourceArr.count > 0) {
+        for (ShoppingCarModel *tempModel in self.shoppingCarDataSourceArr) {
+            if (tempModel.isSelectedShoppingCar == YES) {
+                //如果这个产品被选择
+                isSelectCount += [tempModel.c_number integerValue];
+                
+            }
+        }
+    }
+    return isSelectCount ;
+}
+
+
 
 //网络得到购物车数据
 - (void)httpShoppingCarDataWithUserId:(NSString *)userId WithSuccessResult:(SuccessResult)shoppingCarSuccessResult withFailResult:(FailResult)failResult {
@@ -249,6 +280,9 @@
             [self.shoppingCarDataSourceArr addObject:tempShoppingCarModel];
         }
     }
+    //计算全选状态
+    [self isAllSelectForShoppingCarAction];
+    
     successResult(self.shoppingCarDataSourceArr);
 }
 
@@ -601,10 +635,10 @@
     }];
 }
 
-//取消订单
-- (void)cancelOrderWithUserID:(NSString *)userID wiOrderID:(NSString *)orderID withCancelSuccessResult:(SuccessResult )cancelSuccessResult withCancelFailResult:(FailResult)cancelFailResult {
-    
-    NSDictionary *valueDic = @{@"userid":userID};
+//取消父订单
+- (void)cancelSupOrderWithUserID:(NSString *)userID wiOrderID:(NSString *)orderID withCancelSuccessResult:(SuccessResult )cancelSuccessResult withCancelFailResult:(FailResult)cancelFailResult {
+
+    NSDictionary *valueDic = @{@"userid":userID,@"message":@"不喜欢"};
     
     //给value加密
     NSString *secretStr = [self digest:[NSString stringWithFormat:@"%@Nongyao_Com001", [self dictionaryToJson:@[valueDic]]]];
@@ -612,9 +646,8 @@
     NSDictionary *parametersDic = @{@"m":secretStr,@"value":@[valueDic]};
 
     
-    [[NetManager shareInstance] putRequestWithURL:[[InterfaceManager shareInstance] cancelOrderWithOrderID:orderID] withParameters:parametersDic withContentTypes:@"string" withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+    [[NetManager shareInstance] putRequestWithURL:[[InterfaceManager shareInstance] cancelOrderWithOrderID:orderID] withParameters:parametersDic withContentTypes:nil withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
         NSLog(@"%ld",operation.response.statusCode);
-        NSLog(@"%@",[[NSString alloc] initWithData:successResult encoding:NSUTF8StringEncoding]);
         if (operation.response.statusCode == 200) {
             /*取消订单成功后，需要做的操作
              1、在全部订单数据源中，将这个订单的状态改为9，值为已结束，(包括父订单和子订单)
@@ -622,9 +655,20 @@
              3、在已完成数据源中，将这个订单添加进去
              */
             //将取消后的订单，封装为模型
-            SupOrderModel *changedOrderModel = [[SupOrderModel alloc] init];
-            changedOrderModel.p_id = orderID;
+            NSMutableArray *sonOrderArr = [NSMutableArray array];
             
+            NSArray *itemArr = [successResult[0] objectForKey:@"item"];
+            for (NSDictionary *itemDic in itemArr) {
+                SonOrderModel *sonOrderModel = [[SonOrderModel alloc] init];
+                [sonOrderModel setValuesForKeysWithDictionary:itemDic];
+                [sonOrderArr addObject:sonOrderModel];
+            }
+            
+            SupOrderModel *changedOrderModel = [[SupOrderModel alloc] init];
+            [changedOrderModel setValuesForKeysWithDictionary:successResult[0]];
+            changedOrderModel.subOrderArr = sonOrderArr;
+            changedOrderModel.isSelectOrder = NO;
+
             [self cancelOrderUpdateDataSourceWithChangedOrder:changedOrderModel];
             
             //取消订单后，就可以刷新UI了，用block返回刷新
@@ -645,8 +689,6 @@
      2、在待付款数据源中，将这个订单删除
      3、在已完成数据源中，将这个订单添加进去
      */
-    
-//    SupOrderModel *tempFinishModel = [[SupOrderModel alloc] init];
     
     //1、改变全部订单的数据源。
     //从全部订单中，找到这个产品
@@ -682,8 +724,8 @@
     }
     
     //3、在已完成中添加这个订单
-//    NSMutableArray *finishOrderArr = [[self.orderListDataSourceDic objectForKey:@"4"] objectForKey:@"content"];
-//    [finishOrderArr addObject:changedOrder];
+    NSMutableArray *finishOrderArr = [[self.orderListDataSourceDic objectForKey:@"4"] objectForKey:@"content"];
+    [finishOrderArr addObject:changedOrder];
     
     
 }
@@ -706,12 +748,11 @@
     NSDictionary *parametersDic = @{@"m":secretStr,@"value":@[valueDic]};
 
     
-    [[NetManager shareInstance] postRequestWithURL:[[InterfaceManager shareInstance] paybeforeVerifyPOST] withParameters:parametersDic withContentTypes:@"string" withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+    [[NetManager shareInstance] postRequestWithURL:[[InterfaceManager shareInstance] paybeforeVerifyPOST] withParameters:parametersDic withContentTypes:nil withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
         NSLog(@"%ld",operation.response.statusCode);
         if (operation.response.statusCode == 200) {
 //            NSString *payID = [[NSString alloc] initWithData:successResult encoding:NSUTF8StringEncoding];
 //            payID = [payID stringByReplacingOccurrencesOfString:@"\"" withString:@""];
-            NSLog(@"payId = %@",successResult);
             
             //将支付id返回
             verifySuccessBlock(successResult);
@@ -764,13 +805,80 @@
     }];
 }
 
+//获取收货地址列表
+- (void)receiveAddressListWithUserIdOrReceiveId:(NSString *)userIdOrReceiveId withAddressListSuccess:(SuccessResult)addressListSuccessBlock withAddressListFail:(FailResult)addressListFailBlock {
+    
+    [[NetManager shareInstance] getRequestWithURL:[[InterfaceManager shareInstance] receiveAddressWithUserIdOrReceiveId:userIdOrReceiveId] withParameters:nil withContentTypes:nil withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+        NSLog(@"%@",[self dictionaryToJson:successResult]);
+        //获取成功
+        if (operation.response.statusCode == 200) {
+            //解析数据
+            [self analyzeReceiveAddressListWithJsonArr:successResult withAddressListSuccess:addressListSuccessBlock];
+        }
+        
+    } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
+        NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
+
+    }];
+    
+}
+
+- (void)analyzeReceiveAddressListWithJsonArr:(NSArray *)jsonArr  withAddressListSuccess:(SuccessResult)addressListSuccessBlock {
+    NSMutableArray *receiveArr = [NSMutableArray array];
+    //封装模型
+    for (NSDictionary *jsonDic in jsonArr) {
+        ReceiveAddressModel *receiveModel = [[ReceiveAddressModel alloc] init];
+        [receiveModel setValuesForKeysWithDictionary:jsonDic];
+        [receiveArr addObject:receiveModel];
+    }
+    
+    addressListSuccessBlock(receiveArr);
+    
+}
+
+
+//修改某个收货地址
+- (void)motifyReceiveAddressWithReceiveAddressModel:(ReceiveAddressModel *)tempReceiveAddressModel withMotifySuccess:(SuccessResult )motifySuccess withMotifyFail:(FailResult)motifyFail {
+
+    
+    
+    NSString *defaltStr ;
+    if (tempReceiveAddressModel.defaultAddress == YES) {
+        defaltStr = @"1";
+    }else {
+        defaltStr = @"0";
+    }
+    
+
+    if (tempReceiveAddressModel.receiveTel == nil) {
+        tempReceiveAddressModel.receiveTel = @"";
+    }
+    NSDictionary *valueDic = @{@"name":tempReceiveAddressModel.receiverName,@"address":tempReceiveAddressModel.receiveAddress,@"tel":tempReceiveAddressModel.receiveTel,@"mobile":tempReceiveAddressModel.receiveMobile,@"areaid":tempReceiveAddressModel.areaID,@"defaultaddress":defaltStr};
+    
+    //给value加密
+    NSString *secretStr = [self digest:[NSString stringWithFormat:@"%@Nongyao_Com001", [self dictionaryToJson:@[valueDic]]]];
+    
+    NSDictionary *parametersDic = @{@"m":secretStr,@"value":@[valueDic]};
+
+    
+    [[NetManager shareInstance] putRequestWithURL:[[InterfaceManager shareInstance] receiveAddressWithUserIdOrReceiveId:tempReceiveAddressModel.receiverID] withParameters:parametersDic withContentTypes:nil withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+        NSLog(@"%ld--",operation.response.statusCode);
+
+    } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
+        NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
+
+    }];
+}
+
+
+
 
 #pragma mark - 注册登录 -
 //密码登录
 - (void)loginActionWithUserID:(NSString *)userID withPassword:(NSString *)password withLoginSuccessResult:(SuccessResult )loginSuccessResult withLoginFailResult:(FailResult)loginFailResult {
     //清空原有的个人数据
     self.memberInfoModel = nil;
-//    {"loginname":"admin","password":"3CBFCCCB67766883CF4F03B74A763CDC","facility":"1"}
+
     NetManager *netManager = [NetManager shareInstance];
     //参数.密码需要md5加密
     NSDictionary *parameter = @{@"loginname": userID, @"password": password,@"facility":@"4"};
@@ -818,7 +926,7 @@
 
 //验证码登录
 - (void)loginActionWithMobile:(NSString *)mobile withMobileCode:(NSString *)mobileCode withLoginSuccessResult:(SuccessResult)loginSuccessResult withLoginFailResult:(FailResult)loginFailResult {
-    /*
+    
     //清空原有的个人数据
     self.memberInfoModel = nil;
     //    {"loginname":"admin","password":"3CBFCCCB67766883CF4F03B74A763CDC","facility":"1"}
@@ -830,21 +938,16 @@
         //得到网络请求状态码
         NSLog(@"%ld",operation.response.statusCode);
         if (operation.response.statusCode == 200) {
-            //登录成功，
-            //解析数据，保存到本地
-            BOOL locationResult = [self analyzeMemberWithJsonDic:successResult[0] withPassword:password];
-            //如果存入本地成功
+            //登录成功，解析数据，
+            BOOL locationResult = [self analyzeMemberWithJsonDic:successResult[0] withPassword:nil];
+            //不需要存入本地，即写死成了YES
             if (locationResult == YES) {
                 loginSuccessResult(successResult);
                 
 #warning 登录成功发送通知
                 [[NSNotificationCenter defaultCenter] postNotificationName:@"logedIn" object:self userInfo:nil];
                 
-            }else{
-                loginFailResult(@"未知错误，登录失败，请稍后再试");
-                
-            }
-            
+            }            
         }else{
             loginFailResult(@"未知服务器错误，请联系客服");
             
@@ -864,7 +967,7 @@
         }
         
     }];
-*/
+
     
 }
 
@@ -875,17 +978,25 @@
 
 //    memberInfoModel.u_mobile = [[jsonDic objectForKey:@"user"] objectForKey:@"u_mobile"];
     memberInfoModel.userPassword = password;
-    //存到本地利用归档
-    BOOL saveResult = [self saveMemberInfoModelToLocationWithMemberInfo:memberInfoModel];
-    if (saveResult == YES) {
-        //存入本地成功
+    if (password == nil) {
+        //验证码登录，不需存到本地
         self.memberInfoModel = memberInfoModel;
         return YES;
-    }else{
-        return NO;
+    }else {
+        //账号密码登录，需要存到本地
+        //存到本地利用归档
+        BOOL saveResult = [self saveMemberInfoModelToLocationWithMemberInfo:memberInfoModel];
+        if (saveResult == YES) {
+            //存入本地成功
+            self.memberInfoModel = memberInfoModel;
+            return YES;
+        }else{
+            return NO;
+            
+        }
 
     }
-
+    
 }
 
 
@@ -1033,7 +1144,7 @@
         codeSuccessResult(@"200");
         
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
-        NSLog(@"请求失败 %ld--%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]);
+//        NSLog(@"请求失败 %ld--%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]);
         codeFailResult(@"验证失败");
     }];
 }
@@ -1058,11 +1169,14 @@
         
 //        NSLog(@"%@",[[NSString alloc] initWithData:successResult encoding:NSUTF8StringEncoding]  );
         NSLog(@"%ld",operation.response.statusCode);
+        registerSuccessResult(@"注册成功");
         
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
+        NSDictionary *errorMsgDic = [NSJSONSerialization JSONObjectWithData:operation.responseObject options:NSJSONReadingMutableContainers error:nil];
 
-        NSLog(@"请求失败 %ld--%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]);
-
+        
+        NSLog(@"请求失败 %ld--%@",operation.response.statusCode,[errorMsgDic objectForKey:@"Message"]);
+        registerFailResult([errorMsgDic objectForKey:@"Message"]);
     }];
     
     
@@ -1092,6 +1206,7 @@
     return oldJsonStr;
 }
 
+//获取当前时间
 - (NSString *)getNowTimeStr {
     NSDate *date = [NSDate date]; // 获得时间对象
     NSDateFormatter *forMatter = [[NSDateFormatter alloc] init];
@@ -1103,5 +1218,51 @@
     return dateStr;
 }
 
+//地区信息懒加载、
+- (NSArray *)areaArr {
+    if (!_areaArr ) {
+        self.areaArr = [NSArray array];
+    }
+    return _areaArr;
+}
+//获取地区信息
+- (void)httpAreaTreeWithSuccessAreaInfo:(SuccessResult )successAreaInfo withFailAreaInfo:(FailResult)failAreaInfo {
+    //地区信息的存储的本地路径
+    NSArray *_paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSLog(@"沙盒文件夹路径 = %@",_paths);
+    NSString *_documentPath = [_paths lastObject];
+    //为数组指定写入的文件路径，在documents文件下
+    NSString *_areaInfoPath = [_documentPath stringByAppendingPathComponent:@"areaInfo.txt"];
+    
+    //从路径读取地区信息
+    NSArray *areaInfoArr = [NSArray arrayWithContentsOfFile:_areaInfoPath];
+
+    //如果有信息就直接返回，如果没有，就网络请求
+    if (areaInfoArr != nil && areaInfoArr.count > 0) {
+        self.areaArr = areaInfoArr;
+        //有信息，直接返回
+        successAreaInfo( self.areaArr);
+
+    }else {
+        
+        //没有信息 网络请求
+        [[NetManager shareInstance] getRequestWithURL:[[InterfaceManager shareInstance] getAreaTree] withParameters:nil withContentTypes:nil withHeaderArr:nil withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+            if (operation.response.statusCode == 200) {
+
+                self.areaArr = successResult;
+                
+                //将请求的地区信息存储到本地
+                [self.areaArr writeToFile:_areaInfoPath atomically:YES];
+                //返回
+                successAreaInfo(self.areaArr);
+            }
+            
+        } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
+            NSLog(@"%ld",operation.response.statusCode);
+            failAreaInfo(@"地区读取失败，请稍后再试");
+        }];
+        
+    }
+}
 
 @end

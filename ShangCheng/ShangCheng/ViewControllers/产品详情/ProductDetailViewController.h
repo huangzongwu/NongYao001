@@ -9,6 +9,6 @@
 #import <UIKit/UIKit.h>
 #import "ProductModel.h"
 @interface ProductDetailViewController : UIViewController
-@property (nonatomic,strong)ProductModel *productModel;
+@property (nonatomic,strong)NSString *productID;
 
 @end

@@ -329,7 +329,8 @@
         //人气热卖
         if (selectIndex.section == 2) {
             ProductModel *hotProductModel = [[[Manager shareInstance].homeDataSourceDic objectForKey:@"热销"] objectAtIndex:selectIndex.row];
-            productDetailVC.productModel = hotProductModel;
+            productDetailVC.productID = hotProductModel.productID;
+//            productDetailVC.productModel = hotProductModel;
 
         }
         //推荐产品
@@ -339,7 +340,7 @@
             
             ProductModel *tempProductModel = tempClassModel.productArr[selectIndex.row];
 //            productDetailVC.productID = @"42DE00CD74E340D9B0527469593CA93C";
-            productDetailVC.productModel = tempProductModel;
+            productDetailVC.productID = tempProductModel.productID;
         }
 
     }

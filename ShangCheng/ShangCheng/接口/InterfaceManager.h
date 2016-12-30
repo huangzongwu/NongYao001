@@ -54,6 +54,10 @@
 #pragma mark - 个人信息 -
 //查询个人余额
 - (NSString *)searchUserAmountWithUserID:(NSString *)userID;
+//收货地址列表
+- (NSString *)receiveAddressWithUserIdOrReceiveId:(NSString *)userIdOrReceiveId;
+//收货地址
+- (NSString *)receiveAddressBase;
 
 #pragma mark - 登录注册 -
 //登录接口
@@ -62,7 +66,12 @@
 - (NSString *)mobileCodePOST ;
 //检测验证码
 - (NSString *)checkMobileCodeWithMobileNumber:(NSString *)mobileNumber withCode:(NSString *)code;
-
 //注册接口
 - (NSString *)registerPOSTUrl;
+#pragma mark - 其他 -
+//地区信息
+- (NSString *)getAreaTree;
+
+
+
 @end

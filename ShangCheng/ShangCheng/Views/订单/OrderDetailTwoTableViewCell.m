@@ -9,6 +9,12 @@
 #import "OrderDetailTwoTableViewCell.h"
 
 @implementation OrderDetailTwoTableViewCell
+- (void)updateOrderDetailTwoCellDataSourceDic:(NSDictionary *)tempDic {
+
+    self.titleLeftLabel.text = [[tempDic allKeys] firstObject];
+    self.rightPriceLabel.text = [[tempDic allValues] firstObject];
+    
+}
 
 - (void)awakeFromNib {
     [super awakeFromNib];

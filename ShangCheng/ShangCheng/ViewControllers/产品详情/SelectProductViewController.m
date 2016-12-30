@@ -77,6 +77,8 @@
 
 //关闭button
 - (IBAction)dismissButtonAction:(UIButton *)sender {
+    //block刷新详情页的UI
+    self.refreshFormatBlock();
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 

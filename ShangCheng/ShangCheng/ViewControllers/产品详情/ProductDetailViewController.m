@@ -12,8 +12,11 @@
 #import "ProductDetailHeaderTableViewCell.h"
 #import "Manager.h"
 @interface ProductDetailViewController ()<UITableViewDelegate,UITableViewDataSource>
-//产品图片
-@property (weak, nonatomic) IBOutlet UIImageView *productImageView;
+//产品图片轮播图
+@property (weak, nonatomic) IBOutlet UIView *productImageContentView;
+//产品图片轮播图宽度
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *imageScrollViewWidthLayout;
+
 //产品标题
 @property (weak, nonatomic) IBOutlet UILabel *productTitleLabel;
 //产品公司
@@ -39,35 +42,32 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    //选择规格页面，模式是隐藏的
+
     self.productDetailModel = [[ProductDetailModel alloc] init];
-//    ProductModel *productModel = [[ProductModel alloc] init];
-//    productModel.productID = self.productID;
-//    productModel.productFormatID =
-    self.productDetailModel.productModel = self.productModel;
     
-    
-    //获取网络数据
-    [[Manager shareInstance] httpProductDetailInfoWithProductDetailModel:self.productDetailModel withSuccessDetailResult:^(id successResult) {
-        self.productDetailModel = successResult;
-        //刷新
+    //获取产品详细信息
+    [[Manager shareInstance] httpProductDetailInfoWithProductID:self.productID withProductDetailModel:self.productDetailModel withSuccessDetailResult:^(id successResult) {
+//        self.productDetailModel = successResult;
+        //获取了产品详细信息后，请求所有规格数据
+        
         [self updateAllViewWithDetailModel:self.productDetailModel];
+        //获取所有的规格数据
+        [[Manager shareInstance] httpProductAllFarmatInfoWithProductID:self.productID withProductDetailModel:self.productDetailModel withSuccessFarmatResult:^(id successResult) {
+            //        self.productDetailModel = successResult;
+            //通过id找到是那个规格
+            //将第一个规格变成默认的规格
+            [self selectOneFormatWithFormatID:self.productDetailModel.productModel.productFormatID];
+            
+        } withFailFarmatResult:^(NSString *failResultStr) {
+            NSLog(@"%@",failResultStr);
+            
+        }];
         
     } withFailDetailResult:^(NSString *failResultStr) {
         NSLog(@"%@",failResultStr);
 
     }];
     
-    //当有了详情，就可以获取所有的规格数据
-    [[Manager shareInstance] httpProductAllFarmatInfoWithProductDetailModel:self.productDetailModel withSuccessFarmatResult:^(id successResult) {
-//        self.productDetailModel = successResult;
-        //通过id找到是那个规格
-        [self selectOneFormatWithFormatID:self.productDetailModel.productModel.productFormatID];
-
-    } withFailFarmatResult:^(NSString *failResultStr) {
-        NSLog(@"%@",failResultStr);
-
-    }];
     
 }
 
@@ -110,12 +110,16 @@
 
 
 - (void)upHeaderViewWithDetailModel:(ProductDetailModel *)tempDetailModel {
+    //图片赋值
+    //1、根据图片的个数，计算contentView的宽度
+    
     
     self.productTitleLabel.text = tempDetailModel.productModel.productTitle;
     self.productCompanyLabel.text = tempDetailModel.productModel.productCompany;
-    self.productFormatLabel.text = tempDetailModel.productModel.productFormatStr;
-    self.productPriceLabel.text = tempDetailModel.productModel.productPrice;
-    
+    self.productFormatLabel.text = [NSString stringWithFormat:@"产品规格：%@", tempDetailModel.productModel.productFormatStr ];
+    self.productPriceLabel.text = [NSString stringWithFormat:@"￥%@", tempDetailModel.productModel.productPrice];
+    //刷新 选择规格 地方的UI
+    self.selectFormatLabel.text = [NSString stringWithFormat:@"已选 \"%@\"",tempDetailModel.productModel.productFormatStr];
     
 }
 
@@ -128,7 +132,7 @@
 }
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
 {
-    return 60;
+    return 45;
 }
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
 
@@ -171,7 +175,10 @@
     
         SelectProductViewController *selectProductVC = [segue destinationViewController];
         selectProductVC.productDetailModel = self.productDetailModel;
-        
+        selectProductVC.refreshFormatBlock = ^(){
+            [self updateAllViewWithDetailModel:self.productDetailModel];
+
+        };
     }
     
     
