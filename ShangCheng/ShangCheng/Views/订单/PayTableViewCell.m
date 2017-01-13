@@ -9,14 +9,20 @@
 #import "PayTableViewCell.h"
 
 @implementation PayTableViewCell
-- (void)updatePayCellWithJsonDic:(NSDictionary *)jsonDic {
+- (void)updatePayCellWithJsonDic:(NSDictionary *)jsonDic withShowSelectPayKind:(BOOL)isShow {
 //    [jsonDic objectForKey:@"payImg"];
+    self.payCellImageView.image = [UIImage imageNamed:[jsonDic objectForKey:@"payImg"]];
+    
     self.payCellTitleLabel.text = [jsonDic objectForKey:@"payTitle"];
-    if ([[jsonDic objectForKey:@"isSelectPay"] isEqualToString:@"1"]) {
+    
+    if (isShow == YES) {
         //选择了这个支付方式
-        self.selectMarkImageView.backgroundColor = [UIColor redColor];
+        self.selectMarkImageView.image = [UIImage imageNamed:@"g_btn_select"];
+//        self.selectMarkImageView.backgroundColor = [UIColor redColor];
     }else {
-        self.selectMarkImageView.backgroundColor = [UIColor whiteColor];
+        self.selectMarkImageView.image = [UIImage imageNamed:@"g_btn_normal"];
+
+//        self.selectMarkImageView.backgroundColor = [UIColor whiteColor];
     }
     
     

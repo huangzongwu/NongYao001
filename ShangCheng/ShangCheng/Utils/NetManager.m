@@ -163,7 +163,7 @@
 }
 
 
-- (void)putRequestWithURL:(NSString *)requestURL withParameters:(NSDictionary *)parametersDic withContentTypes:(NSString *)contentType withHeaderArr:(NSArray *)headerArr withSuccessResult:(SuccessResultBlock)successResult withError:(FailResultBlock)failResult {
+- (void)putRequestWithURL:(NSString *)requestURL withParameters:(id)parametersDic withContentTypes:(NSString *)contentType withHeaderArr:(NSArray *)headerArr withSuccessResult:(SuccessResultBlock)successResult withError:(FailResultBlock)failResult {
     
     AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
     
@@ -173,15 +173,20 @@
     }
 
     NSString *parameterStr = nil;
-    if (parametersDic != nil) {
+    if ([parametersDic isKindOfClass:[NSDictionary class]]) {
         //如果有参数，将字典变为json格式
         parameterStr = [self dictionaryToJson:parametersDic];
+    }
+    if ([parametersDic isKindOfClass:[NSString class]]) {
+        parameterStr = parametersDic;
     }
     
     //设置返回值类型为二进制
     if ([contentType isEqualToString:@"string"]) {
         manager.responseSerializer = [AFHTTPResponseSerializer serializer];
     }
+    
+    
     
     [manager PUT:requestURL parameters:parameterStr success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
         //成功结果

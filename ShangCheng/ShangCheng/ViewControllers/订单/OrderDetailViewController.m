@@ -12,7 +12,8 @@
 #import "OrderDetailFootOneTableViewCell.h"
 #import "OrderDetailFootTwoTableViewCell.h"
 #import "ProductDetailViewController.h"
-
+#import "LogisticsViewController.h"
+#import "CommentViewController.h"
 @interface OrderDetailViewController ()<UITableViewDelegate,UITableViewDataSource>
 //头部View的控件
 //父订单编号
@@ -26,13 +27,30 @@
 //收货地址
 @property (weak, nonatomic) IBOutlet UILabel *addressLabel;
 
+//子订单TableView
+@property (weak, nonatomic) IBOutlet UITableView *detailTableView;
+
 //底部商品总额等信息数据
 @property (nonatomic,strong)NSArray *cellTwoDataSource;
+
+//底部view的高度
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *bottomViewHeight;
 
 @end
 
 @implementation OrderDetailViewController
+- (instancetype)initWithCoder:(NSCoder *)aDecoder {
+    self = [super initWithCoder:aDecoder];
+    if (self) {
+        //通知，重新获取收货地址
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshAddressListAction:) name:@"" object:nil];
+    }
+    return self;
+}
 
+- (void)refreshAddressListAction:(NSNotification *)sender {
+    //刷新
+}
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
@@ -48,9 +66,11 @@
 
     self.cellTwoDataSource = @[dic1,dic2,dic3,dic4];
     
-    
-    
-    
+    if ([self.tempSupOrderModel.p_status isEqualToString:@"0"] || [self.tempSupOrderModel.p_status isEqualToString:@"1B"]) {
+        self.bottomViewHeight.constant = 40;
+    }else {
+        self.bottomViewHeight.constant = 0;
+    }
 }
 
 //刷新头部视图的信息：父订单号 状态 收货人信息等
@@ -101,11 +121,11 @@
         
         //待付款和待确认的没有footView
         SonOrderModel *tempSonOrderModel = self.tempSupOrderModel.subOrderArr[section];
-        if ([tempSonOrderModel.o_status isEqualToString:@"0"] || [tempSonOrderModel.o_status isEqualToString:@"1A"] || [tempSonOrderModel.o_status isEqualToString:@"1B"]) {
-            return 1;
-        }else {
+//        if ([tempSonOrderModel.o_status isEqualToString:@"0"] || [tempSonOrderModel.o_status isEqualToString:@"1A"] || [tempSonOrderModel.o_status isEqualToString:@"1B"]) {
+//            return 1;
+//        }else {
             return 40;
-        }
+//        }
         
     }else{
         return 60;
@@ -116,7 +136,15 @@
     //返回值就是区页脚。那么我们就让他返回footViewCell
     if (section < self.tempSupOrderModel.subOrderArr.count) {
         OrderDetailFootOneTableViewCell *footViewCellOne = [tableView dequeueReusableCellWithIdentifier:@"footViewOne"];
+        footViewCellOne.tempSonOrder = self.tempSupOrderModel.subOrderArr[section];
         [footViewCellOne updateOrderDetailFootOneCell:self.tempSupOrderModel.subOrderArr[section]];
+        
+        footViewCellOne.buttonActionTypeBlock = ^(IndexButton *footButton,NSInteger typeInt){
+            //对子订单的操作
+            SonOrderModel *tempSonOrder = self.tempSupOrderModel.subOrderArr[footButton.indexForButton.section];
+            [self sonOrderActionWithTypeInt:typeInt withSonOrder:tempSonOrder];
+            
+        };
         
         return footViewCellOne;
 
@@ -166,15 +194,106 @@
 }
 
 
+#pragma mark - 子订单的操作 -
+- (void)sonOrderActionWithTypeInt:(NSInteger)typeInt withSonOrder:(SonOrderModel *)tempSonOrder {
+    Manager *manager = [Manager shareInstance];
+    
+    switch (typeInt) {
+        case 1:
+        {
+            [manager cancelSonOrderWithUserId:manager.memberInfoModel.u_id withOrderID:tempSonOrder.o_id withCancelMessage:@"不喜欢" withCancelSuccessResult:^(id successResult) {
+                //取消成功后
+                self.tempSupOrderModel = successResult;
+                //刷新UI
+                [self.detailTableView reloadData];
+                
+                //发送通知到订单列表界面，刷新列表数据
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"refreshOrderList" object:self userInfo:nil];
+                
+            } withCancelFailResult:^(NSString *failResultStr) {
+                NSLog(@"取消失败");
+            }];
+        }
+            break;
+        case 2:
+            NSLog(@"物流");
+            //跳转到物流界面
+            [self performSegueWithIdentifier:@"orderDetailToLogisticsVC" sender:tempSonOrder];
+            break;
+        case 3:
+            NSLog(@"确认收货");
+            break;
+        case 4:
+            NSLog(@"立即评价");
+            [self performSegueWithIdentifier:@"orderDetailToCommentVC" sender:tempSonOrder];
+            break;
+        case 5:
+            NSLog(@"详情");
+            break;
+            
+        default:
+            break;
+    }
+    
+}
+
+#pragma mark - 底部的view上的两个按钮的功能，这两个操作是对这个父订单的操作 -
+//底部  去付款
+- (IBAction)paySupOrderAction:(UIButton *)sender {
+    
+    
+}
+//底部  取消订单
+- (IBAction)cancelSupOrderAction:(UIButton *)sender {
+    Manager *manager = [Manager shareInstance];
+    
+//    SupOrderModel *selectModel = modelArr[buttonIndex.section];
+    [manager cancelSupOrderWithUserID:manager.memberInfoModel.u_id wiOrderID:self.tempSupOrderModel.p_id withCancelSuccessResult:^(id successResult) {
+        AlertManager *alertM = [AlertManager shareIntance];
+        [alertM showAlertViewWithTitle:nil withMessage:@"取消订单成功" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
+            //取消订单后，刷新 当前TableView。其他的在切换的时候刷新
+            self.tempSupOrderModel = successResult;
+            [self.detailTableView reloadData];
+            //取消后，底部按钮view消失
+            self.bottomViewHeight.constant = 0;
+            //block
+            self.refreshOrderListBlock();
+        }];
+        
+        
+    } withCancelFailResult:^(NSString *failResultStr) {
+        
+    }];
+
+}
+
+
 #pragma mark - Navigation
 
 // In a storyboard-based application, you will often want to do a little preparation before navigation
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
-    ProductDetailViewController *productDetailVC = [segue destinationViewController];
-    productDetailVC.productID = sender;
+    //到产品详情中
+    if ([segue.identifier isEqualToString:@"orderToDetailVC"]) {
+        ProductDetailViewController *productDetailVC = [segue destinationViewController];
+        productDetailVC.productID = sender;
+        
+
+    }
+    //物流
+    if ([segue.identifier isEqualToString:@"orderDetailToLogisticsVC"]) {
+        LogisticsViewController *logisticsVC = [segue destinationViewController];
+        logisticsVC.tempSonOrderModel = sender;
+        
+    }
     
+    //评价
+    if ([segue.identifier isEqualToString:@"orderDetailToCommentVC"]) {
+        CommentViewController *commentVC = [segue destinationViewController];
+        commentVC.tempSonOrderModel = sender;
+        
+    }
     
 }
 

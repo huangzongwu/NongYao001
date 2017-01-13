@@ -46,13 +46,12 @@
 
 @property (weak, nonatomic) IBOutlet UILabel *selectReceiveAddressLabel;
 
-//收货地址列表
-@property (nonatomic,strong)NSMutableArray *receiveAddressListArr;
-//选择的收货地址
-@property (nonatomic,strong)ReceiveAddressModel *selectReceiveModel;
 @end
 
 @implementation PreviewOrderViewController
+- (IBAction)leftBarButtonAction:(UIBarButtonItem *)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -64,14 +63,15 @@
     //更新一下footView
     [self upFootview];
    //底部实付款
-    self.bottomPayMoneyLabel.text = [NSString stringWithFormat:@"实付款：￥%.2f", [self computeProductTotalPrice] - [[self.saleMoneyDic objectForKey:@"saleMoney"] integerValue]];
+    self.bottomPayMoneyLabel.text = [NSString stringWithFormat:@"  实付款：￥%.2f", [self computeProductTotalPrice] - [[self.saleMoneyDic objectForKey:@"saleMoney"] integerValue]];
     
     //网络请求收货地址
     [manager receiveAddressListWithUserIdOrReceiveId:manager.memberInfoModel.u_id withAddressListSuccess:^(id successResult) {
-        self.receiveAddressListArr = successResult;
-        for (ReceiveAddressModel *tempModel in self.receiveAddressListArr) {
+
+        for (ReceiveAddressModel *tempModel in manager.receiveAddressArr) {
             if (tempModel.defaultAddress == YES) {
-                self.selectReceiveModel = tempModel;
+                //首次进入，默认的地址就是选择的地址
+                tempModel.isSelect = YES;
                 //刷新收货地址UI
                 [self updateReceiveViewUI];
                 
@@ -88,16 +88,20 @@
 
 //刷新收货地址UI
 - (void)updateReceiveViewUI {
+    Manager *manager = [Manager shareInstance];
+    ReceiveAddressModel *selectReceiveModel = [manager selectedReceiveAddressModel];
+    
     NSString *phoneStr = @"";
-    if (self.selectReceiveModel.receiveMobile != nil && self.selectReceiveModel.receiveMobile.length == 11) {
-        phoneStr = self.selectReceiveModel.receiveMobile;
-    }else if (self.selectReceiveModel.receiveTel != nil && self.selectReceiveModel.receiveTel.length == 11) {
-        phoneStr = self.selectReceiveModel.receiveTel;
+    if (selectReceiveModel.receiveMobile != nil && selectReceiveModel.receiveMobile.length > 0) {
+        phoneStr = selectReceiveModel.receiveMobile;
+    }else if (selectReceiveModel.receiveTel != nil && selectReceiveModel.receiveTel.length >0) {
+        phoneStr = selectReceiveModel.receiveTel;
     }
 
-    self.selectReceiveNameAndMobileLabel.text = [NSString stringWithFormat:@"%@  %@",self.selectReceiveModel.receiverName,phoneStr];
+    self.selectReceiveNameAndMobileLabel.text = [NSString stringWithFormat:@"%@  %@",selectReceiveModel.receiverName,phoneStr];
     
-    self.selectReceiveAddressLabel.text = [NSString stringWithFormat:@"%@ %@ %@ %@",self.selectReceiveModel.capitalname,self.selectReceiveModel.cityname,self.selectReceiveModel.countyname,self.selectReceiveModel.receiveAddress];
+    self.selectReceiveAddressLabel.text = [NSString stringWithFormat:@"%@ %@ %@ %@",selectReceiveModel.capitalname,selectReceiveModel.cityname,selectReceiveModel.countyname,selectReceiveModel.receiveAddress];
+
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -158,18 +162,25 @@
     
     
     //需付款
-    self.payMoneyLabel.text = [NSString stringWithFormat:@"%.2f", [self computeProductTotalPrice] - [[self.saleMoneyDic objectForKey:@"saleMoney"] integerValue]];
+    self.payMoneyLabel.text = [NSString stringWithFormat:@"需付款：%.2f", [self computeProductTotalPrice] - [[self.saleMoneyDic objectForKey:@"saleMoney"] integerValue]];
     //时间
     self.payTimeLabel.text = [NSString stringWithFormat:@"下单时间：%@",[manager getNowTimeStr]];
    
     
 }
 
+
 #pragma mark - tableViewDelegate -
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     return self.selectedProductArr.count;
 }
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
+    return 1;
+}
 
+- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
+    return 1;
+}
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
     PreviewOrderTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"previewOrderTCell" forIndexPath:indexPath];
@@ -191,9 +202,12 @@
 #pragma mark - 底部功能 -
 //提交订单，即生成订单
 - (IBAction)submitOrderButtonAction:(UIButton *)sender {
-#warning 地区假数据
+
+    //得到地区数据
     Manager *manager = [Manager shareInstance];
-    [manager creatOrderWithUserID:manager.memberInfoModel.u_id withReceivedID:@"A90F69B863C7468883FAA64AA0CE0B9A" withTotalAmount:[NSString stringWithFormat:@"%f",[self computeProductTotalPrice]] withDiscount:[self.saleMoneyDic objectForKey:@"saleMoney"] withCouponId:[self.saleMoneyDic objectForKey:@"couponId"] withArr:self.selectedProductArr withOrderSuccessResult:^(id successResult) {
+    ReceiveAddressModel *selectReceiveModel = [manager selectedReceiveAddressModel];
+    
+    [manager creatOrderWithUserID:manager.memberInfoModel.u_id withReceivedID:selectReceiveModel.receiverID withTotalAmount:[NSString stringWithFormat:@"%f",[self computeProductTotalPrice]] withDiscount:[self.saleMoneyDic objectForKey:@"saleMoney"] withCouponId:[self.saleMoneyDic objectForKey:@"couponId"] withArr:self.selectedProductArr withOrderSuccessResult:^(id successResult) {
         
         self.creatOrderId = successResult;
         
@@ -221,12 +235,13 @@
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
+    Manager *manager = [Manager shareInstance];
     //选择收货地址
     if ([segue.identifier isEqualToString:@"previewOrderToAddressListVC"]) {
         ReceiveAddressViewController *receiveAddressVC = [segue destinationViewController];
-        receiveAddressVC.receiveAddressArr = self.receiveAddressListArr;
-        receiveAddressVC.selectModelBlock = ^(ReceiveAddressModel *tempModel){
-            self.selectReceiveModel = tempModel;
+
+        receiveAddressVC.selectModelBlock = ^(){
+            
             //刷新UI
             [self updateReceiveViewUI];
         };
@@ -247,7 +262,7 @@
                 //刷新footView 的ui
                 [self upFootview];
                 
-                self.bottomPayMoneyLabel.text = [NSString stringWithFormat:@"实付款：￥%.2f", [self computeProductTotalPrice] - [[self.saleMoneyDic objectForKey:@"saleMoney"] integerValue]];
+                self.bottomPayMoneyLabel.text = [NSString stringWithFormat:@"  实付款：￥%.2f", [self computeProductTotalPrice] - [[self.saleMoneyDic objectForKey:@"saleMoney"] integerValue]];
                 
             };
             

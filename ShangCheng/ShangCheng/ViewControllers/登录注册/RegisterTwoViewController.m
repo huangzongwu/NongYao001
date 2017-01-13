@@ -102,6 +102,10 @@
 
 - (IBAction)selectAreaInfoButton:(UIButton *)sender {
     
+    [self.passwordTextField resignFirstResponder];
+    [self.passwordAgainTextField resignFirstResponder];
+    
+    
     //得到地区数据，然后显示
     Manager *manager = [Manager shareInstance];
     if (manager.areaArr.count > 0 ) {

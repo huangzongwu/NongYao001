@@ -39,12 +39,85 @@
 @property (weak, nonatomic) IBOutlet UITableView *goOnTableView;
 //已完成TableView
 @property (weak, nonatomic) IBOutlet UITableView *finishTableView;
+//是否需要刷新
+@property (nonatomic,strong) NSMutableArray *isReloadDataArr;
+
 //合并付款的高度
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *payTogetherHeightLayout;
 
 @end
 
 @implementation OrderListViewController
+- (instancetype)initWithCoder:(NSCoder *)aDecoder {
+    self = [super initWithCoder:aDecoder];
+    if (self) {
+        //默认的是1
+        self.whichTableView = @"1";
+
+        //通知，需要刷新
+        [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(refreshOrderListNotification:) name:@"refreshOrderList" object:nil];
+        [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(switchOrderType:) name:@"mineToOrderListVC" object:nil];
+        
+
+    }
+    return self;
+}
+
+
+//重新请求数据进行刷新
+- (void)refreshOrderListNotification:(NSNotification *)sender {
+    //将数据源中 isHttp 变为1
+    Manager *manager = [Manager shareInstance];
+    for (NSMutableDictionary *tempDic in manager.orderListDataSourceDic.allValues) {
+        [tempDic setObject:@"1" forKey:@"isHttp"];
+        //因为如果isHttp为1 ，就一定会请求数据，只要请求成功，就会刷新数据，所以isreloadarr就不用设为1了
+    }
+
+}
+
+//跳转到对应的订单类型
+- (void)switchOrderType:(NSNotification *)sender {
+
+    //更改whichTableView
+    self.whichTableView = [sender.userInfo objectForKey:@"orderType"];
+  
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    //登录了，才可以请求数据。默认请求全部数据
+    Manager *manager = [Manager shareInstance];
+    if ([manager isLoggedInStatus] == YES){
+        
+        //请求数据
+        switch ([self.whichTableView integerValue]) {
+            case 1:
+
+                [self allButtonAction:self.allButton];
+                
+                break;
+            case 2:
+                [self waitPayButtonAction:self.waitPayButton];
+                
+                break;
+            case 3:
+                [self goOnButtonAction:self.goOnButton];
+                
+                break;
+            case 4:
+                [self finishButtonAction:self.finishButton];
+                
+                break;
+                
+            default:
+                break;
+        }
+
+        
+    }
+  
+    
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -56,6 +129,7 @@
     OrderListFootOneTableViewCell---orderListFootOneCell
     OrderListFootTwoTableViewCell---orderListFootTwoCell
     */
+    
     //注册cell
     //全部的tableView
     [self.allTableView registerNib:[UINib nibWithNibName:@"OrderListOneTableViewCell" bundle:nil] forCellReuseIdentifier:@"orderListOneCell"];
@@ -79,28 +153,32 @@
     [self.finishTableView registerNib:[UINib nibWithNibName:@"OrderListTwoTableViewCell" bundle:nil] forCellReuseIdentifier:@"orderListTwoCell"];
     [self.finishTableView registerNib:[UINib nibWithNibName:@"OrderListFootTwoTableViewCell" bundle:nil] forCellReuseIdentifier:@"orderListFootTwoCell"];
 
-    //默认选中第一个tableView
-    self.whichTableView = @"1";
-//    //刷新UI
-//    [self changeLineButtonWithButton:self.allButton];
-    Manager *manager = [Manager shareInstance];
-    //登录了，才可以请求数据。默认请求全部数据
-    if ([manager isLoggedInStatus] == YES) {
-        [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:@"1" withDownPushRefresh:NO withUpPushRoload:NO withTableView:self.allTableView];
-    }
+    //默认都是需要刷新的
+    self.isReloadDataArr = [NSMutableArray arrayWithObjects:@"1",@"1",@"1",@"1", nil];
+    
 }
 
 
 //请求订单数据
-- (void)httpOrderListWithProduct:(NSString *)product withCode:(NSString *)code withPageIndex:(NSString *)pageIndex withDownPushRefresh:(BOOL)downPushRefresh withUpPushRoload:(BOOL)upPushRoload withTableView:(UITableView *)tempTableView  {
+- (void)httpOrderListWithProduct:(NSString *)product withCode:(NSString *)code withPageIndex:(NSString *)pageIndex withUpPushReload:(BOOL)upPushReload withTableView:(UITableView *)tempTableView  {
+    
+
+    if ([self.isReloadDataArr[[self.whichTableView integerValue]-1] isEqualToString:@"1"]) {
+        [tempTableView reloadData];
+        self.isReloadDataArr[[self.whichTableView integerValue]-1] = @"0";
+    }
+    
+    
+    
     
     Manager *manager = [Manager shareInstance];
-    [manager getOrderListDataWithUserID:manager.memberInfoModel.u_id withProduct:product withCode:code withWhichTableView:self.whichTableView withPageIndex:pageIndex withPageSize:@"10" downPushRefresh:downPushRefresh withUpPushReload:upPushRoload withOrderListSuccessResult:^(id successResult) {
+    
+    [manager getOrderListDataWithUserID:manager.memberInfoModel.u_id withProduct:product withCode:code withWhichTableView:self.whichTableView withPageIndex:pageIndex withPageSize:@"10" withUpPushReload:upPushReload withOrderListSuccessResult:^(id successResult) {
+        
         [tempTableView reloadData];
-
+        
     } withOrderListFailResult:^(NSString *failResultStr) {
         NSLog(@"%@", failResultStr);
-
     }];
     
 }
@@ -120,7 +198,7 @@
     //登录了，才可以请求数据。默认请求全部数据
     if ([manager isLoggedInStatus] == YES) {
         
-        [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:@"1" withDownPushRefresh:NO withUpPushRoload:NO withTableView:self.allTableView];
+        [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:@"1" withUpPushReload:NO withTableView:self.allTableView];
     }
 
 }
@@ -138,7 +216,8 @@
     Manager *manager = [Manager shareInstance];
     //登录了，才可以请求数据。默认请求全部数据
     if ([manager isLoggedInStatus] == YES) {
-        [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:@"1" withDownPushRefresh:NO withUpPushRoload:NO withTableView:self.waitPayTableView];
+
+        [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:@"1" withUpPushReload:NO withTableView:self.waitPayTableView];
     }
 
 
@@ -157,7 +236,8 @@
     Manager *manager = [Manager shareInstance];
     //登录了，才可以请求数据。默认请求全部数据
     if ([manager isLoggedInStatus] == YES) {
-        [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:@"1" withDownPushRefresh:NO withUpPushRoload:NO withTableView:self.goOnTableView];
+
+        [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:@"1" withUpPushReload:NO withTableView:self.goOnTableView];
     }
 
 
@@ -179,7 +259,8 @@
     Manager *manager = [Manager shareInstance];
     //登录了，才可以请求数据。默认请求全部数据
     if ([manager isLoggedInStatus] == YES) {
-        [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:@"1" withDownPushRefresh:NO withUpPushRoload:NO withTableView:self.finishTableView];
+
+        [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:@"1" withUpPushReload:NO withTableView:self.finishTableView];
     }
     
 }
@@ -264,9 +345,15 @@
             if ([buttonActionStr isEqualToString:@"cancelOrder"]) {
                 SupOrderModel *selectModel = modelArr[buttonIndex.section];
                 [manager cancelSupOrderWithUserID:manager.memberInfoModel.u_id wiOrderID:selectModel.p_id withCancelSuccessResult:^(id successResult) {
-                    //取消订单后，刷新 当前TableView。其他的在切换的时候刷新
-                    [tableView reloadData];
-                    
+                    AlertManager *alertM = [AlertManager shareIntance];
+                    [alertM showAlertViewWithTitle:nil withMessage:@"取消订单成功" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
+                        //取消订单后，刷新 当前TableView。其他的在切换的时候刷新
+
+                        [tableView reloadData];
+                        //设为1，切换TableView就会执行刷新
+                        self.isReloadDataArr = [NSMutableArray arrayWithObjects:@"1",@"1",@"1",@"1", nil];
+                    }];
+                   
                     
                 } withCancelFailResult:^(NSString *failResultStr) {
                     
@@ -295,7 +382,6 @@
 
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    
     
     NSMutableArray *dataArr;
     if (tableView == self.allTableView) {
@@ -363,6 +449,9 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     
+    //当手指离开某行时，就让某行的选中状态消失
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+
     NSMutableArray *dataArr;
     if (tableView == self.allTableView) {
         dataArr = [[[Manager shareInstance].orderListDataSourceDic objectForKey:@"1"] objectForKey:@"content"];
@@ -426,6 +515,7 @@
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
+    
     if ([segue.identifier isEqualToString:@"orderListToPayVC"]) {
         NSMutableArray *payVCIdArr = [NSMutableArray array];
         float payVCTotalAmount = 0;
@@ -441,7 +531,12 @@
     if ([segue.identifier isEqualToString:@"OrderListToOrderDetailVC"]) {
         OrderDetailViewController *orderDetailVC = [segue destinationViewController];
         orderDetailVC.tempSupOrderModel = (SupOrderModel *)sender;
-        
+        orderDetailVC.refreshOrderListBlock = ^(){
+            
+            //设为1，切换TableView就会执行刷新
+            self.isReloadDataArr = [NSMutableArray arrayWithObjects:@"1",@"1",@"1",@"1", nil];
+            
+        };
         
     }
     

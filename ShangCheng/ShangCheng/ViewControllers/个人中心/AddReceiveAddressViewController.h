@@ -8,7 +8,10 @@
 
 #import <UIKit/UIKit.h>
 #import "Manager.h"
+
+typedef void(^RefreshAddressList)(NSString *motifyOrAddModelID);
 @interface AddReceiveAddressViewController : UIViewController
 @property (nonatomic,strong)ReceiveAddressModel *tempReceiveAddressModel;
+@property (nonatomic,copy)RefreshAddressList refreshAddressListBlock;
 
 @end

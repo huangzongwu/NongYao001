@@ -9,9 +9,9 @@
 #import <UIKit/UIKit.h>
 #import "ReceiveAddressModel.h"
 
-typedef void(^SelectModelBlock)(ReceiveAddressModel *selectModelBlock);
+typedef void(^SelectModelBlock)();
 
 @interface ReceiveAddressViewController : UIViewController
-@property (nonatomic,strong)NSMutableArray *receiveAddressArr;
+
 @property (nonatomic,copy)SelectModelBlock selectModelBlock;
 @end

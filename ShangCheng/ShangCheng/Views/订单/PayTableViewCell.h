@@ -13,7 +13,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *payCellTitleLabel;
 @property (weak, nonatomic) IBOutlet UIImageView *selectMarkImageView;
 
-- (void)updatePayCellWithJsonDic:(NSDictionary *)jsonDic;
+- (void)updatePayCellWithJsonDic:(NSDictionary *)jsonDic withShowSelectPayKind:(BOOL)isShow;
 
 
 @end

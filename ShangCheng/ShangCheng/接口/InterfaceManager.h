@@ -20,6 +20,13 @@
 - (NSString *)productDetailURLWithProductID:(NSString *)productID;
 //产品所有规格
 - (NSString *)productAllFarmatWithProductID:(NSString *)productID;
+
+//产品分类树
+- (NSString *)productClassTree;
+
+//模糊查询产品信息
+- (NSString *)fuzzySearchProductInfoWithCode:(NSString *)code withName:(NSString *)name withAreaid:(NSString *)areaId withPd:(NSString *)pd withSuppliername:(NSString *)suppliername withLevel:(NSString *)level withStatus:(NSString *)status withPrice:(NSString *)price withDate:(NSString *)date;
+
 #pragma mark - 购物车 -
 //购物车基本url
 - (NSString *)shoppingCarBaseURL;
@@ -41,8 +48,16 @@
 - (NSString *)orderListWithUserID:(NSString *)userID withProduct:(NSString *)product withCode:(NSString *)code withOrderStatus:(NSString *)orderStatus withPageIndex:(NSString *)pageIndex withPageSize:(NSString *)pageSize;
 //生成订单
 - (NSString *)creatOrderPOSTUrl;
-//取消订单
+//取消父订单
 - (NSString *)cancelOrderWithOrderID:(NSString *)orderId;
+//取消子订单
+- (NSString *)cancelSonOrderPOST;
+
+//物流信息
+- (NSString *)logisticsWithOrderId:(NSString *)orderId withType:(NSString *)type;
+
+//提交评论
+- (NSString *)commitCommentPost;
 
 #pragma mark - 支付 -
 //支付前验证
@@ -51,6 +66,11 @@
 //支付宝获取签名
 - (NSString *)AliPaySignPOST ;
 
+//用户确认支付
+- (NSString *)userConfirmPayPOST;
+
+//支付后，后台验证
+- (NSString *)orderPaymentVerifyWithPayid:(NSString *)payId;
 #pragma mark - 个人信息 -
 //查询个人余额
 - (NSString *)searchUserAmountWithUserID:(NSString *)userID;

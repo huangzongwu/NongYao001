@@ -24,6 +24,7 @@
         if ([tempSonOrderModel.o_status isEqualToString:@"9"]) {
             [self.buttonOne setTitle:@"立即评价" forState:UIControlStateNormal];
             [self.buttonTwo setTitle:@"订单详情" forState:UIControlStateNormal];
+
         }else {
             //待收货
             [self.buttonOne setTitle:@"确认收货" forState:UIControlStateNormal];
@@ -42,11 +43,69 @@
         }else {
             [self.buttonOne setTitle:@"订单详情" forState:UIControlStateNormal];
         }
-
         
     }    
     
 }
+
+
+
+
+- (IBAction)oneButtonAction:(IndexButton *)sender {
+    /*待收货和已完成 有两个按钮
+     待收货，1物流2确认收货
+     已完成，1立即评价2详情
+     */
+    if ([self.tempSonOrder.o_status isEqualToString:@"5A"] || [self.tempSonOrder.o_status isEqualToString:@"5"] || [self.tempSonOrder.o_status isEqualToString:@"9"]) {
+
+        //已完成
+        if ([self.tempSonOrder.o_status isEqualToString:@"9"]) {
+            self.buttonActionTypeBlock(sender,4);//立即评价
+            
+        }else {
+            //待收货
+            self.buttonActionTypeBlock(sender,3);//确认收货
+        }
+    }else {
+        
+        //待支付、待确认、待发货 都是一个按钮
+
+        //待支付，待确认：  取消订单
+        if ([self.tempSonOrder.o_status isEqualToString:@"0"] || [self.tempSonOrder.o_status isEqualToString:@"1A"] || [self.tempSonOrder.o_status isEqualToString:@"1B"]) {
+            
+            self.buttonActionTypeBlock(sender,1);//取消订单
+
+        }else {
+            
+            self.buttonActionTypeBlock(sender,5);//订单详情
+
+        }
+        
+    }    
+
+}
+
+- (IBAction)twoButtonAction:(IndexButton *)sender {
+    /*待收货和已完成 有两个按钮
+     待收货，1物流2确认收货
+     已完成，1立即评价2详情
+     */
+    if ([self.tempSonOrder.o_status isEqualToString:@"5A"] || [self.tempSonOrder.o_status isEqualToString:@"5"] || [self.tempSonOrder.o_status isEqualToString:@"9"]) {
+        
+        //已完成
+        if ([self.tempSonOrder.o_status isEqualToString:@"9"]) {
+            
+            self.buttonActionTypeBlock(sender,5);//订单详情
+
+        }else {
+            //待收货
+            self.buttonActionTypeBlock(sender,2);//物流信息
+
+        }
+    }
+    
+}
+
 
 - (void)awakeFromNib {
     [super awakeFromNib];

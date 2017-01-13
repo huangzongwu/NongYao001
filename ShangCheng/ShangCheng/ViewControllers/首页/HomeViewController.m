@@ -70,7 +70,8 @@
             return 1;
             break;
         case 2:
-            return 2;
+#warning 原来是 renturn 2; 
+            return 0;
             break;
         default:
         {
@@ -242,6 +243,8 @@
             if (indexPath.row == 0) {
                 //纵向
                 DetailVerticalCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"cellIdentifier4" forIndexPath:indexPath];
+               
+                
 
                 ProductModel *tempModel = [[manager.homeDataSourceDic objectForKey:@"热销"] objectAtIndex:0];
                 

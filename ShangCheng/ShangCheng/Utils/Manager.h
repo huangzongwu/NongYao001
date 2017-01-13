@@ -19,6 +19,8 @@
 #import "AlertManager.h"
 #import "SonOrderModel.h"
 #import "ReceiveAddressModel.h"
+#import "ClassModel.h"
+#import "FuzzySearchModel.h"
 typedef void(^SuccessResult)(id successResult);
 typedef void(^FailResult)(NSString *failResultStr);
 
@@ -28,6 +30,8 @@ typedef void(^FailResult)(NSString *failResultStr);
 
 //首页数据源
 @property (nonatomic,strong)NSMutableDictionary *homeDataSourceDic;
+//产品分类树
+@property (nonatomic,strong)NSMutableArray *productClassTreeArr;
 
 //购物车的商品数据源
 @property (nonatomic,strong)NSMutableArray *shoppingCarDataSourceArr;
@@ -36,6 +40,10 @@ typedef void(^FailResult)(NSString *failResultStr);
 
 //订单列表的数据源 : 1-全部、2-待付款、3-进行中、4-已完成
 @property (nonatomic,strong)NSMutableDictionary *orderListDataSourceDic;
+
+//收货地址数组
+@property (nonatomic,strong)NSMutableArray *receiveAddressArr;
+
 
 //地区信息数组
 @property (nonatomic,strong)NSArray *areaArr;
@@ -50,6 +58,13 @@ typedef void(^FailResult)(NSString *failResultStr);
 - (void)httpProductDetailInfoWithProductID:(NSString *)productId withProductDetailModel:(ProductDetailModel *)productDetailModel withSuccessDetailResult:(SuccessResult)successDetailResult withFailDetailResult:(FailResult)failDetailResult;
 //获取产品的所有规格
 - (void)httpProductAllFarmatInfoWithProductID:(NSString *)productId  withProductDetailModel:(ProductDetailModel *)productDetailModel withSuccessFarmatResult:(SuccessResult)successFarmatResult withFailFarmatResult:(FailResult)failFarmatResult;
+
+//产品分类树
+- (void)httpProductClassTreeWithClassTreeSuccess:(SuccessResult)classTreeSuccess withClassTreeFali:(FailResult)classTreeFail;
+
+//模糊查询产品信息
+- (void)httpFuzzySearchProductInfoWithFuzzyModel:(FuzzySearchModel *)fuzzySearchModel withSearchSuccess:(SuccessResult )searchSuccess withSearchFail:(FailResult)searchFail;
+
 
 #pragma mark - 购物车 -
 //将产品加入购物车
@@ -87,27 +102,54 @@ typedef void(^FailResult)(NSString *failResultStr);
 
 
 //订单列表。 pageIndex页数,pageSize多少数据
-- (void)getOrderListDataWithUserID:(NSString *)userID withProduct:(NSString *)product withCode:(NSString *)code withWhichTableView:(NSString *)whichTableView withPageIndex:(NSString *)pageIndex withPageSize:(NSString *)pageSize downPushRefresh:(BOOL)downPushRefresh withUpPushReload:(BOOL)upPushReload withOrderListSuccessResult:(SuccessResult)orderListSuccessResult withOrderListFailResult:(FailResult)orderListFailResult ;
+- (void)getOrderListDataWithUserID:(NSString *)userID withProduct:(NSString *)product withCode:(NSString *)code withWhichTableView:(NSString *)whichTableView withPageIndex:(NSString *)pageIndex withPageSize:(NSString *)pageSize withUpPushReload:(BOOL)upPushReload withOrderListSuccessResult:(SuccessResult)orderListSuccessResult withOrderListFailResult:(FailResult)orderListFailResult ;
 
 //生成订单
 - (void)creatOrderWithUserID:(NSString *)userID withReceivedID:(NSString *)receivedID withTotalAmount:(NSString *)totalAmount withDiscount:(NSString *)discount withCouponId:(NSString *)couponId withArr:(NSMutableArray *)itemArr withOrderSuccessResult:(SuccessResult)orderSuccessResult withOrderFailResult:(FailResult)orderFailResult;
 
 //取消父订单
 - (void)cancelSupOrderWithUserID:(NSString *)userID wiOrderID:(NSString *)orderID withCancelSuccessResult:(SuccessResult )cancelSuccessResult withCancelFailResult:(FailResult)cancelFailResult;
+
+//取消子订单
+- (void)cancelSonOrderWithUserId:(NSString *)userid withOrderID:(NSString *)orderID withCancelMessage:(NSString *)cancelMessage withCancelSuccessResult:(SuccessResult )cancelSuccessResult withCancelFailResult:(FailResult )cancelFailResult;
+
+//查询订单
+- (void)searchOrderInfoWithOrderID:(NSString *)orderId ;
+
+//物流信息
+- (void)orderLogisticsWithOrderId:(NSString *)orderID withSuccessLogisticsBlock:(SuccessResult )successLogisticsBlock withFailLogisticsBlock:(FailResult)failLogisticsBlock;
+
+//订单评论
+- (void)orderCommentWithUserid:(NSString *)userId withOrderId:(NSString *)orderId withStarLevel:(NSString *)starLevel withContent:(NSString *)content withCommentSuccessBlock:(SuccessResult)commentSuccessBock withCommentFailBlock:(FailResult)commentFailBlock;
+
 #pragma mark - 支付 -
 //支付前验证
-- (void)paybeforeVerifyWithUserId:(NSString *)userID withTotalAmount:(NSString *)totalAmount withBalance:(NSString *)balance withPayAmount:(NSString *)payAmount withOrderIdArr:(NSArray *)orderIdArr withVerifySuccessBlock:(SuccessResult )verifySuccessBlock withVerfityFailBlock:(FailResult)verfityFailBlock;
+- (void)paybeforeVerifyWithUserId:(NSString *)userID withTotalAmount:(NSString *)totalAmount withBalance:(NSString *)balance withPayAmount:(NSString *)payAmount withOrderIdArr:(NSArray *)orderIdArr withPayType:(NSString *)payType withVerifySuccessBlock:(SuccessResult )verifySuccessBlock withVerfityFailBlock:(FailResult)verfityFailBlock ;
 
 //支付宝获取签名 dataStr是待签名的字符串
 - (void)aliPaySignDataStr:(NSString *)dataStr withSignSuccessResult:(SuccessResult)signSuccessResult withSignFailResult:(FailResult)signFailResult;
-#pragma mark - 个人信息 -
+
+//用户确认支付
+- (void)userConfirmPayWithUserID:(NSString *)userID withRID:(NSString *)rid withPayCode:(NSString *)payCode withPayType:(NSString *)payType withTotalamount:(NSString *)totalAmount withBalance:(NSString *)balance withPayAmount:(NSString *)payAmount withBank:(NSString *)bank withItemArr:(NSArray *)itemArr withUserConfirmPaySuccess:(SuccessResult)paySuccess withPayFail:(FailResult)payFail ;
+
+//支付后，去后台验证
+- (void)afterPayOrderPaymentVerifyWithPayId:(NSString *)payId withPaymentVerifySuccess:(SuccessResult )paymentVerifySuccess withPaymentVerifyFail:(FailResult)paymentVerifyFail;
+
+#pragma mark - 个人信息 之 余额 -
 //获取个人信息的余额
 - (void)searchUserAmount:(NSString *)userId withAmountSuccessBlock:(SuccessResult )amountSuccessBlock withAmountFailBlock:(FailResult)amountFailBlcok;
+#pragma mark - 个人信息 之 收货地址 -
 //获取收货地址列表
 - (void)receiveAddressListWithUserIdOrReceiveId:(NSString *)userIdOrReceiveId withAddressListSuccess:(SuccessResult)addressListSuccessBlock withAddressListFail:(FailResult)addressListFailBlock;
+//获取已经选择的收货地址
+- (ReceiveAddressModel *)selectedReceiveAddressModel;
 
 //修改某个收货地址
 - (void)motifyReceiveAddressWithReceiveAddressModel:(ReceiveAddressModel *)tempReceiveAddressModel withMotifySuccess:(SuccessResult )motifySuccess withMotifyFail:(FailResult)motifyFail;
+//添加收货地址
+- (void)addReceiveAddressWithReceiveAddressModel:(ReceiveAddressModel *)tempReceiveAddressModel withUserId:(NSString *)userid withAddReceiveAddressSuccess:(SuccessResult )addReceiveAddressSuccess withAddReceiveAddressFail:(FailResult)addReceiveAddressFail ;
+
+
 
 #pragma mark - 登录注册 -
 //密码登录

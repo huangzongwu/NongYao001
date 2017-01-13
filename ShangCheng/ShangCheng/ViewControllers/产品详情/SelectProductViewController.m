@@ -131,8 +131,8 @@
         //选择的是这个规格
         if (tempModel.isSelect == YES) {
             //修改数量
-            if (tempModel.seletctCount == 1) {
-                NSLog(@"最少为1");
+            if (tempModel.seletctCount <= [tempModel.s_min_quantity integerValue]) {
+                NSLog(@"不能少于起订数量");
             }else {
                 tempModel.seletctCount--;
                 

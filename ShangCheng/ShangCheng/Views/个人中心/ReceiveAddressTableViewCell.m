@@ -22,8 +22,10 @@
     
     self.receiveAddressLabel.text = [NSString stringWithFormat:@"%@ %@ %@ %@",receiveAddressModel.capitalname,receiveAddressModel.cityname,receiveAddressModel.countyname,receiveAddressModel.receiveAddress];
     
+
+    
     //如果是默认地址，前面就有对勾，如果不是默认地址，就没有对勾
-    if (receiveAddressModel.defaultAddress == YES) {
+    if (receiveAddressModel.isSelect == YES) {
         self.selectImageWidthLayout.constant = 32;
     }else {
         self.selectImageWidthLayout.constant = 0;

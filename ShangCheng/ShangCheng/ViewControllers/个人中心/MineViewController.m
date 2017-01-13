@@ -127,7 +127,7 @@
             break;
         case 1:
         case 2:
-            return CGSizeMake(kScreenW/5, kScreenW/5);
+            return CGSizeMake(kScreenW/[[self.mineDataSource objectAtIndex:indexPath.section] count], kScreenW/[[self.mineDataSource objectAtIndex:indexPath.section] count]);
             break;
         case 3:
             return CGSizeMake(kScreenW/3, kScreenW/5);
@@ -157,12 +157,33 @@
                 break;
         }
         
+        headerView.headerCellButton.indexForButton = indexPath;
+        
         
         
         return headerView;
     }
     return 0;
 }
+
+- (IBAction)headerButtoonAction:(IndexButton *)sender {
+    NSLog(@"%ld",sender.indexForButton.section);
+    
+    switch (sender.indexForButton.section) {
+        case 1:
+        {
+            //查看全部订单
+            [self switchToOrderTabbarWithOrderType:1];
+            
+        }
+            break;
+            
+        default:
+            break;
+    }
+    
+}
+
 
 //设置collectionViewCell
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -220,9 +241,15 @@
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     NSLog(@"%ld -- %ld",indexPath.section,indexPath.row);
     NSString *pushID = [[self.mineDataSource[indexPath.section] objectAtIndex:indexPath.row] objectForKey:@"pushId"];
-    //如果有pushId的话，才跳转
-    if (pushID.length > 0) {
-        [self performSegueWithIdentifier:pushID sender:[collectionView cellForItemAtIndexPath:indexPath]];
+    if (indexPath.section == 1 && indexPath.row < 3) {
+        //直接跳转到订单
+        [self switchToOrderTabbarWithOrderType:indexPath.row+2];
+    }else {
+        //如果有pushId的话，才跳转
+        if (pushID.length > 0) {
+            [self performSegueWithIdentifier:pushID sender:[collectionView cellForItemAtIndexPath:indexPath]];
+            
+        }
 
     }
     
@@ -235,7 +262,21 @@
 }
 
 
+#pragma mark - 切换到订单页面 -
+- (void)switchToOrderTabbarWithOrderType:(NSInteger )orderType {
+    /*
+     orderType 订单的类型
+     1-全部  2-待付款  3-进行中  4-已完成
+     */
+    //发送通知到订单界面，切换订单类型
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"mineToOrderListVC" object:self userInfo:@{@"orderType":[NSString stringWithFormat:@"%ld",orderType]}];
+    [self.tabBarController setSelectedIndex:3];
+    
+}
+
 #pragma mark - Navigation
+
+
 
 // In a storyboard-based application, you will often want to do a little preparation before navigation
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {

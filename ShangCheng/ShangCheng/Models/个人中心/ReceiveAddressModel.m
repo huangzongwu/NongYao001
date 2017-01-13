@@ -62,6 +62,8 @@
     receiveAddressModel.countyname = [_countyname copy];
     receiveAddressModel.receiveAddress = [_receiveAddress copy];
     receiveAddressModel.defaultAddress = _defaultAddress;
+    receiveAddressModel.isSelect = _isSelect;
+    
     
     return receiveAddressModel;
     

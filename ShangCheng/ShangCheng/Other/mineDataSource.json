@@ -5,10 +5,9 @@
                  
                  [
                   {"info1":"","info2":"待付款","pushId":""},
-                  {"info1":"","info2":"待发货","pushId":""},
-                  {"info1":"","info2":"待收货","pushId":""},
-                  {"info1":"","info2":"待评价","pushId":""},
-                  {"info1":"","info2":"售后/退货","pushId":""}
+                  {"info1":"","info2":"进行中","pushId":""},
+                  {"info1":"","info2":"已完成","pushId":""},
+                  {"info1":"","info2":"售后/退货","pushId":"toAfterMarketVC"}
                  ],
                  [
                   {"info1":"1500","info2":"余额","pushId":""},
@@ -42,10 +41,9 @@
                     
                     [
                      {"info1":"","info2":"待付款","pushId":""},
-                     {"info1":"","info2":"待发货","pushId":""},
-                     {"info1":"","info2":"待收货","pushId":""},
-                     {"info1":"","info2":"待评价","pushId":""},
-                     {"info1":"","info2":"售后/退货","pushId":""}
+                     {"info1":"","info2":"进行中","pushId":""},
+                     {"info1":"","info2":"已完成","pushId":""},
+                     {"info1":"","info2":"售后/退货","pushId":"toAfterMarketVC"}
                      ],
                     [
                      {"info1":"1500","info2":"余额","pushId":""},

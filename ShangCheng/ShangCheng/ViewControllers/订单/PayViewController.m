@@ -13,8 +13,9 @@
 #import <AlipaySDK/AlipaySDK.h>
 #import "Order.h"
 #import "DataSigner.h"
+#import "WXApi.h"
 
-@interface PayViewController ()<UITableViewDataSource,UITableViewDelegate>
+@interface PayViewController ()<UITableViewDataSource,UITableViewDelegate,WXApiDelegate>
 
 @property (weak, nonatomic) IBOutlet UITableView *payTableView;
 //订单金额
@@ -42,12 +43,19 @@
 
 @implementation PayViewController
 
+//返回按钮
+- (IBAction)backBarButtonAction:(UIBarButtonItem *)sender {
+    [self.navigationController popToRootViewControllerAnimated:YES];
+}
+
+
+
 //默认的一些信息
 - (void)defaultSomeData {
     //支付类型
-    NSMutableDictionary *aliPayDic = [NSMutableDictionary dictionaryWithObjectsAndKeys:@"",@"payImg",@"支付宝支付",@"payTitle",@"0",@"isSelectPay", nil];
-    NSMutableDictionary *weiXinPayDic = [NSMutableDictionary dictionaryWithObjectsAndKeys:@"",@"payImg",@"微信支付",@"payTitle",@"0",@"isSelectPay", nil];
-    NSMutableDictionary *downLinePayDic = [NSMutableDictionary dictionaryWithObjectsAndKeys:@"",@"payImg",@"线下银行转账",@"payTitle",@"0",@"isSelectPay", nil];
+    NSMutableDictionary *aliPayDic = [NSMutableDictionary dictionaryWithObjectsAndKeys:@"d_icon_zfb",@"payImg",@"支付宝支付",@"payTitle",@"0",@"isSelectPay", nil];
+    NSMutableDictionary *weiXinPayDic = [NSMutableDictionary dictionaryWithObjectsAndKeys:@"d_icon_wxzf",@"payImg",@"微信支付",@"payTitle",@"0",@"isSelectPay", nil];
+    NSMutableDictionary *downLinePayDic = [NSMutableDictionary dictionaryWithObjectsAndKeys:@"d_icon_yhzz",@"payImg",@"线下银行转账",@"payTitle",@"0",@"isSelectPay", nil];
     
     NSArray *uplinePayArr = @[ @[aliPayDic], @[weiXinPayDic] ];
     NSArray *downlinePayArr = @[ @[downLinePayDic] ];
@@ -76,7 +84,7 @@
     Manager *manager = [Manager shareInstance];
     [manager searchUserAmount:manager.memberInfoModel.u_id withAmountSuccessBlock:^(id successResult) {
 //        self.memberBalanceFloat = 0.00;
-        self.memberBalanceFloat = [[[successResult objectAtIndex:0] objectForKey:@"u_amount_avail"] floatValue];
+        self.memberBalanceFloat = [[[successResult objectAtIndex:0] objectForKey:@"u_amount"] floatValue];
         //将最新的余额存入模型中
         manager.memberInfoModel.u_amount = [[successResult objectAtIndex:0] objectForKey:@"u_amount"];
         manager.memberInfoModel.u_amount_avail = [[successResult objectAtIndex:0] objectForKey:@"u_amount_avail"];
@@ -111,28 +119,42 @@
         if (self.memberBalanceFloat < self.totalAmountFloat) {
             //余额不足
             self.useBalanceFloat = self.memberBalanceFloat;
+            //需要三方支付.默认是支付宝
+            self.payKindInt = 0;
         }else {
             //余额充足
             self.useBalanceFloat = self.totalAmountFloat;
+            //不需要三方支付
+            self.payKindInt = -1;
 
         }
+        //
         //另需支付=总价格-使用余额
         self.otherPayLabel.text = [NSString stringWithFormat:@"%.2f",self.totalAmountFloat-self.useBalanceFloat];
-
         
-        self.selectMemberBalanceButton.backgroundColor = [UIColor redColor];
+        [self.selectMemberBalanceButton setBackgroundImage:[UIImage imageNamed:@"g_btn_select"] forState:UIControlStateNormal];
+        
     }else {
         //否则。另需支付=总价格
         self.isSelectBalance = NO;
         self.useBalanceFloat = 0.00;
-        self.selectMemberBalanceButton.backgroundColor = [UIColor lightGrayColor];
+//        self.selectMemberBalanceButton.backgroundColor = [UIColor lightGrayColor];
+        [self.selectMemberBalanceButton setBackgroundImage:[UIImage imageNamed:@"g_btn_normal"] forState:UIControlStateNormal];
+
+        //需要三方支付.默认是支付宝
+        self.payKindInt = 0;
+        
         self.otherPayLabel.text = [NSString stringWithFormat:@"%.2f",self.totalAmountFloat];
+        
     }
     
     //底部还需支付。如果余额不足，还需支付和另需支付一样
-    self.bottomNeedPayLabel.text = self.otherPayLabel.text;
+    self.bottomNeedPayLabel.text = [NSString stringWithFormat:@"  还需支付:￥%@", self.otherPayLabel.text ];
     //底部的余额支付，就是使用余额
-    self.bottomBalanceLabel.text = [NSString stringWithFormat:@"%.2f",self.useBalanceFloat ];
+    self.bottomBalanceLabel.text = [NSString stringWithFormat:@"  余额支付:￥%.2f",self.useBalanceFloat ];
+    
+    //刷新一下TableView的UI，主要是三方支付的选择按钮状态
+    [self.payTableView reloadData];
 
 }
 
@@ -150,6 +172,8 @@
 - (IBAction)selectBalanceButtonAction:(UIButton *)sender {
     self.isSelectBalance = !self.isSelectBalance;
     [self isSelectBalanceUIWithSelectYesOrNo:self.isSelectBalance];
+    
+
 }
 
 #pragma mark - TableViewDelegate - 
@@ -165,9 +189,14 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
     PayTableViewCell *payCell = [tableView dequeueReusableCellWithIdentifier:@"payCellIdentifier" forIndexPath:indexPath];
-    NSDictionary *jsonDic = [[self.payKindDataSourceArr[indexPath.section] objectAtIndex:indexPath.row] firstObject];
-    [payCell updatePayCellWithJsonDic:jsonDic];
     
+    NSDictionary *jsonDic = [[self.payKindDataSourceArr[indexPath.section] objectAtIndex:indexPath.row] firstObject];
+    
+    if (indexPath.section == 0 && self.payKindInt == indexPath.row) {
+        [payCell updatePayCellWithJsonDic:jsonDic withShowSelectPayKind:YES];
+    }else {
+        [payCell updatePayCellWithJsonDic:jsonDic withShowSelectPayKind:NO];
+    }
     
     return payCell;
     
@@ -183,6 +212,7 @@
         if (indexPath.section == 0) {
             //记录下，支付方式
             self.payKindInt = indexPath.row;
+            [self.payTableView reloadData];
         }
         
         //如果是线下支付，就跳转
@@ -247,83 +277,79 @@
 
 - (IBAction)enterPayButtonAction:(UIButton *)sender {
     //没有选择余额，或者余额不足，就需要三方支付，即网上支付，线下支付，会跳转到其他页面
+    Manager *manager = [Manager shareInstance];
+    NSLog(@"总价：%@ -- 使用余额：%@ -- 支付金额%@",[NSString stringWithFormat:@"%.2f",self.totalAmountFloat],[NSString stringWithFormat:@"%.2f",self.useBalanceFloat],[NSString stringWithFormat:@"%.2f",self.totalAmountFloat-self.useBalanceFloat]);
+
     if (self.isSelectBalance == NO || self.memberBalanceFloat < self.totalAmountFloat) {
         
-        NSLog(@"总价：%@ -- 使用余额：%@ -- 支付金额%@",[NSString stringWithFormat:@"%.2f",self.totalAmountFloat],[NSString stringWithFormat:@"%.2f",self.useBalanceFloat],[NSString stringWithFormat:@"%.2f",self.totalAmountFloat-self.useBalanceFloat]);
         
-        //进行支付验证
-        Manager *manager = [Manager shareInstance];
-        [manager paybeforeVerifyWithUserId:manager.memberInfoModel.u_id withTotalAmount:[NSString stringWithFormat:@"%.2f",self.totalAmountFloat] withBalance:[NSString stringWithFormat:@"%.2f",self.useBalanceFloat] withPayAmount:[NSString stringWithFormat:@"%.2f",self.totalAmountFloat-self.useBalanceFloat] withOrderIdArr:self.orderIDArr withVerifySuccessBlock:^(id successResult) {
+
+        if (self.payKindInt == 0) {
+            //进行支付验证 --- 支付宝
             
-            //验证成功，可以支付了。，
-            [self startPayActionWithPayID:[successResult objectForKey:@"tradeno"] withAppId:[successResult objectForKey:@"appid"] withPayMoney:[NSString stringWithFormat:@"%.2f",self.totalAmountFloat-self.useBalanceFloat]];
-            
-        } withVerfityFailBlock:^(NSString *failResultStr) {
-            
-        }];
-        
-    }else {
-        
-#warning 通过余额支付
-        //直接通过余额支付
-        
-    }
-    
-    /*
-    if ([self.totalAmountStr floatValue] > [self.selectBalanceStr floatValue]) {
-        //余额不足，需要第三方继续支付
-        NSString *tempPayAmountStr = [NSString stringWithFormat:@"%.2f", [self.totalAmountStr floatValue] - [self.selectBalanceStr floatValue]];
-        //进行支付验证
-        Manager *manager = [Manager shareInstance];
-        [manager paybeforeVerifyWithUserId:manager.memberInfoModel.u_id withTotalAmount:self.totalAmountStr withBalance:self.selectBalanceStr withPayAmount:tempPayAmountStr withOrderIdArr:self.orderIDArr withVerifySuccessBlock:^(id successResult) {
-            
-        } withVerfityFailBlock:^(NSString *failResultStr) {
-            
-        }];
-        
-        switch (self.payKindInt) {
-            case 11:
-                //支付宝支付
+            [manager paybeforeVerifyWithUserId:manager.memberInfoModel.u_id withTotalAmount:[NSString stringWithFormat:@"%.2f",self.totalAmountFloat] withBalance:[NSString stringWithFormat:@"%.2f",self.useBalanceFloat] withPayAmount:[NSString stringWithFormat:@"%.2f",self.totalAmountFloat-self.useBalanceFloat] withOrderIdArr:self.orderIDArr withPayType:@"0" withVerifySuccessBlock:^(id successResult) {
                 
-                break;
-            case 12:
-                //微信支付
-                break;
-            case 21:
-                //线下支付
-                break;
+                //验证成功，可以支付了。，
+                [self aliPayActionWithPayID:[successResult objectForKey:@"tradeno"] withAppId:[successResult objectForKey:@"appid"] withPayMoney:[NSString stringWithFormat:@"%.2f",self.totalAmountFloat-self.useBalanceFloat]];
+
+
                 
-            default:
-                //未选择支付方式
-                break;
+            } withVerfityFailBlock:^(NSString *failResultStr) {
+                
+            }];
+
+        }else {
+            //微信
+            [manager paybeforeVerifyWithUserId:manager.memberInfoModel.u_id withTotalAmount:[NSString stringWithFormat:@"%.2f",self.totalAmountFloat] withBalance:[NSString stringWithFormat:@"%.2f",self.useBalanceFloat] withPayAmount:[NSString stringWithFormat:@"%.2f",self.totalAmountFloat-self.useBalanceFloat] withOrderIdArr:self.orderIDArr withPayType:@"1" withVerifySuccessBlock:^(id successResult) {
+                
+                //验证成功，可以支付了。，
+                [self weixinPayAction:successResult];
+                
+            } withVerfityFailBlock:^(NSString *failResultStr) {
+                
+            }];
+
         }
-
         
     }else {
-        //余额充足，直接支付
         
+//        //直接通过余额支付
+//        [self performSegueWithIdentifier:@"toPayCompleteVC" sender:nil];
+
+        //验证
+        [manager paybeforeVerifyWithUserId:manager.memberInfoModel.u_id withTotalAmount:[NSString stringWithFormat:@"%.2f",self.totalAmountFloat] withBalance:[NSString stringWithFormat:@"%.2f",self.useBalanceFloat] withPayAmount:[NSString stringWithFormat:@"%.2f",self.totalAmountFloat-self.useBalanceFloat] withOrderIdArr:self.orderIDArr withPayType:@"" withVerifySuccessBlock:^(id successResult) {
+            
+            //验证成功后，进行余额支付
+            [manager userConfirmPayWithUserID:manager.memberInfoModel.u_id withRID:[successResult objectForKey:@"tradeno"] withPayCode:@"" withPayType:@"0" withTotalamount:[NSString stringWithFormat:@"%.2f",self.totalAmountFloat] withBalance:[NSString stringWithFormat:@"%.2f",self.useBalanceFloat] withPayAmount:[NSString stringWithFormat:@"%.2f",self.totalAmountFloat-self.useBalanceFloat] withBank:@"" withItemArr:self.orderIDArr withUserConfirmPaySuccess:^(id successResult) {
+#warning 通知
+                //发送通知到订单列表，刷新
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"refreshOrderList" object:self userInfo:nil];
+                
+                //支付成功后，跳转到支付成功界面
+                [self performSegueWithIdentifier:@"toPayCompleteVC" sender:nil];
+                
+            } withPayFail:^(NSString *failResultStr) {
+                
+            }];
+            
+            
+            
+            
+        } withVerfityFailBlock:^(NSString *failResultStr) {
+            
+        }];
+       
         
     }
-    
-    */
     
 }
 
-//开始支付
-- (void)startPayActionWithPayID:(NSString *)payID withAppId:(NSString *)appID withPayMoney:(NSString *)payMoney {
-    //支付宝
-    if (self.payKindInt == 0) {
-        [self aliPayActionWithPayID:payID withAppId:appID withPayMoney:payMoney];
-    }
-    
-    
-}
 
 
 
 #pragma mark - 支付宝支付 -
 - (void)aliPayActionWithPayID:(NSString *)payId withAppId:(NSString *)appId withPayMoney:(NSString *)payMoney {
-    
+    Manager *manager = [Manager shareInstance];
     //重要说明
     //这里只是为了方便直接向商户展示支付宝的整个支付流程；所以Demo中加签过程直接放在客户端完成；
     //真实App里，privateKey等数据严禁放在客户端，加签过程务必要放在服务端完成；
@@ -354,8 +380,8 @@
      *生成订单信息及签名
      */
     //userid
-    NSString *tempUserId = [Manager shareInstance].memberInfoModel.u_id;
-    NSString *tempPayType = @"支付宝";
+    NSString *tempUserId = manager.memberInfoModel.u_id;
+
     NSString *tempTotalamount = [NSString stringWithFormat:@"%.2f",self.totalAmountFloat ]; //订单总额;
     NSString *tempBalance = [NSString stringWithFormat:@"%.2f",self.useBalanceFloat ];
     
@@ -393,9 +419,16 @@
     //支付ID
     order.biz_content.out_trade_no = payId; //订单ID（由商家自行制定）
     order.biz_content.timeout_express = @"30m"; //超时时间设置
-    order.biz_content.total_amount = @"0.01"; //商品价格
-
-    NSString *tempPassback_params = (NSString *)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault, (CFStringRef)[self dictionaryToJson:@{@"userid":tempUserId,@"paytype":tempPayType,@"totalamount":tempTotalamount,@"balance":tempBalance}], NULL, (CFStringRef)@"!*'();:@&=+ $,./?%#[]", kCFStringEncodingUTF8));
+    order.biz_content.total_amount = payMoney; //商品价格
+    
+    //订单数组封装成字典
+    NSMutableArray *tempOrderIDArr = [NSMutableArray array];
+    for (NSString *tempOrderID in self.orderIDArr) {
+        NSDictionary *tempOrderIdDic = @{@"pid":tempOrderID};
+        [tempOrderIDArr addObject:tempOrderIdDic];
+    }
+    
+    NSString *tempPassback_params = (NSString *)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault, (CFStringRef)[self dictionaryToJson:@{@"userid":tempUserId,@"totalamount":tempTotalamount,@"balance":tempBalance,@"item":tempOrderIDArr}], NULL, (CFStringRef)@"!*'();:@&=+ $,./?%#[]", kCFStringEncodingUTF8));
 
     order.biz_content.passback_params = tempPassback_params;
     
@@ -408,7 +441,7 @@
     // NOTE: 获取私钥并将商户信息签名，外部商户的加签过程请务必放在服务端，防止公私钥数据泄露；
     //       需要遵循RSA签名规范，并将签名字符串base64编码和UrlEncode
     //开始签名接口
-    [[Manager shareInstance] aliPaySignDataStr:orderInfoEncoded withSignSuccessResult:^(id successResult) {
+    [manager aliPaySignDataStr:orderInfoEncoded withSignSuccessResult:^(id successResult) {
         
         //签名后的字符串
         NSString *signedString = [successResult objectForKey:@"sign"];
@@ -431,9 +464,27 @@
             
             // NOTE: 调用支付结果开始支付
             [[AlipaySDK defaultService] payOrder:orderString fromScheme:appScheme callback:^(NSDictionary *resultDic) {
-                NSLog(@"reslut = %@",resultDic);
-                //如果支付成功，就可以进行验证签名了
-                
+                NSLog(@"同步reslut = %@",resultDic);
+                if (resultDic != nil) {
+
+                    NSData *jsonData = [[resultDic objectForKey:@"result"] dataUsingEncoding:NSUTF8StringEncoding];
+                    NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
+                    
+                    NSString *tempPayId = [[dic objectForKey:@"alipay_trade_app_pay_response"] objectForKey:@"out_trade_no"];
+                    NSLog(@"%@",tempPayId);
+
+                    //如果支付成功，就可以进行验证签名了
+                    [manager afterPayOrderPaymentVerifyWithPayId:tempPayId withPaymentVerifySuccess:^(id successResult) {
+                        NSLog(@"%@",successResult);
+                        
+#warning 支付成功后，返回到哪个界面
+                        
+                    } withPaymentVerifyFail:^(NSString *failResultStr) {
+                        NSLog(@"%@",failResultStr);
+                    }];
+                    
+                }
+
                 
             }];
 
@@ -469,6 +520,26 @@
     */
     
 }
+
+#pragma mark - 微信支付 -
+//微信支付
+- (void)weixinPayAction:(NSDictionary *)orderReq {
+    
+    //调起微信支付
+    PayReq* req             = [[PayReq alloc] init];
+    req.partnerId           = [orderReq objectForKey:@"partnerid"];
+    req.prepayId            = [orderReq objectForKey:@"prepayid"];
+    req.nonceStr            = [orderReq objectForKey:@"noncestr"];
+    req.timeStamp           = [[orderReq objectForKey:@"timestamp"] intValue];
+    req.package             = @"Sign=WXPay";
+    req.sign                = [orderReq objectForKey:@"sign"];
+    [WXApi sendReq:req];
+
+    NSLog(@"appid=%@\npartid=%@\nprepayid=%@\nnoncestr=%@\ntimestamp=%ld\npackage=%@\nsign=%@",[orderReq objectForKey:@"appid"],req.partnerId,req.prepayId,req.nonceStr,(long)req.timeStamp,req.package,req.sign );
+
+    
+}
+
 
 
 #pragma mark - 将字典变为json格式的字符串 -

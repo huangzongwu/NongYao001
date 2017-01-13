@@ -21,6 +21,7 @@
 
 @property (nonatomic,assign)BOOL defaultAddress;
 
+@property (nonatomic,assign)BOOL isSelect;
 
 - (void)setValue:(id)value forUndefinedKey:(NSString *)key;
 

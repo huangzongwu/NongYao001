@@ -88,7 +88,7 @@
 - (void)httpShoppingCarVCDataAction {
     Manager *manager = [Manager shareInstance];
     
-    [manager httpShoppingCarDataWithUserId:@"93364C0CECBC4F12BDA6B47AF22C8352" WithSuccessResult:^(id successResult) {
+    [manager httpShoppingCarDataWithUserId:manager.memberInfoModel.u_id WithSuccessResult:^(id successResult) {
         
         [self.shoppingTableView reloadData];
         //刷新了，将bool值变为No

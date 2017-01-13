@@ -32,7 +32,6 @@
     //本地
 //    return @"http://192.168.0.233:5260/";
 
-    
 }
 
 - (NSString *)baseUrl {
@@ -56,6 +55,16 @@
 //产品所有规格
 - (NSString *)productAllFarmatWithProductID:(NSString *)productID {
     return [NSString stringWithFormat:@"%@/ProductStandard?id=%@",self.baseUrl,productID];
+}
+
+//产品分类树
+- (NSString *)productClassTree {
+    return [NSString stringWithFormat:@"%@/ProductCategory?col=p_type",self.baseUrl];
+}
+
+//模糊查询产品信息
+- (NSString *)fuzzySearchProductInfoWithCode:(NSString *)code withName:(NSString *)name withAreaid:(NSString *)areaId withPd:(NSString *)pd withSuppliername:(NSString *)suppliername withLevel:(NSString *)level withStatus:(NSString *)status withPrice:(NSString *)price withDate:(NSString *)date {
+    return [NSString stringWithFormat:@"%@/Product?code=%@&name=%@&areaid=%@&pd=%@&suppliername=%@&level=%@&status=%@&price=%@&date=%@",self.baseUrl,code,name,areaId,pd,suppliername,level,status,price,date];
 }
 
 
@@ -110,7 +119,20 @@
 - (NSString *)cancelOrderWithOrderID:(NSString *)orderId {
     return [NSString stringWithFormat:@"%@/CancelOrder?id=%@",self.baseUrl,orderId];
 }
+//取消子订单
+- (NSString *)cancelSonOrderPOST {
+    return [NSString stringWithFormat:@"%@/CancelOrder",self.baseUrl];
+}
 
+//物流信息
+- (NSString *)logisticsWithOrderId:(NSString *)orderId withType:(NSString *)type {
+    return [NSString stringWithFormat:@"%@/OrderTracking?id=%@&type=%@",self.baseUrl,orderId,type];
+}
+
+//提交评论
+- (NSString *)commitCommentPost {
+    return [NSString stringWithFormat:@"%@/UserOrderReview",self.baseUrl];
+}
 
 #pragma mark - 支付 -
 //支付前验证
@@ -122,6 +144,15 @@
     return [NSString stringWithFormat:@"%@/Alipay",self.baseUrl];
 }
 
+//用户确认支付
+- (NSString *)userConfirmPayPOST {
+    return [NSString stringWithFormat:@"%@/UserConfirmPay",self.baseUrl];
+}
+
+//支付后，后台验证
+- (NSString *)orderPaymentVerifyWithPayid:(NSString *)payId {
+    return [NSString stringWithFormat:@"%@/OrderPaymentVerify?pid=%@",self.baseUrl,payId];
+}
 
 
 #pragma mark - 个人信息 -

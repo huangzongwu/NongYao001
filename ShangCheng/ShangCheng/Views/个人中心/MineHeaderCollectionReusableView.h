@@ -7,10 +7,12 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "IndexButton.h"
 
 @interface MineHeaderCollectionReusableView : UICollectionReusableView
 @property (weak, nonatomic) IBOutlet UILabel *headerCellLabel;
-@property (weak, nonatomic) IBOutlet UIButton *headerCellButton;
+@property (weak, nonatomic) IBOutlet IndexButton *headerCellButton;
+
 
 - (void)updateHeaderCellWithTitleStr:(NSString *)titleStr withButtonTitle:(NSString *)buttonTitle;
 
