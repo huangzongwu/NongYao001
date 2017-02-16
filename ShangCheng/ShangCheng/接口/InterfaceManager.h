@@ -17,7 +17,7 @@
 //首页产品 cnum是热销产品的个数，rnum是推荐产品的个数
 - (NSString *)homeProductURLWithCnum:(NSString *)cnum withRnum:(NSString *)rnum;
 //产品详情
-- (NSString *)productDetailURLWithProductID:(NSString *)productID;
+- (NSString *)productDetailURLWithProductID:(NSString *)productID withIsst:(NSString *)isst;
 //产品所有规格
 - (NSString *)productAllFarmatWithProductID:(NSString *)productID;
 
@@ -56,9 +56,6 @@
 //物流信息
 - (NSString *)logisticsWithOrderId:(NSString *)orderId withType:(NSString *)type;
 
-//提交评论
-- (NSString *)commitCommentPost;
-
 #pragma mark - 支付 -
 //支付前验证
 - (NSString *)paybeforeVerifyPOST;
@@ -79,6 +76,32 @@
 //收货地址
 - (NSString *)receiveAddressBase;
 
+//评论
+- (NSString *)userOrderReviewBase;
+
+//收藏base
+- (NSString *)favoriteBase;
+//获取收藏列表
+- (NSString *)myFavoriteListWithUserId:(NSString *)userid;
+
+//流水账查询
+- (NSString *)userAccountBase;
+
+//修改密码
+- (NSString *)motifyPasswordBase;
+
+//个人中心 我的钱包数据
+- (NSString *)userDataBase;
+
+#pragma mark - 我的代理 -
+//基本代理数据
+- (NSString *)myAgentDataBase;
+
+//人员列表数据
+- (NSString *)myAgentPeopleListBase;
+//订单列表数据
+- (NSString *)myAgentOrderListBase;
+
 #pragma mark - 登录注册 -
 //登录接口
 - (NSString *)loginPOSTAndPUTUrl ;
@@ -86,8 +109,8 @@
 - (NSString *)mobileCodePOST ;
 //检测验证码
 - (NSString *)checkMobileCodeWithMobileNumber:(NSString *)mobileNumber withCode:(NSString *)code;
-//注册接口
-- (NSString *)registerPOSTUrl;
+//用户Base接口
+- (NSString *)userBase;
 #pragma mark - 其他 -
 //地区信息
 - (NSString *)getAreaTree;

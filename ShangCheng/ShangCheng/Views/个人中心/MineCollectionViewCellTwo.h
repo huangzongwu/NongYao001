@@ -12,5 +12,6 @@
 @property (weak, nonatomic) IBOutlet UIImageView *headerImageView;
 @property (weak, nonatomic) IBOutlet UILabel *infoLabel;
 
-- (void)updateCellWithHeaderImage:(NSString *)headerImageUrl withInfoStr:(NSString *)infoStr;
+@property (weak, nonatomic) IBOutlet UIView *lineView;
+- (void)updateCellWithHeaderImage:(NSString *)headerImageUrl withInfoStr:(NSString *)infoStr withFontFloat:(CGFloat)fontFloat withLineViewHide:(BOOL)lineViewHide;
 @end

@@ -39,6 +39,7 @@
 
 @implementation ProductDetailViewController
 
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
@@ -47,21 +48,24 @@
     
     //获取产品详细信息
     [[Manager shareInstance] httpProductDetailInfoWithProductID:self.productID withProductDetailModel:self.productDetailModel withSuccessDetailResult:^(id successResult) {
-//        self.productDetailModel = successResult;
-        //获取了产品详细信息后，请求所有规格数据
+
         
         [self updateAllViewWithDetailModel:self.productDetailModel];
-        //获取所有的规格数据
-        [[Manager shareInstance] httpProductAllFarmatInfoWithProductID:self.productID withProductDetailModel:self.productDetailModel withSuccessFarmatResult:^(id successResult) {
-            //        self.productDetailModel = successResult;
-            //通过id找到是那个规格
-            //将第一个规格变成默认的规格
-            [self selectOneFormatWithFormatID:self.productDetailModel.productModel.productFormatID];
-            
-        } withFailFarmatResult:^(NSString *failResultStr) {
-            NSLog(@"%@",failResultStr);
-            
-        }];
+        
+        //将第一个规格变成默认的规格
+        [self selectOneFormatWithFormatID:self.productDetailModel.productModel.productFormatID];
+        
+//        //获取所有的规格数据
+//        [[Manager shareInstance] httpProductAllFarmatInfoWithProductID:self.productID withProductDetailModel:self.productDetailModel withSuccessFarmatResult:^(id successResult) {
+//            //        self.productDetailModel = successResult;
+//            //通过id找到是那个规格
+//            //将第一个规格变成默认的规格
+//            [self selectOneFormatWithFormatID:self.productDetailModel.productModel.productFormatID];
+//            
+//        } withFailFarmatResult:^(NSString *failResultStr) {
+//            NSLog(@"%@",failResultStr);
+//            
+//        }];
         
     } withFailDetailResult:^(NSString *failResultStr) {
         NSLog(@"%@",failResultStr);
@@ -157,7 +161,25 @@
 }
 
 
+#pragma mark - 底部按钮的功能 -
+//加入购物车
+- (IBAction)joinShoppingCarAction:(UIButton *)sender {
+    [self performSegueWithIdentifier:@"detailToSelectFormatVC" sender:sender];
 
+}
+
+//加入收藏
+- (IBAction)joinFavoriteButtonAction:(UIButton *)sender {
+    
+    Manager *manager = [Manager shareInstance];
+    [manager httpAddFavoriteWithUserId:manager.memberInfoModel.u_id withFormatId:self.productDetailModel.productModel.productFormatID withAddFavoriteSuccess:^(id successResult) {
+        
+    } withAddFavoriteFail:^(NSString *failResultStr) {
+        
+    }];
+    
+    
+}
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

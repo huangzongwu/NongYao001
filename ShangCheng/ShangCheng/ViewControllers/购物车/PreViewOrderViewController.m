@@ -255,6 +255,7 @@
         if ([self computeProductTotalPrice] >= 1000) {
             //将产品模型传值到选择优惠券界面
             SelectCouponViewController *selectCouponVC = [segue destinationViewController];
+            selectCouponVC.isSelectCoupon = YES;
             selectCouponVC.previewOrderProductArr = self.selectedProductArr;
             selectCouponVC.couponDicBlock = ^(NSDictionary *couponDicBlock){
                 //优惠金额赋值

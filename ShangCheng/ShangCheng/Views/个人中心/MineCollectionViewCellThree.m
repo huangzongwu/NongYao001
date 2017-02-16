@@ -10,7 +10,12 @@
 
 @implementation MineCollectionViewCellThree
 - (void)updateCellWithHeaderStr:(NSString *)headerStr withInfoStr:(NSString *)infoStr {
-    self.headerLabel.text = headerStr;
+    if (headerStr != nil && headerStr.length > 0) {
+        self.headerLabel.text = headerStr;
+    }else{
+        self.headerLabel.text = @"--";
+    }
+
     self.infoLabel.text = infoStr;
 }
 

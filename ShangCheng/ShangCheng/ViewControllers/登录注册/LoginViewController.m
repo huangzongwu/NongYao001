@@ -233,8 +233,19 @@
 #pragma mark - 登录 -
 //密码登录按钮
 - (IBAction)loginButtonOneAction:(UIButton *)sender {
-    NSString *loginID = @"admin";
+    //测试号
+//    NSString *loginID = @"admin";
+//    NSString *loginPassword = @"nongyao001";
+    
+        //王战
+//    NSString *loginID = @"15082932167";
+//    NSString *loginPassword = @"123456";
+    
+    //代理
+    NSString *loginID = @"13837150011";
     NSString *loginPassword = @"nongyao001";
+    
+
 //    NSString *loginID = self.passwordLoginIDTextField.text;
 //    NSString *loginPassword = self.passwordLoginPasswordTextField.text ;
     

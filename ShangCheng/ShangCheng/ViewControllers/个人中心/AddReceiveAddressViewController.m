@@ -56,6 +56,8 @@
         //创建一个模型作为数据模型，当成默认地址
         self.addReceiveAddressModel = [[ReceiveAddressModel alloc] init];
         self.addReceiveAddressModel.defaultAddress = YES;
+        //按钮状态
+        [self.defaultAddressButton setBackgroundImage:[UIImage imageNamed:@"g_btn_select"] forState:UIControlStateNormal];
         
     }
     

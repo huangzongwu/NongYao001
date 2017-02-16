@@ -10,10 +10,12 @@
 
 @implementation MineCollectionViewCellTwo
 
-- (void)updateCellWithHeaderImage:(NSString *)headerImageUrl withInfoStr:(NSString *)infoStr {
+- (void)updateCellWithHeaderImage:(NSString *)headerImageUrl withInfoStr:(NSString *)infoStr withFontFloat:(CGFloat)fontFloat withLineViewHide:(BOOL)lineViewHide {
     self.headerImageView.image = [UIImage imageNamed:headerImageUrl];
     self.infoLabel.text = infoStr;
-    
+    self.infoLabel.font = [UIFont systemFontOfSize:fontFloat];
+
+    self.lineView.hidden = lineViewHide;
 }
 
 @end

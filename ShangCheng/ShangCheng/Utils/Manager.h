@@ -21,6 +21,11 @@
 #import "ReceiveAddressModel.h"
 #import "ClassModel.h"
 #import "FuzzySearchModel.h"
+#import "MyCommentListModel.h"
+#import "MyFavoriteListModel.h"
+#import "MyTradeRecordModel.h"
+#import "MyAgentPeopleModel.h"
+#import "MyAgentOrderModel.h"
 typedef void(^SuccessResult)(id successResult);
 typedef void(^FailResult)(NSString *failResultStr);
 
@@ -44,10 +49,29 @@ typedef void(^FailResult)(NSString *failResultStr);
 //收货地址数组
 @property (nonatomic,strong)NSMutableArray *receiveAddressArr;
 
-
 //地区信息数组
 @property (nonatomic,strong)NSArray *areaArr;
 
+//我的评论列表
+@property (nonatomic,strong)NSMutableArray *myCommentArr;
+
+//我的收藏列表
+@property (nonatomic,strong)NSMutableArray *myFavoriteArr;
+
+//我的提现记录--时间key
+@property (nonatomic,strong)NSMutableArray *cashDateKeyArr;
+//我的体现记录--详情字典
+@property (nonatomic,strong)NSMutableDictionary *cashDetailDic;
+//我的交易记录--时间key
+@property (nonatomic,strong)NSMutableArray *tradeDateKeyArr;
+//我的交易记录--详情字典
+@property (nonatomic,strong)NSMutableDictionary *tradeDetailDic;
+
+//我的代理数据 1收益 2订单 3代理商人数 4订单详情 5代理商详情
+@property (nonatomic,strong)NSMutableDictionary *myAgentDic;
+
+//个人中心 我的钱包数据
+@property (nonatomic,strong)NSMutableDictionary *myWalletDic;
 
 + (Manager *)shareInstance;
 
@@ -57,7 +81,7 @@ typedef void(^FailResult)(NSString *failResultStr);
 //获取产品详情
 - (void)httpProductDetailInfoWithProductID:(NSString *)productId withProductDetailModel:(ProductDetailModel *)productDetailModel withSuccessDetailResult:(SuccessResult)successDetailResult withFailDetailResult:(FailResult)failDetailResult;
 //获取产品的所有规格
-- (void)httpProductAllFarmatInfoWithProductID:(NSString *)productId  withProductDetailModel:(ProductDetailModel *)productDetailModel withSuccessFarmatResult:(SuccessResult)successFarmatResult withFailFarmatResult:(FailResult)failFarmatResult;
+//- (void)httpProductAllFarmatInfoWithProductID:(NSString *)productId  withProductDetailModel:(ProductDetailModel *)productDetailModel withSuccessFarmatResult:(SuccessResult)successFarmatResult withFailFarmatResult:(FailResult)failFarmatResult;
 
 //产品分类树
 - (void)httpProductClassTreeWithClassTreeSuccess:(SuccessResult)classTreeSuccess withClassTreeFali:(FailResult)classTreeFail;
@@ -68,7 +92,7 @@ typedef void(^FailResult)(NSString *failResultStr);
 
 #pragma mark - 购物车 -
 //将产品加入购物车
-- (void)httpProductToShoppingCarWithProductDetailModel:(ProductDetailModel *)productDetailModel withSuccessToShoppingCarResult:(SuccessResult)successToShoppingCarResult withFailToShoppingCarResult:(FailResult)failToShoppingCarResult;
+- (void)httpProductToShoppingCarWithFormatId:(NSString *)sidStr withProductCount:(NSString *)countStr withSuccessToShoppingCarResult:(SuccessResult)successToShoppingCarResult withFailToShoppingCarResult:(FailResult)failToShoppingCarResult ;
 
 //判断是否全选
 - (void)isAllSelectForShoppingCarAction ;
@@ -119,8 +143,7 @@ typedef void(^FailResult)(NSString *failResultStr);
 //物流信息
 - (void)orderLogisticsWithOrderId:(NSString *)orderID withSuccessLogisticsBlock:(SuccessResult )successLogisticsBlock withFailLogisticsBlock:(FailResult)failLogisticsBlock;
 
-//订单评论
-- (void)orderCommentWithUserid:(NSString *)userId withOrderId:(NSString *)orderId withStarLevel:(NSString *)starLevel withContent:(NSString *)content withCommentSuccessBlock:(SuccessResult)commentSuccessBock withCommentFailBlock:(FailResult)commentFailBlock;
+
 
 #pragma mark - 支付 -
 //支付前验证
@@ -136,6 +159,9 @@ typedef void(^FailResult)(NSString *failResultStr);
 - (void)afterPayOrderPaymentVerifyWithPayId:(NSString *)payId withPaymentVerifySuccess:(SuccessResult )paymentVerifySuccess withPaymentVerifyFail:(FailResult)paymentVerifyFail;
 
 #pragma mark - 个人信息 之 余额 -
+//个人中心我的钱包数据
+- (void)httpMyWalletWithUserId:(NSString *)userId withMyWalletSuccess:(SuccessResult )walletSuccess withMyWalletFail:(FailResult)walletFail;
+
 //获取个人信息的余额
 - (void)searchUserAmount:(NSString *)userId withAmountSuccessBlock:(SuccessResult )amountSuccessBlock withAmountFailBlock:(FailResult)amountFailBlcok;
 #pragma mark - 个人信息 之 收货地址 -
@@ -149,6 +175,45 @@ typedef void(^FailResult)(NSString *failResultStr);
 //添加收货地址
 - (void)addReceiveAddressWithReceiveAddressModel:(ReceiveAddressModel *)tempReceiveAddressModel withUserId:(NSString *)userid withAddReceiveAddressSuccess:(SuccessResult )addReceiveAddressSuccess withAddReceiveAddressFail:(FailResult)addReceiveAddressFail ;
 
+//设置默认地址
+- (void)defaultReceiveAddressWithAddressModel:(ReceiveAddressModel *)tempReceiveAddressModel withDefaultSuccess:(SuccessResult )defaultSuccess withDefaultFail:(FailResult)defaultFail;
+
+//删除地址
+- (void)deleteReceiveAddressWithAddressModel:(ReceiveAddressModel *)tempReceiveAddressModel withDeleteAddressSuccess:(SuccessResult)deleteAddressSuccess withDeleteAddressFail:(FailResult)deleteAddressFail;
+
+
+#pragma mark - 评价 -
+//订单评论
+- (void)orderCommentWithUserid:(NSString *)userId withOrderId:(NSString *)orderId withStarLevel:(NSString *)starLevel withContent:(NSString *)content withCommentSuccessBlock:(SuccessResult)commentSuccessBock withCommentFailBlock:(FailResult)commentFailBlock;
+
+//个人中心--我的评价
+- (void)myCommentListWithUserId:(NSString *)userId withIsUpdate:(BOOL)isUpdate withPageIndex:(NSInteger )pageIndex withPageSize:(NSInteger )pageSize withMyCommentSuccessBlock:(SuccessResult )commentSuccessBlock withMyCommentFailBlock:(FailResult)commentFailBlock ;
+
+
+#pragma mark - 收藏 -
+//添加到收藏
+- (void)httpAddFavoriteWithUserId:(NSString *)userId withFormatId:(NSString *)formatId withAddFavoriteSuccess:(SuccessResult )addFavoriteSuccess withAddFavoriteFail:(FailResult )addFavoriteFail;
+
+//收藏列表
+- (void)httpMyFavoriteListWithUserId:(NSString *)userId withMyFavoriteSuccess:(SuccessResult )favoriteSuccess withMyFavoriteFail:(FailResult )favoriteFail;
+
+//删除收藏产品
+- (void)httpDeleteFavoriteProductWithFavoriteArr:(NSMutableArray *)deleteFavoriteArr withDeleteFavoriteSuccess:(SuccessResult)favoriteSuccess withDeleteFavoriteFail:(FailResult)favoriteFail;
+
+//流水账查询  id=&iscash=&sdt=&edt=&pageindex=1&pagesize=10
+- (void)httpSearchUserAccountListWithUserId:(NSString *)userId withIsCash:(NSString *)iscash withSdt:(NSString *)sdt withEdt:(NSString *)edt withPageIndex:(NSInteger )pageIndex withPageSize:(NSInteger)pageSize withSearchSuccess:(SuccessResult )searchSuccess withSearchFail:(FailResult)searchFail;
+
+#pragma mark - 修改个人资料 -
+- (void)httpMotifyMemberInfoWithUserID:(NSString *)userID withUsername:(NSString *)userName withEmail:(NSString *)email withMobile:(NSString *)mobile withQQ:(NSString *)qq withAreaId:(NSString *)areaId WithMotifyMemberSuccess:(SuccessResult )motifySuccess withMotifyMemberFail:(FailResult)motifyFail;
+//修改密码
+- (void)httpMotifyPasswordWithUserId:(NSString *)userId withPassword:(NSString *)password withMotifyPasswordSuccess:(SuccessResult )motifyPasswordSuccess withMotifyPasswordFail:(FailResult )motifyPasswordFail;
+#pragma mark - 我的代理 -
+//我的代理基本数据
+- (void)httpMyAgentBaseDataWithUserId:(NSString *)userId withMyAgentSuccess:(SuccessResult )myAgentSuccess withMyagentFail:(FailResult )myAgentFail;
+//我的代理 人员数据
+- (void)httpMyAgentPeopleListDataWithUserId:(NSString *)userId withPageindex:(NSInteger )pageIndex withMyAgentSuccess:(SuccessResult)myAgentSuccess withMyagentFail:(FailResult)myAgentFail ;
+//我的代理 订单数据
+- (void)httpMyAgentOrderListDataWithUserId:(NSString *)userId withPageindex:(NSInteger )pageIndex withMyAgentSuccess:(SuccessResult)myAgentSuccess withMyagentFail:(FailResult)myAgentFail ;
 
 
 #pragma mark - 登录注册 -
@@ -181,5 +246,6 @@ typedef void(^FailResult)(NSString *failResultStr);
 
 //获取地区信息
 - (void)httpAreaTreeWithSuccessAreaInfo:(SuccessResult )successAreaInfo withFailAreaInfo:(FailResult)failAreaInfo ;
-
+//从字符串中得到年月日等信息
+- (NSDateComponents *)dateStrToDateAndComponentWithDatestr:(NSString *)dateStr;
 @end

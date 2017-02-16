@@ -1,68 +1,68 @@
 {"delegateUser":[
                  [
-                 {"info1":"","info2":"账号管理","pushId":""}
+                 {"info1":"","info2":"账号管理","pushId":"mineToMemberManager"}
                  ],
                  
                  [
-                  {"info1":"","info2":"待付款","pushId":""},
-                  {"info1":"","info2":"进行中","pushId":""},
-                  {"info1":"","info2":"已完成","pushId":""},
-                  {"info1":"","info2":"售后/退货","pushId":"toAfterMarketVC"}
+                  {"icon1":"w_icon_dfk","info":"待付款","pushId":""},
+                  {"icon1":"w_icon_jxz","info":"进行中","pushId":""},
+                  {"icon1":"w_icon_ywc","info":"已完成","pushId":""},
+                  {"icon1":"w_icon_th","info":"售后/退货","pushId":"toAfterMarketVC"}
                  ],
                  [
-                  {"info1":"1500","info2":"余额","pushId":""},
-                  {"info1":"900","info2":"可提现","pushId":""},
-                  {"info1":"1","info2":"优惠券","pushId":""},
-                  {"info1":"","info2":"提现记录","pushId":""},
-                  {"info1":"","info2":"交易记录","pushId":""}
+                  {"info":"余额","pushId":"mineToMyWallet"},
+                  {"info":"可提现","pushId":"mineToMyWallet"},
+                  {"info":"优惠券","pushId":"mineToCouponVC"},
+                  {"icon1":"w_icon_txjl","info":"提现记录","pushId":"mineVCToTradeRecordVC"},
+                  {"icon1":"w_icon_jxjl","info":"交易记录","pushId":"mineVCToTradeRecordVC"}
                  ],
                  [
-                  {"info1":"100","info2":"收益(元)","pushId":""},
-                  {"info1":"900","info2":"订单(个)","pushId":""},
-                  {"info1":"290","info2":"人数(人)","pushId":""}
+                  {"info":"收益(元)","pushId":"mineToAgentVC"},
+                  {"info":"订单(个)","pushId":"mineToAgentVC"},
+                  {"info":"人数(人)","pushId":"mineToAgentVC"}
                  ],
                  [
-                  {"info1":"100","info2":"收货地址","pushId":""},
-                  {"info1":"900","info2":"我的评价","pushId":""},
-                  {"info1":"290","info2":"我的收藏","pushId":""},
-                  {"info1":"100","info2":"浏览记录","pushId":""},
-                  {"info1":"900","info2":"消息通知","pushId":""},
-                  {"info1":"290","info2":"关于我们","pushId":""},
-                  {"info1":"100","info2":"意见反馈","pushId":""},
-                  {"info1":"900","info2":"设置","pushId":"mineVCToSettingVC"}
+                  {"icon1":"w_icon_shdz","info":"收货地址","pushId":"mineToAddressVC"},
+                  {"icon1":"w_icon_wdpj","info":"我的评价","pushId":"mineToMyCommentListVC"},
+                  {"icon1":"w_icon_wdsc","info":"我的收藏","pushId":"mineToMyFavoriteVC"},
+                  {"icon1":"w_icon_lljl","info":"浏览记录","pushId":""},
+                  {"info1":"900","info":"消息通知","pushId":""},
+                  {"info1":"290","info":"关于我们","pushId":""},
+                  {"info1":"100","info":"意见反馈","pushId":""},
+                  {"info1":"900","info":"设置","pushId":"mineVCToSettingVC"}
                  ]
                  
                 ],
 
 "ordinaryUser":[
                     [
-                     {"info1":"","info2":"账号管理","pushId":""}
+                     {"info1":"","info2":"账号管理","pushId":"mineToMemberManager"}
                      ],
                     
                     [
-                     {"info1":"","info2":"待付款","pushId":""},
-                     {"info1":"","info2":"进行中","pushId":""},
-                     {"info1":"","info2":"已完成","pushId":""},
-                     {"info1":"","info2":"售后/退货","pushId":"toAfterMarketVC"}
+                     {"icon1":"w_icon_dfk","info":"待付款","pushId":""},
+                     {"icon1":"w_icon_jxz","info":"进行中","pushId":""},
+                     {"icon1":"w_icon_ywc","info":"已完成","pushId":""},
+                     {"icon1":"w_icon_th","info":"售后/退货","pushId":"toAfterMarketVC"}
                      ],
                     [
-                     {"info1":"1500","info2":"余额","pushId":""},
-                     {"info1":"900","info2":"可提现","pushId":""},
-                     {"info1":"1","info2":"优惠券","pushId":""},
-                     {"info1":"","info2":"提现记录","pushId":""},
-                     {"info1":"","info2":"交易记录","pushId":""}
+                     {"info":"余额","pushId":"mineToMyWallet"},
+                     {"info":"可提现","pushId":"mineToMyWallet"},
+                     {"info":"优惠券","pushId":"mineToCouponVC"},
+                     {"icon1":"w_icon_txjl","info":"提现记录","pushId":"mineVCToTradeRecordVC"},
+                     {"icon1":"w_icon_jxjl","info":"交易记录","pushId":"mineVCToTradeRecordVC"}
                      ],
                     [
                      ],
                     [
-                     {"info1":"100","info2":"收货地址","pushId":""},
-                     {"info1":"900","info2":"我的评价","pushId":""},
-                     {"info1":"290","info2":"我的收藏","pushId":""},
-                     {"info1":"100","info2":"浏览记录","pushId":""},
-                     {"info1":"900","info2":"消息通知","pushId":""},
-                     {"info1":"290","info2":"关于我们","pushId":""},
-                     {"info1":"100","info2":"意见反馈","pushId":""},
-                     {"info1":"900","info2":"设置","pushId":"mineVCToSettingVC"}
+                     {"icon1":"w_icon_shdz","info":"收货地址","pushId":"mineToAddressVC"},
+                     {"icon1":"w_icon_wdpj","info":"我的评价","pushId":"mineToMyCommentListVC"},
+                     {"icon1":"w_icon_wdsc","info":"我的收藏","pushId":"mineToMyFavoriteVC"},
+                     {"icon1":"w_icon_lljl","info":"浏览记录","pushId":""},
+                     {"info1":"900","info":"消息通知","pushId":""},
+                     {"info1":"290","info":"关于我们","pushId":""},
+                     {"info1":"100","info":"意见反馈","pushId":""},
+                     {"info1":"900","info":"设置","pushId":"mineVCToSettingVC"}
                      ]
                     
                     ]

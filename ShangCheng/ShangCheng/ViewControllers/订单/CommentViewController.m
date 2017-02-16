@@ -140,6 +140,8 @@
         //提交评价
         Manager *manager = [Manager shareInstance];
         [manager orderCommentWithUserid:manager.memberInfoModel.u_id withOrderId:self.tempSonOrderModel.o_id withStarLevel:[NSString stringWithFormat:@"%ld",self.selectStarCount] withContent:self.commentTextView.text withCommentSuccessBlock:^(id successResult) {
+            //评论成功
+            [self.navigationController popViewControllerAnimated:YES];
             
         } withCommentFailBlock:^(NSString *failResultStr) {
             

@@ -50,6 +50,7 @@
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+   
     CouponTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"couponCell" forIndexPath:indexPath];
     CouponModel *tempModel = self.couponDataSourceArr[indexPath.row];
 
@@ -60,31 +61,32 @@
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    Manager *manager = [Manager shareInstance];
-    //得到点击的这个购物券
-    CouponModel *tempModel = self.couponDataSourceArr[indexPath.row];
-    
-    //创建购物车id数组
-    NSMutableArray *shoppingCarIdArr = [NSMutableArray array];
-    for (ShoppingCarModel *tempCarModel in self.previewOrderProductArr) {
-        [shoppingCarIdArr addObject:tempCarModel.c_id];
+    if (self.isSelectCoupon == YES) {
+        Manager *manager = [Manager shareInstance];
+        //得到点击的这个购物券
+        CouponModel *tempModel = self.couponDataSourceArr[indexPath.row];
+        
+        //创建购物车id数组
+        NSMutableArray *shoppingCarIdArr = [NSMutableArray array];
+        for (ShoppingCarModel *tempCarModel in self.previewOrderProductArr) {
+            [shoppingCarIdArr addObject:tempCarModel.c_id];
+        }
+        //网络请求计算优惠券金额
+        [manager httpComputeCouponMoneyWithUserID:manager.memberInfoModel.u_id withCouponID:tempModel.c_id withShoppingCarIDArr:shoppingCarIdArr withComputeMoneySuccessResult:^(id successResult) {
+            //去掉“”引号
+            //        successResult = [(NSString *)successResult stringByReplacingOccurrencesOfString:@"\"" withString:@""];
+            //返回到预订单界面
+            self.couponDicBlock(@{@"couponId":tempModel.c_id,@"saleCode":tempModel.c_code,@"saleMoney":successResult});
+            //
+            [self.navigationController popViewControllerAnimated:YES];
+            
+            
+        } withComputeMoneyFailResult:^(NSString *failResultStr) {
+            //
+            
+        }];
+
     }
-    //网络请求计算优惠券金额
-    [manager httpComputeCouponMoneyWithUserID:manager.memberInfoModel.u_id withCouponID:tempModel.c_id withShoppingCarIDArr:shoppingCarIdArr withComputeMoneySuccessResult:^(id successResult) {
-        //去掉“”引号
-//        successResult = [(NSString *)successResult stringByReplacingOccurrencesOfString:@"\"" withString:@""];
-        //返回到预订单界面
-        self.couponDicBlock(@{@"couponId":tempModel.c_id,@"saleCode":tempModel.c_code,@"saleMoney":successResult});
-        //
-        [self.navigationController popViewControllerAnimated:YES];
-        
-        
-    } withComputeMoneyFailResult:^(NSString *failResultStr) {
-        //
-        
-    }];
-    
-    
 }
 
 - (void)didReceiveMemoryWarning {

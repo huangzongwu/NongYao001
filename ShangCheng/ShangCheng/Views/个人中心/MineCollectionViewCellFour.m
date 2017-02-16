@@ -11,7 +11,7 @@
 @implementation MineCollectionViewCellFour
 
 - (void)updateCellWithInfoStr1:(NSString *)infoStr1 withInfoStr2:(NSString *)infoStr2 {
-    self.infoLabel.text = [NSString stringWithFormat:@"%@：%@",infoStr1,infoStr2];
+    self.infoLabel.text = [NSString stringWithFormat:@"%@:%@",infoStr1,infoStr2];
 }
 
 @end

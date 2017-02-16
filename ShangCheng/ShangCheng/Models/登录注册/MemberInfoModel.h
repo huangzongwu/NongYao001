@@ -33,10 +33,10 @@
 @property (nonatomic,strong)NSString *u_qq;//qq
 @property (nonatomic,strong)NSString *u_mobile;//手机号
 
-@property (nonatomic,strong)NSString *u_amount;//金额
+@property (nonatomic,assign)double u_amount;//金额
 @property (nonatomic,strong)NSString *u_payword;//支付密码
-@property (nonatomic,strong)NSString *u_amount_avail;//可用余额
-@property (nonatomic,strong)NSString *u_amount_frozen;//冻结余额
+@property (nonatomic,assign)double u_amount_avail;//可用余额
+@property (nonatomic,assign)double u_amount_frozen;//冻结余额
 @property (nonatomic,strong)NSString *token;//token
 //@property (nonatomic,strong)NSString *rversion;
 

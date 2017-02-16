@@ -39,16 +39,14 @@
 }
 
 #pragma mark - 产品 -
-
-
 //首页产品
 - (NSString *)homeProductURLWithCnum:(NSString *)cnum withRnum:(NSString *)rnum {
     return [NSString stringWithFormat:@"%@/ProductHomePage?cnum=%@&rnum=%@",self.baseUrl,cnum,rnum];
 }
 
 //产品详情
-- (NSString *)productDetailURLWithProductID:(NSString *)productID {
-    return [NSString stringWithFormat:@"%@/Product?id=%@",self.baseUrl,productID];
+- (NSString *)productDetailURLWithProductID:(NSString *)productID withIsst:(NSString *)isst {
+    return [NSString stringWithFormat:@"%@/Product?id=%@&isst=%@&isfo=1",self.baseUrl,productID,isst];
     
 }
 
@@ -129,10 +127,6 @@
     return [NSString stringWithFormat:@"%@/OrderTracking?id=%@&type=%@",self.baseUrl,orderId,type];
 }
 
-//提交评论
-- (NSString *)commitCommentPost {
-    return [NSString stringWithFormat:@"%@/UserOrderReview",self.baseUrl];
-}
 
 #pragma mark - 支付 -
 //支付前验证
@@ -172,6 +166,52 @@
 
 }
 
+//评论
+- (NSString *)userOrderReviewBase {
+    return [NSString stringWithFormat:@"%@/UserOrderReview",self.baseUrl];
+}
+
+
+//收藏base
+- (NSString *)favoriteBase {
+    return [NSString stringWithFormat:@"%@/Favorite",self.baseUrl];
+}
+//获取收藏列表
+- (NSString *)myFavoriteListWithUserId:(NSString *)userid {
+    return [NSString stringWithFormat:@"%@?id=%@",[self favoriteBase],userid];
+}
+
+//流水账查询
+- (NSString *)userAccountBase {
+    return [NSString stringWithFormat:@"%@/UserAccount",self.baseUrl];
+}
+
+//修改密码
+- (NSString *)motifyPasswordBase {
+    return [NSString stringWithFormat:@"%@/UserModifyPWD",self.baseUrl];
+}
+
+//个人中心 我的钱包数据
+- (NSString *)userDataBase {
+    return [NSString stringWithFormat:@"%@/userdata",self.baseUrl];
+}
+#pragma mark - 我的代理 -
+//基本代理数据
+- (NSString *)myAgentDataBase {
+    return [NSString stringWithFormat:@"%@/AgentData",self.baseUrl];
+}
+
+//人员列表数据
+- (NSString *)myAgentPeopleListBase {
+    return [NSString stringWithFormat:@"%@/AgentUser",self.baseUrl];
+}
+//订单列表数据
+- (NSString *)myAgentOrderListBase {
+    return [NSString stringWithFormat:@"%@/AgentOrder",self.baseUrl];
+
+}
+
+
 #pragma mark - 登录注册 -
 //登录接口
 - (NSString *)loginPOSTAndPUTUrl {
@@ -187,8 +227,8 @@
 - (NSString *)checkMobileCodeWithMobileNumber:(NSString *)mobileNumber withCode:(NSString *)code {
     return [NSString stringWithFormat:@"%@/Verification?tel=%@&code=%@",self.baseUrl,mobileNumber,code];
 }
-//注册接口
-- (NSString *)registerPOSTUrl {
+//用户Base接口
+- (NSString *)userBase {
     return [NSString stringWithFormat:@"%@/User",self.baseUrl];
 }
 

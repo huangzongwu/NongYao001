@@ -38,6 +38,8 @@
 
     }else {
         [viewController presentViewController:alertC animated:YES completion:^{
+            actionBlockNumber(0);
+
             [alertC dismissViewControllerAnimated:YES completion:nil];
         }];
     }

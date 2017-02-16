@@ -61,7 +61,7 @@
         }
     }
     
-    //验证码输入框，同上
+    //第二个密码输入框，同上
     if (textField == self.passwordAgainTextField && self.passwordTextField.text.length > 5) {
         if (string.length > 0 && range.location > 4) {
             isRed = YES;

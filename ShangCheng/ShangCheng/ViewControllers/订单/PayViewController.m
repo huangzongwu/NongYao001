@@ -86,9 +86,9 @@
 //        self.memberBalanceFloat = 0.00;
         self.memberBalanceFloat = [[[successResult objectAtIndex:0] objectForKey:@"u_amount"] floatValue];
         //将最新的余额存入模型中
-        manager.memberInfoModel.u_amount = [[successResult objectAtIndex:0] objectForKey:@"u_amount"];
-        manager.memberInfoModel.u_amount_avail = [[successResult objectAtIndex:0] objectForKey:@"u_amount_avail"];
-        manager.memberInfoModel.u_amount_frozen = [[successResult objectAtIndex:0] objectForKey:@"u_amount_frozen"];
+        manager.memberInfoModel.u_amount = [[[successResult objectAtIndex:0] objectForKey:@"u_amount"] floatValue];
+        manager.memberInfoModel.u_amount_avail = [[[successResult objectAtIndex:0] objectForKey:@"u_amount_avail"] floatValue];
+        manager.memberInfoModel.u_amount_frozen = [[[successResult objectAtIndex:0] objectForKey:@"u_amount_frozen"] floatValue];
 
         //有了余额 重新更新一下信息/
         if (self.memberBalanceFloat > 0) {
@@ -290,7 +290,8 @@
             [manager paybeforeVerifyWithUserId:manager.memberInfoModel.u_id withTotalAmount:[NSString stringWithFormat:@"%.2f",self.totalAmountFloat] withBalance:[NSString stringWithFormat:@"%.2f",self.useBalanceFloat] withPayAmount:[NSString stringWithFormat:@"%.2f",self.totalAmountFloat-self.useBalanceFloat] withOrderIdArr:self.orderIDArr withPayType:@"0" withVerifySuccessBlock:^(id successResult) {
                 
                 //验证成功，可以支付了。，
-                [self aliPayActionWithPayID:[successResult objectForKey:@"tradeno"] withAppId:[successResult objectForKey:@"appid"] withPayMoney:[NSString stringWithFormat:@"%.2f",self.totalAmountFloat-self.useBalanceFloat]];
+                [self aliPayActionWithOrderInfo:[successResult objectForKey:@"orderinfo"]];
+//                [self aliPayActionWithPayID:[successResult objectForKey:@"tradeno"] withAppId:[successResult objectForKey:@"appid"] withPayMoney:[NSString stringWithFormat:@"%.2f",self.totalAmountFloat-self.useBalanceFloat]];
 
 
                 
@@ -348,8 +349,38 @@
 
 
 #pragma mark - 支付宝支付 -
-- (void)aliPayActionWithPayID:(NSString *)payId withAppId:(NSString *)appId withPayMoney:(NSString *)payMoney {
+- (void)aliPayActionWithOrderInfo:(NSString *)orderInfo {
     Manager *manager = [Manager shareInstance];
+
+    NSString *appScheme = @"Nongyao001Alisdk";
+
+    // NOTE: 调用支付结果开始支付
+    [[AlipaySDK defaultService] payOrder:orderInfo fromScheme:appScheme callback:^(NSDictionary *resultDic) {
+        NSLog(@"同步reslut = %@",resultDic);
+        if (resultDic != nil) {
+            
+            NSData *jsonData = [[resultDic objectForKey:@"result"] dataUsingEncoding:NSUTF8StringEncoding];
+            NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
+            
+            NSString *tempPayId = [[dic objectForKey:@"alipay_trade_app_pay_response"] objectForKey:@"out_trade_no"];
+            NSLog(@"%@",tempPayId);
+            
+            //如果支付成功，就可以进行验证签名了
+            [manager afterPayOrderPaymentVerifyWithPayId:tempPayId withPaymentVerifySuccess:^(id successResult) {
+                NSLog(@"%@",successResult);
+                
+#warning 支付成功后，返回到哪个界面
+                
+            } withPaymentVerifyFail:^(NSString *failResultStr) {
+                NSLog(@"%@",failResultStr);
+            }];
+            
+        }
+        
+        
+    }];
+
+    
     //重要说明
     //这里只是为了方便直接向商户展示支付宝的整个支付流程；所以Demo中加签过程直接放在客户端完成；
     //真实App里，privateKey等数据严禁放在客户端，加签过程务必要放在服务端完成；
@@ -379,6 +410,7 @@
     /*
      *生成订单信息及签名
      */
+    /*
     //userid
     NSString *tempUserId = manager.memberInfoModel.u_id;
 
@@ -440,84 +472,66 @@
 
     // NOTE: 获取私钥并将商户信息签名，外部商户的加签过程请务必放在服务端，防止公私钥数据泄露；
     //       需要遵循RSA签名规范，并将签名字符串base64编码和UrlEncode
-    //开始签名接口
-    [manager aliPaySignDataStr:orderInfoEncoded withSignSuccessResult:^(id successResult) {
-        
-        //签名后的字符串
-        NSString *signedString = [successResult objectForKey:@"sign"];
-//        NSString *signedString = @"";
-//        NSString *orderAndSing = [NSString stringWithFormat:@"%@&sign=%@",orderInfo ,[successResult objectForKey:@"sign"] ];
-        
-        
-//           NSString *signedString = (NSString *)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault, (CFStringRef)oldsignedString, NULL, (CFStringRef)@"!*'();:@&=+ $,./?%#[]", kCFStringEncodingUTF8));
-        
-        
-        
-        // NOTE: 如果加签成功，则继续执行支付
-        if (signedString != nil) {
-            //应用注册scheme,在AliSDKDemo-Info.plist定义URL types
-            NSString *appScheme = @"Nongyao001Alisdk";
-            
-            // NOTE: 将签名成功字符串格式化为订单字符串,请严格按照该格式
-            
-            NSString *orderString = [NSString stringWithFormat:@"%@&sign=%@",orderInfoEncoded, signedString];
-            
-            // NOTE: 调用支付结果开始支付
-            [[AlipaySDK defaultService] payOrder:orderString fromScheme:appScheme callback:^(NSDictionary *resultDic) {
-                NSLog(@"同步reslut = %@",resultDic);
-                if (resultDic != nil) {
-
-                    NSData *jsonData = [[resultDic objectForKey:@"result"] dataUsingEncoding:NSUTF8StringEncoding];
-                    NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
-                    
-                    NSString *tempPayId = [[dic objectForKey:@"alipay_trade_app_pay_response"] objectForKey:@"out_trade_no"];
-                    NSLog(@"%@",tempPayId);
-
-                    //如果支付成功，就可以进行验证签名了
-                    [manager afterPayOrderPaymentVerifyWithPayId:tempPayId withPaymentVerifySuccess:^(id successResult) {
-                        NSLog(@"%@",successResult);
-                        
-#warning 支付成功后，返回到哪个界面
-                        
-                    } withPaymentVerifyFail:^(NSString *failResultStr) {
-                        NSLog(@"%@",failResultStr);
-                    }];
-                    
-                }
-
-                
-            }];
-
-            
-            
-        }
-        
-        
-    } withSignFailResult:^(NSString *failResultStr) {
-        //签名失败
-    }];
+     */
+//    //开始签名接口
+//    [manager aliPaySignDataStr:orderInfoEncoded withSignSuccessResult:^(id successResult) {
+//        
+//        //签名后的字符串
+//        NSString *signedString = [successResult objectForKey:@"sign"];
+////        NSString *signedString = @"";
+////        NSString *orderAndSing = [NSString stringWithFormat:@"%@&sign=%@",orderInfo ,[successResult objectForKey:@"sign"] ];
+//        
+//        
+////           NSString *signedString = (NSString *)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault, (CFStringRef)oldsignedString, NULL, (CFStringRef)@"!*'();:@&=+ $,./?%#[]", kCFStringEncodingUTF8));
+//        
+//        
+//        
+//        // NOTE: 如果加签成功，则继续执行支付
+//        if (signedString != nil) {
+//            //应用注册scheme,在AliSDKDemo-Info.plist定义URL types
+//            NSString *appScheme = @"Nongyao001Alisdk";
+//            
+//            // NOTE: 将签名成功字符串格式化为订单字符串,请严格按照该格式
+//            
+//            NSString *orderString = [NSString stringWithFormat:@"%@&sign=%@",orderInfoEncoded, signedString];
+//            
+//            // NOTE: 调用支付结果开始支付
+//            [[AlipaySDK defaultService] payOrder:orderString fromScheme:appScheme callback:^(NSDictionary *resultDic) {
+//                NSLog(@"同步reslut = %@",resultDic);
+//                if (resultDic != nil) {
+//
+//                    NSData *jsonData = [[resultDic objectForKey:@"result"] dataUsingEncoding:NSUTF8StringEncoding];
+//                    NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
+//                    
+//                    NSString *tempPayId = [[dic objectForKey:@"alipay_trade_app_pay_response"] objectForKey:@"out_trade_no"];
+//                    NSLog(@"%@",tempPayId);
+//
+//                    //如果支付成功，就可以进行验证签名了
+//                    [manager afterPayOrderPaymentVerifyWithPayId:tempPayId withPaymentVerifySuccess:^(id successResult) {
+//                        NSLog(@"%@",successResult);
+//                        
+//#warning 支付成功后，返回到哪个界面
+//                        
+//                    } withPaymentVerifyFail:^(NSString *failResultStr) {
+//                        NSLog(@"%@",failResultStr);
+//                    }];
+//                    
+//                }
+//
+//                
+//            }];
+//
+//            
+//            
+//        }
+//        
+//        
+//    } withSignFailResult:^(NSString *failResultStr) {
+//        //签名失败
+//    }];
     
     
-    /*
-    id<DataSigner> signer = CreateRSADataSigner(privateKey);
-    NSString *signedString = [signer signString:orderInfo];
-    
-    // NOTE: 如果加签成功，则继续执行支付
-    if (signedString != nil) {
-        //应用注册scheme,在AliSDKDemo-Info.plist定义URL types
-        NSString *appScheme = @"Nongyao001Alisdk";
-        
-        // NOTE: 将签名成功字符串格式化为订单字符串,请严格按照该格式
-        NSString *orderString = [NSString stringWithFormat:@"%@&sign=%@",
-                                 orderInfoEncoded, signedString];
-        
-        // NOTE: 调用支付结果开始支付
-        [[AlipaySDK defaultService] payOrder:orderString fromScheme:appScheme callback:^(NSDictionary *resultDic) {
-            NSLog(@"reslut = %@",resultDic);
-        }];
-    }
-    
-    */
+ 
     
 }
 

@@ -85,7 +85,8 @@
 //获取产品详情
 - (void)httpProductDetailInfoWithProductID:(NSString *)productId withProductDetailModel:(ProductDetailModel *)productDetailModel withSuccessDetailResult:(SuccessResult)successDetailResult withFailDetailResult:(FailResult)failDetailResult {
 
-    [[NetManager shareInstance] getRequestWithURL:[[InterfaceManager shareInstance] productDetailURLWithProductID:productId] withParameters:nil withContentTypes:nil withHeaderArr:nil withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+    [[NetManager shareInstance] getRequestWithURL:[[InterfaceManager shareInstance] productDetailURLWithProductID:productId withIsst:@"1"] withParameters:nil withContentTypes:nil withHeaderArr:nil withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+        NSLog(@"%@",[self dictionaryToJson:successResult]);
         
         if (operation.response.statusCode == 200) {
             //网络成功，解析数据
@@ -118,6 +119,7 @@
     
 }
 
+/*
 //获取产品的所有规格
 - (void)httpProductAllFarmatInfoWithProductID:(NSString *)productId  withProductDetailModel:(ProductDetailModel *)productDetailModel withSuccessFarmatResult:(SuccessResult)successFarmatResult withFailFarmatResult:(FailResult)failFarmatResult {
 
@@ -146,6 +148,8 @@
     successFarmatResult(productDetailModel);
     
 }
+ 
+*/
 
 //产品分类树
 - (NSMutableArray *)productClassTreeArr {
@@ -208,15 +212,9 @@
 
 #pragma mark - 购物车 -
 //将产品加入购物车
-- (void)httpProductToShoppingCarWithProductDetailModel:(ProductDetailModel *)productDetailModel withSuccessToShoppingCarResult:(SuccessResult)successToShoppingCarResult withFailToShoppingCarResult:(FailResult)failToShoppingCarResult {
-    NSString *tempProductCount ;
-    for (ProductFormatModel *tempFormatModel in productDetailModel.productFarmatArr) {
-        if (tempFormatModel.isSelect == YES) {
-            tempProductCount = [NSString stringWithFormat:@"%ld",tempFormatModel.seletctCount];
-        }
-    }
+- (void)httpProductToShoppingCarWithFormatId:(NSString *)sidStr withProductCount:(NSString *)countStr withSuccessToShoppingCarResult:(SuccessResult)successToShoppingCarResult withFailToShoppingCarResult:(FailResult)failToShoppingCarResult {
     
-    NSArray *itemArr = @[@{@"sid":productDetailModel.productModel.productFormatID,@"number":tempProductCount}];
+    NSArray *itemArr = @[@{@"sid":sidStr,@"number":countStr}];
     NSDictionary *valueDic = @{@"userid":self.memberInfoModel.u_id,@"item":itemArr};
     
     //给value加密
@@ -843,8 +841,11 @@
     NSDictionary *parametersDic = @{@"m":secretStr,@"value":@[valueDic]};
 
     
-    [[NetManager shareInstance] postRequestWithURL:[[InterfaceManager shareInstance] commitCommentPost] withParameters:parametersDic withContentTypes:@"string" withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+    [[NetManager shareInstance] postRequestWithURL:[[InterfaceManager shareInstance] userOrderReviewBase] withParameters:parametersDic withContentTypes:@"string" withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
         NSLog(@"%ld",operation.response.statusCode);
+        if (operation.response.statusCode == 200) {
+            commentSuccessBock(@"评论成功");
+        }
 
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
@@ -965,6 +966,30 @@ int afterCount = 0;
 }
 
 #pragma mark - 个人信息 -
+- (NSMutableDictionary *)myWalletDic {
+    if (_myWalletDic == nil) {
+        self.myWalletDic = [NSMutableDictionary dictionary];
+    }
+    return _myWalletDic;
+}
+//个人中心我的钱包数据
+- (void)httpMyWalletWithUserId:(NSString *)userId withMyWalletSuccess:(SuccessResult )walletSuccess withMyWalletFail:(FailResult)walletFail {
+    
+    NSString *url = [NSString stringWithFormat:@"%@?id=%@",[[InterfaceManager shareInstance] userDataBase],userId];
+    [[NetManager shareInstance] getRequestWithURL:url withParameters:nil withContentTypes:nil withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+        self.myWalletDic = successResult;
+        
+        walletSuccess(successResult);
+        
+    } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
+        NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
+
+    }];
+}
+
+
+
+
 - (void)searchUserAmount:(NSString *)userId withAmountSuccessBlock:(SuccessResult )amountSuccessBlock withAmountFailBlock:(FailResult)amountFailBlcok {
     [[NetManager shareInstance] getRequestWithURL:[[InterfaceManager shareInstance] searchUserAmountWithUserID:userId] withParameters:nil withContentTypes:nil withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
         NSLog(@"%ld",operation.response.statusCode);
@@ -1086,6 +1111,523 @@ int afterCount = 0;
     
 }
 
+//设置默认地址
+- (void)defaultReceiveAddressWithAddressModel:(ReceiveAddressModel *)tempReceiveAddressModel withDefaultSuccess:(SuccessResult )defaultSuccess withDefaultFail:(FailResult)defaultFail {
+    
+    NSDictionary *valueDic = @{@"rid":tempReceiveAddressModel.receiverID};
+    
+    //给value加密
+    NSString *secretStr = [self digest:[NSString stringWithFormat:@"%@Nongyao_Com001", [self dictionaryToJson:@[valueDic]]]];
+    
+    NSDictionary *parametersDic = @{@"m":secretStr,@"value":@[valueDic]};
+    
+    [[NetManager shareInstance] putRequestWithURL:[[InterfaceManager shareInstance] receiveAddressBase] withParameters:parametersDic withContentTypes:@"string" withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+        
+        NSLog(@"%ld",operation.response.statusCode);
+        if (operation.response.statusCode == 200) {
+            //将列表中的所有地址取消默认
+            for (ReceiveAddressModel *tempModel in self.receiveAddressArr) {
+                tempModel.defaultAddress = NO;
+            }
+            
+            //将这个模型设置为默认地址
+            tempReceiveAddressModel.defaultAddress = YES;
+            defaultSuccess(@"设置默认成功");
+
+        }
+        
+    } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
+        NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
+
+    }];
+    
+    
+}
+
+//删除地址
+- (void)deleteReceiveAddressWithAddressModel:(ReceiveAddressModel *)tempReceiveAddressModel withDeleteAddressSuccess:(SuccessResult)deleteAddressSuccess withDeleteAddressFail:(FailResult)deleteAddressFail {
+    
+
+    
+    NSString *secretStr = [self digest:[NSString stringWithFormat:@"%@Nongyao_Com001", tempReceiveAddressModel.receiverID]];
+    
+    NSString *url = [NSString stringWithFormat:@"%@?id=%@&m=%@",[[InterfaceManager shareInstance] receiveAddressBase],tempReceiveAddressModel.receiverID,secretStr];
+    
+
+    [[NetManager shareInstance] deleteRequestWithURL:url withParameters:nil withContentTypes:@"string" withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+        NSLog(@"%ld",operation.response.statusCode);
+        if (operation.response.statusCode == 200) {
+            //删除成功
+            if ([self.receiveAddressArr containsObject:tempReceiveAddressModel]) {
+                
+                [self.receiveAddressArr removeObject:tempReceiveAddressModel];
+                deleteAddressSuccess(@"删除成功");
+
+            }
+            
+        }
+    } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
+        NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
+
+    }];
+    
+    
+}
+
+//个人中心--我的评价
+- (void)myCommentListWithUserId:(NSString *)userId withIsUpdate:(BOOL)isUpdate withPageIndex:(NSInteger )pageIndex withPageSize:(NSInteger )pageSize withMyCommentSuccessBlock:(SuccessResult )commentSuccessBlock withMyCommentFailBlock:(FailResult)commentFailBlock {
+    
+    NSString *url = [NSString stringWithFormat:@"%@?id=%@&sdt=&edt=&pageindex=%ld&pagesize=%ld",[[InterfaceManager shareInstance] userOrderReviewBase],userId,pageIndex,pageSize];
+    
+    [[NetManager shareInstance] getRequestWithURL:url withParameters:nil withContentTypes:nil withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+        
+        NSLog(@"%ld",operation.response.statusCode);
+        NSLog(@"%@",[self dictionaryToJson:successResult]);
+        
+        if (isUpdate == YES) {
+            self.myCommentArr = [NSMutableArray array];
+        }
+        
+        for (NSDictionary *tempDic in [successResult objectForKey:@"content"]) {
+            
+            MyCommentListModel *commentModel = [[MyCommentListModel alloc] init];
+            [commentModel setValuesForKeysWithDictionary:tempDic];
+            
+            [self.myCommentArr addObject:commentModel];
+        }
+        
+        commentSuccessBlock([successResult objectForKey:@"totalpages"]);
+        
+        
+    } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
+        NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
+
+    }];
+    
+}
+
+
+
+#pragma mark - 收藏 -
+//添加到收藏
+- (void)httpAddFavoriteWithUserId:(NSString *)userId withFormatId:(NSString *)formatId withAddFavoriteSuccess:(SuccessResult )addFavoriteSuccess withAddFavoriteFail:(FailResult )addFavoriteFail {
+    
+    NSDictionary *valueDic = @{@"userid":userId,@"sid":formatId};
+    
+    //给value加密
+    NSString *secretStr = [self digest:[NSString stringWithFormat:@"%@Nongyao_Com001", [self dictionaryToJson:@[valueDic]]]];
+    
+    NSDictionary *parametersDic = @{@"m":secretStr,@"value":@[valueDic]};
+    
+    [[NetManager shareInstance] postRequestWithURL:[[InterfaceManager shareInstance] favoriteBase] withParameters:parametersDic withContentTypes:@"string" withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+        
+        NSLog(@"%ld-",operation.response.statusCode);
+
+    } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
+        NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
+        
+        NSDictionary *messageDic = [NSJSONSerialization JSONObjectWithData:operation.responseObject options:NSJSONReadingAllowFragments error:nil];
+        NSString *messageStr = [messageDic objectForKey:@"Message"];
+        NSLog(@"%@",messageStr);
+
+    }];
+    
+}
+
+
+- (NSMutableArray *)myFavoriteArr {
+    if (!_myFavoriteArr ) {
+        self.myFavoriteArr = [NSMutableArray array];
+    }
+    return _myFavoriteArr;
+}
+//收藏列表
+- (void)httpMyFavoriteListWithUserId:(NSString *)userId withMyFavoriteSuccess:(SuccessResult )favoriteSuccess withMyFavoriteFail:(FailResult )favoriteFail {
+    
+    [[NetManager shareInstance] getRequestWithURL:[[InterfaceManager shareInstance] myFavoriteListWithUserId:userId] withParameters:nil withContentTypes:nil withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+        NSLog(@"%ld",operation.response.statusCode);
+        if (operation.response.statusCode == 200) {
+            //清空原有数据
+            self.myFavoriteArr = nil;
+            
+            for (NSDictionary *tempDic in successResult) {
+                MyFavoriteListModel *tempModel = [[MyFavoriteListModel alloc] init];
+                [tempModel setValuesForKeysWithDictionary:tempDic];
+                [self.myFavoriteArr addObject:tempModel];
+            }
+            
+            favoriteSuccess(@"200");
+
+        }
+        
+    } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
+        NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
+
+    }];
+    
+}
+
+//删除收藏产品
+- (void)httpDeleteFavoriteProductWithFavoriteArr:(NSMutableArray *)deleteFavoriteArr withDeleteFavoriteSuccess:(SuccessResult)favoriteSuccess withDeleteFavoriteFail:(FailResult)favoriteFail {
+    
+    NSString *idArrStr = @"" ;
+    for (MyFavoriteListModel *tempFavoriteModel in deleteFavoriteArr) {
+        idArrStr = [idArrStr stringByAppendingString:tempFavoriteModel.myFavoriteId];
+        idArrStr = [idArrStr stringByAppendingString:@","];
+    
+    }
+    idArrStr = [idArrStr substringToIndex:idArrStr.length-1];
+    
+    NSString *secretStr = [self digest:[NSString stringWithFormat:@"%@Nongyao_Com001", idArrStr]];
+    
+    NSString *url = [NSString stringWithFormat:@"%@?id=%@&m=%@",[[InterfaceManager shareInstance] favoriteBase],idArrStr,secretStr];
+    
+    [[NetManager shareInstance] deleteRequestWithURL:url withParameters:nil withContentTypes:@"string" withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+        NSLog(@"%ld--",operation.response.statusCode);
+        if (operation.response.statusCode == 200) {
+            [self.myFavoriteArr removeObjectsInArray:deleteFavoriteArr];
+            
+            favoriteSuccess(@"删除成功");
+        }
+
+    } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
+        NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
+
+    }];
+}
+
+#pragma mark - 交易记录 -
+
+//流水账查询  id=&iscash=&sdt=&edt=&pageindex=1&pagesize=10
+- (void)httpSearchUserAccountListWithUserId:(NSString *)userId withIsCash:(NSString *)iscash withSdt:(NSString *)sdt withEdt:(NSString *)edt withPageIndex:(NSInteger )pageIndex withPageSize:(NSInteger)pageSize withSearchSuccess:(SuccessResult )searchSuccess withSearchFail:(FailResult)searchFail {
+    
+    NSString *url = [NSString stringWithFormat:@"%@?id=%@&iscash=%@&sdt=%@&edt=%@&pageindex=%ld&pagesize=%ld",[[InterfaceManager shareInstance] userAccountBase],userId,iscash,sdt,edt,pageIndex,pageSize];
+    
+    [[NetManager shareInstance] getRequestWithURL:url withParameters:nil withContentTypes:nil withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+        NSLog(@"%ld",operation.response.statusCode);
+        NSLog(@"%@",[self dictionaryToJson:successResult]);
+        
+        if (pageIndex == 1) {
+            //第一页数据，需要清空原有数据
+            if ([iscash isEqualToString:@"1"]) {
+                //取现记录
+                self.cashDateKeyArr = nil;
+                self.cashDetailDic = nil;
+            }else {
+                self.tradeDateKeyArr = nil;
+                self.tradeDetailDic = nil;
+            }
+
+        }
+        
+        for (NSDictionary *tempDic in [successResult objectForKey:@"content"]) {
+            
+            //封装模型
+            MyTradeRecordModel *tempModel = [[MyTradeRecordModel alloc] init];
+            [tempModel setValuesForKeysWithDictionary:tempDic];
+            tempModel.time_dateComponents = [self dateStrToDateAndComponentWithDatestr:tempModel.d_time_create];
+
+            //插入模型到数据源
+            [self insertcashRecordArrOrTradeRecordArrWithTempModel:tempModel withIsCash:iscash];
+            
+        }
+        
+        searchSuccess(@"200");
+        
+    } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
+        NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
+
+    }];
+    
+    
+}
+
+//体现记录字典懒加载
+- (NSMutableDictionary *)cashDetailDic {
+    if (_cashDetailDic == nil) {
+        
+        self.cashDetailDic = [[NSMutableDictionary alloc] init];
+    }
+    return _cashDetailDic;
+}
+
+- (NSMutableArray *)cashDateKeyArr{
+    if (_cashDateKeyArr == nil) {
+        self.cashDateKeyArr = [NSMutableArray arrayWithArray:self.cashDetailDic.allKeys] ;
+        //对keyArray做排序操作
+        [self.cashDateKeyArr sortUsingSelector:@selector(compare:)];
+        //倒序
+        NSEnumerator *enumerator = [self.cashDateKeyArr reverseObjectEnumerator];
+        self.cashDateKeyArr =[[NSMutableArray alloc]initWithArray: [enumerator allObjects]];
+        
+    }
+    return _cashDateKeyArr;
+}
+
+
+//交易记录字典懒加载
+- (NSMutableDictionary *)tradeDetailDic {
+    if (_tradeDetailDic == nil) {
+
+        self.tradeDetailDic = [[NSMutableDictionary alloc] init];
+    }
+    return _tradeDetailDic;
+}
+
+- (NSMutableArray *)tradeDateKeyArr{
+    if (_tradeDateKeyArr == nil) {
+        self.tradeDateKeyArr = [NSMutableArray arrayWithArray:self.tradeDetailDic.allKeys] ;
+        //对keyArray做排序操作
+        [self.tradeDateKeyArr sortUsingSelector:@selector(compare:)];
+        //倒序
+        NSEnumerator *enumerator = [self.tradeDateKeyArr reverseObjectEnumerator];
+        self.tradeDateKeyArr =[[NSMutableArray alloc]initWithArray: [enumerator allObjects]];
+    
+    }
+    return _tradeDateKeyArr;
+}
+
+
+
+- (void)insertcashRecordArrOrTradeRecordArrWithTempModel:(MyTradeRecordModel *)tempModel withIsCash:(NSString *)isCash {
+    
+    //得到时间的年月字符串
+    NSString *tempYearMonthStr = [NSString stringWithFormat:@"%ld-%ld", tempModel.time_dateComponents.year,tempModel.time_dateComponents.month];
+
+    NSMutableArray *tempArr = nil;
+    
+    if ([isCash isEqualToString:@"1"]) {
+        //取现记录
+        if ([self.cashDateKeyArr containsObject:tempYearMonthStr]) {
+            //有这个时间段,找到这个数组，直接添加
+            tempArr = [self.cashDetailDic objectForKey:tempYearMonthStr];
+            [tempArr addObject:tempModel];
+            
+        }else {
+            //如果没有，那么就创建数组
+            tempArr = [NSMutableArray array];
+            //添加到数组中
+            [tempArr addObject:tempModel];
+            //将数组放进字典
+            [self.cashDetailDic setObject:tempArr forKey:tempYearMonthStr];
+            //将这个时间放进键数组中
+            [self.cashDateKeyArr addObject:tempYearMonthStr];
+            //排序(正序)
+            [self.cashDateKeyArr sortUsingSelector:@selector(compare:)];
+            //倒序
+            NSEnumerator *enumerator = [self.cashDateKeyArr reverseObjectEnumerator];
+            self.cashDateKeyArr =[[NSMutableArray alloc]initWithArray: [enumerator allObjects]];
+            
+        }
+
+        
+    }else {
+        //交易记录
+        if ([self.tradeDateKeyArr containsObject:tempYearMonthStr]) {
+            //有这个时间段,找到这个数组，直接添加
+            tempArr = [self.tradeDetailDic objectForKey:tempYearMonthStr];
+            [tempArr addObject:tempModel];
+            
+        }else {
+            //如果没有，那么就创建数组
+            tempArr = [NSMutableArray array];
+            //添加到数组中
+            [tempArr addObject:tempModel];
+            //将数组放进字典
+            [self.tradeDetailDic setObject:tempArr forKey:tempYearMonthStr];
+            //将这个时间放进键数组中
+            [self.tradeDateKeyArr addObject:tempYearMonthStr];
+            //排序(正序)
+            [self.tradeDateKeyArr sortUsingSelector:@selector(compare:)];
+            //倒序
+            NSEnumerator *enumerator = [self.tradeDateKeyArr reverseObjectEnumerator];
+            self.tradeDateKeyArr =[[NSMutableArray alloc]initWithArray: [enumerator allObjects]];
+            
+        }
+
+    }
+    
+    
+    
+}
+
+#pragma mark - 修改个人资料 -
+- (void)httpMotifyMemberInfoWithUserID:(NSString *)userID withUsername:(NSString *)userName withEmail:(NSString *)email withMobile:(NSString *)mobile withQQ:(NSString *)qq withAreaId:(NSString *)areaId WithMotifyMemberSuccess:(SuccessResult )motifySuccess withMotifyMemberFail:(FailResult)motifyFail {
+    
+    NSDictionary *valueDic = @{@"username":userName,@"email":email,@"mobile":mobile,@"qq":qq,@"areaid":areaId,@"status":@"1"};
+    
+    //给value加密
+    NSString *secretStr = [self digest:[NSString stringWithFormat:@"%@Nongyao_Com001", [self dictionaryToJson:@[valueDic]]]];
+    
+    NSDictionary *parametersDic = @{@"m":secretStr,@"value":@[valueDic]};
+    
+    NSString *url = [NSString stringWithFormat:@"%@?id=%@",[[InterfaceManager shareInstance] userBase],userID];
+    [[NetManager shareInstance] putRequestWithURL:url withParameters:parametersDic withContentTypes:@"string" withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+        
+        NSLog(@"%ld",operation.response.statusCode);
+        motifySuccess(@"修改成功");
+
+    } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
+        
+        NSLog(@"%ld -- %@",operation.response.statusCode,errorResult);
+
+    }];
+    
+    
+}
+
+//修改密码
+- (void)httpMotifyPasswordWithUserId:(NSString *)userId withPassword:(NSString *)password withMotifyPasswordSuccess:(SuccessResult )motifyPasswordSuccess withMotifyPasswordFail:(FailResult )motifyPasswordFail {
+    
+    NSDictionary *valueDic = @{@"userid":userId,@"pwd":password};
+    
+    //给value加密
+    NSString *secretStr = [self digest:[NSString stringWithFormat:@"%@Nongyao_Com001", [self dictionaryToJson:@[valueDic]]]];
+    
+    NSDictionary *parametersDic = @{@"m":secretStr,@"value":@[valueDic]};
+
+    [[NetManager shareInstance] postRequestWithURL:[[InterfaceManager shareInstance] motifyPasswordBase] withParameters:parametersDic withContentTypes:@"string" withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+        
+        
+        NSLog(@"%ld ",operation.response.statusCode);
+        //修改成功，就封装模型。保存本地
+        self.memberInfoModel.userPassword = password;
+        
+        //账号密码登录，需要存到本地
+        //存到本地利用归档
+        BOOL saveResult = [self saveMemberInfoModelToLocationWithMemberInfo:self.memberInfoModel];
+        if (saveResult == YES) {
+            //存入本地成功
+            motifyPasswordSuccess(@"修改成功");
+
+        }else{
+            //存入本地失败
+            motifyPasswordSuccess(@"存入本地失败");
+        }
+
+
+    } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
+        NSLog(@"%ld -- %@",operation.response.statusCode,errorResult);
+
+    }];
+    
+}
+
+#pragma mark - 我的代理 -
+- (NSMutableDictionary *)myAgentDic {
+    if (_myAgentDic == nil) {
+        self.myAgentDic = [NSMutableDictionary dictionary];
+    }
+    return _myAgentDic;
+}
+
+//我的代理基本数据
+- (void)httpMyAgentBaseDataWithUserId:(NSString *)userId withMyAgentSuccess:(SuccessResult )myAgentSuccess withMyagentFail:(FailResult )myAgentFail {
+    NSString *url = [NSString stringWithFormat:@"%@?id=%@",[[InterfaceManager shareInstance] myAgentDataBase],userId];
+    
+    [[NetManager shareInstance] getRequestWithURL:url withParameters:nil withContentTypes:nil withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+        NSLog(@"%ld ",operation.response.statusCode);
+        if (operation.response.statusCode == 200) {
+            //收益
+            [self.myAgentDic setValue:[successResult objectForKey:@"u_amount_avail"] forKey:@"u_amount_avail"];
+            //订单
+            [self.myAgentDic setValue:[successResult objectForKey:@"ordernum"] forKey:@"ordernum"];
+            //人数
+            [self.myAgentDic setValue:[successResult objectForKey:@"peonum"] forKey:@"peonum"];
+            
+            myAgentSuccess(@"成功");
+
+        }
+      
+    } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
+        NSLog(@"%ld -- %@",operation.response.statusCode,errorResult);
+
+    }];
+}
+
+//我的代理 人员数据
+- (void)httpMyAgentPeopleListDataWithUserId:(NSString *)userId withPageindex:(NSInteger )pageIndex withMyAgentSuccess:(SuccessResult)myAgentSuccess withMyagentFail:(FailResult)myAgentFail {
+    
+    NSString *url = [NSString stringWithFormat:@"%@?id=%@&pageindex=%ld&pagesize=10",[[InterfaceManager shareInstance] myAgentPeopleListBase],userId,pageIndex];
+    
+    [[NetManager shareInstance] getRequestWithURL:url withParameters:nil withContentTypes:nil withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+        NSLog(@"%ld",operation.response.statusCode);
+        NSLog(@"%@",[self dictionaryToJson:successResult]);
+        
+        if (pageIndex == 1 ) {
+            //重新刷新数据，即需要清除原有数据
+            [[self.myAgentDic objectForKey:@"people"] removeAllObjects];
+        }
+        //解析模型
+        [self analyzeMyAgentPeopleListDataWithJsonArr:[successResult objectForKey:@"content"]];
+        myAgentSuccess([successResult objectForKey:@"totalpages"]);
+        
+        
+    } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
+        NSLog(@"%ld -- %@",operation.response.statusCode,errorResult);
+
+    }];
+    
+}
+
+- (void)analyzeMyAgentPeopleListDataWithJsonArr:(NSArray *)jsonArr {
+    NSMutableArray *peopleArr = nil;
+    if ([self.myAgentDic objectForKey:@"people"] == nil) {
+        peopleArr = [NSMutableArray array];
+        [self.myAgentDic setObject:peopleArr forKey:@"people"];
+    }else {
+        peopleArr = [self.myAgentDic objectForKey:@"people"];
+    }
+    
+    for (NSDictionary *jsonDic in jsonArr) {
+        MyAgentPeopleModel *agentPeopleModel = [[MyAgentPeopleModel alloc] init];
+        [agentPeopleModel setValuesForKeysWithDictionary:jsonDic];
+        [peopleArr addObject:agentPeopleModel];
+    }
+}
+
+//我的代理 订单数据
+- (void)httpMyAgentOrderListDataWithUserId:(NSString *)userId withPageindex:(NSInteger )pageIndex withMyAgentSuccess:(SuccessResult)myAgentSuccess withMyagentFail:(FailResult)myAgentFail {
+    
+    NSString *url = [NSString stringWithFormat:@"%@?id=%@&pageindex=%ld&pagesize=10",[[InterfaceManager shareInstance] myAgentOrderListBase],userId,pageIndex];
+    [[NetManager shareInstance] getRequestWithURL:url withParameters:nil withContentTypes:nil withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+        NSLog(@"%ld",operation.response.statusCode);
+        NSLog(@"%@",[self dictionaryToJson:successResult]);
+
+        if (pageIndex == 1 ) {
+            //重新刷新数据，即需要清除原有数据
+            [[self.myAgentDic objectForKey:@"order"] removeAllObjects];
+        }
+        //解析模型
+        [self analyzeMyAgentOrderListDataWithJsonArr:[successResult objectForKey:@"content"]];
+
+        myAgentSuccess([successResult objectForKey:@"totalpages"]);
+        
+
+        
+
+    } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
+        NSLog(@"%ld -- %@",operation.response.statusCode,errorResult);
+
+    }];
+
+}
+
+- (void)analyzeMyAgentOrderListDataWithJsonArr:(NSArray *)jsonArr {
+    NSMutableArray *orderArr = nil;
+    if ([self.myAgentDic objectForKey:@"order"] == nil) {
+        orderArr = [NSMutableArray array];
+        [self.myAgentDic setObject:orderArr forKey:@"order"];
+    }else {
+        orderArr = [self.myAgentDic objectForKey:@"order"];
+    }
+    
+    for (NSDictionary *jsonDic in jsonArr) {
+        MyAgentOrderModel *agentOrderModel = [[MyAgentOrderModel alloc] init];
+        [agentOrderModel setValuesForKeysWithDictionary:jsonDic];
+        [orderArr addObject:agentOrderModel];
+    }
+}
 
 
 #pragma mark - 注册登录 -
@@ -1380,7 +1922,7 @@ int afterCount = 0;
     NSString *parametersStr = [NSString stringWithFormat:@"{\"m\":\"%@\",\"value\":%@}",secretStr,newJsonStr];
     
     
-    [[NetManager shareInstance] postRequestWithURL:[[InterfaceManager shareInstance] registerPOSTUrl] withParameters:parametersStr withContentTypes:@"string" withHeaderArr:nil withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+    [[NetManager shareInstance] postRequestWithURL:[[InterfaceManager shareInstance] userBase] withParameters:parametersStr withContentTypes:@"string" withHeaderArr:nil withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
         
 //        NSLog(@"%@",[[NSString alloc] initWithData:successResult encoding:NSUTF8StringEncoding]  );
         NSLog(@"%ld",operation.response.statusCode);
@@ -1456,6 +1998,7 @@ int afterCount = 0;
     if (areaInfoArr != nil && areaInfoArr.count > 0) {
         self.areaArr = areaInfoArr;
         //有信息，直接返回
+        NSLog(@"读取地理信息");
         successAreaInfo( self.areaArr);
 
     }else {
@@ -1463,7 +2006,7 @@ int afterCount = 0;
         //没有信息 网络请求
         [[NetManager shareInstance] getRequestWithURL:[[InterfaceManager shareInstance] getAreaTree] withParameters:nil withContentTypes:nil withHeaderArr:nil withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
             if (operation.response.statusCode == 200) {
-
+                NSLog(@"网络请求");
                 self.areaArr = successResult;
                 
                 //将请求的地区信息存储到本地
@@ -1478,6 +2021,24 @@ int afterCount = 0;
         }];
         
     }
+}
+
+//从NSdate中得到年月日等信息
+- (NSDateComponents *)dateStrToDateAndComponentWithDatestr:(NSString *)dateStr {
+
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    [formatter setDateFormat:@"yyyy-MM-ddHH:mm:ss"];
+    NSDate *newDate = [formatter dateFromString:dateStr];
+    NSLog(@"newDate = %@", newDate);
+    
+    //从NSDate得到年月日，时分秒等信息
+    
+    NSCalendar *cal = [NSCalendar currentCalendar];
+    
+    NSDateComponents *dateComps = [cal components:NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay|NSCalendarUnitHour|NSCalendarUnitMinute|NSCalendarUnitSecond|NSCalendarUnitWeekday|NSCalendarUnitWeekOfMonth|NSCalendarUnitWeekOfYear|NSCalendarUnitTimeZone fromDate:newDate];
+    
+    return dateComps;
+    
 }
 
 @end

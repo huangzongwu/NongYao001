@@ -164,16 +164,35 @@
 //确认加入购物车
 - (IBAction)enterButtonAction:(UIButton *)sender {
     
-    [[Manager shareInstance] httpProductToShoppingCarWithProductDetailModel:self.productDetailModel withSuccessToShoppingCarResult:^(id successResult) {
+
+    NSString *tempProductCount ;
+    
+    //如果是从产品详情中加入购物车
+        for (ProductFormatModel *tempFormatModel in self.productDetailModel.productFarmatArr) {
+            if (tempFormatModel.isSelect == YES) {
+                tempProductCount = [NSString stringWithFormat:@"%ld",tempFormatModel.seletctCount];
+            }
+        }
+    
+    [[Manager shareInstance] httpProductToShoppingCarWithFormatId:self.productDetailModel.productModel.productFormatID withProductCount:tempProductCount withSuccessToShoppingCarResult:^(id successResult) {
         //发送通知，让购物车界面刷新
         [[NSNotificationCenter defaultCenter] postNotificationName:@"refreshShoppingCarVC" object:self userInfo:nil];
-        
     } withFailToShoppingCarResult:^(NSString *failResultStr) {
-        NSLog(@"bbb");
-
+        NSLog(@"加入失败");
     }];
     
     
+//    [[Manager shareInstance] httpProductToShoppingCarWithJoinShoppingCarProductModel:self.productDetailModel withSuccessToShoppingCarResult:^(id successResult) {
+//        //发送通知，让购物车界面刷新
+//        [[NSNotificationCenter defaultCenter] postNotificationName:@"refreshShoppingCarVC" object:self userInfo:nil];
+//        
+//    } withFailToShoppingCarResult:^(NSString *failResultStr) {
+//        NSLog(@"bbb");
+//
+//    }];
+    
+    //block刷新详情页的UI
+    self.refreshFormatBlock();
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 

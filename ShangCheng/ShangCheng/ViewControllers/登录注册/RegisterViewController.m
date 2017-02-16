@@ -143,9 +143,6 @@
             }];
         }];
 
-    }else {
-        AlertManager *alert = [AlertManager shareIntance];
-        [alert showAlertViewWithTitle:nil withMessage:@"请输入正确的手机号" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
     }
     
 }
