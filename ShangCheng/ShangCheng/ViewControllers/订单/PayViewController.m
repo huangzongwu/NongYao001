@@ -14,6 +14,7 @@
 #import "Order.h"
 #import "DataSigner.h"
 #import "WXApi.h"
+#import "AppDelegate.h"
 
 @interface PayViewController ()<UITableViewDataSource,UITableViewDelegate,WXApiDelegate>
 
@@ -42,6 +43,26 @@
 @end
 
 @implementation PayViewController
+
+- (instancetype)initWithCoder:(NSCoder *)aDecoder {
+    self = [super initWithCoder:aDecoder];
+    if (self) {
+        //通知，登陆成功
+        [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(payCompleteAction:) name:@"payComplete" object:nil];
+    }
+    return self;
+}
+
+//三方支付完成后 返回本应用的跳转
+- (void)payCompleteAction:(NSNotification *)noti {
+    AlertManager *alertM = [AlertManager shareIntance];
+    NSString *msg =  [noti.userInfo objectForKey:@"msg"];
+    [alertM showAlertViewWithTitle:@"支付结果" withMessage:msg actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
+        //支付成功后，跳转到支付成功界面
+        [self performSegueWithIdentifier:@"toPayCompleteVC" sender:nil];
+    }];
+    
+}
 
 //返回按钮
 - (IBAction)backBarButtonAction:(UIBarButtonItem *)sender {
@@ -281,8 +302,6 @@
     NSLog(@"总价：%@ -- 使用余额：%@ -- 支付金额%@",[NSString stringWithFormat:@"%.2f",self.totalAmountFloat],[NSString stringWithFormat:@"%.2f",self.useBalanceFloat],[NSString stringWithFormat:@"%.2f",self.totalAmountFloat-self.useBalanceFloat]);
 
     if (self.isSelectBalance == NO || self.memberBalanceFloat < self.totalAmountFloat) {
-        
-        
 
         if (self.payKindInt == 0) {
             //进行支付验证 --- 支付宝
@@ -354,6 +373,10 @@
 
     NSString *appScheme = @"Nongyao001Alisdk";
 
+    //区分是充值还是支付 将支付id传到appdelegate
+    AppDelegate *app = (AppDelegate *)[[UIApplication  sharedApplication] delegate];
+    app.payType = PayTypePayOrder;//支付方式
+
     // NOTE: 调用支付结果开始支付
     [[AlipaySDK defaultService] payOrder:orderInfo fromScheme:appScheme callback:^(NSDictionary *resultDic) {
         NSLog(@"同步reslut = %@",resultDic);
@@ -365,11 +388,15 @@
             NSString *tempPayId = [[dic objectForKey:@"alipay_trade_app_pay_response"] objectForKey:@"out_trade_no"];
             NSLog(@"%@",tempPayId);
             
+            
             //如果支付成功，就可以进行验证签名了
-            [manager afterPayOrderPaymentVerifyWithPayId:tempPayId withPaymentVerifySuccess:^(id successResult) {
+            [manager afterPayOrderPaymentVerifyWithPayId:tempPayId withVerifyCount:5 withPaymentVerifySuccess:^(id successResult) {
                 NSLog(@"%@",successResult);
                 
 #warning 支付成功后，返回到哪个界面
+                //支付成功后，跳转到支付成功界面
+                [self performSegueWithIdentifier:@"toPayCompleteVC" sender:nil];
+
                 
             } withPaymentVerifyFail:^(NSString *failResultStr) {
                 NSLog(@"%@",failResultStr);
@@ -548,7 +575,12 @@
     req.package             = @"Sign=WXPay";
     req.sign                = [orderReq objectForKey:@"sign"];
     [WXApi sendReq:req];
+    
+    //区分是充值还是支付 将支付id传到appdelegate
+    AppDelegate *app = (AppDelegate *)[[UIApplication  sharedApplication] delegate];
 
+    app.payType = PayTypePayOrder;//支付方式
+    app.weiXinTradeNo = [orderReq objectForKey:@"tradeno"];
     NSLog(@"appid=%@\npartid=%@\nprepayid=%@\nnoncestr=%@\ntimestamp=%ld\npackage=%@\nsign=%@",[orderReq objectForKey:@"appid"],req.partnerId,req.prepayId,req.nonceStr,(long)req.timeStamp,req.package,req.sign );
 
     

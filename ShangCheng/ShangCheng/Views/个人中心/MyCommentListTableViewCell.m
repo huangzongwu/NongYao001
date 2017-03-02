@@ -7,11 +7,11 @@
 //
 
 #import "MyCommentListTableViewCell.h"
-
+#import "UIImageView+ImageViewCategory.h"
 @implementation MyCommentListTableViewCell
 - (void)updateMyCommentCellWithCommentModel:(MyCommentListModel *)tempModel {
     
-//    productImageView;
+    [self.productImageView setWebImageURLWithImageUrlStr:tempModel.productImageUrl withErrorImage:[UIImage imageNamed:@"productImage"]];
     self.productNameLabel.text = tempModel.productTitleStr;
     self.productFormatLabel.text = tempModel.productFormatStr;
     self.companyLabel.text = tempModel.productCompanyStr;

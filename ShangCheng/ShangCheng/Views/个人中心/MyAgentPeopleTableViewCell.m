@@ -7,12 +7,18 @@
 //
 
 #import "MyAgentPeopleTableViewCell.h"
-
+#import "UIImageView+ImageViewCategory.h"
 @implementation MyAgentPeopleTableViewCell
 - (void)updateMyAgentPeopleCellWithAgentModel:(MyAgentPeopleModel *)tempModel {
-    self.peopleNameAndPhoneLabel.text = tempModel.u_truename;
+    
+    [self.peopleImageView setWebImageURLWithImageUrlStr:tempModel.u_icon withErrorImage:[UIImage imageNamed:@"test.png"]];
+    
+    self.peopleNameLabel.text = tempModel.u_truename;
+    //电话号码隐藏中间四位
+    NSString *currentPhoneStr = [tempModel.u_mobile stringByReplacingCharactersInRange:NSMakeRange(3, 4) withString:@"****"];
+    self.peoplePhoneLabel.text = currentPhoneStr;
     self.peopleAddressLabel.text = [NSString stringWithFormat:@"%@ %@ %@",tempModel.capitalname,tempModel.cityname,tempModel.countyname];
-    self.peopleTimeLabel.text = @"未知";
+    self.peopleTimeLabel.text = tempModel.u_time_create;
     
     
 }
@@ -20,6 +26,8 @@
 - (void)awakeFromNib {
     [super awakeFromNib];
     // Initialization code
+//    self.peopleImageView.layer.masksToBounds = YES;
+//    self.peopleImageView.layer.cornerRadius = self.peopleImageView.bounds.size.width/2;
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {

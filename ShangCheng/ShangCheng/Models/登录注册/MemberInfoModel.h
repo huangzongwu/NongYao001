@@ -13,6 +13,7 @@
 @property (nonatomic,strong)NSString *u_id;//用户id
 @property (nonatomic,strong)NSString *u_login_id;//登录账号
 @property (nonatomic,strong)NSString *userPassword;//登录密码，接口没有，自己需要赋值
+@property (nonatomic,strong)NSString *u_icon;//用户头像
 @property (nonatomic,strong)NSString *u_r_id;//角色id
 @property (nonatomic,strong)NSString *u_type;//用户类型
 @property (nonatomic,strong)NSString *u_typename;//用户类型

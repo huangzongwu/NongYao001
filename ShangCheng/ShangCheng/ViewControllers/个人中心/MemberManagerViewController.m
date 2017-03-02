@@ -23,6 +23,9 @@
 @end
 
 @implementation MemberManagerViewController
+- (IBAction)leftBarButtonAction:(UIBarButtonItem *)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];

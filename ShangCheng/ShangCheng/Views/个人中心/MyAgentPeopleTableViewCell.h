@@ -10,7 +10,9 @@
 #import "Manager.h"
 @interface MyAgentPeopleTableViewCell : UITableViewCell
 @property (weak, nonatomic) IBOutlet UIImageView *peopleImageView;
-@property (weak, nonatomic) IBOutlet UILabel *peopleNameAndPhoneLabel;
+@property (weak, nonatomic) IBOutlet UILabel *peopleNameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *peoplePhoneLabel;
+
 @property (weak, nonatomic) IBOutlet UILabel *peopleAddressLabel;
 @property (weak, nonatomic) IBOutlet UILabel *peopleTimeLabel;
 

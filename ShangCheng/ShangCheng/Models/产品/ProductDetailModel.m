@@ -15,6 +15,7 @@
         for (NSDictionary *itemDic in value) {
             ProductFormatModel *formatModel = [[ProductFormatModel alloc] init];
             [formatModel setValuesForKeysWithDictionary:itemDic];
+            formatModel.seletctCount = [formatModel.s_min_quantity integerValue];
             [self.productFarmatArr addObject:formatModel];
         }
     }

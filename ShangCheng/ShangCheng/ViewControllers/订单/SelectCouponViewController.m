@@ -8,6 +8,7 @@
 
 #import "SelectCouponViewController.h"
 #import "CouponTableViewCell.h"
+#import "AddCouponViewController.h"
 #import "Manager.h"
 @interface SelectCouponViewController ()<UITableViewDelegate,UITableViewDataSource>
 @property (nonatomic,strong)NSMutableArray *couponDataSourceArr;
@@ -17,15 +18,34 @@
 @end
 
 @implementation SelectCouponViewController
+- (instancetype)initWithCoder:(NSCoder *)aDecoder {
+    self = [super initWithCoder:aDecoder];
+    if (self) {
+        //通知,刷新列表
+        [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(refreshCouponAction:) name:@"refreshCouponCount" object:nil];
+        
+        
+    }
+    return self;
+}
+//刷新列表
+- (void)refreshCouponAction:(NSNotification *)sender {
+    [self updateCouponListData];
+}
+
+- (IBAction)leftBarbuttonAction:(UIBarButtonItem *)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    //注册cell
-    [self.couponTableView registerNib:[UINib nibWithNibName:@"CouponTableViewCell" bundle:nil] forCellReuseIdentifier:@"couponCell"];
+    //网络加载数据
+    [self updateCouponListData];
     
-    
-    
+}
+
+- (void)updateCouponListData {
     //数据请求优惠券
     Manager *manager = [Manager shareInstance];
     [manager httpCouponListWithUserID:manager.memberInfoModel.u_id withCouponSuccessResult:^(id successResult) {
@@ -38,9 +58,7 @@
         NSLog(@"%@",failResultStr);
         
     }];
-    
-    
-    
+
 }
 
 
@@ -89,19 +107,30 @@
     }
 }
 
+//绑定优惠券，即添加优惠券
+- (IBAction)addCouponButtonAction:(UIButton *)sender {
+    
+    [self performSegueWithIdentifier:@"toAddCouponVC" sender:nil];
+    
+}
+
+
+
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
 
-/*
+
 #pragma mark - Navigation
 
 // In a storyboard-based application, you will often want to do a little preparation before navigation
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
+    
+    
 }
-*/
+
 
 @end

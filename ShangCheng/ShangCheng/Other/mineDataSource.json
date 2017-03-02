@@ -28,7 +28,7 @@
                   {"icon1":"w_icon_lljl","info":"浏览记录","pushId":""},
                   {"info1":"900","info":"消息通知","pushId":""},
                   {"info1":"290","info":"关于我们","pushId":""},
-                  {"info1":"100","info":"意见反馈","pushId":""},
+                  {"icon1":"w_icon_yjfk","info":"意见反馈","pushId":"mineToFeedBackVC"},
                   {"info1":"900","info":"设置","pushId":"mineVCToSettingVC"}
                  ]
                  
@@ -61,7 +61,7 @@
                      {"icon1":"w_icon_lljl","info":"浏览记录","pushId":""},
                      {"info1":"900","info":"消息通知","pushId":""},
                      {"info1":"290","info":"关于我们","pushId":""},
-                     {"info1":"100","info":"意见反馈","pushId":""},
+                     {"icon1":"w_icon_yjfk","info":"意见反馈","pushId":"mineToFeedBackVC"},
                      {"info1":"900","info":"设置","pushId":"mineVCToSettingVC"}
                      ]
                     

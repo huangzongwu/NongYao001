@@ -15,8 +15,10 @@
 @property (weak, nonatomic) IBOutlet UILabel *incomeAmountLabel;
 //人员button
 @property (weak, nonatomic) IBOutlet UIButton *peopleNumberButton;
+@property (weak, nonatomic) IBOutlet UIView *peopleNumberLine;
 //订单button
 @property (weak, nonatomic) IBOutlet UIButton *orderNumberButton;
+@property (weak, nonatomic) IBOutlet UIView *orderNumberLine;
 
 
 @property (weak, nonatomic) IBOutlet UITableView *myAgentTableView;
@@ -31,6 +33,12 @@
 @end
 
 @implementation MyAgentViewController
+- (IBAction)leftBarButtonAction:(UIBarButtonItem *)sender {
+    //清空一下订单数据，以便下次进来请求最新数据
+    Manager *manager = [Manager shareInstance];
+    [manager.myAgentDic setValue:nil forKey:@"order"];
+    [self.navigationController popViewControllerAnimated:YES];
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -80,6 +88,13 @@
     if ([self.currentTypeStr isEqualToString:@"orderType"]) {
         //更改类型
         self.currentTypeStr = @"peopleType";
+        //变换颜色
+        [self.peopleNumberButton setTitleColor:kMainColor forState:UIControlStateNormal];
+        self.peopleNumberLine.backgroundColor = kMainColor;
+        [self.orderNumberButton setTitleColor:k333333Color forState:UIControlStateNormal];
+        self.orderNumberLine.backgroundColor = [UIColor whiteColor];
+        
+        
         
         Manager *manager = [Manager shareInstance];
         
@@ -114,9 +129,16 @@
     if ([self.currentTypeStr isEqualToString:@"peopleType"]) {
         //更改类型
         self.currentTypeStr = @"orderType";
+        //变换颜色
+        [self.orderNumberButton setTitleColor:kMainColor forState:UIControlStateNormal];
+        self.orderNumberLine.backgroundColor = kMainColor;
+        [self.peopleNumberButton setTitleColor:k333333Color forState:UIControlStateNormal];
+        self.peopleNumberLine.backgroundColor = [UIColor whiteColor];
+
+        
         
         Manager *manager = [Manager shareInstance];
-        if ([manager.myAgentDic objectForKey:@"order"] != nil && [[manager.myAgentDic objectForKey:@"people"] isKindOfClass:[NSMutableArray class]]) {
+        if ([manager.myAgentDic objectForKey:@"order"] != nil && [[manager.myAgentDic objectForKey:@"order"] isKindOfClass:[NSMutableArray class]]) {
             //不用请求，刷新cell
             NSLog(@"不用请求，只做刷新cell");
             [self.myAgentTableView reloadData];

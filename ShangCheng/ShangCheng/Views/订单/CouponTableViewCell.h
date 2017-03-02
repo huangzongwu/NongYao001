@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "CouponModel.h"
 @interface CouponTableViewCell : UITableViewCell
+@property (weak, nonatomic) IBOutlet UIImageView *backImageView;
 //优惠券码
 @property (weak, nonatomic) IBOutlet UILabel *couponCodeLabel;
 //总金额

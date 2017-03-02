@@ -70,10 +70,10 @@
         
         if (isRed == YES) {
             self.passwordLoginButton.enabled = YES;
-            self.passwordLoginButton.backgroundColor = kColor(208,23,21, 1);
+            self.passwordLoginButton.backgroundColor = kMainColor;
         }else {
             self.passwordLoginButton.enabled = NO;
-            self.passwordLoginButton.backgroundColor = kColor(238, 238, 238, 1);
+            self.passwordLoginButton.backgroundColor = kccccccColor;
         }
     }
     
@@ -109,11 +109,11 @@
         if (isRed == YES) {
             //红色可点击
             self.codeLoginButton.enabled = YES;
-            self.codeLoginButton.backgroundColor = kColor(208,23,21, 1);
+            self.codeLoginButton.backgroundColor = kMainColor;
         }else {
             //灰色不可点击
             self.codeLoginButton.enabled = NO;
-            self.codeLoginButton.backgroundColor = kColor(238, 238, 238, 1);
+            self.codeLoginButton.backgroundColor = kccccccColor;
         }
 
     }
@@ -157,8 +157,8 @@
         }
         if ([toRegisterVCStr isEqualToString:@"supplierVC"]) {
             //跳转到供应商注册
-            //            UINavigationController *registerNav = [weakVC.storyboard instantiateViewControllerWithIdentifier:@"RegisterNavigationController"];
-            //            [weakVC presentViewController:registerNav animated:YES completion:nil];
+            UINavigationController *registerNav = [weakVC.storyboard instantiateViewControllerWithIdentifier:@"registerDelegateNavigationController"];
+            [weakVC presentViewController:registerNav animated:YES completion:nil];
             
         }
     };
@@ -187,7 +187,7 @@
     self.getCodeButton.enabled = YES;
     [self.getCodeButton setTitle:@"获取验证码" forState:UIControlStateNormal];
     //背景色变红
-    self.getCodeButton.backgroundColor = kColor(208, 23, 84, 1);
+    self.getCodeButton.backgroundColor = kMainColor;
     
 }
 - (void)timerAction:(NSTimer *)timer {
@@ -237,17 +237,19 @@
 //    NSString *loginID = @"admin";
 //    NSString *loginPassword = @"nongyao001";
     
-        //王战
-//    NSString *loginID = @"15082932167";
+
+//    NSString *loginID = @"18535896248";
 //    NSString *loginPassword = @"123456";
     
     //代理
-    NSString *loginID = @"13837150011";
-    NSString *loginPassword = @"nongyao001";
+//    NSString *loginID = @"13837150011";
+//    NSString *loginPassword = @"nongyao001";
+    
+    
     
 
-//    NSString *loginID = self.passwordLoginIDTextField.text;
-//    NSString *loginPassword = self.passwordLoginPasswordTextField.text ;
+    NSString *loginID = self.passwordLoginIDTextField.text;
+    NSString *loginPassword = self.passwordLoginPasswordTextField.text ;
     
     Manager *manager = [Manager shareInstance];
     [manager loginActionWithUserID:loginID withPassword:[manager digest:loginPassword] withLoginSuccessResult:^(id successResult) {

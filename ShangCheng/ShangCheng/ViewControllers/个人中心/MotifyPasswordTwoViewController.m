@@ -49,11 +49,11 @@
     if (isRed == YES) {
         //红色可点击
         self.enterMotifyButton.enabled = YES;
-        self.enterMotifyButton.backgroundColor = kColor(208,23,21, 1);
+        self.enterMotifyButton.backgroundColor = kMainColor;
     }else {
         //灰色不可点击
         self.enterMotifyButton.enabled = NO;
-        self.enterMotifyButton.backgroundColor = kColor(238, 238, 238, 1);
+        self.enterMotifyButton.backgroundColor = kccccccColor;
     }
     
     return YES;

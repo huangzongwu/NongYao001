@@ -12,7 +12,9 @@
 - (void)updateMyAgentOrderCellWithAgentModel:(MyAgentOrderModel *)tempModel {
     
 
-    self.orderNameAndPhoneLabel.text = [NSString stringWithFormat:@"%@ %@",tempModel.u_truename,tempModel.mobile];
+    self.orderNameLabel.text = tempModel.u_truename;
+    NSString *currentPhoneStr = [tempModel.mobile stringByReplacingCharactersInRange:NSMakeRange(3, 4) withString:@"****"];
+    self.orderPhoneLabel.text = currentPhoneStr;
     self.orderAddressLabel.text = @"未知";
     self.orderAgentMoneyLabel.text = tempModel.p_money_agent;
     

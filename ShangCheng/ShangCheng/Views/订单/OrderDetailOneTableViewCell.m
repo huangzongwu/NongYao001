@@ -7,7 +7,7 @@
 //
 
 #import "OrderDetailOneTableViewCell.h"
-
+#import "UIImageView+ImageViewCategory.h"
 @implementation OrderDetailOneTableViewCell
 
 - (void)updateOrderDetailOneCellWithSonOrder:(SonOrderModel *)tempSonOrderModel {
@@ -20,9 +20,10 @@
         self.statusAndTotalPriceLabel.text = tempSonOrderModel.statusvalue;
 //    }
     
-//    self.orderImageView;
+    [self.orderImageView setWebImageURLWithImageUrlStr:tempSonOrderModel.p_icon withErrorImage:[UIImage imageNamed:@"productImage"]];
+    
     self.orderTitleLabel.text = tempSonOrderModel.p_name;
-    self.orderCompanyLabel.text = @"";
+    self.orderCompanyLabel.text = @"未知厂家";
     self.orderFormatAndCountLabel.text = [NSString stringWithFormat:@"规格:%@  数量:%@",tempSonOrderModel.productst,tempSonOrderModel.o_num];
     self.orderUnitPriceLabel.text = [NSString stringWithFormat:@"￥%@", tempSonOrderModel.o_price];
 }

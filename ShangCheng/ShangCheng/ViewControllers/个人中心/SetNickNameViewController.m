@@ -58,9 +58,9 @@
     self.nickNameTextField.text = manager.memberInfoModel.u_truename;
     
     if (self.nickNameTextField.text.length > 3 && self.nickNameTextField.text.length < 21) {
-        self.enterBarButton.tintColor = [UIColor redColor];
+        self.enterBarButton.tintColor = [UIColor whiteColor];
     }else {
-        self.enterBarButton.tintColor = [UIColor lightGrayColor];
+        self.enterBarButton.tintColor = kccccccColor;
     }
     
     

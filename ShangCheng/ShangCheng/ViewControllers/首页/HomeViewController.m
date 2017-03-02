@@ -22,6 +22,10 @@
 @interface HomeViewController ()<UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout>
 @property (weak, nonatomic) IBOutlet UICollectionView *collectionView;
 
+//八大分类数据源
+@property (nonatomic,strong)NSArray *categoryDataSource;
+
+
 @end
 
 @implementation HomeViewController
@@ -37,6 +41,8 @@
 
     [self.collectionView registerNib:[UINib nibWithNibName:@"MainCollectionReusableView" bundle:nil] forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"mainHeader"];
     
+    //加载八大分类数据源
+    [self upDateHomeEightCategory];
     
     //网络请求首页数据
     [[Manager shareInstance] httpHomeProductWithCnum:@"3" withRnum:@"4" withSuccessHomeResult:^(id successResult) {
@@ -50,6 +56,16 @@
     
 }
 
+
+- (void)upDateHomeEightCategory {
+    
+    NSString *jsonPath = [[NSBundle mainBundle]pathForResource:@"HomeCategory" ofType:@"json"];
+    NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];
+    //解析得到返回结果
+    self.categoryDataSource = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
+    
+
+}
 
 #pragma mark - collectionView Delegate -
 //多少个分区
@@ -91,10 +107,10 @@
             return CGSizeMake(kScreenW, kScreenW/2);
             break;
         case 1:
-            return CGSizeMake(kScreenW, 15);
+            return CGSizeMake(kScreenW, 12);
             break;
         case 2:
-            return CGSizeMake(kScreenW, 50+15);
+            return CGSizeMake(kScreenW, 50+17);
             break;
 
         default:
@@ -118,7 +134,7 @@
 //尾部大小
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout referenceSizeForFooterInSection:(NSInteger)section {
     if (section == 0) {
-        return CGSizeMake(kScreenW, 30);
+        return CGSizeMake(kScreenW, 44);
     }else{
         return CGSizeMake(0, 0);
     }
@@ -225,7 +241,7 @@
         case 0:
         {
             CategoryCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"cellIdentifier1" forIndexPath:indexPath];
-//            cell.backgroundView.backgroundColor = [UIColor grayColor];
+            [cell updateCategoryCellWithDic:self.categoryDataSource[indexPath.row]];
             return cell;
 
         }
@@ -287,10 +303,42 @@
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     
-    if (indexPath.section > 1) {
+    
+    switch (indexPath.section) {
+        case 0:
+        {
+            //有两个特殊的，一个是分类index=1； 一个是购物车index=2.
+            if (indexPath.row == 1) {
+                [self.tabBarController setSelectedIndex:1];
+
+            }else if (indexPath.row == 2) {
+                [self.tabBarController setSelectedIndex:2];
+
+            }else {
+                NSString *pushId = [self.categoryDataSource[indexPath.row] objectForKey:@"pushId"];
+                if (pushId.length > 0) {
+                    [self performSegueWithIdentifier:pushId sender:indexPath];
+                    
+                }
+
+            }
+           
+        }
+            
+            break;
+        case 1:
+            [self performSegueWithIdentifier:@"homeToTodaySaleVC" sender:indexPath];
+
+            break;
         
-        [self performSegueWithIdentifier:@"homeToDetail" sender:indexPath];
+        default:
+            [self performSegueWithIdentifier:@"homeToDetail" sender:indexPath];
+
+            break;
     }
+    
+    
+   
 }
 //人气热卖中上面的button
 - (IBAction)upHotButtonAction:(DetailHorizontalButton *)sender {
@@ -321,8 +369,6 @@
     
     NSIndexPath *selectIndex = sender;
     NSLog(@"%ld -- %ld",selectIndex.section ,selectIndex.row);
-    
-    
     
     //到详情页面
     if ([segue.identifier isEqualToString:@"homeToDetail"]) {

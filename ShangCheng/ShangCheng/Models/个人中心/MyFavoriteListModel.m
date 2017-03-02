@@ -14,6 +14,10 @@
     if ([key isEqualToString:@"f_id"]) {
         self.myFavoriteId = value;
     }
+    if ([key isEqualToString:@"p_icon"]) {
+        self.productImageUrl = value;
+    }
+
     if ([key isEqualToString:@"f_title"]) {
         self.favoriteProductTitleStr = value;
     }

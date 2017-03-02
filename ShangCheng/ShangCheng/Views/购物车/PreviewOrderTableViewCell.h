@@ -17,4 +17,6 @@
 @property (weak, nonatomic) IBOutlet UILabel *productPriceLabel;
 
 - (void)updatePreviewOrderCellWithShoppingCarModel:(ShoppingCarModel *)shoppingCarModel;
+
+
 @end

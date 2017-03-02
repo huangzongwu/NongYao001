@@ -38,6 +38,14 @@
     return [NSString stringWithFormat:@"%@api",self.mainUrl];
 }
 
+#pragma mark - 首页 -
+//今日特价
+- (NSString *)todayActivityBase {
+    return [NSString stringWithFormat:@"%@/TodayActivity",self.baseUrl];
+    
+}
+
+
 #pragma mark - 产品 -
 //首页产品
 - (NSString *)homeProductURLWithCnum:(NSString *)cnum withRnum:(NSString *)rnum {
@@ -61,8 +69,8 @@
 }
 
 //模糊查询产品信息
-- (NSString *)fuzzySearchProductInfoWithCode:(NSString *)code withName:(NSString *)name withAreaid:(NSString *)areaId withPd:(NSString *)pd withSuppliername:(NSString *)suppliername withLevel:(NSString *)level withStatus:(NSString *)status withPrice:(NSString *)price withDate:(NSString *)date {
-    return [NSString stringWithFormat:@"%@/Product?code=%@&name=%@&areaid=%@&pd=%@&suppliername=%@&level=%@&status=%@&price=%@&date=%@",self.baseUrl,code,name,areaId,pd,suppliername,level,status,price,date];
+- (NSString *)fuzzySearchProductInfoWithCode:(NSString *)code withName:(NSString *)name withAreaid:(NSString *)areaId withPd:(NSString *)pd withSuppliername:(NSString *)suppliername withLevel:(NSString *)level withStatus:(NSString *)status withPrice:(NSString *)price withDate:(NSString *)date withPageindex:(NSInteger )pageIndex withPageSize:(NSString *)pageSize {
+    return [NSString stringWithFormat:@"%@/Product?code=%@&name=%@&areaid=%@&pd=%@&suppliername=%@&level=%@&status=%@&price=%@&date=%@&pageindex=%ld&pagesize=%@",self.baseUrl,code,name,areaId,pd,suppliername,level,status,price,date,pageIndex,pageSize];
 }
 
 
@@ -91,6 +99,10 @@
 }
 
 #pragma mark - 订单 -
+//优惠券Base
+- (NSString *)couponBase {
+    return  [NSString stringWithFormat:@"%@/coupon",self.baseUrl];
+}
 //优惠券
 - (NSString *)getCouponListWithUserId:(NSString *)userID {
     return [NSString stringWithFormat:@"%@/coupon?id=%@",self.baseUrl,userID];
@@ -103,9 +115,9 @@
 
 
 //订单列表 -1全部、0,1B,1A待付款、1,进行中、9已完成
-- (NSString *)orderListWithUserID:(NSString *)userID withProduct:(NSString *)product withCode:(NSString *)code withOrderStatus:(NSString *)orderStatus withPageIndex:(NSString *)pageIndex withPageSize:(NSString *)pageSize {
+- (NSString *)orderListWithUserID:(NSString *)userID withProduct:(NSString *)product withCode:(NSString *)code withOrderStatus:(NSString *)orderStatus withPageIndex:(NSInteger)pageIndex withPageSize:(NSInteger )pageSize {
 
-    return [NSString stringWithFormat:@"%@/OrderGenerated?id=%@&product=%@&code=%@&status=%@&pageindex=%@&pagesize=%@",self.baseUrl,userID,product,code,orderStatus,pageIndex,pageSize];
+    return [NSString stringWithFormat:@"%@/OrderGenerated?id=%@&product=%@&code=%@&status=%@&pageindex=%ld&pagesize=%ld",self.baseUrl,userID,product,code,orderStatus,pageIndex,pageSize];
 }
 
 //生成订单
@@ -143,9 +155,18 @@
     return [NSString stringWithFormat:@"%@/UserConfirmPay",self.baseUrl];
 }
 
-//支付后，后台验证
+//支付后，后台验证 
 - (NSString *)orderPaymentVerifyWithPayid:(NSString *)payId {
     return [NSString stringWithFormat:@"%@/OrderPaymentVerify?pid=%@",self.baseUrl,payId];
+}
+
+#pragma mark - 个人中心  充值 -
+- (NSString *)userRechargeBase {
+    return [NSString stringWithFormat:@"%@/UserRecharge",self.baseUrl];
+}
+#pragma mark - 个人中心 意见反馈 -
+- (NSString *)userFeedBackBase {
+    return [NSString stringWithFormat:@"%@/GuestBook",self.baseUrl];
 }
 
 
@@ -185,6 +206,12 @@
 - (NSString *)userAccountBase {
     return [NSString stringWithFormat:@"%@/UserAccount",self.baseUrl];
 }
+
+//提现和提现记录
+- (NSString *)AgentCashBase {
+    return [NSString stringWithFormat:@"%@/AgentCash",self.baseUrl];
+}
+
 
 //修改密码
 - (NSString *)motifyPasswordBase {
@@ -231,6 +258,11 @@
 - (NSString *)userBase {
     return [NSString stringWithFormat:@"%@/User",self.baseUrl];
 }
+//代理商注册
+- (NSString *)AgentMerchantsBase {
+    return [NSString stringWithFormat:@"%@/AgentMerchants",self.baseUrl];
+}
+
 
 #pragma mark - 其他 -
 //地区信息

@@ -14,6 +14,7 @@
 #import "OrderListFootTwoTableViewCell.h"
 #import "OrderDetailViewController.h"
 #import "LineButton.h"
+#import "MJRefresh.h"
 #import "Manager.h"
 @interface OrderListViewController ()<UITableViewDataSource,UITableViewDelegate>
 //切换分类的scrollView
@@ -39,8 +40,10 @@
 @property (weak, nonatomic) IBOutlet UITableView *goOnTableView;
 //已完成TableView
 @property (weak, nonatomic) IBOutlet UITableView *finishTableView;
-//是否需要刷新
-@property (nonatomic,strong) NSMutableArray *isReloadDataArr;
+
+//是否需要更新
+@property (nonatomic,strong)NSMutableArray *isHttpArr;
+@property (nonatomic,strong)NSMutableArray *currentPageArr;//当前是第几页
 
 //合并付款的高度
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *payTogetherHeightLayout;
@@ -54,6 +57,7 @@
         //默认的是1
         self.whichTableView = @"1";
 
+        
         //通知，需要刷新
         [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(refreshOrderListNotification:) name:@"refreshOrderList" object:nil];
         [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(switchOrderType:) name:@"mineToOrderListVC" object:nil];
@@ -66,13 +70,9 @@
 
 //重新请求数据进行刷新
 - (void)refreshOrderListNotification:(NSNotification *)sender {
-    //将数据源中 isHttp 变为1
-    Manager *manager = [Manager shareInstance];
-    for (NSMutableDictionary *tempDic in manager.orderListDataSourceDic.allValues) {
-        [tempDic setObject:@"1" forKey:@"isHttp"];
-        //因为如果isHttp为1 ，就一定会请求数据，只要请求成功，就会刷新数据，所以isreloadarr就不用设为1了
-    }
-
+    //标记一下有数据变动，需要刷新
+    self.isHttpArr = [NSMutableArray arrayWithObjects:@"1",@"1",@"1",@"1",nil];
+    
 }
 
 //跳转到对应的订单类型
@@ -83,46 +83,126 @@
   
 }
 
-- (void)viewWillAppear:(BOOL)animated {
-    [super viewWillAppear:animated];
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
     //登录了，才可以请求数据。默认请求全部数据
     Manager *manager = [Manager shareInstance];
     if ([manager isLoggedInStatus] == YES){
-        
         //请求数据
         switch ([self.whichTableView integerValue]) {
             case 1:
-
-                [self allButtonAction:self.allButton];
-                
+                //检查是否需要更新
+                if ([self.isHttpArr[0] isEqualToString:@"1"]) {
+                    [self.allTableView headerBeginRefreshing];
+                }
                 break;
             case 2:
-                [self waitPayButtonAction:self.waitPayButton];
-                
+                if ([self.isHttpArr[1] isEqualToString:@"1"]) {
+                    [self.waitPayTableView headerBeginRefreshing];
+                }
                 break;
             case 3:
-                [self goOnButtonAction:self.goOnButton];
-                
+                if ([self.isHttpArr[2] isEqualToString:@"1"]) {
+                    [self.goOnTableView headerBeginRefreshing];
+                }
                 break;
             case 4:
-                [self finishButtonAction:self.finishButton];
-                
+                if ([self.isHttpArr[3] isEqualToString:@"1"]) {
+                    [self.finishTableView headerBeginRefreshing];
+                }
                 break;
-                
             default:
                 break;
         }
-
         
     }
-  
+}
+
+//下拉刷新
+- (void)downPushRefresh {
+    
+    [self.allTableView addHeaderWithCallback:^{
+        NSLog(@"全部tableView刷新");
+        [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:1 withTableView:self.allTableView];
+    }];
+    [self.waitPayTableView addHeaderWithCallback:^{
+        NSLog(@"待付款tableView刷新");
+        [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:1 withTableView:self.waitPayTableView];
+    }];
+    [self.goOnTableView addHeaderWithCallback:^{
+        NSLog(@"进行中tableView刷新");
+        [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:1  withTableView:self.goOnTableView];
+    }];
+    [self.finishTableView addHeaderWithCallback:^{
+        NSLog(@"已完成tableView刷新");
+        [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:1 withTableView:self.finishTableView];
+    }];
+    
+}
+
+//上拉加载
+- (void)upPushLoad {
+    
+    [self.allTableView addFooterWithCallback:^{
+        NSLog(@"全部tableView加载");
+        //现在第几页
+        NSInteger tempCurrentPage = [self.currentPageArr[0] integerValue] ;
+        //总共有几页
+        NSInteger totalPage = [[[[Manager shareInstance].orderListDataSourceDic objectForKey:self.whichTableView] objectForKey:@"totalpages"] integerValue];
+
+        if (tempCurrentPage < totalPage) {
+
+            [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:tempCurrentPage+1 withTableView:self.allTableView];
+
+        }else {
+            [self.allTableView footerEndRefreshing];
+        }
+    }];
+    
+    [self.waitPayTableView addFooterWithCallback:^{
+        NSLog(@"待付款tableView加载");
+        NSInteger tempCurrentPage = [self.currentPageArr[1] integerValue] ;
+        //总共有几页
+        NSInteger totalPage = [[[[Manager shareInstance].orderListDataSourceDic objectForKey:self.whichTableView] objectForKey:@"totalpages"] integerValue];
+        if (tempCurrentPage < totalPage) {
+
+            [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:tempCurrentPage+1 withTableView:self.waitPayTableView];
+        }else{
+            [self.waitPayTableView footerEndRefreshing];
+        }
+    }];
+    [self.goOnTableView addFooterWithCallback:^{
+        NSLog(@"进行中tableView加载");
+        NSInteger tempCurrentPage = [self.currentPageArr[2] integerValue] ;
+        //总共有几页
+        NSInteger totalPage = [[[[Manager shareInstance].orderListDataSourceDic objectForKey:self.whichTableView] objectForKey:@"totalpages"] integerValue];
+        if (tempCurrentPage < totalPage) {
+
+            [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:tempCurrentPage+1  withTableView:self.goOnTableView];
+        }else {
+            [self.goOnTableView footerEndRefreshing];
+        }
+    }];
+    [self.finishTableView addFooterWithCallback:^{
+        NSLog(@"已完成tableView加载");
+        NSInteger tempCurrentPage = [self.currentPageArr[3] integerValue] ;
+        //总共有几页
+        NSInteger totalPage = [[[[Manager shareInstance].orderListDataSourceDic objectForKey:self.whichTableView] objectForKey:@"totalpages"] integerValue];
+        if (tempCurrentPage < totalPage) {
+
+
+            [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:tempCurrentPage withTableView:self.finishTableView];
+        }else {
+            [self.finishTableView footerEndRefreshing];
+        }
+    }];
+
     
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    
     /*
     OrderListOneTableViewCell---orderListOneCell
     OrderListTwoTableViewCell---orderListTwoCell
@@ -152,34 +232,51 @@
     [self.finishTableView registerNib:[UINib nibWithNibName:@"OrderListOneTableViewCell" bundle:nil] forCellReuseIdentifier:@"orderListOneCell"];
     [self.finishTableView registerNib:[UINib nibWithNibName:@"OrderListTwoTableViewCell" bundle:nil] forCellReuseIdentifier:@"orderListTwoCell"];
     [self.finishTableView registerNib:[UINib nibWithNibName:@"OrderListFootTwoTableViewCell" bundle:nil] forCellReuseIdentifier:@"orderListFootTwoCell"];
-
-    //默认都是需要刷新的
-    self.isReloadDataArr = [NSMutableArray arrayWithObjects:@"1",@"1",@"1",@"1", nil];
     
+    //加载下拉刷新
+    [self downPushRefresh];
+    //上拉加载
+    [self upPushLoad];
+    
+    //默认都是需要刷新的
+    self.isHttpArr = [NSMutableArray arrayWithObjects:@"1",@"1",@"1",@"1", nil];
+    //默认都是第一页
+    self.currentPageArr = [NSMutableArray arrayWithObjects:@"1",@"1",@"1",@"1",nil];
+    
+
 }
 
 
 //请求订单数据
-- (void)httpOrderListWithProduct:(NSString *)product withCode:(NSString *)code withPageIndex:(NSString *)pageIndex withUpPushReload:(BOOL)upPushReload withTableView:(UITableView *)tempTableView  {
-    
+- (void)httpOrderListWithProduct:(NSString *)product withCode:(NSString *)code withPageIndex:(NSInteger )pageIndex withTableView:(UITableView *)tempTableView  {
 
-    if ([self.isReloadDataArr[[self.whichTableView integerValue]-1] isEqualToString:@"1"]) {
-        [tempTableView reloadData];
-        self.isReloadDataArr[[self.whichTableView integerValue]-1] = @"0";
-    }
-    
-    
-    
     
     Manager *manager = [Manager shareInstance];
     
-    [manager getOrderListDataWithUserID:manager.memberInfoModel.u_id withProduct:product withCode:code withWhichTableView:self.whichTableView withPageIndex:pageIndex withPageSize:@"10" withUpPushReload:upPushReload withOrderListSuccessResult:^(id successResult) {
+    [manager getOrderListDataWithUserID:manager.memberInfoModel.u_id withProduct:product withCode:code withWhichTableView:self.whichTableView withPageIndex:pageIndex withPageSize:10 withOrderListSuccessResult:^(id successResult) {
+        
+        if (pageIndex == 1) {
+            //刷新
+            //请求后，标记已经刷新过了
+            self.isHttpArr[[self.whichTableView integerValue]-1] = @"0";
+            //刷新了，就要重置currentPage
+            self.currentPageArr[[self.whichTableView integerValue]-1] = @"1";
+            [tempTableView headerEndRefreshing];//取消头部刷新效果
+        }else {
+            //加载
+            [tempTableView footerEndRefreshing];//取消尾部加载效果
+            //加载要刷新currentPage
+            self.currentPageArr[[self.whichTableView integerValue]-1] = [NSString stringWithFormat:@"%ld",pageIndex];
+            
+        }
         
         [tempTableView reloadData];
-        
+
     } withOrderListFailResult:^(NSString *failResultStr) {
         NSLog(@"%@", failResultStr);
+
     }];
+    
     
 }
 
@@ -195,10 +292,10 @@
     self.backScrollView.contentOffset = CGPointMake(0, 0);
     
     Manager *manager = [Manager shareInstance];
-    //登录了，才可以请求数据。默认请求全部数据
-    if ([manager isLoggedInStatus] == YES) {
+    //登录了，并且需要刷新，才请求数据。默认请求全部数据
+    if ([manager isLoggedInStatus] == YES && [self.isHttpArr[0] isEqualToString:@"1"]) {
         
-        [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:@"1" withUpPushReload:NO withTableView:self.allTableView];
+        [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:1 withTableView:self.allTableView];
     }
 
 }
@@ -210,14 +307,14 @@
    
     
     //没有合并付款
-    self.payTogetherHeightLayout.constant = 40;
+    self.payTogetherHeightLayout.constant = 61;
     self.backScrollView.contentOffset = CGPointMake(kScreenW, 0);
 
     Manager *manager = [Manager shareInstance];
-    //登录了，才可以请求数据。默认请求全部数据
-    if ([manager isLoggedInStatus] == YES) {
-
-        [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:@"1" withUpPushReload:NO withTableView:self.waitPayTableView];
+    //登录了，并且需要刷新，才请求数据。默认请求全部数据
+    if ([manager isLoggedInStatus] == YES && [self.isHttpArr[1] isEqualToString:@"1"]) {
+        
+        [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:1 withTableView:self.waitPayTableView];
     }
 
 
@@ -232,12 +329,12 @@
     //没有合并付款
     self.payTogetherHeightLayout.constant = 0;
     self.backScrollView.contentOffset = CGPointMake(kScreenW*2, 0);
-
+    
+    //登录了，并且需要刷新，才请求数据。默认请求全部数据
     Manager *manager = [Manager shareInstance];
-    //登录了，才可以请求数据。默认请求全部数据
-    if ([manager isLoggedInStatus] == YES) {
+    if ([manager isLoggedInStatus] == YES && [self.isHttpArr[2] isEqualToString:@"1"]) {
 
-        [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:@"1" withUpPushReload:NO withTableView:self.goOnTableView];
+        [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:1 withTableView:self.goOnTableView];
     }
 
 
@@ -256,11 +353,11 @@
     self.payTogetherHeightLayout.constant = 0;
     self.backScrollView.contentOffset = CGPointMake(kScreenW*3, 0);
 
+    //登录了，并且需要刷新，才请求数据。默认请求全部数据
     Manager *manager = [Manager shareInstance];
-    //登录了，才可以请求数据。默认请求全部数据
-    if ([manager isLoggedInStatus] == YES) {
+    if ([manager isLoggedInStatus] == YES && [self.isHttpArr[3] isEqualToString:@"1"]) {
 
-        [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:@"1" withUpPushReload:NO withTableView:self.finishTableView];
+        [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:1 withTableView:self.finishTableView];
     }
     
 }
@@ -270,13 +367,13 @@
     for (UIView *tempLineButton in sender.superview.subviews) {
         if ([tempLineButton isKindOfClass:[LineButton class]]) {
             ((LineButton *)tempLineButton).lineColor = [UIColor whiteColor];
-            [((LineButton *)tempLineButton) setTitleColor:[UIColor lightGrayColor] forState:UIControlStateNormal];
+            [((LineButton *)tempLineButton) setTitleColor:k333333Color forState:UIControlStateNormal];
         }
     }
     
     //将选中的这button变为选中状态
-    sender.lineColor = [UIColor redColor];
-    [sender setTitleColor:[UIColor redColor] forState:UIControlStateNormal];
+    sender.lineColor = kMainColor;
+    [sender setTitleColor:kMainColor forState:UIControlStateNormal];
 }
 
 
@@ -291,13 +388,13 @@
     return 1;
 }
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
-    return 10;
+    return 11;
 }
 - (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
-    return 40;
+    return 43 ;
 }
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    return 130;
+    return 168;
 }
 - (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section {
     Manager *manager = [Manager shareInstance];
@@ -351,7 +448,7 @@
 
                         [tableView reloadData];
                         //设为1，切换TableView就会执行刷新
-                        self.isReloadDataArr = [NSMutableArray arrayWithObjects:@"1",@"1",@"1",@"1", nil];
+                        self.isHttpArr = [NSMutableArray arrayWithObjects:@"1",@"1",@"1",@"1", nil];
                     }];
                    
                     
@@ -412,9 +509,11 @@
             selectModel.isSelectOrder = !selectModel.isSelectOrder;
             //改变UI
             if (selectModel.isSelectOrder == YES) {
-                selectButton.backgroundColor = [UIColor redColor];
+                [selectButton setImage:[UIImage imageNamed:@"g_btn_select"] forState:UIControlStateNormal];
+
             }else {
-                selectButton.backgroundColor = [UIColor lightGrayColor];
+                [selectButton setImage:[UIImage imageNamed:@"g_btn_normal"] forState:UIControlStateNormal];
+
             }
             
             
@@ -522,6 +621,7 @@
         for (SupOrderModel *tempOrderModel in (NSArray *)sender) {
             [payVCIdArr addObject: tempOrderModel.p_id ];
             payVCTotalAmount += [tempOrderModel.p_o_price_total floatValue];
+            payVCTotalAmount -= [tempOrderModel.p_discount floatValue];
         }
         PayViewController *payVC = [segue destinationViewController];
         payVC.orderIDArr = payVCIdArr;
@@ -534,7 +634,7 @@
         orderDetailVC.refreshOrderListBlock = ^(){
             
             //设为1，切换TableView就会执行刷新
-            self.isReloadDataArr = [NSMutableArray arrayWithObjects:@"1",@"1",@"1",@"1", nil];
+            self.isHttpArr = [NSMutableArray arrayWithObjects:@"1",@"1",@"1",@"1", nil];
             
         };
         

@@ -14,94 +14,99 @@
     self.orderTotalPriceLabel.text = [NSString stringWithFormat:@"￥%@",tempSonOrderModel.o_price_total];
     /*待收货和已完成 有两个按钮
      待收货，1物流2确认收货
-     已完成，1立即评价2详情
+     已完成，1立即评价2详情（有特例，就只有详情，特例就是isreply）
+     isreply 0 不允许评价的订单 1 允许评价还未评价的订单 2 已经评价的订单
      */
-    if ([tempSonOrderModel.o_status isEqualToString:@"5A"] || [tempSonOrderModel.o_status isEqualToString:@"5"] || [tempSonOrderModel.o_status isEqualToString:@"9"]) {
-        self.buttonOne.hidden = NO;
-        self.buttonTwo.hidden = NO;
+    NSMutableArray *buttonTitleArr = [NSMutableArray array];
+    //待支付和带确认  是一个取消按钮
+    if ([tempSonOrderModel.o_status isEqualToString:@"0"] || [tempSonOrderModel.o_status isEqualToString:@"1A"] || [tempSonOrderModel.o_status isEqualToString:@"1B"]) {
         
-        //已完成
-        if ([tempSonOrderModel.o_status isEqualToString:@"9"]) {
-            [self.buttonOne setTitle:@"立即评价" forState:UIControlStateNormal];
-            [self.buttonTwo setTitle:@"订单详情" forState:UIControlStateNormal];
+        [buttonTitleArr addObject:@"取消订单"];
+    }
+    
+    //待收货 是两个按钮 物流和确认收货
+    if ([tempSonOrderModel.o_status isEqualToString:@"5A"] || [tempSonOrderModel.o_status isEqualToString:@"5"]) {
+        
+        [buttonTitleArr addObject:@"物流信息"];
+        [buttonTitleArr addObject:@"确认收货"];
 
-        }else {
-            //待收货
-            [self.buttonOne setTitle:@"确认收货" forState:UIControlStateNormal];
-            [self.buttonTwo setTitle:@"物流信息" forState:UIControlStateNormal];
+    }
+    //已完成并且isreply等于1是两个按钮 立即评价和详情。isreply为其他的就是只有详情
+    if ([tempSonOrderModel.o_status isEqualToString:@"9"]) {
+        if ([tempSonOrderModel.isreply isEqualToString:@"1"]) {
+            [buttonTitleArr addObject:@"订单详情"];
+            [buttonTitleArr addObject:@"立即评价"];
 
+        }else{
+            [buttonTitleArr addObject:@"订单详情"];
         }
-    }else {
-        
-        //待支付、待确认、待发货 都是一个按钮
-        self.buttonOne.hidden = NO;
-        self.buttonTwo.hidden = YES;
+    }
+    
+    //待发货 就是一个按钮，详情（物流）
+    if ([tempSonOrderModel.o_status isEqualToString:@"1"] || [tempSonOrderModel.o_status isEqualToString:@"2"] || [tempSonOrderModel.o_status isEqualToString:@"3A"] ||[tempSonOrderModel.o_status isEqualToString:@"3B"] ||[tempSonOrderModel.o_status isEqualToString:@"3"] ||[tempSonOrderModel.o_status isEqualToString:@"4A"] ||[tempSonOrderModel.o_status isEqualToString:@"4"] ) {
+        [buttonTitleArr addObject:@"订单详情"];
+    }
 
-        //待支付，待确认：  取消订单
-        if ([tempSonOrderModel.o_status isEqualToString:@"0"] || [tempSonOrderModel.o_status isEqualToString:@"1A"] || [tempSonOrderModel.o_status isEqualToString:@"1B"]) {
-            [self.buttonOne setTitle:@"取消订单" forState:UIControlStateNormal];
-        }else {
-            [self.buttonOne setTitle:@"订单详情" forState:UIControlStateNormal];
-        }
-        
-    }    
+    //加载按钮个数
+    [self updateFoorButtonWithButtonTitleArr:buttonTitleArr];
+    
+}
+
+- (void)updateFoorButtonWithButtonTitleArr:(NSMutableArray *)buttonTitleArr {
+    
+    self.buttonOne.hidden = YES;
+    self.buttonTwo.hidden = YES;
+    switch (buttonTitleArr.count) {
+        case 1:
+            self.buttonOne.hidden = NO;
+            self.buttonTwo.hidden = YES;
+            [self.buttonOne setTitle:buttonTitleArr[0] forState:UIControlStateNormal];
+            break;
+        case 2:
+            self.buttonOne.hidden = NO;
+            self.buttonTwo.hidden = NO;
+            [self.buttonOne setTitle:buttonTitleArr[0] forState:UIControlStateNormal];
+            [self.buttonTwo setTitle:buttonTitleArr[1] forState:UIControlStateNormal];
+            break;
+        default:
+            break;
+    }
     
 }
 
 
-
-
 - (IBAction)oneButtonAction:(IndexButton *)sender {
-    /*待收货和已完成 有两个按钮
-     待收货，1物流2确认收货
-     已完成，1立即评价2详情
-     */
-    if ([self.tempSonOrder.o_status isEqualToString:@"5A"] || [self.tempSonOrder.o_status isEqualToString:@"5"] || [self.tempSonOrder.o_status isEqualToString:@"9"]) {
-
-        //已完成
-        if ([self.tempSonOrder.o_status isEqualToString:@"9"]) {
-            self.buttonActionTypeBlock(sender,4);//立即评价
-            
-        }else {
-            //待收货
-            self.buttonActionTypeBlock(sender,3);//确认收货
-        }
+    
+    //待支付 带确认 都是取消订单
+    if ([self.tempSonOrder.o_status isEqualToString:@"0"] || [self.tempSonOrder.o_status isEqualToString:@"1A"] || [self.tempSonOrder.o_status isEqualToString:@"1B"]) {
+        //
+        self.buttonActionTypeBlock(sender,1);
+        
+    }else if ([self.tempSonOrder.o_status isEqualToString:@"5A"] || [self.tempSonOrder.o_status isEqualToString:@"5"]) {
+        //待收货 是物流
+        self.buttonActionTypeBlock(sender,2);
+        
+    }else if ([self.tempSonOrder.o_status isEqualToString:@"9"]) {
+        //已完成  详情
+        self.buttonActionTypeBlock(sender,5);
     }else {
+        //待发货 详情
+        self.buttonActionTypeBlock(sender,5);
         
-        //待支付、待确认、待发货 都是一个按钮
-
-        //待支付，待确认：  取消订单
-        if ([self.tempSonOrder.o_status isEqualToString:@"0"] || [self.tempSonOrder.o_status isEqualToString:@"1A"] || [self.tempSonOrder.o_status isEqualToString:@"1B"]) {
-            
-            self.buttonActionTypeBlock(sender,1);//取消订单
-
-        }else {
-            
-            self.buttonActionTypeBlock(sender,5);//订单详情
-
-        }
-        
-    }    
-
+    }
+    
 }
 
 - (IBAction)twoButtonAction:(IndexButton *)sender {
-    /*待收货和已完成 有两个按钮
-     待收货，1物流2确认收货
-     已完成，1立即评价2详情
-     */
-    if ([self.tempSonOrder.o_status isEqualToString:@"5A"] || [self.tempSonOrder.o_status isEqualToString:@"5"] || [self.tempSonOrder.o_status isEqualToString:@"9"]) {
-        
-        //已完成
-        if ([self.tempSonOrder.o_status isEqualToString:@"9"]) {
-            
-            self.buttonActionTypeBlock(sender,5);//订单详情
 
-        }else {
-            //待收货
-            self.buttonActionTypeBlock(sender,2);//物流信息
-
-        }
+    //待收货 确认收货
+    if ([self.tempSonOrder.o_status isEqualToString:@"5A"] || [self.tempSonOrder.o_status isEqualToString:@"5"]) {
+        self.buttonActionTypeBlock(sender,3);//订单详情
+    }
+    
+    //已完成 立即评价
+    if ([self.tempSonOrder.o_status isEqualToString:@"9"]) {
+        self.buttonActionTypeBlock(sender,4);
     }
     
 }

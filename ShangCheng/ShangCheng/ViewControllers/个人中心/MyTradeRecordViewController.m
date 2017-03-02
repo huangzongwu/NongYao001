@@ -17,7 +17,7 @@
 @implementation MyTradeRecordViewController
 
 - (IBAction)leftBarButtonAction:(UIBarButtonItem *)sender {
-    
+    [self.navigationController popViewControllerAnimated:YES];
      
 }
 
@@ -27,14 +27,30 @@
     // Do any additional setup after loading the view.
     
     Manager *manager = [Manager shareInstance];
+    if (self.isCash == YES) {
+        self.title = @"提现记录";
+        //单纯的体现记录
+        [manager httpSearchUserAgentCashListWithUserId:manager.memberInfoModel.u_id withPageIndex:1 withPageSize:10 withSearchSuccess:^(id successResult) {
+            [self.tradeRecordtableView reloadData];
+
+        } withSearchFail:^(NSString *failResultStr) {
+            
+        }];
+        
+    }else {
+        self.title = @"交易记录";
+        //交易记录
+        [manager httpSearchUserAccountListWithUserId:manager.memberInfoModel.u_id withSdt:@"" withEdt:@"" withPageIndex:1 withPageSize:10 withSearchSuccess:^(id successResult) {
+            
+            [self.tradeRecordtableView reloadData];
+            
+        } withSearchFail:^(NSString *failResultStr) {
+            
+        }];
+
+    }
     
-    [manager httpSearchUserAccountListWithUserId:manager.memberInfoModel.u_id withIsCash:self.isCashStr withSdt:@"" withEdt:@"" withPageIndex:1 withPageSize:10 withSearchSuccess:^(id successResult) {
-        
-        [self.tradeRecordtableView reloadData];
-        
-    } withSearchFail:^(NSString *failResultStr) {
-        
-    }];
+    
     
 }
 
@@ -42,7 +58,7 @@
 #pragma mark - TableView Delegate -
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     Manager *manager = [Manager shareInstance];
-    if ([self.isCashStr isEqualToString:@"1"]) {
+    if (self.isCash == YES) {
         //提现
         return manager.cashDateKeyArr.count;
 
@@ -53,13 +69,13 @@
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
-    return 20;
+    return 37;
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
     Manager *manager = [Manager shareInstance];
     NSString *keyStr;
-    if ([self.isCashStr isEqualToString:@"1"]) {
+    if (self.isCash == YES) {
         //提现
         keyStr =  manager.cashDateKeyArr[section];
     }else {
@@ -73,7 +89,7 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     Manager *manager = [Manager shareInstance];
-    if ([self.isCashStr isEqualToString:@"1"]) {
+    if (self.isCash == YES) {
         NSString *keyStr1 = manager.cashDateKeyArr[section];
         NSMutableArray *valusArr1 = [manager.cashDetailDic objectForKey:keyStr1];
         return valusArr1.count;
@@ -91,13 +107,13 @@
     TradeRecordTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"tradeRecordCell" forIndexPath:indexPath];
     Manager *manager = [Manager shareInstance];
     
-    if ([self.isCashStr isEqualToString:@"1"]) {
+    if (self.isCash == YES) {
         //提现记录
         NSString *keyStr =  manager.cashDateKeyArr[indexPath.section];
         NSMutableArray *valusArr = [manager.cashDetailDic objectForKey:keyStr];
-        MyTradeRecordModel *tempModel = valusArr[indexPath.row];
+        MyAgentCashModel *tempModel = valusArr[indexPath.row];
         
-        [cell updateTradeRecordCellWithModel:tempModel];
+        [cell updateCashRecordCellWithModel:tempModel];
         
         return cell;
 

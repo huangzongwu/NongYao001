@@ -9,6 +9,8 @@
 #import <UIKit/UIKit.h>
 
 @interface MineCollectionViewCellOne : UICollectionViewCell
+//用户头像
+@property (weak, nonatomic) IBOutlet UIImageView *userHeaderImageView;
 //我的用户名
 @property (weak, nonatomic) IBOutlet UILabel *myNameLabel;
 //地区和手机号

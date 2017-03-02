@@ -8,9 +8,10 @@
 
 #import "SelectProductViewController.h"
 #import "Manager.h"
+#import "CALayer+LayerColor.h"
 #import "IndexButton.h"
-#define kButtonW (kScreenW-40)/3
-#define kButtonH 20
+#define kButtonW (kScreenW-22-20)/3
+#define kButtonH 38
 
 @interface SelectProductViewController ()
 
@@ -19,8 +20,10 @@
 @property (weak, nonatomic) IBOutlet UILabel *productCountLabel;
 
 @property (weak, nonatomic) IBOutlet UIView *scrollViewContentView;
+
+@property (weak, nonatomic) IBOutlet UIView *selectButtonView;
+
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *scrollViewContentHeightLayout;
-@property (weak, nonatomic) IBOutlet NSLayoutConstraint *countTitleLabelYLayout;
 
 
 @end
@@ -31,47 +34,58 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
    //创建button
+    
+    
     for (int i = 0; i < self.productDetailModel.productFarmatArr.count; i++) {
         
-        IndexButton *formatButton = [[IndexButton alloc] initWithFrame:CGRectMake(10 + i%3*(kButtonW + 10), 35+20 + i/3*(kButtonH + 10), kButtonW, 20)];
+        IndexButton *formatButton = [[IndexButton alloc] initWithFrame:CGRectMake(i%3*(kButtonW + 10), i/3*(kButtonH + 10), kButtonW, kButtonH)];
+        //附上index
         formatButton.indexForButton = [NSIndexPath indexPathForRow:i inSection:0];
-        formatButton.titleLabel.font = [UIFont systemFontOfSize:12];
+        //button的样式
+        formatButton.titleLabel.font = [UIFont systemFontOfSize:14];
+        formatButton.titleLabel.numberOfLines = 0;
+        formatButton.layer.masksToBounds = YES;
+        formatButton.layer.cornerRadius = 4;
+        formatButton.layer.borderWidth = 1;
+        [formatButton.layer setBorderColorFromUIColor:kccccccColor] ;
+        [formatButton setTitleColor:k333333Color forState:UIControlStateNormal];
+        //添加点击事件
         [formatButton addTarget:self action:@selector(formatButtonAction:) forControlEvents:UIControlEventTouchUpInside];
-        formatButton.backgroundColor = [UIColor redColor];
-        [self.scrollViewContentView addSubview:formatButton];
+        formatButton.backgroundColor = [UIColor whiteColor];
+        [self.selectButtonView addSubview:formatButton];
         
         ProductFormatModel *formatModel = self.productDetailModel.productFarmatArr[i];
         [formatButton setTitle:formatModel.productst forState:UIControlStateNormal];
         if (formatModel.isSelect == YES) {
-            formatButton.backgroundColor = [UIColor cyanColor];
+            formatButton.backgroundColor = kMainColor;
+            [formatButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
             //刷新产品个数
             self.productCountLabel.text = [NSString stringWithFormat: @"%ld",formatModel.seletctCount];
         }
         
     }
     
-    //更新UI
-    [self upSelectViewWith:self.productDetailModel];
+    //更新标题和价格
+    [self upSelectProductNameAndPriceWithModel:self.productDetailModel];
     
 }
 
 //更新标题和价格
-- (void)upSelectViewWith:(ProductDetailModel *)detailModel {
+- (void)upSelectProductNameAndPriceWithModel:(ProductDetailModel *)detailModel {
     
     self.productTitleLabel.text = detailModel.productModel.productTitle;
-    self.productPriceLabel.text = detailModel.productModel.productPrice;
+    self.productPriceLabel.text = [NSString stringWithFormat:@"￥%@", detailModel.productModel.productPrice ];
+    
 }
 
 //页面将要显示，
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     //修改约束
-    NSInteger buttonNum = self.productDetailModel.productFarmatArr.count+7;
-
-    self.countTitleLabelYLayout.constant = 20 + (buttonNum-1)/3*(kButtonH + 10)+kButtonH +20;
+    NSInteger buttonNum = self.productDetailModel.productFarmatArr.count;
+    // selectView居上面的高度 53；selectView局下面的高度108
+    self.scrollViewContentHeightLayout.constant = 53 + 108 + buttonNum/3*(kButtonH + 10);
     
-    self.scrollViewContentHeightLayout.constant = 35 + self.countTitleLabelYLayout.constant+55+20;
-
 }
 
 
@@ -85,13 +99,16 @@
 //选择某个规格的buttonAction
 - (void)formatButtonAction:(IndexButton *)sender {
     //清理所有的button颜色
-    for (UIView *tempButton in sender.superview.subviews) {
-        if ([tempButton isKindOfClass:[IndexButton class]]) {
-            tempButton.backgroundColor = [UIColor redColor];
+    for (UIView *tempView in sender.superview.subviews) {
+        if ([tempView isKindOfClass:[IndexButton class]]) {
+            IndexButton *tempButton = (IndexButton *)tempView;
+            tempButton.backgroundColor = [UIColor whiteColor];
+            [tempButton setTitleColor:k333333Color forState:UIControlStateNormal];
         }
     }
     //选中的改变颜色
-    sender.backgroundColor = [UIColor cyanColor];
+    sender.backgroundColor = kMainColor;
+    [sender setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     
     //清理所有的模型bool选择
     for (ProductFormatModel *tempFormatModel in self.productDetailModel.productFarmatArr) {
@@ -115,8 +132,8 @@
     //图片
 
     
-    //刷新UI
-    [self upSelectViewWith:self.productDetailModel];
+    //刷新价格和产品名
+    [self upSelectProductNameAndPriceWithModel:self.productDetailModel];
     
     //刷新数量ui
     self.productCountLabel.text = [NSString stringWithFormat:@"%ld", selectFormatModel.seletctCount];
@@ -163,37 +180,43 @@
 }
 //确认加入购物车
 - (IBAction)enterButtonAction:(UIButton *)sender {
-    
+    Manager *manager = [Manager shareInstance];
+    AlertManager *alertM = [AlertManager shareIntance];
 
-    NSString *tempProductCount ;
-    
-    //如果是从产品详情中加入购物车
+    if ([manager isLoggedInStatus] == YES) {
+        NSString *tempProductCount ;
+        
+        //如果是从产品详情中加入购物车
         for (ProductFormatModel *tempFormatModel in self.productDetailModel.productFarmatArr) {
             if (tempFormatModel.isSelect == YES) {
                 tempProductCount = [NSString stringWithFormat:@"%ld",tempFormatModel.seletctCount];
             }
         }
+        
+        [manager httpProductToShoppingCarWithFormatId:self.productDetailModel.productModel.productFormatID withProductCount:tempProductCount withSuccessToShoppingCarResult:^(id successResult) {
+            
+            [alertM showAlertViewWithTitle:nil withMessage:@"加入购物车成功" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
+                [self dismissViewControllerAnimated:YES completion:nil];
+            }];
+            
+            //发送通知，让购物车界面刷新
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"refreshShoppingCarVC" object:self userInfo:nil];
+            
+        } withFailToShoppingCarResult:^(NSString *failResultStr) {
+            NSLog(@"加入失败");
+        }];
+        
+        //block刷新详情页的UI
+        self.refreshFormatBlock();
+
+    }else {
+        //未登录
+        [alertM showAlertViewWithTitle:nil withMessage:@"您未登录" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
+
+        }];
+
+    }
     
-    [[Manager shareInstance] httpProductToShoppingCarWithFormatId:self.productDetailModel.productModel.productFormatID withProductCount:tempProductCount withSuccessToShoppingCarResult:^(id successResult) {
-        //发送通知，让购物车界面刷新
-        [[NSNotificationCenter defaultCenter] postNotificationName:@"refreshShoppingCarVC" object:self userInfo:nil];
-    } withFailToShoppingCarResult:^(NSString *failResultStr) {
-        NSLog(@"加入失败");
-    }];
-    
-    
-//    [[Manager shareInstance] httpProductToShoppingCarWithJoinShoppingCarProductModel:self.productDetailModel withSuccessToShoppingCarResult:^(id successResult) {
-//        //发送通知，让购物车界面刷新
-//        [[NSNotificationCenter defaultCenter] postNotificationName:@"refreshShoppingCarVC" object:self userInfo:nil];
-//        
-//    } withFailToShoppingCarResult:^(NSString *failResultStr) {
-//        NSLog(@"bbb");
-//
-//    }];
-    
-    //block刷新详情页的UI
-    self.refreshFormatBlock();
-    [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 

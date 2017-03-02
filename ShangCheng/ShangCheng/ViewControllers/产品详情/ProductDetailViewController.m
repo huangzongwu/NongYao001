@@ -39,6 +39,9 @@
 
 @implementation ProductDetailViewController
 
+- (IBAction)leftBarButtonAction:(UIBarButtonItem *)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -164,20 +167,38 @@
 #pragma mark - 底部按钮的功能 -
 //加入购物车
 - (IBAction)joinShoppingCarAction:(UIButton *)sender {
+    
     [self performSegueWithIdentifier:@"detailToSelectFormatVC" sender:sender];
+
 
 }
 
+//进入购物车界面
+- (IBAction)pushShoppingCarButtonAction:(UIButton *)sender {
+   
+    //
+    [self performSegueWithIdentifier:@"productDetailToShoppingCarVC" sender:nil];
+    
+    
+}
 //加入收藏
 - (IBAction)joinFavoriteButtonAction:(UIButton *)sender {
     
     Manager *manager = [Manager shareInstance];
-    [manager httpAddFavoriteWithUserId:manager.memberInfoModel.u_id withFormatId:self.productDetailModel.productModel.productFormatID withAddFavoriteSuccess:^(id successResult) {
-        
-    } withAddFavoriteFail:^(NSString *failResultStr) {
-        
-    }];
+    AlertManager *alertM = [AlertManager shareIntance];
     
+    if ([manager isLoggedInStatus] == YES) {
+        [manager httpAddFavoriteWithUserId:manager.memberInfoModel.u_id withFormatId:self.productDetailModel.productModel.productFormatID withAddFavoriteSuccess:^(id successResult) {
+            
+        } withAddFavoriteFail:^(NSString *failResultStr) {
+            
+        }];
+
+    }else {
+        [alertM showAlertViewWithTitle:nil withMessage:@"您还没有登录" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
+            
+        }];
+    }
     
 }
 

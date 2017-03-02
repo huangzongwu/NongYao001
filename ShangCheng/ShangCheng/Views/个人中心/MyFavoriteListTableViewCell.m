@@ -7,11 +7,11 @@
 //
 
 #import "MyFavoriteListTableViewCell.h"
-
+#import "UIImageView+ImageViewCategory.h"
 @implementation MyFavoriteListTableViewCell
 - (void)updateMyFavoriteListCell:(MyFavoriteListModel *)myFavotiteProductModel {
     
-//    self.productImageView
+    [self.productImageView setWebImageURLWithImageUrlStr:myFavotiteProductModel.productImageUrl withErrorImage:[UIImage imageNamed:@"productImage"]];
     
     self.productTitleLabel.text = myFavotiteProductModel.favoriteProductTitleStr;
     self.productCompanyLabel.text = myFavotiteProductModel.favoriteProductCompanyStr;

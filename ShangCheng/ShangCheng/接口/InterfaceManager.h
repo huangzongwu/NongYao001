@@ -12,8 +12,14 @@
 
 + (InterfaceManager *)shareInstance;
 
+#pragma mark - 首页 -
+//今日特价
+- (NSString *)todayActivityBase ;
+
+
+
 #pragma mark - 产品 -
-- (NSString *)productBaseURL;
+//- (NSString *)productBaseURL;
 //首页产品 cnum是热销产品的个数，rnum是推荐产品的个数
 - (NSString *)homeProductURLWithCnum:(NSString *)cnum withRnum:(NSString *)rnum;
 //产品详情
@@ -25,7 +31,7 @@
 - (NSString *)productClassTree;
 
 //模糊查询产品信息
-- (NSString *)fuzzySearchProductInfoWithCode:(NSString *)code withName:(NSString *)name withAreaid:(NSString *)areaId withPd:(NSString *)pd withSuppliername:(NSString *)suppliername withLevel:(NSString *)level withStatus:(NSString *)status withPrice:(NSString *)price withDate:(NSString *)date;
+- (NSString *)fuzzySearchProductInfoWithCode:(NSString *)code withName:(NSString *)name withAreaid:(NSString *)areaId withPd:(NSString *)pd withSuppliername:(NSString *)suppliername withLevel:(NSString *)level withStatus:(NSString *)status withPrice:(NSString *)price withDate:(NSString *)date withPageindex:(NSInteger )pageIndex withPageSize:(NSString *)pageSize ;
 
 #pragma mark - 购物车 -
 //购物车基本url
@@ -39,13 +45,15 @@
 - (NSString *)deleteShoppingCarProductUrlWithShoppingCarID:(NSString *)shoppingCarID withSecret:(NSString *)secret;
 - (NSString *)orderPreviewUrl;
 #pragma mark - 订单 -
+//优惠券Base
+- (NSString *)couponBase;
 //优惠卷
 - (NSString *)getCouponListWithUserId:(NSString *)userID;
 //计算优惠卷的金额
 - (NSString *)computeCouponMoneyPOST;
 
 //订单列表 -1全部、0,1B,1A待付款、1,进行中、9已完成
-- (NSString *)orderListWithUserID:(NSString *)userID withProduct:(NSString *)product withCode:(NSString *)code withOrderStatus:(NSString *)orderStatus withPageIndex:(NSString *)pageIndex withPageSize:(NSString *)pageSize;
+- (NSString *)orderListWithUserID:(NSString *)userID withProduct:(NSString *)product withCode:(NSString *)code withOrderStatus:(NSString *)orderStatus withPageIndex:(NSInteger)pageIndex withPageSize:(NSInteger )pageSize;
 //生成订单
 - (NSString *)creatOrderPOSTUrl;
 //取消父订单
@@ -68,6 +76,15 @@
 
 //支付后，后台验证
 - (NSString *)orderPaymentVerifyWithPayid:(NSString *)payId;
+
+#pragma mark - 个人中心  充值 -
+- (NSString *)userRechargeBase;
+
+#pragma mark - 个人中心 意见反馈 -
+- (NSString *)userFeedBackBase;
+
+
+
 #pragma mark - 个人信息 -
 //查询个人余额
 - (NSString *)searchUserAmountWithUserID:(NSString *)userID;
@@ -86,6 +103,8 @@
 
 //流水账查询
 - (NSString *)userAccountBase;
+//提现和提现记录
+- (NSString *)AgentCashBase;
 
 //修改密码
 - (NSString *)motifyPasswordBase;
@@ -111,6 +130,12 @@
 - (NSString *)checkMobileCodeWithMobileNumber:(NSString *)mobileNumber withCode:(NSString *)code;
 //用户Base接口
 - (NSString *)userBase;
+
+//代理商注册
+- (NSString *)AgentMerchantsBase;
+
+
+
 #pragma mark - 其他 -
 //地区信息
 - (NSString *)getAreaTree;

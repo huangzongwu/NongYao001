@@ -77,6 +77,9 @@
     if ([key isEqualToString:@"unitprice"]) {
         self.productPrice = value;
     }
+    if ([key isEqualToString:@"p_icon"]) {
+        self.productImageUrlstr = value;
+    }
     
     //----------------------------------------------
   

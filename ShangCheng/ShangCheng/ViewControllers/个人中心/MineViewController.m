@@ -31,6 +31,9 @@
         [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(logedInAction:) name:@"logedIn" object:nil];
         //通知，退出登录
         [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(logOffAction:) name:@"logOff" object:nil];
+        //通知，刷新优惠券个数
+        [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(refreshCouponAction:) name:@"refreshCouponCount" object:nil];
+
 
         
     }
@@ -54,6 +57,10 @@
     
 }
 
+//刷新我的钱包 即优惠券个数
+- (void)refreshCouponAction:(NSNotification *)sender {
+    [self updateMyWalletWithIsLogin:YES];
+}
 
 - (void)updateDatasourceWithUserType:(NSString *)userType withIsReloadData:(BOOL)isReloadData {
     NSString *jsonPath = [[NSBundle mainBundle]pathForResource:@"mineDataSource" ofType:@"json"];
@@ -467,10 +474,10 @@
         
         NSIndexPath *tempIndex = (NSIndexPath *)sender;
         if (tempIndex.row == 3) {
-            myRecordVC.isCashStr = @"1";
+            myRecordVC.isCash = YES;
         }
         if (tempIndex.row == 4) {
-            myRecordVC.isCashStr = @"0";
+            myRecordVC.isCash = NO;
         }
     }
 }

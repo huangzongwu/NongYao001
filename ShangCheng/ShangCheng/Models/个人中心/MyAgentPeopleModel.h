@@ -17,6 +17,8 @@
 @property (nonatomic,strong)NSString *u_truename;
 @property (nonatomic,strong)NSString *u_email;
 @property (nonatomic,strong)NSString *u_mobile;
+@property (nonatomic,strong)NSString *u_time_create;
+@property (nonatomic,strong)NSString *u_icon;
 @property (nonatomic,strong)NSString *u_qq;
 @property (nonatomic,strong)NSString *u_payword;
 @property (nonatomic,strong)NSString *capitalcode;

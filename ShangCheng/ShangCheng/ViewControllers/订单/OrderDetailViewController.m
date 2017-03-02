@@ -14,6 +14,7 @@
 #import "ProductDetailViewController.h"
 #import "LogisticsViewController.h"
 #import "CommentViewController.h"
+#import "PayViewController.h"
 @interface OrderDetailViewController ()<UITableViewDelegate,UITableViewDataSource>
 //头部View的控件
 //父订单编号
@@ -35,6 +36,7 @@
 
 //底部view的高度
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *bottomViewHeight;
+@property (weak, nonatomic) IBOutlet UIView *bottomView;
 
 @end
 
@@ -51,9 +53,20 @@
 - (void)refreshAddressListAction:(NSNotification *)sender {
     //刷新
 }
+
+- (IBAction)leftBarButtonAction:(UIBarButtonItem *)sender {
+    
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    
+//    // 让cell自适应高度
+//    self.tableView.rowHeight = UITableViewAutomaticDimension;
+//    //设置估算高度
+//    self.tableView.estimatedRowHeight = 44;
     
     //更新头部
     [self updateHeaderView];
@@ -67,11 +80,16 @@
     self.cellTwoDataSource = @[dic1,dic2,dic3,dic4];
     
     if ([self.tempSupOrderModel.p_status isEqualToString:@"0"] || [self.tempSupOrderModel.p_status isEqualToString:@"1B"]) {
+        self.bottomView.hidden = NO;
         self.bottomViewHeight.constant = 40;
+
     }else {
+        self.bottomView.hidden = YES;
         self.bottomViewHeight.constant = 0;
+
     }
 }
+
 
 //刷新头部视图的信息：父订单号 状态 收货人信息等
 - (void)updateHeaderView {
@@ -108,7 +126,7 @@
 //行高
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     if (indexPath.section < self.tempSupOrderModel.subOrderArr.count) {
-        return 125;
+        return 133  ;
         
     }else {
         return 40;
@@ -124,7 +142,7 @@
 //        if ([tempSonOrderModel.o_status isEqualToString:@"0"] || [tempSonOrderModel.o_status isEqualToString:@"1A"] || [tempSonOrderModel.o_status isEqualToString:@"1B"]) {
 //            return 1;
 //        }else {
-            return 40;
+            return 47   ;
 //        }
         
     }else{
@@ -241,6 +259,8 @@
 //底部  去付款
 - (IBAction)paySupOrderAction:(UIButton *)sender {
     
+    [self performSegueWithIdentifier:@"orderDetailToPayVC" sender:self.tempSupOrderModel];
+
     
 }
 //底部  取消订单
@@ -255,7 +275,9 @@
             self.tempSupOrderModel = successResult;
             [self.detailTableView reloadData];
             //取消后，底部按钮view消失
+            self.bottomView.hidden = YES;
             self.bottomViewHeight.constant = 0;
+
             //block
             self.refreshOrderListBlock();
         }];
@@ -292,7 +314,22 @@
     if ([segue.identifier isEqualToString:@"orderDetailToCommentVC"]) {
         CommentViewController *commentVC = [segue destinationViewController];
         commentVC.tempSonOrderModel = sender;
+        commentVC.RefreshCommentAfterBlock = ^(){
+            //评价后，刷新UI
+            [self.detailTableView reloadData];
+        };
         
+    }
+    
+    //到去支付页面
+    if ([segue.identifier isEqualToString:@"orderDetailToPayVC"]) {
+        NSMutableArray *payVCIdArr = [NSMutableArray array];
+        [payVCIdArr addObject:self.tempSupOrderModel.p_id];
+        
+        PayViewController *payVC = [segue destinationViewController];
+        payVC.orderIDArr = payVCIdArr;
+        payVC.totalAmountFloat = [self.tempSupOrderModel.p_o_price_total floatValue] - [self.tempSupOrderModel.p_discount floatValue];
+
     }
     
 }

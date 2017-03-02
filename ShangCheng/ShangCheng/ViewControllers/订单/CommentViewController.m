@@ -8,6 +8,7 @@
 
 #import "CommentViewController.h"
 #import "Manager.h"
+#import "UIImageView+ImageViewCategory.h"
 @interface CommentViewController ()
 @property (weak, nonatomic) IBOutlet UIImageView *productImageView;
 @property (weak, nonatomic) IBOutlet UILabel *productTitleLabel;
@@ -30,6 +31,9 @@
 @end
 
 @implementation CommentViewController
+- (IBAction)leftBarButtonAction:(UIBarButtonItem *)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -42,6 +46,7 @@
 }
 #pragma mark - 刷新头部产品的UI -
 - (void)updateHeaderProductView {
+    [self.productImageView setWebImageURLWithImageUrlStr:self.tempSonOrderModel.p_icon withErrorImage:[UIImage imageNamed:@"productImage"]];
     self.productTitleLabel.text = self.tempSonOrderModel.p_name;
     self.productFormatLabel.text = [NSString stringWithFormat:@"规格:%@  数量:%@",self.tempSonOrderModel.productst,self.tempSonOrderModel.o_num];
 }
@@ -72,47 +77,47 @@
     switch (self.selectStarCount) {
         case 1:
         {
-            self.buttonOne.backgroundColor = [UIColor redColor];
-            self.buttonTwo.backgroundColor = [UIColor lightGrayColor];
-            self.buttonThree.backgroundColor = [UIColor lightGrayColor];
-            self.buttonFour.backgroundColor = [UIColor lightGrayColor];
-            self.buttonFive.backgroundColor = [UIColor lightGrayColor];
+            [self.buttonOne setImage:[UIImage imageNamed:@"s_icon_xing_select"] forState:UIControlStateNormal];
+            [self.buttonTwo setImage:[UIImage imageNamed:@"s_icon_xing_normal"] forState:UIControlStateNormal];
+            [self.buttonThree setImage:[UIImage imageNamed:@"s_icon_xing_normal"] forState:UIControlStateNormal];
+            [self.buttonFour setImage:[UIImage imageNamed:@"s_icon_xing_normal"] forState:UIControlStateNormal];
+            [self.buttonFive setImage:[UIImage imageNamed:@"s_icon_xing_normal"] forState:UIControlStateNormal];
         }
             break;
         case 2:
         {
-            self.buttonOne.backgroundColor = [UIColor redColor];
-            self.buttonTwo.backgroundColor = [UIColor redColor];
-            self.buttonThree.backgroundColor = [UIColor lightGrayColor];
-            self.buttonFour.backgroundColor = [UIColor lightGrayColor];
-            self.buttonFive.backgroundColor = [UIColor lightGrayColor];
+            [self.buttonOne setImage:[UIImage imageNamed:@"s_icon_xing_select"] forState:UIControlStateNormal];
+            [self.buttonTwo setImage:[UIImage imageNamed:@"s_icon_xing_select"] forState:UIControlStateNormal];
+            [self.buttonThree setImage:[UIImage imageNamed:@"s_icon_xing_normal"] forState:UIControlStateNormal];
+            [self.buttonFour setImage:[UIImage imageNamed:@"s_icon_xing_normal"] forState:UIControlStateNormal];
+            [self.buttonFive setImage:[UIImage imageNamed:@"s_icon_xing_normal"] forState:UIControlStateNormal];
         }
             break;
         case 3:
         {
-            self.buttonOne.backgroundColor = [UIColor redColor];
-            self.buttonTwo.backgroundColor = [UIColor redColor];
-            self.buttonThree.backgroundColor = [UIColor redColor];
-            self.buttonFour.backgroundColor = [UIColor lightGrayColor];
-            self.buttonFive.backgroundColor = [UIColor lightGrayColor];
+            [self.buttonOne setImage:[UIImage imageNamed:@"s_icon_xing_select"] forState:UIControlStateNormal];
+            [self.buttonTwo setImage:[UIImage imageNamed:@"s_icon_xing_select"] forState:UIControlStateNormal];
+            [self.buttonThree setImage:[UIImage imageNamed:@"s_icon_xing_select"] forState:UIControlStateNormal];
+            [self.buttonFour setImage:[UIImage imageNamed:@"s_icon_xing_normal"] forState:UIControlStateNormal];
+            [self.buttonFive setImage:[UIImage imageNamed:@"s_icon_xing_normal"] forState:UIControlStateNormal];
         }
             break;
         case 4:
         {
-            self.buttonOne.backgroundColor = [UIColor redColor];
-            self.buttonTwo.backgroundColor = [UIColor redColor];
-            self.buttonThree.backgroundColor = [UIColor redColor];
-            self.buttonFour.backgroundColor = [UIColor redColor];
-            self.buttonFive.backgroundColor = [UIColor lightGrayColor];
+            [self.buttonOne setImage:[UIImage imageNamed:@"s_icon_xing_select"] forState:UIControlStateNormal];
+            [self.buttonTwo setImage:[UIImage imageNamed:@"s_icon_xing_select"] forState:UIControlStateNormal];
+            [self.buttonThree setImage:[UIImage imageNamed:@"s_icon_xing_select"] forState:UIControlStateNormal];
+            [self.buttonFour setImage:[UIImage imageNamed:@"s_icon_xing_select"] forState:UIControlStateNormal];
+            [self.buttonFive setImage:[UIImage imageNamed:@"s_icon_xing_normal"] forState:UIControlStateNormal];
         }
             break;
         case 5:
         {
-            self.buttonOne.backgroundColor = [UIColor redColor];
-            self.buttonTwo.backgroundColor = [UIColor redColor];
-            self.buttonThree.backgroundColor = [UIColor redColor];
-            self.buttonFour.backgroundColor = [UIColor redColor];
-            self.buttonFive.backgroundColor = [UIColor redColor];
+            [self.buttonOne setImage:[UIImage imageNamed:@"s_icon_xing_select"] forState:UIControlStateNormal];
+            [self.buttonTwo setImage:[UIImage imageNamed:@"s_icon_xing_select"] forState:UIControlStateNormal];
+            [self.buttonThree setImage:[UIImage imageNamed:@"s_icon_xing_select"] forState:UIControlStateNormal];
+            [self.buttonFour setImage:[UIImage imageNamed:@"s_icon_xing_select"] forState:UIControlStateNormal];
+            [self.buttonFive setImage:[UIImage imageNamed:@"s_icon_xing_select"] forState:UIControlStateNormal];
         }
             break;
         default:
@@ -126,12 +131,14 @@
     self.isNickNameComment = !self.isNickNameComment;
     
     if (self.isNickNameComment == YES) {
-        sender.backgroundColor = [UIColor redColor];
+        [sender setImage:[UIImage imageNamed:@"g_btn_select"] forState:UIControlStateNormal];
     }else {
-        sender.backgroundColor = [UIColor lightGrayColor];
+        [sender setImage:[UIImage imageNamed:@"g_btn_normal"] forState:UIControlStateNormal];
+
     }
     
 }
+
 #warning 匿名评价
 //提交订单
 - (IBAction)commitCommentButton:(UIButton *)sender {
@@ -139,9 +146,16 @@
         
         //提交评价
         Manager *manager = [Manager shareInstance];
+        AlertManager *alertM = [AlertManager shareIntance];
         [manager orderCommentWithUserid:manager.memberInfoModel.u_id withOrderId:self.tempSonOrderModel.o_id withStarLevel:[NSString stringWithFormat:@"%ld",self.selectStarCount] withContent:self.commentTextView.text withCommentSuccessBlock:^(id successResult) {
-            //评论成功
-            [self.navigationController popViewControllerAnimated:YES];
+            //评论成功后，将状态改变
+            self.tempSonOrderModel.isreply = @"2";
+            //返回刷新
+            self.RefreshCommentAfterBlock();
+            [alertM showAlertViewWithTitle:nil withMessage:@"评价完毕" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
+                [self.navigationController popViewControllerAnimated:YES];
+            }];
+            
             
         } withCommentFailBlock:^(NSString *failResultStr) {
             

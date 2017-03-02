@@ -54,6 +54,20 @@
     
 }
 
+
+- (void)updateCashRecordCellWithModel:(MyAgentCashModel *)cashRecordModel {
+    self.tradeTypeImageView.image = [UIImage imageNamed:@"w_icon_tx"];
+    
+    //左边的时间Label
+    NSString *timeStr = [NSString stringWithFormat:@"%ld-%ld",cashRecordModel.time_dateComponents.month,cashRecordModel.time_dateComponents.day];
+    
+    self.timeLabel.text = [NSString stringWithFormat:@"%@\n%@",cashRecordModel.week,timeStr];
+    //图标右边的信息
+    self.tradeMoneyLabel.text = cashRecordModel.w_accout;
+    self.tradeDetailLabel.text = [NSString stringWithFormat:@"提现-%@",cashRecordModel.status ];
+}
+
+
 - (void)awakeFromNib {
     [super awakeFromNib];
     // Initialization code

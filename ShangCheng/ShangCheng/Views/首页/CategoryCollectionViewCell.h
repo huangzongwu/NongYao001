@@ -10,4 +10,9 @@
 
 @interface CategoryCollectionViewCell : UICollectionViewCell
 
+@property (weak, nonatomic) IBOutlet UIImageView *categoryImageView;
+@property (weak, nonatomic) IBOutlet UILabel *categoryNameLabel;
+
+- (void)updateCategoryCellWithDic:(NSDictionary *)tempDic;
+
 @end

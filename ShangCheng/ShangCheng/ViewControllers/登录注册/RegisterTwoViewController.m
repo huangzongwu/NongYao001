@@ -74,11 +74,11 @@
     if (isRed == YES) {
         //红色可点击
         self.registerButton.enabled = YES;
-        self.registerButton.backgroundColor = kColor(208,23,21, 1);
+        self.registerButton.backgroundColor = kMainColor;
     }else {
         //灰色不可点击
         self.registerButton.enabled = NO;
-        self.registerButton.backgroundColor = kColor(238, 238, 238, 1);
+        self.registerButton.backgroundColor = kccccccColor;
     }
     
     return YES;

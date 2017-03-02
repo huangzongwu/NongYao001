@@ -10,6 +10,7 @@
 #import "ReceiveAddressTableViewCell.h"
 #import "AddReceiveAddressViewController.h"
 #import "ReceiveAddressModel.h"
+#import "MJRefresh.h"
 @interface ReceiveAddressViewController ()<UITableViewDataSource,UITableViewDelegate>
 @property (weak, nonatomic) IBOutlet UITableView *receiveAddressTableView;
 
@@ -31,7 +32,60 @@
     self.receiveAddressTableView.rowHeight = UITableViewAutomaticDimension;
     //设置估算高度
     self.receiveAddressTableView.estimatedRowHeight = 44;
+    
+    [self downPushRefresh];
+    
 }
+
+//上拉刷新
+- (void)downPushRefresh {
+    
+    [self.receiveAddressTableView addHeaderWithCallback:^{
+        NSLog(@"下拉刷新");
+        Manager *manager = [Manager shareInstance];
+        //取到选择地址id，然后刷新后，还是这个为选择地址
+        NSString *tempSelectAddressID ;
+        for (ReceiveAddressModel *tempModel in manager.receiveAddressArr) {
+            if (tempModel.isSelect == YES) {
+                tempSelectAddressID = tempModel.receiverID;
+            }
+        }
+       
+        [self reloadAddressDataWithSelectAddress:tempSelectAddressID];
+    }];
+
+}
+
+//加载地址数据
+- (void)reloadAddressDataWithSelectAddress:(NSString *)selectAddress {
+    Manager *manager = [Manager shareInstance];
+    //重新刷新列表
+    [manager receiveAddressListWithUserIdOrReceiveId:manager.memberInfoModel.u_id withAddressListSuccess:^(id successResult) {
+
+        if (selectAddress!= nil && selectAddress.length > 0) {
+            
+            //默认地址，进行标记
+            for (ReceiveAddressModel *tempModel in manager.receiveAddressArr) {
+                if ([tempModel.receiverID isEqualToString:selectAddress]) {
+                    tempModel.isSelect = YES;
+                }
+            }
+        }
+        
+        //下拉刷新效果消失
+        [self.receiveAddressTableView headerEndRefreshing];
+        
+        //刷新列表
+        [self.receiveAddressTableView reloadData];
+        
+    } withAddressListFail:^(NSString *failResultStr) {
+        NSLog(@"刷新失败");
+        //下拉刷新效果消失
+        [self.receiveAddressTableView headerEndRefreshing];
+    }];
+
+}
+
 
 #pragma mark - tableView delegate -
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
@@ -103,7 +157,7 @@
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
-    Manager *manager = [Manager shareInstance];
+
     if ([segue.identifier isEqualToString:@"receiveListToDetailReceiveVC"]) {
         AddReceiveAddressViewController *addReceiveAddressVC = [segue destinationViewController];
         if (sender != nil && [sender isKindOfClass:[ReceiveAddressModel class]]) {
@@ -112,24 +166,11 @@
         }
         
         addReceiveAddressVC.refreshAddressListBlock = ^(NSString *motifyOrAddModelStr){
+            
             //重新刷新列表
-            [manager receiveAddressListWithUserIdOrReceiveId:manager.memberInfoModel.u_id withAddressListSuccess:^(id successResult) {
-                
-                //将修改或者添加的地址作为默认地址，进行标记
-                for (ReceiveAddressModel *tempModel in manager.receiveAddressArr) {
-                    if ([tempModel.receiverID isEqualToString:motifyOrAddModelStr]) {
-                        tempModel.isSelect = YES;
-                    }
-                }
-                //刷新列表
-                [self.receiveAddressTableView reloadData];
-                
-            } withAddressListFail:^(NSString *failResultStr) {
-                NSLog(@"刷新失败");
-            }];
+            [self reloadAddressDataWithSelectAddress:motifyOrAddModelStr];
+            
         };
-
-        
     }
 }
 

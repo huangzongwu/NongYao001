@@ -9,6 +9,7 @@
 #import "MyWalletViewController.h"
 #import "MyWalletTableViewCell.h"
 #import "Manager.h"
+#import "MyTradeRecordViewController.h"
 
 @interface MyWalletViewController ()<UITableViewDataSource,UITableViewDelegate>
 //TableView
@@ -36,15 +37,15 @@
     // Do any additional setup after loading the view.
     
 
-    NSMutableDictionary *dic11 = [NSMutableDictionary dictionaryWithObjectsAndKeys:@"w_icon_withdraw",@"myWalletImg",@"提现",@"myWalletTitle",@"---",@"myWalletRight", nil];
-    NSDictionary *dic12 = @{@"myWalletImg":@"w_icon_recharge",@"myWalletTitle":@"充值"};
+    NSMutableDictionary *dic11 = [NSMutableDictionary dictionaryWithObjectsAndKeys:@"w_icon_withdraw",@"myWalletImg",@"提现",@"myWalletTitle",@"---",@"myWalletRight",@"walletToAgentCashVC",@"pushId", nil];
+    NSDictionary *dic12 = @{@"myWalletImg":@"w_icon_recharge",@"myWalletTitle":@"充值",@"pushId":@"walletToRechargeVC"};
     NSMutableArray *dataArr1 = [NSMutableArray arrayWithObjects:dic11 ,dic12, nil];
     
-    NSDictionary *dic21 = @{@"myWalletImg":@"w_icon_wdyhk",@"myWalletTitle":@"我的银行卡"};
+    NSDictionary *dic21 = @{@"myWalletImg":@"w_icon_yhq",@"myWalletTitle":@"优惠卷",@"pushId":@"myWalletToCouponVC"};
     NSMutableArray *dataArr2 = [NSMutableArray arrayWithObjects:dic21, nil];
     
-    NSDictionary *dic31 = @{@"myWalletImg":@"w_icon_txjl",@"myWalletTitle":@"交易记录"};
-    NSDictionary *dic32 = @{@"myWalletImg":@"w_icon_jxjl",@"myWalletTitle":@"提现记录"};
+    NSDictionary *dic31 = @{@"myWalletImg":@"w_icon_txjl",@"myWalletTitle":@"交易记录",@"pushId":@"myWalletToTradeRecordVC"};
+    NSDictionary *dic32 = @{@"myWalletImg":@"w_icon_jxjl",@"myWalletTitle":@"提现记录",@"pushId":@"myWalletToTradeRecordVC"};
     NSMutableArray *dataArr3 = [NSMutableArray arrayWithObjects:dic31,dic32, nil];
     
     self.dataSource = [NSMutableArray arrayWithObjects:dataArr1,dataArr2,dataArr3, nil];
@@ -117,19 +118,50 @@
     
 }
 
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    NSDictionary *tempDic = [self.dataSource[indexPath.section] objectAtIndex:indexPath.row];
+
+    
+    NSString *pushId = [tempDic objectForKey:@"pushId"];
+    if (pushId.length > 0) {
+        
+        [self performSegueWithIdentifier:pushId sender:indexPath];
+    }
+}
+
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
 
-/*
+
 #pragma mark - Navigation
 
 // In a storyboard-based application, you will often want to do a little preparation before navigation
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
+    //提现记录
+    if ([segue.identifier isEqualToString:@"myWalletToTradeRecordVC"]) {
+        NSIndexPath *tempIndex = (NSIndexPath *)sender;
+        MyTradeRecordViewController *myTradeRecordVC = [segue destinationViewController];
+        if (tempIndex.row == 0) {
+            //交易记录
+            myTradeRecordVC.isCash = NO;
+        }else {
+            //提现记录
+            myTradeRecordVC.isCash = YES;
+            
+        }
+    }
+    
+    //充值
+    if ([segue.identifier isEqualToString:@"walletToRechargeVC"]) {
+        
+        
+    }
+    
 }
-*/
+
 
 @end

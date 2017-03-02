@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 
 @interface MyTradeRecordViewController : UIViewController
-@property(nonatomic,strong)NSString *isCashStr;//1代表提现记录，空或者0代表交易记录
+@property(nonatomic,assign)BOOL isCash;//是否是提现记录
 
 
 @end

@@ -1,0 +1,44 @@
+[
+	{
+		"img" : "s_btn_jrtj",
+		"categoryName" : "今天特价",
+		"pushId" : "homeToTodaySaleVC"
+	},
+	{
+		"img" : "s_btn_nyfl",
+		"categoryName" : "农药分类",
+		"pushId" : ""
+	},
+	{
+		"img" : "s_btn_gwc",
+		"categoryName" : "购物车",
+		"pushId" : ""
+	},
+	{
+		"img" : "s_btn_wdsc",
+		"categoryName" : "我的收藏",
+		"pushId" : "homeToMyCollectionVC"
+	},
+	{
+		"img" : "s_bch",
+		"categoryName" : "病虫害知识",
+		"pushId" : "toCategoryFive"
+	},
+	{
+		"img" : "s_btn_zjcx",
+		"categoryName" : "真假查询",
+		"pushId" : "toCategorySix"
+	},
+	{
+		"img" : "s_btn_zxkf",
+		"categoryName" : "在线客服",
+		"pushId" : "toCategorySeven"
+	},
+	{
+		"img" : "s_ntcx",
+		"categoryName" : "农业资讯",
+		"pushId" : "toCategoryEight"
+	}
+
+]
+

@@ -24,13 +24,22 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    
     Manager *manager = [Manager shareInstance];
-    [manager httpMyFavoriteListWithUserId:manager.memberInfoModel.u_id withMyFavoriteSuccess:^(id successResult) {
-        [self.myfavoriteTableView reloadData];
-    } withMyFavoriteFail:^(NSString *failResultStr) {
-        
-    }];
+    AlertManager *alertM = [AlertManager shareIntance];
+    if ([manager isLoggedInStatus] == YES) {
+        [manager httpMyFavoriteListWithUserId:manager.memberInfoModel.u_id withMyFavoriteSuccess:^(id successResult) {
+            [self.myfavoriteTableView reloadData];
+        } withMyFavoriteFail:^(NSString *failResultStr) {
+            
+        }];
+
+    }else {
+        [alertM showAlertViewWithTitle:nil withMessage:@"您还没有登录" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
+            
+        }];
+    }
+    
+    
     
 }
 

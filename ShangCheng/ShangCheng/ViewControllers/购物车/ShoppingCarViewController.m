@@ -11,7 +11,10 @@
 #import "PreviewOrderViewController.h"
 #import "ProductDetailViewController.h"
 #import "Manager.h"
+#import "MJRefresh.h"
 @interface ShoppingCarViewController ()<UITableViewDataSource,UITableViewDelegate>
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *leftBarButton;
+
 //判断是否需要刷新
 @property (nonatomic,assign)BOOL isRefreshVC;
 @property (weak, nonatomic) IBOutlet UITableView *shoppingTableView;
@@ -45,6 +48,12 @@
     return self;
 }
 
+//返回button
+- (void)leftBarButtonAction:(UIBarButtonItem *)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+
 - (void)refreshShoppingCarNotification:(NSNotification *)sender {
     self.isRefreshVC = YES;
 }
@@ -53,23 +62,34 @@
     
     if (self.isRefreshVC == YES) {
         //需要刷新
-        [self httpShoppingCarVCDataAction];
-        
+        [self.shoppingTableView headerBeginRefreshing];
     }
+    
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    NSLog(@"%@",[self.navigationController viewControllers]);
+    //只有不是跟视图的时候，才有返回按钮
+    if ([self.navigationController viewControllers].count > 1) {
+        UIBarButtonItem *leftItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"s_icon_back"] style:UIBarButtonItemStyleDone target:self action:@selector(leftBarButtonAction:)];
+        leftItem.tintColor = [UIColor whiteColor];
+        self.navigationItem.leftBarButtonItem = leftItem;
+    }
+    
+    
+    //下拉刷新加载
+    [self downPushRefresh];
     
     //看看是否登录了，如果登录才能请求数据
     Manager *manager = [Manager shareInstance];
     
     //判断状态，现在是否登陆了，
     if ([manager isLoggedInStatus] == YES) {
-        //已经登录
-        [self httpShoppingCarVCDataAction];
-
+        //已经登录。执行下拉刷新
+        [self.shoppingTableView headerBeginRefreshing];
+        
     }else {
         //未登录，跳转到登录界面
         AlertManager *alert = [AlertManager shareIntance];
@@ -81,40 +101,53 @@
         }];
       
     }
-
-    
 }
-//请求数据的操作
-- (void)httpShoppingCarVCDataAction {
+
+
+#pragma mark - 下拉刷新 -
+- (void)downPushRefresh {
     Manager *manager = [Manager shareInstance];
-    
-    [manager httpShoppingCarDataWithUserId:manager.memberInfoModel.u_id WithSuccessResult:^(id successResult) {
-        
-        [self.shoppingTableView reloadData];
-        //刷新了，将bool值变为No
-        self.isRefreshVC = NO;
-        //刷新一下全选按钮
-        if (manager.isAllSelectForShoppingCar == YES) {
-            [self.allSelectButton setBackgroundImage:[UIImage imageNamed:@"g_btn_select"] forState:UIControlStateNormal];
+
+//    __unsafe_unretained typeof(self) weakVC = self;
+    [self.shoppingTableView addHeaderWithCallback:^{
+        NSLog(@"下拉刷新啦");
+      
+        //请求数据
+        [manager httpShoppingCarDataWithUserId:manager.memberInfoModel.u_id WithSuccessResult:^(id successResult) {
+            //结束刷新效果
+            [self.shoppingTableView headerEndRefreshing];
             
-        }else{
-            [self.allSelectButton setBackgroundImage:[UIImage imageNamed:@"g_btn_normal"] forState:UIControlStateNormal];
-        }
+            [self.shoppingTableView reloadData];
+            //刷新了，将bool值变为No
+            self.isRefreshVC = NO;
+            //刷新一下全选按钮
+            if (manager.isAllSelectForShoppingCar == YES) {
+                [self.allSelectButton setBackgroundImage:[UIImage imageNamed:@"g_btn_select"] forState:UIControlStateNormal];
+                
+            }else{
+                [self.allSelectButton setBackgroundImage:[UIImage imageNamed:@"g_btn_normal"] forState:UIControlStateNormal];
+            }
+            
+            //计算金额
+            self.priceLabel.text = [NSString stringWithFormat:@"￥%.2f",[manager selectProductTotalPrice]];
+            //计算总件数
+            self.totalCountLabel.text = [NSString stringWithFormat:@"共%ld件",[manager isSelectProductCount]];
+            
+            
+        } withFailResult:^(NSString *failResultStr) {
+            NSLog(@"请求失败");
+            //结束刷新效果
+            [self.shoppingTableView headerEndRefreshing];
+        }];
 
-        //计算金额
-        self.priceLabel.text = [NSString stringWithFormat:@"￥%.2f",[manager selectProductTotalPrice]];
-        //计算总件数
-        self.totalCountLabel.text = [NSString stringWithFormat:@"共%ld件",[manager isSelectProductCount]];
-        
-        
-    } withFailResult:^(NSString *failResultStr) {
-        NSLog(@"请求失败");
     }];
-
+   
 }
+
+
+
 
 #pragma mark - TableView delegate -
-
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     return [Manager shareInstance].shoppingCarDataSourceArr.count;
 
@@ -294,7 +327,7 @@
 //编辑状态的删除按钮
 - (IBAction)editDeleteButtonAction:(UIButton *)sender {
     Manager *manager = [Manager shareInstance];
-
+    
     //查看是否选择了产品
     if ([manager isSelectAnyOneProduct] == YES) {
         //设置set为了删除数据源
@@ -330,7 +363,6 @@
         AlertManager *alert = [AlertManager shareIntance];
         [alert showAlertViewWithTitle:nil withMessage:@"您还没有选择产品" actionTitleArr:nil withViewController:self withReturnCodeBlock:nil];
     }
-    
     
 }
 

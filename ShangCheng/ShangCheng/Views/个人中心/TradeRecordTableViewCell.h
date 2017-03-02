@@ -14,8 +14,8 @@
 @property (weak, nonatomic) IBOutlet UIImageView *tradeTypeImageView;
 @property (weak, nonatomic) IBOutlet UILabel *tradeMoneyLabel;
 @property (weak, nonatomic) IBOutlet UILabel *tradeDetailLabel;
-
+//交易记录
 - (void)updateTradeRecordCellWithModel:(MyTradeRecordModel *)tradeRecordModel;
-
-
+//提现记录
+- (void)updateCashRecordCellWithModel:(MyAgentCashModel *)cashRecordModel;
 @end

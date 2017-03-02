@@ -7,7 +7,7 @@
 //
 
 #import "ShoppingCarTableViewCell.h"
-
+#import "UIImageView+ImageViewCategory.h"
 @implementation ShoppingCarTableViewCell
 
 - (void)updateCellWithCellIndex:(NSIndexPath *)cellIndex {
@@ -21,6 +21,7 @@
         [self.selectButton setBackgroundImage:[UIImage imageNamed:@"g_btn_normal"] forState:UIControlStateNormal];
     }
     
+    [self.headerImageView setWebImageURLWithImageUrlStr:tempShoppingCarModel.shoppingCarProduct.productImageUrlstr withErrorImage:[UIImage imageNamed:@"productImage"]];
     self.titleLabel.text = tempShoppingCarModel.shoppingCarProduct.productTitle;
     
     self.companyLabel.text = tempShoppingCarModel.shoppingCarProduct.productCompany;

@@ -26,7 +26,7 @@
 @property (nonatomic,strong)NSString *o_price_total;//总价
 @property (nonatomic,strong)NSString *o_p_id;//父订单id
 @property (nonatomic,strong)NSString *o_specification_id;//规格id
-
+@property (nonatomic,strong)NSString *isreply;//
 - (void)setValue:(id)value forUndefinedKey:(NSString *)key ;
 
 @end

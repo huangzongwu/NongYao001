@@ -10,7 +10,9 @@
 #import "Manager.h"
 @interface MyAgentOrderTableViewCell : UITableViewCell
 @property (weak, nonatomic) IBOutlet UIImageView *orderHeaderImageView;
-@property (weak, nonatomic) IBOutlet UILabel *orderNameAndPhoneLabel;
+@property (weak, nonatomic) IBOutlet UILabel *orderNameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *orderPhoneLabel;
+
 @property (weak, nonatomic) IBOutlet UILabel *orderAddressLabel;
 @property (weak, nonatomic) IBOutlet UILabel *orderAgentMoneyLabel;//收益
 

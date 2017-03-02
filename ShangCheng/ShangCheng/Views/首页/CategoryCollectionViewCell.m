@@ -9,5 +9,10 @@
 #import "CategoryCollectionViewCell.h"
 
 @implementation CategoryCollectionViewCell
+- (void)updateCategoryCellWithDic:(NSDictionary *)tempDic {
+    self.categoryImageView.image = [UIImage imageNamed:[tempDic objectForKey:@"img"]];
+    self.categoryNameLabel.text = [tempDic objectForKey:@"categoryName"];
+    
+}
 
 @end

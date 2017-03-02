@@ -20,7 +20,7 @@
     //网络请求
     Manager *manager = [Manager shareInstance];
     if (self.tempFuzzySearchModel != nil) {
-        [manager httpFuzzySearchProductInfoWithFuzzyModel:self.tempFuzzySearchModel withSearchSuccess:^(id successResult) {
+        [manager httpFuzzySearchProductInfoWithFuzzyModel:self.tempFuzzySearchModel withPageIndex:1 withSearchSuccess:^(id successResult) {
             
         } withSearchFail:^(NSString *failResultStr) {
             

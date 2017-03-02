@@ -10,8 +10,8 @@
 
 @interface MyFavoriteListModel : NSObject
 //产品的基本信息
-//@property (nonatomic,strong)NSString *productImageUrl;
 @property (nonatomic,strong)NSString *myFavoriteId;
+@property (nonatomic,strong)NSString *productImageUrl;
 
 @property (nonatomic,strong)NSString *favoriteProductTitleStr;
 @property (nonatomic,strong)NSString *favoriteProductCompanyStr;

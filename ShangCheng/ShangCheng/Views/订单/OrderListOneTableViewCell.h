@@ -33,9 +33,9 @@ typedef void(^SelectButtonBlock)(IndexButton *selectButton);
 @property (weak, nonatomic) IBOutlet UILabel *productFormatLabel;
 //产品公司
 @property (weak, nonatomic) IBOutlet UILabel *productCompany;
-//内容为： 共几件商品，实付款
-@property (weak, nonatomic) IBOutlet UILabel *productCountLabel;
-//订单价格
+////内容为： 共几件商品，实付款
+//@property (weak, nonatomic) IBOutlet UILabel *productCountLabel;
+//内容为： 共几件商品，实付款:订单价格
 @property (weak, nonatomic) IBOutlet UILabel *orderPriceLabel;
 
 - (void)updateOrderLIstOneCellWithModel:(SupOrderModel *)model withWhichTableView:(NSString *)whichTableView withCellIndex:(NSIndexPath *)cellIndex;

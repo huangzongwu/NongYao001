@@ -54,11 +54,11 @@
     if (isRed == YES) {
         //红色可点击
         self.nextButton.enabled = YES;
-        self.nextButton.backgroundColor = kColor(208,23,21, 1);
+        self.nextButton.backgroundColor = kMainColor;
     }else {
         //灰色不可点击
         self.nextButton.enabled = NO;
-        self.nextButton.backgroundColor = kColor(238, 238, 238, 1);
+        self.nextButton.backgroundColor = kccccccColor;
     }
     
     return YES;
@@ -106,7 +106,7 @@
     self.getCodeButton.enabled = YES;
     [self.getCodeButton setTitle:@"获取验证码" forState:UIControlStateNormal];
     //背景色变红
-    self.getCodeButton.backgroundColor = kColor(208, 23, 84, 1);
+    self.getCodeButton.backgroundColor = kMainColor;
     
 }
 - (void)timerAction:(NSTimer *)timer {
