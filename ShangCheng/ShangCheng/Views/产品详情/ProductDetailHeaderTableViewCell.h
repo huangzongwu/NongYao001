@@ -7,7 +7,19 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "LineButton.h"
+typedef NS_ENUM(NSInteger , SelectType) {
+    SelectTypeProductDetail,
+    SelectTypeUseInfo,
+    SelectTypeUserComment,
+    SelectTypeTradeList
+};
 
 @interface ProductDetailHeaderTableViewCell : UITableViewCell
+@property (weak, nonatomic) IBOutlet LineButton *buttonOne;
+@property (weak, nonatomic) IBOutlet LineButton *buttonTwo;
+@property (weak, nonatomic) IBOutlet LineButton *buttonThree;
+@property (weak, nonatomic) IBOutlet LineButton *buttonFour;
 
+- (void)updateButtonUIWithType:(SelectType)selectType;
 @end

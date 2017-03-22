@@ -20,6 +20,18 @@
     
 }
 
+- (void)updateMyBrowerListCell:(ProductModel *)myBrowerProductModel {
+    
+    [self.productImageView setWebImageURLWithImageUrlStr:myBrowerProductModel.productImageUrlstr withErrorImage:[UIImage imageNamed:@"productImage"]];
+    
+    self.productTitleLabel.text = myBrowerProductModel.productTitle;
+    self.productCompanyLabel.text = myBrowerProductModel.productCompany;
+    self.productFormatLabel.text = myBrowerProductModel.productFormatStr;
+    self.productPriceLabel.text = [NSString stringWithFormat:@"￥%@", myBrowerProductModel.productPrice];
+
+}
+
+
 - (void)awakeFromNib {
     [super awakeFromNib];
     // Initialization code

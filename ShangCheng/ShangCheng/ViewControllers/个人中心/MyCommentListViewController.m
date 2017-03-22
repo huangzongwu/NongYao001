@@ -10,12 +10,15 @@
 #import "MyCommentListTableViewCell.h"
 #import "Manager.h"
 #import "MJRefresh.h"
+#import "KongImageView.h"
 @interface MyCommentListViewController ()<UITableViewDelegate,UITableViewDataSource>
 @property (weak, nonatomic) IBOutlet UITableView *myCommentListTabelView;
 //当前有页数
 @property (nonatomic,assign)NSInteger currentPage;
 //总共的页数
 @property (nonatomic,assign)NSInteger totalPage;
+
+@property (nonatomic,strong)KongImageView *kongImageView;
 @end
 
 @implementation MyCommentListViewController
@@ -69,6 +72,20 @@
     //首次进入执行一次下拉刷新
     [self.myCommentListTabelView headerBeginRefreshing];
     
+    //加载空白页
+    self.kongImageView = [[[NSBundle mainBundle] loadNibNamed:@"KongImageView" owner:self options:nil] firstObject];
+    [self.kongImageView.reloadAgainButton addTarget:self action:@selector(reloadAgainButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+    self.kongImageView.frame = self.myCommentListTabelView.bounds;
+    [self.myCommentListTabelView addSubview:self.kongImageView];
+
+    
+}
+
+//重新加载
+- (void)reloadAgainButtonAction:(IndexButton *)sender {
+    
+    [self.myCommentListTabelView headerBeginRefreshing];
+
 }
 
 //网络请求
@@ -82,6 +99,10 @@
             self.currentPage = 1;
             //取消效果
             [self.myCommentListTabelView headerEndRefreshing];
+            
+            //查看是否空白页
+            [self isShowKongImageViewWithType:KongTypeWithKongData withKongMsg:@"暂无我的评价"];
+            
         }else {
             //如果是加载，那么更新currentpage
             self.currentPage = pageIndex;
@@ -95,7 +116,8 @@
         [self.myCommentListTabelView headerEndRefreshing];
         [self.myCommentListTabelView footerEndRefreshing];
 
-        
+        [self isShowKongImageViewWithType:KongTypeWithNetError withKongMsg:@"网络错误"];
+
     }];
 
 }
@@ -129,6 +151,20 @@
     
     
     return cell;
+    
+}
+
+
+//空白页
+- (void)isShowKongImageViewWithType:(KongType )kongType withKongMsg:(NSString *)msg {
+    Manager *manager = [Manager shareInstance];
+    if (manager.myCommentArr.count == 0) {
+        [self.kongImageView showKongViewWithKongMsg:msg withKongType:kongType];
+        
+    }else {
+        [self.kongImageView hiddenKongView];
+        
+    }
     
 }
 

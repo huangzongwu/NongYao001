@@ -22,6 +22,11 @@
 @end
 
 @implementation MotifyPasswordViewController
+- (IBAction)leftBarButtonAction:(UIBarButtonItem *)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
     
     Manager *manager = [Manager shareInstance];
@@ -155,7 +160,6 @@
 - (IBAction)nextButtonAction:(UIButton *)sender {
 //    [self performSegueWithIdentifier:@"motifyNextVC" sender:nil];
     
-    
     Manager *manager = [Manager shareInstance];
     
     if (manager.memberInfoModel.u_mobile.length == 11 ) {
@@ -184,7 +188,6 @@
     }else {
         NSLog(@"请输入正确的手机号");
     }
-    
     
     
 }

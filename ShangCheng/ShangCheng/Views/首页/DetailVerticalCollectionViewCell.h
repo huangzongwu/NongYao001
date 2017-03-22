@@ -12,8 +12,14 @@
 
 @property (weak, nonatomic) IBOutlet UIImageView *productImageView;
 @property (weak, nonatomic) IBOutlet UILabel *productTitleLabel;
+
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *companyLabelHeightLayout;
+
+
 @property (weak, nonatomic) IBOutlet UILabel *productCompanyLabel;
 @property (weak, nonatomic) IBOutlet UILabel *productPriceLabel;
+@property (weak, nonatomic) IBOutlet UILabel *productFormatLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *saleImageView;
 
-- (void)updateDetailVerticalCollectionViewCell:(ProductModel *)tempProductModel;
+- (void)updateDetailVerticalCollectionViewCell:(ProductModel *)tempProductModel withIsHideCompanyLabel:(BOOL)isHideCompanyLabel;
 @end

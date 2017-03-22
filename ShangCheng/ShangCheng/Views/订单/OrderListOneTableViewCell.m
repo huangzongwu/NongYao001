@@ -65,10 +65,6 @@
     
     self.orderPriceLabel.text = [NSString stringWithFormat:@"共%ld件商品，￥%.2f",model.subOrderArr.count,[model.p_o_price_total floatValue] - [model.p_discount floatValue]];
     
-
-    
-  
-    
 }
 
 

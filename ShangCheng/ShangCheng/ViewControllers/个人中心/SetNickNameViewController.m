@@ -17,6 +17,11 @@
 @end
 
 @implementation SetNickNameViewController
+
+- (IBAction)leftBarButtonAction:(UIBarButtonItem *)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
 - (IBAction)rightBarButtonAction:(UIBarButtonItem *)sender {
     Manager *manager = [Manager shareInstance];
 
@@ -32,8 +37,8 @@
             
             //修改成功，更新模型
             manager.memberInfoModel.u_truename = self.nickNameTextField.text;
-            //返回刷新
-            self.freshNewNameBlock();
+            //发送通知刷新
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"refreshMemberInfoUI" object:self userInfo:nil];
             
             [self.navigationController popViewControllerAnimated:YES];
             

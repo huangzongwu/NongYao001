@@ -8,18 +8,32 @@
 
 #import "SettingViewController.h"
 #import "Manager.h"
+#import "SDImageCache.h"
 @interface SettingViewController ()<UITableViewDelegate,UITableViewDataSource>
 //退出登录按钮
 @property (weak, nonatomic) IBOutlet UIButton *loginOffButton;
 
+//tableView
+@property (weak, nonatomic) IBOutlet UITableView *setTableView;
+
 @property (nonatomic,strong)NSArray *dataSourceArr;
+
+//缓存大小
+@property (nonatomic,assign)NSUInteger cacheSize;
 @end
 
 @implementation SettingViewController
+- (IBAction)leftBarButtonAction:(UIBarButtonItem *)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    //设置group类型的顶部大小
+    self.setTableView.tableHeaderView=[[UIView alloc]initWithFrame:CGRectMake(0, 0, 0, 15)];
+    
+    NSLog(@"%@",NSHomeDirectory());
     
     self.dataSourceArr = @[@[@"清除缓存",@"消息推送"],@[@"我要评价"]];
     
@@ -31,6 +45,8 @@
         self.loginOffButton.hidden = YES;
     }
     
+    //计算缓存
+    self.cacheSize = [[SDImageCache sharedImageCache]getSize];
     
 }
 
@@ -46,9 +62,43 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"settingCell" forIndexPath:indexPath];
+    cell.textLabel.font = [UIFont systemFontOfSize:15];
+    [cell.textLabel setTextColor:k333333Color];
     cell.textLabel.text = [self.dataSourceArr[indexPath.section] objectAtIndex:indexPath.row];
     
+    
+    cell.detailTextLabel.font = [UIFont systemFontOfSize:11];
+    [cell.detailTextLabel setTextColor:k999999Color];
+    if (indexPath.section == 0 && indexPath.row == 0) {
+        cell.detailTextLabel.text = [self cacheSizeToString];
+        
+    }else {
+        cell.detailTextLabel.text = @"";
+    }
+
+    
     return cell;
+    
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    if (indexPath.section == 0 && indexPath.row == 0) {
+        //清理缓存
+        AlertManager *alertM = [AlertManager shareIntance];
+        [alertM showAlertViewWithTitle:nil withMessage:@"是否要清理缓存" actionTitleArr:@[@"取消",@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
+            if (actionBlockNumber == 1) {
+                if (self.cacheSize > 0) {
+                    //清理缓存
+                    [[SDImageCache sharedImageCache]clearDisk];
+                    //重新计算
+                    self.cacheSize = [[SDImageCache sharedImageCache]getSize];
+                    //更新UI
+                    [self.setTableView reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:0 inSection:0]] withRowAnimation:UITableViewRowAnimationNone];
+                    
+                }
+            }
+        }];
+    }
     
 }
 
@@ -67,6 +117,37 @@
         }
     }];
     
+}
+
+
+//缓存计算
+- (NSString *)cacheSizeToString {
+    float tempCacheFloat = self.cacheSize;
+    
+    if (tempCacheFloat > 0) {
+        //如果大于1M,就换算成M
+        if (tempCacheFloat >= 1024) {
+            tempCacheFloat = tempCacheFloat / 1024.0;
+            
+            //看看有没有达到 1G的
+            if (tempCacheFloat >= 1024) {
+                tempCacheFloat = tempCacheFloat / 1024;
+                return [NSString stringWithFormat:@"%.2f G",tempCacheFloat];
+                
+            }else {
+                //不满1G
+                return [NSString stringWithFormat:@"%.2f M",tempCacheFloat];
+            }
+            
+        }else {
+            //不满1M
+            return [NSString stringWithFormat:@"%.2f KB",tempCacheFloat];
+        }
+        
+        
+    }else {
+        return @"0 KB";
+    }
 }
 
 - (void)didReceiveMemoryWarning {

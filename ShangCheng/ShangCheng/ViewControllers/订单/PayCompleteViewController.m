@@ -20,6 +20,8 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     
+    //发送通知到订单列表，刷新
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"refreshOrderList" object:self userInfo:nil];
     
 }
 - (IBAction)leftBarbuttonAction:(UIBarButtonItem *)sender {

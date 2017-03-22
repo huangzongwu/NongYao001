@@ -15,13 +15,15 @@
 //商品模型
 @property (nonatomic,strong)ProductModel *shoppingCarProduct;
 //商品的数量
-@property (nonatomic,assign)NSString *c_number;
+@property (nonatomic,strong)NSString *c_number;
 //商品状态（01正常 02下架）
 @property (nonatomic,strong)NSString *c_type;
 //总价，即单价*数量
 @property (nonatomic,strong)NSString *totalprice;
 //商品是否被选中
 @property (nonatomic,assign)BOOL isSelectedShoppingCar;
+//最小起订数量
+@property (nonatomic,strong)NSString *s_min_quantity;
 //商品错误信息
 @property (nonatomic,strong)NSString *productErrorMsg;
 

@@ -150,33 +150,42 @@
 //下一步
 - (IBAction)nextButtonAction:(UIButton *)sender {
 //    [self performSegueWithIdentifier:@"registerNext" sender:sender];
-
+    
+    //先判断一下是否已经注册了
+    Manager *manager = [Manager shareInstance];
     if (self.mobileNumberTextField.text.length == 11 ) {
-        if (self.codeTextField.text.length > 0) {
-            
-            //验证一下验证码是否正确
-            [[Manager shareInstance] httpCheckMobileCodeWithMobileNumber:self.mobileNumberTextField.text withCode:self.codeTextField.text withCodeSuccessResult:^(id successResult) {
-                if ([successResult isEqualToString:@"200"]) {
-                    //下一步
-                    [self performSegueWithIdentifier:@"registerNext" sender:sender];
-                    
-                }
-            } withCodeFailResult:^(NSString *failResultStr) {
-                //
-                AlertManager *alert = [AlertManager shareIntance];
-                [alert showAlertViewWithTitle:nil withMessage:[NSString stringWithFormat:@"短信验证失败，%@",failResultStr ] actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
+        [manager httpCheckIsUserRegisterWithMobile:self.mobileNumberTextField.text withIsRegisterSuccess:^(id successResult) {
+            //未注册可以进行下一步
+            if (self.codeTextField.text.length > 0) {
+                
+                //验证一下验证码是否正确
+                [[Manager shareInstance] httpCheckMobileCodeWithMobileNumber:self.mobileNumberTextField.text withCode:self.codeTextField.text withCodeSuccessResult:^(id successResult) {
+                    if ([successResult isEqualToString:@"200"]) {
+                        //下一步
+                        [self performSegueWithIdentifier:@"registerNext" sender:sender];
+                        
+                    }
+                } withCodeFailResult:^(NSString *failResultStr) {
+                    //
+                    AlertManager *alert = [AlertManager shareIntance];
+                    [alert showAlertViewWithTitle:nil withMessage:[NSString stringWithFormat:@"短信验证失败，%@",failResultStr ] actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
+                        
+                    }];
                     
                 }];
-
-            }];
+                
+            }else {
+                NSLog(@"请输入验证码");
+            }
             
-        }else {
-            NSLog(@"请输入验证码");
-        }
+        } withIsRegisterFail:^(NSString *failResultStr) {
+            NSLog(@"%@",failResultStr);
+        }];
+
     }else {
         NSLog(@"请输入正确的手机号");
     }
-     
+    
     
 }
 

@@ -11,8 +11,10 @@
 @implementation UIImageView (ImageViewCategory)
 - (void)setWebImageURLWithImageUrlStr:(NSString *)imageUrlStr withErrorImage:(UIImage *)errorImage {
     Manager *manager = [Manager shareInstance];
+    NSURL *imageUrl = [NSURL URLWithString:imageUrlStr];//quan'b
     
-    NSURL *imageUrl = [manager webImageURlWith:imageUrlStr];
+//    NSURL *imageUrl = [manager webImageURlWith:imageUrlStr];
+    
     [self sd_setImageWithURL:imageUrl completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
         if (error != nil) {
             self.image = errorImage;

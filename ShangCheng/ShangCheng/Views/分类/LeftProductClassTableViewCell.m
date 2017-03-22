@@ -7,10 +7,22 @@
 //
 
 #import "LeftProductClassTableViewCell.h"
-
+#import "CALayer+LayerColor.h"
 @implementation LeftProductClassTableViewCell
-- (void)updateLeftCellWithTitle:(NSString *)titleStr {
+- (void)updateLeftCellWithTitle:(NSString *)titleStr withIsSelectItem:(BOOL)isSelect {
     self.leftCellLabel.text = titleStr;
+    
+    if (isSelect == YES) {
+        //选中样式
+        self.leftCellLabel.textColor = kMainColor;
+        self.leftCellLabel.layer.borderColorFromUIColor = kMainColor;
+
+    }else {
+        //非选中样式
+        self.leftCellLabel.textColor = k333333Color;
+        self.leftCellLabel.layer.borderColorFromUIColor = [UIColor whiteColor];
+
+    }
 }
 
 - (void)awakeFromNib {

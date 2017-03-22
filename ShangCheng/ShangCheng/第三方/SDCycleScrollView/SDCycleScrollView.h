@@ -183,4 +183,8 @@ typedef enum {
 /** 清除图片缓存（兼容旧版本方法） */
 - (void)clearCache;
 
+
+/////////自己扩展的接口////////
+@property (nonatomic, weak) UICollectionView *mainView; // 显示图片的collectionView
+
 @end

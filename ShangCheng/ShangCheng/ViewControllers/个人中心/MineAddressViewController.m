@@ -10,8 +10,11 @@
 #import "MineAddressTableViewCell.h"
 #import "MineAddressFootTableViewCell.h"
 #import "AddReceiveAddressViewController.h"
+#import "KongImageView.h"
+#import "MJRefresh.h"
 @interface MineAddressViewController ()<UITableViewDataSource,UITableViewDelegate>
 @property (weak, nonatomic) IBOutlet UITableView *addressListTableView;
+@property (nonatomic,strong)KongImageView *kongImageView;
 
 @end
 
@@ -24,18 +27,44 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     
+    //加载空白页
+    self.kongImageView = [[[NSBundle mainBundle] loadNibNamed:@"KongImageView" owner:self options:nil] firstObject];
+    [self.kongImageView.reloadAgainButton addTarget:self action:@selector(reloadAgainButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+    self.kongImageView.frame = self.addressListTableView.bounds;
+    [self.addressListTableView addSubview:self.kongImageView];
     
+    //下拉刷新
+    [self downPushRefresh];
+    //请求数据
+    [self httpReceiveAddressList];
+    
+}
+
+- (void)reloadAgainButtonAction:(IndexButton *)sender {
+    [self httpReceiveAddressList];
+
+}
+
+- (void)downPushRefresh {
+    [self.addressListTableView addHeaderWithCallback:^{
+        [self httpReceiveAddressList];
+    }];
+}
+
+- (void)httpReceiveAddressList {
     Manager *manager = [Manager shareInstance];
-    
-    //如果没有收货地址，那么就请求
-    if (manager.receiveAddressArr == nil || manager.receiveAddressArr.count == 0) {
-        [manager receiveAddressListWithUserIdOrReceiveId:manager.memberInfoModel.u_id withAddressListSuccess:^(id successResult) {
-            [self.addressListTableView reloadData];
-        } withAddressListFail:^(NSString *failResultStr) {
-            NSLog(@"失败");
-        }];
-    }
-    
+
+    [manager receiveAddressListWithUserIdOrReceiveId:manager.memberInfoModel.u_id withAddressListSuccess:^(id successResult) {
+        [self.addressListTableView reloadData];
+        [self.addressListTableView headerEndRefreshing];
+
+    } withAddressListFail:^(NSString *failResultStr) {
+        NSLog(@"失败");
+        [self.addressListTableView headerEndRefreshing];
+
+        [self isShowKongImageViewWithType:KongTypeWithNetError withKongMsg:@"网络错误"];
+    }];
+
 }
 
 
@@ -98,9 +127,15 @@
     Manager *manager =  [Manager shareInstance];
     ReceiveAddressModel *tempAddressModel = manager.receiveAddressArr[sender.indexForButton.section];
     [manager deleteReceiveAddressWithAddressModel:tempAddressModel withDeleteAddressSuccess:^(id successResult) {
-
+        
+        if ([successResult isEqualToString:@"1"]) {
+            //由于删除了默认地址，需要重新请求地址
+            [self httpReceiveAddressList];
+        }
+        
+        //刷新UI
         [self.addressListTableView reloadData];
-//        [self.addressListTableView deleteSections:[NSIndexSet indexSetWithIndex:sender.indexForButton.section] withRowAnimation:UITableViewRowAnimationLeft];
+        
         
     } withDeleteAddressFail:^(NSString *failResultStr) {
         
@@ -126,6 +161,18 @@
 }
 
 
+//空白页
+- (void)isShowKongImageViewWithType:(KongType )kongType withKongMsg:(NSString *)msg {
+    Manager *manager = [Manager shareInstance];
+    if (manager.receiveAddressArr.count == 0 ) {
+        [self.kongImageView showKongViewWithKongMsg:msg withKongType:kongType];
+        
+    }else {
+        [self.kongImageView hiddenKongView];
+        
+    }
+    
+}
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

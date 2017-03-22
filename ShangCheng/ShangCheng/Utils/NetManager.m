@@ -208,9 +208,42 @@
 }
 
 
+/*
+- (void)uploadImageWithURL:(NSString *)requestURL withParameters:(NSDictionary *)parameterDic withImage:(UIImage *)uploadImg withImageName:(NSString *)imageName withSuccessResult:(SuccessResultBlock)successResult withFailResult:(FailResultBlock)failResult {
+    
+    AFHTTPRequestOperationManager *requestManager = [AFHTTPRequestOperationManager manager];
+    requestManager.responseSerializer = [AFHTTPResponseSerializer serializer];
+    requestManager.responseSerializer.acceptableContentTypes = [NSSet setWithObject:@"text/html"];
+    
+    [requestManager POST:requestURL parameters:nil constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
+        
+        //  appendPartWithFileURL     指定上传的文件
+        // name                      指定在服务器中获取对应文件或文本时的key
+        //  fileName                  指定上传文件的原始文件名
+        //  mimeType                  指定商家文件的MIME类型
+        //
+        //        [formData appendPartWithFileURL:filePath name:@"filename" fileName:[NSString stringWithFormat:@"%@.png",fileName] mimeType:@"image/png" error:nil];
+        
+        NSData *imageData = UIImagePNGRepresentation(uploadImg);
+        [formData appendPartWithFileData:imageData name:@"file" fileName:@"text.png" mimeType:@"image/png"];
+        
+    } success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        NSString *str = [[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding];
+        NSLog(@"成功%@",str);
+        
+        
+        NSDictionary *responseDic = [self getNewJsonWithData:responseObject];
+        
+        successResult(operation ,responseObject);
+        
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        //上传图片失败
+        failResult(operation ,error);
+    }];
+    
+}
 
-
-
+*/
 
 
 #pragma mark - 将字典变为json格式的字符串 -
@@ -226,6 +259,7 @@
     return tempStr;
 
 }
+
 
 
 @end

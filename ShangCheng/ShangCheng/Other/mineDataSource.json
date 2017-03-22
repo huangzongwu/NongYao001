@@ -25,9 +25,9 @@
                   {"icon1":"w_icon_shdz","info":"收货地址","pushId":"mineToAddressVC"},
                   {"icon1":"w_icon_wdpj","info":"我的评价","pushId":"mineToMyCommentListVC"},
                   {"icon1":"w_icon_wdsc","info":"我的收藏","pushId":"mineToMyFavoriteVC"},
-                  {"icon1":"w_icon_lljl","info":"浏览记录","pushId":""},
+                  {"icon1":"w_icon_lljl","info":"浏览记录","pushId":"mineToMyFavoriteVC"},
                   {"info1":"900","info":"消息通知","pushId":""},
-                  {"info1":"290","info":"关于我们","pushId":""},
+                  {"icon1":"w_icon_gywm","info":"关于我们","pushId":"homeToAboutUsVC"},
                   {"icon1":"w_icon_yjfk","info":"意见反馈","pushId":"mineToFeedBackVC"},
                   {"info1":"900","info":"设置","pushId":"mineVCToSettingVC"}
                  ]
@@ -58,9 +58,9 @@
                      {"icon1":"w_icon_shdz","info":"收货地址","pushId":"mineToAddressVC"},
                      {"icon1":"w_icon_wdpj","info":"我的评价","pushId":"mineToMyCommentListVC"},
                      {"icon1":"w_icon_wdsc","info":"我的收藏","pushId":"mineToMyFavoriteVC"},
-                     {"icon1":"w_icon_lljl","info":"浏览记录","pushId":""},
+                     {"icon1":"w_icon_lljl","info":"浏览记录","pushId":"mineToMyFavoriteVC"},
                      {"info1":"900","info":"消息通知","pushId":""},
-                     {"info1":"290","info":"关于我们","pushId":""},
+                     {"icon1":"w_icon_gywm","info":"关于我们","pushId":"homeToAboutUsVC"},
                      {"icon1":"w_icon_yjfk","info":"意见反馈","pushId":"mineToFeedBackVC"},
                      {"info1":"900","info":"设置","pushId":"mineVCToSettingVC"}
                      ]

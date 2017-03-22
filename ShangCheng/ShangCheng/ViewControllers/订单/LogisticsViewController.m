@@ -16,16 +16,25 @@
 //headView
 @property (weak, nonatomic) IBOutlet UIImageView *orderProductImageView;
 @property (weak, nonatomic) IBOutlet UILabel *orderProductTitleLabel;
-@property (weak, nonatomic) IBOutlet UILabel *orderProductCompanyLabel;
 @property (weak, nonatomic) IBOutlet UILabel *orderProductFormatLabel;
+@property (weak, nonatomic) IBOutlet UILabel *orderProductPriceLabel;
 
 @end
 
 @implementation LogisticsViewController
 
+- (IBAction)leftBarButtonAction:(UIBarButtonItem *)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    // 让cell自适应高度
+    self.logisticsTabelView.rowHeight = UITableViewAutomaticDimension;
+    //设置估算高度
+    self.logisticsTabelView.estimatedRowHeight = 44;
+    
     //刷新头部视图
     [self upHeadView];
     
@@ -55,9 +64,11 @@
 - (void)upHeadView {
     
     self.orderProductTitleLabel.text = self.tempSonOrderModel.p_name;
-    self.orderProductCompanyLabel.text = @"";
     self.orderProductFormatLabel.text = [NSString stringWithFormat:@"规格:%@  数量:%@",self.tempSonOrderModel.productst,self.tempSonOrderModel.o_num];
+    self.orderProductPriceLabel.text = [NSString stringWithFormat:@"￥%@",self.tempSonOrderModel.o_price_total];
 }
+
+
 
 
 #pragma mark - TableView Delegate -
@@ -69,8 +80,17 @@
     LogisticsTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"logisticsCell" forIndexPath:indexPath];
     
     LogisticsModel *tempLogisticsModel = self.logisticsDataSource[indexPath.row];
+    if (indexPath.row == 0) {
+        //隐藏上线
+        [cell updateLogisticsCellWithLogisticsModel:tempLogisticsModel withHidenUpLine:YES withHidenDownLine:NO];
+
+    }else if (indexPath.row == self.logisticsDataSource.count-1) {
+        //隐藏下线
+        [cell updateLogisticsCellWithLogisticsModel:tempLogisticsModel withHidenUpLine:NO withHidenDownLine:YES];
+    }else {
+        [cell updateLogisticsCellWithLogisticsModel:tempLogisticsModel withHidenUpLine:NO withHidenDownLine:NO];
+    }
     
-    [cell updateLogisticsCellWithLogisticsModel:tempLogisticsModel];
     return cell;
 }
 

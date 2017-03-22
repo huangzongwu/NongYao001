@@ -9,6 +9,7 @@
 #import "LoginViewController.h"
 #import "RegisterAlertView.h"
 #import "Manager.h"
+#import "ForgetPasswordViewController.h"
 @interface LoginViewController ()<UITextFieldDelegate>
 @property (weak, nonatomic) IBOutlet UIScrollView *loginScrollView;
 @property (nonatomic,strong)RegisterAlertView *registerAlertView;
@@ -253,8 +254,19 @@
     
     Manager *manager = [Manager shareInstance];
     [manager loginActionWithUserID:loginID withPassword:[manager digest:loginPassword] withLoginSuccessResult:^(id successResult) {
-        
-        [self dismissViewControllerAnimated:YES completion:nil];
+
+        if ([[successResult[0] objectForKey:@"code"] isEqualToString:@"0"]) {
+            //需要重设密码
+            AlertManager *alertM = [AlertManager shareIntance];
+            [alertM showAlertViewWithTitle:nil withMessage:@"系统升级，为了您的账户安全，请重置密码" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
+                //跳转到忘记密码中
+                [self performSegueWithIdentifier:@"toForgetPasswordVC" sender:self.passwordLoginIDTextField.text];
+                
+            }];
+        }else {
+            
+            [self dismissViewControllerAnimated:YES completion:nil];
+        }
         
     } withLoginFailResult:^(NSString *failResultStr) {
         
@@ -270,7 +282,18 @@
     Manager *manager = [Manager shareInstance];
     [manager loginActionWithMobile:loginTel withMobileCode:loginCode withLoginSuccessResult:^(id successResult) {
         
-        [self dismissViewControllerAnimated:YES completion:nil];
+        if ([[successResult[0] objectForKey:@"code"] isEqualToString:@"0"]) {
+            //需要重设密码
+            AlertManager *alertM = [AlertManager shareIntance];
+            [alertM showAlertViewWithTitle:nil withMessage:@"系统升级，为了您的账户安全，请重置密码" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
+                //跳转到忘记密码中
+                [self performSegueWithIdentifier:@"toForgetPasswordVC" sender:self.codeLoginIDTextField.text];
+                
+            }];
+        }else {
+            
+            [self dismissViewControllerAnimated:YES completion:nil];
+        }
 
     } withLoginFailResult:^(NSString *failResultStr) {
         
@@ -315,10 +338,22 @@
 
 //密码登录界面的忘记密码
 - (IBAction)passwordToForgetVCAction:(UIButton *)sender {
+    if (self.passwordLoginIDTextField.text.length == 11) {
+        [self performSegueWithIdentifier:@"toForgetPasswordVC" sender:self.passwordLoginIDTextField.text];
+    }else {
+        AlertManager *alertM = [AlertManager shareIntance];
+        [alertM showAlertViewWithTitle:nil withMessage:@"请输入正确的手机号" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
+    }
 }
 
 //短信登录界面的忘记密码
 - (IBAction)messageToForgetVCAction:(UIButton *)sender {
+    if (self.codeLoginIDTextField.text.length == 11) {
+        [self performSegueWithIdentifier:@"toForgetPasswordVC" sender:self.codeLoginIDTextField.text];
+    }else {
+        AlertManager *alertM = [AlertManager shareIntance];
+        [alertM showAlertViewWithTitle:nil withMessage:@"请输入正确的手机号" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
+    }
 }
 
 - (IBAction)leftBarButtonAction:(UIBarButtonItem *)sender {
@@ -331,14 +366,18 @@
     // Dispose of any resources that can be recreated.
 }
 
-/*
+
 #pragma mark - Navigation
 
 // In a storyboard-based application, you will often want to do a little preparation before navigation
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
+    if ([segue.identifier isEqualToString:@"toForgetPasswordVC"]) {
+        ForgetPasswordViewController *forgetPasswordVC = [segue destinationViewController];
+        forgetPasswordVC.tempMobile = sender;
+    }
 }
-*/
+
 
 @end

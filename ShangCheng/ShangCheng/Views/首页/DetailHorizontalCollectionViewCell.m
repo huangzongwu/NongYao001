@@ -7,23 +7,32 @@
 //
 
 #import "DetailHorizontalCollectionViewCell.h"
-
+#import "UIImageView+ImageViewCategory.h"
 @implementation DetailHorizontalCollectionViewCell
 - (void)updateDetailHorizontalCollectionViewCellWithUpModel:(ProductModel *)upModel withDownModel:(ProductModel *)downModel {
-    
-    [self.upButton updateDetailHorizontalButton:upModel];
-    [self.downButton updateDetailHorizontalButton:downModel];
-    
+    //上面的产品
+    [self.upProductImageView setWebImageURLWithImageUrlStr:upModel.productImageUrlstr withErrorImage:[UIImage imageNamed:@"productImage"]];
+    if (upModel.isSaleProduct == YES) {
+        self.upSaleImageView.hidden = NO;
+    }else {
+        self.upSaleImageView.hidden = YES;
+    }
+    self.upProductTitleLabel.text = upModel.productTitle;
+    self.upProductFormatLabel.text = upModel.productFormatStr;
+    self.upProductPriceLabel.text = upModel.productPrice;
+
+    //下面的产品
+    [self.downSaleImageView setWebImageURLWithImageUrlStr:downModel.productImageUrlstr withErrorImage:[UIImage imageNamed:@"productImage"]];
+    if (downModel.isSaleProduct == YES) {
+        self.downSaleImageView.hidden = NO;
+    }else {
+        self.downSaleImageView.hidden = YES;
+    }
+    self.downProductTitleLabel.text = downModel.productTitle;
+    self.downProductFormatLabel.text = downModel.productFormatStr;
+    self.downProductPriceLabel.text = downModel.productPrice;
+
 }
-//上面button的点击事件
-- (IBAction)upButtonAction:(DetailHorizontalButton *)sender {
-    
-    
-}
-//下面按钮的点击事件
-- (IBAction)downButtonAction:(DetailHorizontalButton *)sender {
-    
-    
-}
+
 
 @end

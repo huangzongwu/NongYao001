@@ -11,9 +11,11 @@
 #import "RightHeaderCollectionReusableView.h"
 #import "RightProductClassCollectionViewCell.h"
 #import "Manager.h"
+#import "SearchViewController.h"
 #import "ProductListViewController.h"
-
+#import "KongImageView.h"
 @interface ClassViewController ()<UITableViewDataSource,UITableViewDelegate,UICollectionViewDataSource,UICollectionViewDelegate,UICollectionViewDelegateFlowLayout>
+@property (nonatomic,strong)KongImageView *kongImageView;
 
 //左边的TableView
 @property (weak, nonatomic) IBOutlet UITableView *leftTableView;
@@ -26,24 +28,64 @@
 
 @implementation ClassViewController
 
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    //加载空白页
+    self.kongImageView = [[[NSBundle mainBundle] loadNibNamed:@"KongImageView" owner:self options:nil] firstObject];
+    [self.kongImageView.reloadAgainButton addTarget:self action:@selector(reloadAgainButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+    self.kongImageView.frame = self.view.bounds;
+    [self.view addSubview:self.kongImageView];
     
+    //加载数据
+    [self reloadAgainButtonAction:nil];
+}
+
+
+//空白页
+- (void)isShowKongImageViewWithType:(KongType )kongType withKongMsg:(NSString *)msg {
+    Manager *manager = [Manager shareInstance];
+    if (manager.productClassTreeArr.count > 0) {
+        [self.kongImageView hiddenKongView];
+    }else {
+        [self.kongImageView showKongViewWithKongMsg:msg withKongType:kongType];
+    }
     
+}
+
+//重新加载按钮
+- (void)reloadAgainButtonAction:(IndexButton *)sender {
     //请求分类数据
     Manager *manager = [Manager shareInstance];
     [manager httpProductClassTreeWithClassTreeSuccess:^(id successResult) {
+        //看看是否显示空白页
+        [self isShowKongImageViewWithType:KongTypeWithKongData withKongMsg:@"暂无分类"];
+
+        
         [self.leftTableView reloadData];
         [self.rightCollectionView reloadData];
-
+        
     } withClassTreeFali:^(NSString *failResultStr) {
         NSLog(@"%@",failResultStr);
 
+        [self isShowKongImageViewWithType:KongTypeWithNetError withKongMsg:@"网络错误"];
+        
     }];
-   
-    
+
 }
+
+
+
+#pragma mark - 搜索 -
+- (IBAction)searchAction:(UITapGestureRecognizer *)sender {
+    UINavigationController *searchNav = [self.storyboard instantiateViewControllerWithIdentifier:@"searchNavigationController"];
+    SearchViewController *searchVC = [searchNav.viewControllers objectAtIndex:0];
+    searchVC.productOrPests = Product;
+    [self presentViewController:searchNav animated:YES completion:nil];
+}
+
+
 
 #pragma mark - 左边的 TableView Delegate -
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
@@ -53,12 +95,17 @@
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    
     Manager *manager = [Manager shareInstance];
 
     LeftProductClassTableViewCell *leftCell = [tableView dequeueReusableCellWithIdentifier:@"leftProductClassCell" forIndexPath:indexPath];
     ClassModel *tempLeftModel = manager.productClassTreeArr[indexPath.row];
-    
-    [leftCell updateLeftCellWithTitle:tempLeftModel.d_value];
+    if (indexPath.row == self.selectLeftInt) {
+        [leftCell updateLeftCellWithTitle:tempLeftModel.d_value withIsSelectItem:YES];//选中的cell
+    }else{
+        [leftCell updateLeftCellWithTitle:tempLeftModel.d_value withIsSelectItem:NO];//未选中的cell
+    }
     
     return leftCell;
 }
@@ -67,6 +114,9 @@
     if (self.selectLeftInt != indexPath.row) {
         self.selectLeftInt = indexPath.row;
         [self.rightCollectionView reloadData];
+        
+        //更新左边的选中颜色样式
+        [self.leftTableView reloadData];
     }
 
     
@@ -132,7 +182,8 @@
 //item 大小
 - (CGSize )collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
     
-    return CGSizeMake((kScreenW - 120 - 20)/3, 30);
+    return CGSizeMake((kScreenW*13/18 - 43-18)/3, 30);
+
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -152,8 +203,16 @@
     NSArray *rightArr = [manager.productClassTreeArr[self.selectLeftInt] subItemArr];
     NSArray *rightDetailArr = [rightArr[indexPath.section] subItemArr];
     ClassModel *rightDetailModel = rightDetailArr[indexPath.row];
-    [self performSegueWithIdentifier:@"classToProductListVC" sender:rightDetailModel.d_code];
+    NSLog(@"%@",rightDetailModel.d_value);
 
+    
+    UINavigationController *searchNav = [self.storyboard instantiateViewControllerWithIdentifier:@"searchNavigationController"];
+    //跳转到列表界面
+    [searchNav.viewControllers[0] performSegueWithIdentifier:@"searchToListVC" sender:@[@"TypeProduct",rightDetailModel.d_value]];
+
+
+    [self presentViewController:searchNav animated:NO completion:nil];
+    
 }
 
 - (void)didReceiveMemoryWarning {
@@ -168,12 +227,11 @@
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
-    if ([segue.identifier isEqualToString:@"classToProductListVC"]) {
-        FuzzySearchModel *fuzzySearchModel = [FuzzySearchModel itemWithCode:sender name:@"" areaid:@"" pd:@"" suppliername:@"" level:@"" status:@"" price:@"" date:@""];
-        ProductListViewController *productListsVC = [segue destinationViewController];
-        productListsVC.tempFuzzySearchModel = fuzzySearchModel;
-        
-    }
+//    if ([segue.identifier isEqualToString:@"searchToListVC"]) {
+//        ProductListViewController *productListVC = [segue destinationViewController];
+//        productListVC.tempCode = sender;
+//        productListVC.isSearchOrType = isType;
+//    }
     
     
 }

@@ -10,11 +10,20 @@
 #import "Manager.h"
 #import "CALayer+LayerColor.h"
 #import "IndexButton.h"
+#import "UIImageView+ImageViewCategory.h"
 #define kButtonW (kScreenW-22-20)/3
 #define kButtonH 38
 
 @interface SelectProductViewController ()
+@property (weak, nonatomic) IBOutlet UIImageView *backImageView;
 
+//主要view，
+@property (weak, nonatomic) IBOutlet UIView *selectProductView;
+//底部距离，用于动画展现
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *bottomLayout;
+
+
+@property (weak, nonatomic) IBOutlet UIImageView *productImageView;
 @property (weak, nonatomic) IBOutlet UILabel *productTitleLabel;
 @property (weak, nonatomic) IBOutlet UILabel *productPriceLabel;
 @property (weak, nonatomic) IBOutlet UILabel *productCountLabel;
@@ -30,12 +39,62 @@
 
 @implementation SelectProductViewController
 
+
+//页面将要显示，
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    //隐藏电池条
+    UIApplication *app = [UIApplication sharedApplication];
+    app.statusBarHidden = YES;
+    
+    //选择规格的view在下面隐藏着，
+    self.bottomLayout.constant = -kScreenH*2/3-30;
+    
+    //修改约束
+    NSInteger buttonNum = self.productDetailModel.productFarmatArr.count;
+    NSInteger rowNum = buttonNum/3;//行数
+    //如果不能被3整除，说明有余数，就要在加一行，例如 1/3=0
+    if (buttonNum % 3 != 0) {
+        rowNum++;
+    }
+    // selectView居上面的高度 53；selectView局下面的高度108
+    self.scrollViewContentHeightLayout.constant = 53 + 108 + rowNum*(kButtonH + 10);
+    
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+
+    //动画进行从底部出现
+    [UIView animateWithDuration:.2 animations:^{
+        self.bottomLayout.constant = 0 ;
+        [self.view layoutIfNeeded];//不加这句话，动画效果就不会显示
+    }];
+    
+
+}
+
+
+//页面将要消失，回复电池条
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    UIApplication *app = [UIApplication sharedApplication];
+    app.statusBarHidden = NO;
+    
+    
+}
+
+
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-   //创建button
+   
+    //给背景赋值，即上个屏幕的截屏
+    self.backImageView.image = self.backImage;
     
     
+    //创建button
     for (int i = 0; i < self.productDetailModel.productFarmatArr.count; i++) {
         
         IndexButton *formatButton = [[IndexButton alloc] initWithFrame:CGRectMake(i%3*(kButtonW + 10), i/3*(kButtonH + 10), kButtonW, kButtonH)];
@@ -65,35 +124,42 @@
         
     }
     
+    
     //更新标题和价格
     [self upSelectProductNameAndPriceWithModel:self.productDetailModel];
+    
+   
+    
     
 }
 
 //更新标题和价格
 - (void)upSelectProductNameAndPriceWithModel:(ProductDetailModel *)detailModel {
-    
+    [self.productImageView setWebImageURLWithImageUrlStr:detailModel.productModel.productImageUrlstr withErrorImage:[UIImage imageNamed:@"productImage"]];
     self.productTitleLabel.text = detailModel.productModel.productTitle;
     self.productPriceLabel.text = [NSString stringWithFormat:@"￥%@", detailModel.productModel.productPrice ];
     
 }
 
-//页面将要显示，
-- (void)viewWillAppear:(BOOL)animated {
-    [super viewWillAppear:animated];
-    //修改约束
-    NSInteger buttonNum = self.productDetailModel.productFarmatArr.count;
-    // selectView居上面的高度 53；selectView局下面的高度108
-    self.scrollViewContentHeightLayout.constant = 53 + 108 + buttonNum/3*(kButtonH + 10);
-    
-}
+
 
 
 //关闭button
 - (IBAction)dismissButtonAction:(UIButton *)sender {
     //block刷新详情页的UI
     self.refreshFormatBlock();
-    [self dismissViewControllerAnimated:YES completion:nil];
+    
+    //动画进行,消失在底部
+    [UIView animateWithDuration:.2 animations:^{
+        self.bottomLayout.constant = -kScreenH*2/3-30;
+        [self.view layoutIfNeeded];//不加这句话，动画效果就不会显示
+    } completion:^(BOOL finished) {
+        [self dismissViewControllerAnimated:NO completion:nil];
+
+    }];
+    
+  
+    
 }
 
 //选择某个规格的buttonAction
@@ -196,7 +262,9 @@
         [manager httpProductToShoppingCarWithFormatId:self.productDetailModel.productModel.productFormatID withProductCount:tempProductCount withSuccessToShoppingCarResult:^(id successResult) {
             
             [alertM showAlertViewWithTitle:nil withMessage:@"加入购物车成功" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
-                [self dismissViewControllerAnimated:YES completion:nil];
+                //消失
+                [self dismissButtonAction:nil];
+
             }];
             
             //发送通知，让购物车界面刷新
@@ -207,7 +275,7 @@
         }];
         
         //block刷新详情页的UI
-        self.refreshFormatBlock();
+//        self.refreshFormatBlock();
 
     }else {
         //未登录

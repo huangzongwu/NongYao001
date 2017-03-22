@@ -28,7 +28,7 @@
 
 - (NSString *)mainUrl {
     //托管服务器
-    return @"http://api.nzw0.com:8001/";
+    return @"http://api.ertj.cn:8001/";
     //本地
 //    return @"http://192.168.0.233:5260/";
 
@@ -43,6 +43,26 @@
 - (NSString *)todayActivityBase {
     return [NSString stringWithFormat:@"%@/TodayActivity",self.baseUrl];
     
+}
+
+//病虫害知识
+- (NSString *)informationPestsBase {
+    return  [NSString stringWithFormat:@"%@/InformationPests",self.baseUrl];
+}
+
+
+//资讯
+- (NSString *)informationIndexBase {
+    return [NSString stringWithFormat:@"%@/InformationIndex",self.baseUrl];
+}
+
+#pragma mark - 搜索 -
+- (NSString *)siteSearchBase {
+    return [NSString stringWithFormat:@"%@/SiteSearch",self.baseUrl];
+}
+#pragma mark - 分类 -
+- (NSString *)productsBySortTypeBase {
+    return [NSString stringWithFormat:@"%@/ProductsBySortType",self.baseUrl];
 }
 
 
@@ -68,9 +88,10 @@
     return [NSString stringWithFormat:@"%@/ProductCategory?col=p_type",self.baseUrl];
 }
 
-//模糊查询产品信息
-- (NSString *)fuzzySearchProductInfoWithCode:(NSString *)code withName:(NSString *)name withAreaid:(NSString *)areaId withPd:(NSString *)pd withSuppliername:(NSString *)suppliername withLevel:(NSString *)level withStatus:(NSString *)status withPrice:(NSString *)price withDate:(NSString *)date withPageindex:(NSInteger )pageIndex withPageSize:(NSString *)pageSize {
-    return [NSString stringWithFormat:@"%@/Product?code=%@&name=%@&areaid=%@&pd=%@&suppliername=%@&level=%@&status=%@&price=%@&date=%@&pageindex=%ld&pagesize=%@",self.baseUrl,code,name,areaId,pd,suppliername,level,status,price,date,pageIndex,pageSize];
+
+//产品的交易记录
+- (NSString *)productTradeRecordBase {
+    return [NSString stringWithFormat:@"%@/TransactionRecord",self.baseUrl];
 }
 
 
@@ -118,6 +139,12 @@
 - (NSString *)orderListWithUserID:(NSString *)userID withProduct:(NSString *)product withCode:(NSString *)code withOrderStatus:(NSString *)orderStatus withPageIndex:(NSInteger)pageIndex withPageSize:(NSInteger )pageSize {
 
     return [NSString stringWithFormat:@"%@/OrderGenerated?id=%@&product=%@&code=%@&status=%@&pageindex=%ld&pagesize=%ld",self.baseUrl,userID,product,code,orderStatus,pageIndex,pageSize];
+}
+
+//用户退货订单查询
+- (NSString *)orderReturnListUserId:(NSString *)userId withCode:(NSString *)code withPageIndex:(NSInteger)pageIndex withPageSize:(NSInteger)pageSize {
+    
+    return [NSString stringWithFormat:@"%@/OrderGenerated?id=%@&code=%@&pageindex=%ld&pagesize=%ld",self.baseUrl,userId,code,pageIndex,pageSize];
 }
 
 //生成订单
@@ -222,6 +249,11 @@
 - (NSString *)userDataBase {
     return [NSString stringWithFormat:@"%@/userdata",self.baseUrl];
 }
+
+//修改头像
+- (NSString *)userIconBase {
+    return [NSString stringWithFormat:@"%@/UserIcon",self.baseUrl];
+}
 #pragma mark - 我的代理 -
 //基本代理数据
 - (NSString *)myAgentDataBase {
@@ -258,9 +290,50 @@
 - (NSString *)userBase {
     return [NSString stringWithFormat:@"%@/User",self.baseUrl];
 }
+
+//检验是否已经注册了
+- (NSString *)isUserRegisterBase {
+    return [NSString stringWithFormat:@"%@/IsUserRegistry",self.baseUrl];
+}
+
+
 //代理商注册
 - (NSString *)AgentMerchantsBase {
     return [NSString stringWithFormat:@"%@/AgentMerchants",self.baseUrl];
+}
+
+
+#pragma mark - 真假查询 -
+- (NSString *)getTrueCheckWithCertificateNo:(NSString *)certificateNo {
+    return [NSString stringWithFormat:@"http://nywy.nongyao001.com/API/api.php?footer=&header=&submitFlag=0&flag=0&pageNo=1&productName=&productType=&agentType=&crop=&preventionObject=&danHunJi=&isValid=&note=&certificateNo=%@",certificateNo];
+}
+- (NSString *)getTrueCheckWithComposition:(NSString *)composition {
+    //汉字，需要解码
+    return [[NSString stringWithFormat:@"http://nywy.nongyao001.com/API/api.php?footer=&header=&submitFlag=0&flag=0&pageNo=1&productName=&productType=&agentType=&crop=&preventionObject=&danHunJi=&isValid=&note=&composition=%@",composition] stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+}
+- (NSString *)getTrueCheckWithCompany:(NSString *)company {
+    return [[NSString stringWithFormat:@"http://nywy.nongyao001.com/API/api.php?footer=&header=&submitFlag=0&flag=0&pageNo=1&productName=&productType=&agentType=&crop=&preventionObject=&danHunJi=&isValid=&note=&company=%@",company] stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+}
+
+//肥料--等级证号
+- (NSString *)getTrueCheckTwoWithCertificateNo:(NSString *)certificateNo {
+    return [[NSString stringWithFormat:@"http://nywy.nongyao001.com/api/api7.php?txtzh=%@",certificateNo] stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+    
+}
+//肥料--企业名称
+- (NSString *)getTrueCheckTwoWithCompany:(NSString *)company {
+    return [[NSString stringWithFormat:@"http://nywy.nongyao001.com/api/api7.php?enterprise_name=%@",company] stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+}
+
+//微生物--等级证号，即纯数字
+- (NSString *)getTrueCheckThreeWithCertificateNo:(NSString *)certificateNo {
+    return [[NSString stringWithFormat:@"http://nywy.nongyao001.com/api/api7.php?Sproduct=复合微生物肥料&txtzh=%@",certificateNo] stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+    
+}
+//微生物--企业名称，即不是纯数字
+- (NSString *)getTrueCheckThreeWithCompany:(NSString *)company {
+    return [[NSString stringWithFormat:@"http://nywy.nongyao001.com/api/api7.php?Sproduct=复合微生物肥料&enterprise_name=%@",company] stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+    
 }
 
 
@@ -268,6 +341,11 @@
 //地区信息
 - (NSString *)getAreaTree {
     return [NSString stringWithFormat:@"%@/area?tree=",self.baseUrl];
+}
+
+//上传头像
+- (NSString *)uploadImage {
+    return [NSString stringWithFormat:@"%@/UploadFile",self.baseUrl];
 }
 
 

@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "IndexButton.h"
 #import "MyFavoriteListModel.h"
+#import "ProductModel.h"
 @interface MyFavoriteListTableViewCell : UITableViewCell
 
 @property (weak, nonatomic) IBOutlet UIImageView *productImageView;
@@ -23,6 +24,7 @@
 @property (weak, nonatomic) IBOutlet IndexButton *joinShoppingCarButton;
 
 - (void)updateMyFavoriteListCell:(MyFavoriteListModel *)myFavotiteProductModel;
+- (void)updateMyBrowerListCell:(ProductModel *)myBrowerProductModel;
 
 
 @end

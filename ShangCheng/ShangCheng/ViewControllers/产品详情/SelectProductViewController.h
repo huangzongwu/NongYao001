@@ -12,6 +12,7 @@
 typedef void(^RefreshFormatBlock)();
 
 @interface SelectProductViewController : UIViewController
+@property (nonatomic,strong)UIImage *backImage;
 @property (nonatomic,strong)ProductDetailModel *productDetailModel;
 @property (nonatomic,copy)RefreshFormatBlock refreshFormatBlock;
 @end

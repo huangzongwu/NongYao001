@@ -15,6 +15,7 @@
 #import "AlertManager.h"
 
 @interface PreviewOrderViewController ()<UITableViewDataSource,UITableViewDelegate>
+
 //couponId:优惠卷id  saleCode:优惠码  saleMoney:优惠金额
 @property (nonatomic,strong)NSDictionary *saleMoneyDic;
 //记录下单时间
@@ -56,6 +57,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    
     Manager *manager = [Manager shareInstance];
     //默认是没有选择优惠券
     self.saleMoneyDic = @{@"couponId":@"",@"saleCode":@"",@"saleMoney":@"0"};
@@ -100,8 +102,31 @@
 
     self.selectReceiveNameAndMobileLabel.text = [NSString stringWithFormat:@"%@  %@",selectReceiveModel.receiverName,phoneStr];
     
-    self.selectReceiveAddressLabel.text = [NSString stringWithFormat:@"%@ %@ %@ %@",selectReceiveModel.capitalname,selectReceiveModel.cityname,selectReceiveModel.countyname,selectReceiveModel.receiveAddress];
+    
+    //地址赋值
+    NSString *detailAddressStr = @"" ;
+    if (selectReceiveModel.capitalname!= nil && selectReceiveModel.capitalname.length > 0) {
+        detailAddressStr = [detailAddressStr stringByAppendingString:selectReceiveModel.capitalname];
+        detailAddressStr = [detailAddressStr stringByAppendingString:@" "];
+    }
+    
+    if (selectReceiveModel.cityname!= nil && selectReceiveModel.cityname.length > 0) {
+        detailAddressStr = [detailAddressStr stringByAppendingString:selectReceiveModel.cityname];
+        detailAddressStr = [detailAddressStr stringByAppendingString:@" "];
+    }
+    
+    if (selectReceiveModel.countyname!= nil && selectReceiveModel.countyname.length > 0) {
+        detailAddressStr = [detailAddressStr stringByAppendingString:selectReceiveModel.countyname];
+        detailAddressStr = [detailAddressStr stringByAppendingString:@" "];
+    }
+    
+    if (selectReceiveModel.receiveAddress!= nil && selectReceiveModel.receiveAddress.length > 0) {
+        detailAddressStr = [detailAddressStr stringByAppendingString:selectReceiveModel.receiveAddress];
+        detailAddressStr = [detailAddressStr stringByAppendingString:@" "];
+    }
+    self.selectReceiveAddressLabel.text = detailAddressStr;
 
+    
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -197,6 +222,16 @@
 #pragma mark - 头部地址选择 -
 
 #pragma mark - 联系客服 -
+- (IBAction)telToPeopleService:(UIButton *)sender {
+    AlertManager *alertM = [AlertManager shareIntance];
+    [alertM showAlertViewWithTitle:@"拨打客服电话" withMessage:@"是否要拨打客服电话400-6076-152" actionTitleArr:@[@"取消",@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
+        if (actionBlockNumber == 1) {
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"tel:4006076152"]];
+            
+        }
+    }];
+
+}
 
 
 #pragma mark - 底部功能 -
@@ -206,18 +241,23 @@
     //得到地区数据
     Manager *manager = [Manager shareInstance];
     ReceiveAddressModel *selectReceiveModel = [manager selectedReceiveAddressModel];
-    
-    [manager creatOrderWithUserID:manager.memberInfoModel.u_id withReceivedID:selectReceiveModel.receiverID withTotalAmount:[NSString stringWithFormat:@"%f",[self computeProductTotalPrice]] withDiscount:[self.saleMoneyDic objectForKey:@"saleMoney"] withCouponId:[self.saleMoneyDic objectForKey:@"couponId"] withArr:self.selectedProductArr withOrderSuccessResult:^(id successResult) {
-        
-        self.creatOrderId = successResult;
-        
-        //提交订单后，就进入支付界面
-        [self performSegueWithIdentifier:@"previewOrderVCToPayVC" sender:sender];
-        
-        
-    } withOrderFailResult:^(NSString *failResultStr) {
-        
-    }];
+    if (selectReceiveModel != nil && selectReceiveModel.receiverID != nil) {
+        [manager creatOrderWithUserID:manager.memberInfoModel.u_id withReceivedID:selectReceiveModel.receiverID withTotalAmount:[NSString stringWithFormat:@"%f",[self computeProductTotalPrice]] withDiscount:[self.saleMoneyDic objectForKey:@"saleMoney"] withCouponId:[self.saleMoneyDic objectForKey:@"couponId"] withArr:self.selectedProductArr withOrderSuccessResult:^(id successResult) {
+            
+            self.creatOrderId = successResult;
+            //发送通知通知订单列表刷新页面
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"refreshOrderList" object:self userInfo:nil];
+            //提交订单后，就进入支付界面
+            [self performSegueWithIdentifier:@"previewOrderVCToPayVC" sender:sender];
+            
+            
+        } withOrderFailResult:^(NSString *failResultStr) {
+            
+        }];
+    }else {
+        NSLog(@"未选择地址");
+    }
+
     
      
 }

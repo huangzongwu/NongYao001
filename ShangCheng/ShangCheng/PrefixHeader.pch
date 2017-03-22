@@ -14,6 +14,9 @@
 #define kColor(X,Y,Z,A) [UIColor colorWithRed:X/255.0 green:Y/255.0 blue:Z/255.0 alpha:A]
 #define kMainColor [UIColor colorWithRed:208/255.0 green:23/255.0 blue:21/255.0 alpha:1]
 #define k333333Color [UIColor colorWithRed:51/255.0 green:51/255.0 blue:51/255.0 alpha:1]
+#define k666666Color [UIColor colorWithRed:102/255.0 green:102/255.0 blue:102/255.0 alpha:1]
+#define k999999Color [UIColor colorWithRed:153/255.0 green:153/255.0 blue:153/255.0 alpha:1]
+
 
 #define kccccccColor [UIColor colorWithRed:204/255.0 green:204/255.0 blue:204/255.0 alpha:1]
 

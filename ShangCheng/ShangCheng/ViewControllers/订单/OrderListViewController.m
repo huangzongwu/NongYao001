@@ -16,6 +16,7 @@
 #import "LineButton.h"
 #import "MJRefresh.h"
 #import "Manager.h"
+#import "KongImageView.h"
 @interface OrderListViewController ()<UITableViewDataSource,UITableViewDelegate>
 //切换分类的scrollView
 @property (weak, nonatomic) IBOutlet UIScrollView *backScrollView;
@@ -28,7 +29,6 @@
 @property (weak, nonatomic) IBOutlet LineButton *goOnButton;
 //已完成
 @property (weak, nonatomic) IBOutlet LineButton *finishButton;
-
 
 //哪个TabelView 1-全部  2-待付款  3-进行中  4-已完成
 @property (nonatomic,strong)NSString *whichTableView;
@@ -47,6 +47,11 @@
 
 //合并付款的高度
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *payTogetherHeightLayout;
+//空白页
+@property (nonatomic,strong)KongImageView *kongImageView1;
+@property (nonatomic,strong)KongImageView *kongImageView2;
+@property (nonatomic,strong)KongImageView *kongImageView3;
+@property (nonatomic,strong)KongImageView *kongImageView4;
 
 @end
 
@@ -57,11 +62,11 @@
         //默认的是1
         self.whichTableView = @"1";
 
-        
         //通知，需要刷新
         [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(refreshOrderListNotification:) name:@"refreshOrderList" object:nil];
+        [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(refreshOrderListNotification:) name:@"logedIn" object:nil];
+        [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(refreshOrderListNotification:) name:@"logOff" object:nil];
         [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(switchOrderType:) name:@"mineToOrderListVC" object:nil];
-        
 
     }
     return self;
@@ -84,59 +89,60 @@
 }
 
 - (void)viewDidAppear:(BOOL)animated {
+    
     [super viewDidAppear:animated];
     //登录了，才可以请求数据。默认请求全部数据
-    Manager *manager = [Manager shareInstance];
-    if ([manager isLoggedInStatus] == YES){
-        //请求数据
-        switch ([self.whichTableView integerValue]) {
-            case 1:
-                //检查是否需要更新
-                if ([self.isHttpArr[0] isEqualToString:@"1"]) {
-                    [self.allTableView headerBeginRefreshing];
-                }
-                break;
-            case 2:
-                if ([self.isHttpArr[1] isEqualToString:@"1"]) {
-                    [self.waitPayTableView headerBeginRefreshing];
-                }
-                break;
-            case 3:
-                if ([self.isHttpArr[2] isEqualToString:@"1"]) {
-                    [self.goOnTableView headerBeginRefreshing];
-                }
-                break;
-            case 4:
-                if ([self.isHttpArr[3] isEqualToString:@"1"]) {
-                    [self.finishTableView headerBeginRefreshing];
-                }
-                break;
-            default:
-                break;
-        }
-        
+    
+    //请求数据
+    switch ([self.whichTableView integerValue]) {
+        case 1:
+            //检查是否需要更新
+            if ([self.isHttpArr[0] isEqualToString:@"1"]) {
+                [self.allTableView headerBeginRefreshing];
+            }
+            break;
+        case 2:
+            if ([self.isHttpArr[1] isEqualToString:@"1"]) {
+                [self.waitPayTableView headerBeginRefreshing];
+            }
+            break;
+        case 3:
+            if ([self.isHttpArr[2] isEqualToString:@"1"]) {
+                [self.goOnTableView headerBeginRefreshing];
+            }
+            break;
+        case 4:
+            if ([self.isHttpArr[3] isEqualToString:@"1"]) {
+                [self.finishTableView headerBeginRefreshing];
+            }
+            break;
+        default:
+            break;
     }
+        
+    
 }
 
 //下拉刷新
 - (void)downPushRefresh {
     
-    [self.allTableView addHeaderWithCallback:^{
-        NSLog(@"全部tableView刷新");
-        [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:1 withTableView:self.allTableView];
-    }];
-    [self.waitPayTableView addHeaderWithCallback:^{
-        NSLog(@"待付款tableView刷新");
-        [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:1 withTableView:self.waitPayTableView];
-    }];
-    [self.goOnTableView addHeaderWithCallback:^{
-        NSLog(@"进行中tableView刷新");
-        [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:1  withTableView:self.goOnTableView];
-    }];
-    [self.finishTableView addHeaderWithCallback:^{
-        NSLog(@"已完成tableView刷新");
-        [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:1 withTableView:self.finishTableView];
-    }];
+        [self.allTableView addHeaderWithCallback:^{
+            NSLog(@"全部tableView刷新");
+            
+            [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:1 withTableView:self.allTableView];
+        }];
+        [self.waitPayTableView addHeaderWithCallback:^{
+            NSLog(@"待付款tableView刷新");
+            [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:1 withTableView:self.waitPayTableView];
+        }];
+        [self.goOnTableView addHeaderWithCallback:^{
+            NSLog(@"进行中tableView刷新");
+            [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:1  withTableView:self.goOnTableView];
+        }];
+        [self.finishTableView addHeaderWithCallback:^{
+            NSLog(@"已完成tableView刷新");
+            [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:1 withTableView:self.finishTableView];
+        }];
     
 }
 
@@ -243,40 +249,122 @@
     //默认都是第一页
     self.currentPageArr = [NSMutableArray arrayWithObjects:@"1",@"1",@"1",@"1",nil];
     
+    //加载空白页1
+    self.kongImageView1 = [[[NSBundle mainBundle] loadNibNamed:@"KongImageView" owner:self options:nil] firstObject];
+    [self.kongImageView1.reloadAgainButton addTarget:self action:@selector(reloadAgainButtonAction1:) forControlEvents:UIControlEventTouchUpInside];
+    self.kongImageView1.frame = self.allTableView.bounds;
+    [self.allTableView addSubview:self.kongImageView1];
+
+    //加载空白页2
+    self.kongImageView2 = [[[NSBundle mainBundle] loadNibNamed:@"KongImageView" owner:self options:nil] firstObject];
+    [self.kongImageView2.reloadAgainButton addTarget:self action:@selector(reloadAgainButtonAction2:) forControlEvents:UIControlEventTouchUpInside];
+    self.kongImageView2.frame = self.waitPayTableView.bounds;
+    [self.waitPayTableView addSubview:self.kongImageView2];
+
+    //加载空白页3
+    self.kongImageView3 = [[[NSBundle mainBundle] loadNibNamed:@"KongImageView" owner:self options:nil] firstObject];
+    [self.kongImageView3.reloadAgainButton addTarget:self action:@selector(reloadAgainButtonAction3:) forControlEvents:UIControlEventTouchUpInside];
+    self.kongImageView3.frame = self.goOnTableView.bounds;
+    [self.goOnTableView addSubview:self.kongImageView3];
+
+    //加载空白页4
+    self.kongImageView4 = [[[NSBundle mainBundle] loadNibNamed:@"KongImageView" owner:self options:nil] firstObject];
+    [self.kongImageView4.reloadAgainButton addTarget:self action:@selector(reloadAgainButtonAction4:) forControlEvents:UIControlEventTouchUpInside];
+    self.kongImageView4.frame = self.finishTableView.bounds;
+    [self.finishTableView addSubview:self.kongImageView4];
 
 }
+
+- (void)reloadAgainButtonAction1:(IndexButton *)sender {
+    if (sender.indexForButton.row == 1) {
+        //重新请求数据
+        [self.allTableView headerBeginRefreshing];
+    }
+    if (sender.indexForButton.row == 4) {
+        //登录
+        UINavigationController *loginNav = [self.storyboard instantiateViewControllerWithIdentifier:@"loginNavigationController"];
+        [self presentViewController:loginNav animated:YES completion:nil];
+    }
+
+}
+- (void)reloadAgainButtonAction2:(IndexButton *)sender {
+    if (sender.indexForButton.row == 1) {
+        //重新请求数据
+        [self.waitPayTableView headerBeginRefreshing];
+    }
+    if (sender.indexForButton.row == 4) {
+        //登录
+        UINavigationController *loginNav = [self.storyboard instantiateViewControllerWithIdentifier:@"loginNavigationController"];
+        [self presentViewController:loginNav animated:YES completion:nil];
+    }
+
+}
+- (void)reloadAgainButtonAction3:(IndexButton *)sender {
+    if (sender.indexForButton.row == 1) {
+        //重新请求数据
+        [self.goOnTableView headerBeginRefreshing];
+    }
+    if (sender.indexForButton.row == 4) {
+        //登录
+        UINavigationController *loginNav = [self.storyboard instantiateViewControllerWithIdentifier:@"loginNavigationController"];
+        [self presentViewController:loginNav animated:YES completion:nil];
+    }
+
+}
+- (void)reloadAgainButtonAction4:(IndexButton *)sender {
+    if (sender.indexForButton.row == 1) {
+        //重新请求数据
+        [self.finishTableView headerBeginRefreshing];
+    }
+    if (sender.indexForButton.row == 4) {
+        //登录
+        UINavigationController *loginNav = [self.storyboard instantiateViewControllerWithIdentifier:@"loginNavigationController"];
+        [self presentViewController:loginNav animated:YES completion:nil];
+    }
+
+}
+
 
 
 //请求订单数据
 - (void)httpOrderListWithProduct:(NSString *)product withCode:(NSString *)code withPageIndex:(NSInteger )pageIndex withTableView:(UITableView *)tempTableView  {
 
-    
     Manager *manager = [Manager shareInstance];
     
-    [manager getOrderListDataWithUserID:manager.memberInfoModel.u_id withProduct:product withCode:code withWhichTableView:self.whichTableView withPageIndex:pageIndex withPageSize:10 withOrderListSuccessResult:^(id successResult) {
-        
-        if (pageIndex == 1) {
-            //刷新
-            //请求后，标记已经刷新过了
-            self.isHttpArr[[self.whichTableView integerValue]-1] = @"0";
-            //刷新了，就要重置currentPage
-            self.currentPageArr[[self.whichTableView integerValue]-1] = @"1";
-            [tempTableView headerEndRefreshing];//取消头部刷新效果
-        }else {
-            //加载
-            [tempTableView footerEndRefreshing];//取消尾部加载效果
-            //加载要刷新currentPage
-            self.currentPageArr[[self.whichTableView integerValue]-1] = [NSString stringWithFormat:@"%ld",pageIndex];
-            
-        }
-        
-        [tempTableView reloadData];
-
-    } withOrderListFailResult:^(NSString *failResultStr) {
-        NSLog(@"%@", failResultStr);
-
-    }];
+    if ([manager isLoggedInStatus] == YES) {
     
+        [manager getOrderListDataWithUserID:manager.memberInfoModel.u_id withProduct:product withCode:code withWhichTableView:self.whichTableView withPageIndex:pageIndex withPageSize:10 withOrderListSuccessResult:^(id successResult) {
+            
+            if (pageIndex == 1) {
+                //刷新
+                //请求后，标记已经刷新过了
+                self.isHttpArr[[self.whichTableView integerValue]-1] = @"0";
+                //刷新了，就要重置currentPage
+                self.currentPageArr[[self.whichTableView integerValue]-1] = @"1";
+                [tempTableView headerEndRefreshing];//取消头部刷新效果
+                
+                //看看是否有空白页
+                [self isShowKongImageViewWithType:KongTypeWithKongData withKongMsg:@"订单数据为空"];
+            }else {
+                //加载
+                [tempTableView footerEndRefreshing];//取消尾部加载效果
+                //加载要刷新currentPage
+                self.currentPageArr[[self.whichTableView integerValue]-1] = [NSString stringWithFormat:@"%ld",pageIndex];
+                
+            }
+            
+            [tempTableView reloadData];
+
+        } withOrderListFailResult:^(NSString *failResultStr) {
+            NSLog(@"%@", failResultStr);
+            //看看是否有空白页
+            [self isShowKongImageViewWithType:KongTypeWithNetError withKongMsg:@"网络错误"];
+        }];
+    }else {
+        [tempTableView headerEndRefreshing];//取消头部刷新效果
+
+        [self isShowKongImageViewWithType:KongTypeWithNotLogin withKongMsg:@"请您先登录哦"];
+    }
     
 }
 
@@ -292,27 +380,25 @@
     self.backScrollView.contentOffset = CGPointMake(0, 0);
     
     Manager *manager = [Manager shareInstance];
-    //登录了，并且需要刷新，才请求数据。默认请求全部数据
-    if ([manager isLoggedInStatus] == YES && [self.isHttpArr[0] isEqualToString:@"1"]) {
+    //需要刷新，才请求数据。默认请求全部数据
+    if ([self.isHttpArr[0] isEqualToString:@"1"]) {
         
         [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:1 withTableView:self.allTableView];
     }
-
 }
 //待付款
 - (IBAction)waitPayButtonAction:(LineButton *)sender {
     self.whichTableView = @"2";
     //刷新UI
     [self changeLineButtonWithButton:sender];
-   
     
     //没有合并付款
     self.payTogetherHeightLayout.constant = 61;
     self.backScrollView.contentOffset = CGPointMake(kScreenW, 0);
 
     Manager *manager = [Manager shareInstance];
-    //登录了，并且需要刷新，才请求数据。默认请求全部数据
-    if ([manager isLoggedInStatus] == YES && [self.isHttpArr[1] isEqualToString:@"1"]) {
+    //需要刷新，才请求数据。默认请求全部数据
+    if ( [self.isHttpArr[1] isEqualToString:@"1"]) {
         
         [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:1 withTableView:self.waitPayTableView];
     }
@@ -324,23 +410,19 @@
     self.whichTableView = @"3";
     //刷新UI
     [self changeLineButtonWithButton:sender];
-   
-    
     //没有合并付款
     self.payTogetherHeightLayout.constant = 0;
     self.backScrollView.contentOffset = CGPointMake(kScreenW*2, 0);
     
-    //登录了，并且需要刷新，才请求数据。默认请求全部数据
+    //需要刷新，才请求数据。默认请求全部数据
     Manager *manager = [Manager shareInstance];
-    if ([manager isLoggedInStatus] == YES && [self.isHttpArr[2] isEqualToString:@"1"]) {
+    if ([self.isHttpArr[2] isEqualToString:@"1"]) {
 
         [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:1 withTableView:self.goOnTableView];
     }
 
 
 }
-
-
 
 //已完成
 - (IBAction)finishButtonAction:(LineButton *)sender {
@@ -355,7 +437,7 @@
 
     //登录了，并且需要刷新，才请求数据。默认请求全部数据
     Manager *manager = [Manager shareInstance];
-    if ([manager isLoggedInStatus] == YES && [self.isHttpArr[3] isEqualToString:@"1"]) {
+    if ( [self.isHttpArr[3] isEqualToString:@"1"]) {
 
         [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:1 withTableView:self.finishTableView];
     }
@@ -599,6 +681,58 @@
     
 }
 
+
+#pragma mark - 空白页 -
+- (void)isShowKongImageViewWithType:(KongType )kongType withKongMsg:(NSString *)msg {
+    Manager *manager = [Manager shareInstance];
+    NSMutableArray *tempArr = [[manager.orderListDataSourceDic objectForKey:self.whichTableView] objectForKey:@"content"];
+    if (tempArr.count > 0) {
+        switch ([self.whichTableView integerValue]) {
+            case 1:
+                [self.kongImageView1 hiddenKongView];
+
+                break;
+            case 2:
+                [self.kongImageView2 hiddenKongView];
+
+                break;
+            case 3:
+                [self.kongImageView3 hiddenKongView];
+
+                break;
+            case 4:
+                [self.kongImageView4 hiddenKongView];
+
+                break;
+            default:
+                break;
+        }
+
+    }else {
+        switch ([self.whichTableView integerValue]) {
+            case 1:
+                [self.kongImageView1 showKongViewWithKongMsg:msg withKongType:kongType];
+                
+                break;
+            case 2:
+                [self.kongImageView2 showKongViewWithKongMsg:msg withKongType:kongType];
+                
+                break;
+            case 3:
+                [self.kongImageView3 showKongViewWithKongMsg:msg withKongType:kongType];
+                
+                break;
+            case 4:
+                [self.kongImageView4 showKongViewWithKongMsg:msg withKongType:kongType];
+                
+                break;
+            default:
+                break;
+        }
+
+    }
+
+}
 
 
 

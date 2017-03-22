@@ -19,7 +19,29 @@
         self.nameAndPhoneLabel.text = [NSString stringWithFormat:@"%@  未知电话",addressModel.receiverName];
     }
     
-    self.detailAddressLabel.text = [NSString stringWithFormat:@"%@ %@ %@ %@",addressModel.capitalname,addressModel.cityname,addressModel.countyname,addressModel.receiveAddress];
+    NSString *detailAddressStr = @"" ;
+    if (addressModel.capitalname!= nil && addressModel.capitalname.length > 0) {
+        detailAddressStr = [detailAddressStr stringByAppendingString:addressModel.capitalname];
+        detailAddressStr = [detailAddressStr stringByAppendingString:@" "];
+    }
+
+    if (addressModel.cityname!= nil && addressModel.cityname.length > 0) {
+        detailAddressStr = [detailAddressStr stringByAppendingString:addressModel.cityname];
+        detailAddressStr = [detailAddressStr stringByAppendingString:@" "];
+    }
+    
+    if (addressModel.countyname!= nil && addressModel.countyname.length > 0) {
+        detailAddressStr = [detailAddressStr stringByAppendingString:addressModel.countyname];
+        detailAddressStr = [detailAddressStr stringByAppendingString:@" "];
+    }
+    
+    if (addressModel.receiveAddress!= nil && addressModel.receiveAddress.length > 0) {
+        detailAddressStr = [detailAddressStr stringByAppendingString:addressModel.receiveAddress];
+        detailAddressStr = [detailAddressStr stringByAppendingString:@" "];
+    }
+    
+    
+    self.detailAddressLabel.text = detailAddressStr;
     
 }
 

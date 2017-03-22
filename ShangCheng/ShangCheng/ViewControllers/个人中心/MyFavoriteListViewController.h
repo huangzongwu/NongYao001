@@ -7,7 +7,13 @@
 //
 
 #import <UIKit/UIKit.h>
+typedef NS_ENUM(NSInteger , IsFavoriteOrBrowse) {
+    IsFavorite,
+    IsBrowse
+};
 
 @interface MyFavoriteListViewController : UIViewController
+
+@property (nonatomic,assign)IsFavoriteOrBrowse isFavoriteOrBrowse;
 
 @end

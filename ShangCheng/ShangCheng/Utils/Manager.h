@@ -20,7 +20,6 @@
 #import "SonOrderModel.h"
 #import "ReceiveAddressModel.h"
 #import "ClassModel.h"
-#import "FuzzySearchModel.h"
 #import "MyCommentListModel.h"
 #import "MyFavoriteListModel.h"
 #import "MyTradeRecordModel.h"
@@ -29,6 +28,10 @@
 #import "MyAgentCashModel.h"
 #import "TodaySaleModel.h"
 #import "TodaySaleListModel.h"
+#import "SearchListModel.h"
+#import "PestsTreeModel.h"
+#import "PestsListModel.h"
+#import "ProductCommentModel.h"
 typedef void(^SuccessResult)(id successResult);
 typedef void(^FailResult)(NSString *failResultStr);
 
@@ -38,8 +41,14 @@ typedef void(^FailResult)(NSString *failResultStr);
 
 //首页数据源
 @property (nonatomic,strong)NSMutableDictionary *homeDataSourceDic;
+//病虫害树
+@property (nonatomic,strong)NSMutableArray *pestsTreeArr;
+//搜索或者分类的病虫害数据源
+@property (nonatomic,strong)NSMutableArray *searchPestsDataSourceArr;
 //产品分类树
 @property (nonatomic,strong)NSMutableArray *productClassTreeArr;
+//搜索或者分类的产品数据源
+@property (nonatomic,strong)NSMutableArray *searchProductListDataSourceArr;
 
 //购物车的商品数据源
 @property (nonatomic,strong)NSMutableArray *shoppingCarDataSourceArr;
@@ -76,14 +85,37 @@ typedef void(^FailResult)(NSString *failResultStr);
 //个人中心 我的钱包数据
 @property (nonatomic,strong)NSMutableDictionary *myWalletDic;
 
+//浏览记录保存
+@property (nonatomic,strong)NSMutableArray *mybrowseListArr;
+
+//售后退货
+@property (nonatomic,strong)NSMutableArray *afterMarketArr;
+
 + (Manager *)shareInstance;
 
 #pragma mark - 首页 -
+//广告条
+- (void)httpAdScrollViewDataSourceWithAdSuccess:(SuccessResult)adSuccess withAdFail:(FailResult)adFail;
 //今日特价
 - (void)todayActivityWithTodaySuccess:(SuccessResult )todaySuccess withTodayFail:(FailResult)todayFail;
 
 //查询今日特价商品
 - (void)searchTodayActivityWithAid:(NSString *)a_id withSearchTodaySuccess:(SuccessResult)searchTodaySuccess withSearchTodayFail:(FailResult)searchTodayFail;
+
+//病虫害树形图
+- (void)httpInformationPestsTreeWithPestsTreeSuccess:(SuccessResult )pestsSuccess withPestsTreeFail:(FailResult)pestsFail ;
+
+//分类病虫害列表
+- (void)httpPestsTypeWithCode:(NSString *)code withPageIndex:(NSInteger)pageIndex withTypeSuccess:(SuccessResult )typeSuccess withTypeFail:(FailResult)typeFail;
+
+
+#pragma mark - 搜索 -
+//keyword=xiaomai&type=产品库&tab=&col=&sort=&desc=1&pageindex=1&pagesize=10
+- (void)searchActionWithKeyword:(NSString *)keyword withType:(NSString *)type withSort:(NSString *)sortStr withDesc:(NSString *)desc withPageindex:(NSInteger )pageindex withSearchSuccess:(SuccessResult)searchSuccess withSearchFail:(FailResult)searchFail;
+
+#pragma mark - 分类 -
+//type=type&code=&sort=&desc=&pageindex=1&pagesize=10
+- (void)httpProductTypeWithCode:(NSString *)code withSort:(NSString *)sort withDesc:(NSString *)desc withPageIndex:(NSInteger)pageIndex withTypeSuccess:(SuccessResult )typeSuccess withTypeFail:(FailResult)typeFail;
 
 #pragma mark - 产品 -
 //首页产品 cnum是热销产品的个数，rnum是推荐产品的个数
@@ -96,10 +128,12 @@ typedef void(^FailResult)(NSString *failResultStr);
 //产品分类树
 - (void)httpProductClassTreeWithClassTreeSuccess:(SuccessResult)classTreeSuccess withClassTreeFali:(FailResult)classTreeFail;
 
-//模糊查询产品信息
-- (void)httpFuzzySearchProductInfoWithFuzzyModel:(FuzzySearchModel *)fuzzySearchModel withPageIndex:(NSInteger )pageIndex withSearchSuccess:(SuccessResult )searchSuccess withSearchFail:(FailResult)searchFail;
 
+//产品的交易记录
+- (void)httpProductTradeRecordWithProductId:(NSString *)productId withPageIndex:(NSInteger)pageIndex withPageSize:(NSInteger)pageSize withTradeRecordSuccess:(SuccessResult )tradeRecordSuccess withTradeRecordFail:(FailResult)tradeRecordFail;
 
+//是否被收藏
+- (void)httpIsFavoriteWithUserId:(NSString *)userID withFormatId:(NSString *)formatId withIsFavoriteSuccess:(SuccessResult )isFavoriteSuccess withIsFavoriteFail:(FailResult)isFavoriteFail ;
 #pragma mark - 购物车 -
 //将产品加入购物车
 - (void)httpProductToShoppingCarWithFormatId:(NSString *)sidStr withProductCount:(NSString *)countStr withSuccessToShoppingCarResult:(SuccessResult)successToShoppingCarResult withFailToShoppingCarResult:(FailResult)failToShoppingCarResult ;
@@ -156,6 +190,8 @@ typedef void(^FailResult)(NSString *failResultStr);
 //物流信息
 - (void)orderLogisticsWithOrderId:(NSString *)orderID withSuccessLogisticsBlock:(SuccessResult )successLogisticsBlock withFailLogisticsBlock:(FailResult)failLogisticsBlock;
 
+//售后列表
+- (void)httpOrderReturnListWithUserId:(NSString *)userId withCode:(NSString *)code withPageIndex:(NSInteger )pageIndex withPageSize:(NSInteger )pageSize withOrderReturnSuccess:(SuccessResult )orderReturnSuccess withOrderReturnFail:(FailResult)orderReturnFail;
 
 
 #pragma mark - 支付 -
@@ -207,6 +243,9 @@ typedef void(^FailResult)(NSString *failResultStr);
 
 
 #pragma mark - 评价 -
+//产品的评价列表
+- (void)productCommentListWithProductId:(NSString *)productId withPageIndex:(NSInteger )pageIndex withPageSize:(NSInteger )pageSize withCommentListSuccess:(SuccessResult )commentListSuccess withCommentListFail:(FailResult)commentListFail ;
+
 //订单评论
 - (void)orderCommentWithUserid:(NSString *)userId withOrderId:(NSString *)orderId withStarLevel:(NSString *)starLevel withContent:(NSString *)content withCommentSuccessBlock:(SuccessResult)commentSuccessBock withCommentFailBlock:(FailResult)commentFailBlock;
 
@@ -235,6 +274,9 @@ typedef void(^FailResult)(NSString *failResultStr);
 - (void)httpUserAgentCashApplicationWithUserId:(NSString *)userId withType:(NSString *)type withBankName:(NSString *)bankName withName:(NSString *)name withCode:(NSString *)code withAmount:(NSString *)amount withNote:(NSString *)note withAgentCashSuccess:(SuccessResult )agentCashSuccess withAgentCashFail:(FailResult)agentCashFail;
 
 #pragma mark - 修改个人资料 -
+//修改个人头像
+- (void)httpMotifyMemberAvatarWithUserId:(NSString *)userId withMotifyAvatarImage:(UIImage *)avatarImg withMotifyAvatarSuccess:(SuccessResult)motifyAvatarSuccess withMotifyAvatarFail:(FailResult)motifyAvatarFail ;
+//修改个人资料
 - (void)httpMotifyMemberInfoWithUserID:(NSString *)userID withUsername:(NSString *)userName withEmail:(NSString *)email withMobile:(NSString *)mobile withQQ:(NSString *)qq withAreaId:(NSString *)areaId WithMotifyMemberSuccess:(SuccessResult )motifySuccess withMotifyMemberFail:(FailResult)motifyFail;
 //修改密码
 - (void)httpMotifyPasswordWithUserId:(NSString *)userId withPassword:(NSString *)password withMotifyPasswordSuccess:(SuccessResult )motifyPasswordSuccess withMotifyPasswordFail:(FailResult )motifyPasswordFail;
@@ -245,6 +287,14 @@ typedef void(^FailResult)(NSString *failResultStr);
 - (void)httpMyAgentPeopleListDataWithUserId:(NSString *)userId withPageindex:(NSInteger )pageIndex withMyAgentSuccess:(SuccessResult)myAgentSuccess withMyagentFail:(FailResult)myAgentFail ;
 //我的代理 订单数据
 - (void)httpMyAgentOrderListDataWithUserId:(NSString *)userId withPageindex:(NSInteger )pageIndex withMyAgentSuccess:(SuccessResult)myAgentSuccess withMyagentFail:(FailResult)myAgentFail ;
+
+#pragma mark - 浏览记录 -
+//从本地获取浏览记录
+- (void)getLocationBrowseList;
+//添加浏览记录
+- (BOOL)addBrowseListActionWithBrowseProduct:(ProductModel *)browseProduct;
+//删除浏览记录
+- (BOOL)deleteBrowseListActionWithBrowseWithIndex:(NSInteger)deleteIndex;
 
 
 #pragma mark - 登录注册 -
@@ -271,10 +321,23 @@ typedef void(^FailResult)(NSString *failResultStr);
 
 //注册代理商
 - (void)httpRegisterDelegateWithTrueName:(NSString *)trueName withPhone:(NSString *)phone withAreaId:(NSString *)areaId withRegisterSuccessResult:(SuccessResult)registerSuccessResult withRegisterFailResult:(FailResult)registerFailResult;
+
+//检验是否注册了
+- (void)httpCheckIsUserRegisterWithMobile:(NSString *)mobile withIsRegisterSuccess:(SuccessResult )isRegisterSuccess withIsRegisterFail:(FailResult)isRegisterFail;
+#pragma mark - 忘记密码 -
+- (void)httpForgetPasswordWithMobile:(NSString *)mobile withPassword:(NSString *)password withForgetSuccess:(SuccessResult)forgetSuccess withForgetFail:(FailResult)forgetFail;
+
 #pragma mark - 图片连接处理 -
 - (NSURL *)webImageURlWith:(NSString *)imageUrlStr;
 
+#pragma mark - 图片压缩 -
+- (UIImage *)compressOriginalImage:(UIImage *)originalImage toMaxDataSizeKBytes:(CGFloat)size ;
+
 #pragma mark - 其他 -
+//上传图片附件
+- (void)uploadImageWithUploadImage:(UIImage *)uploadImage withUploadSuccess:(SuccessResult )uploadSuccess withUploadFail:(FailResult)uploadFail ;
+
+
 //获取当前时间
 - (NSString *)getNowTimeStr; 
 
@@ -282,4 +345,8 @@ typedef void(^FailResult)(NSString *failResultStr);
 - (void)httpAreaTreeWithSuccessAreaInfo:(SuccessResult )successAreaInfo withFailAreaInfo:(FailResult)failAreaInfo ;
 //从字符串中得到年月日等信息
 - (NSDateComponents *)dateStrToDateAndComponentWithDatestr:(NSString *)dateStr;
+
+//截屏
+-(UIImage *)screenShot ;
+
 @end

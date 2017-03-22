@@ -12,6 +12,10 @@
 - (void)updateTodaySaleListCellWithModel:(TodaySaleListModel *)tempModel {
     
     [self.todaySaleListImageView setWebImageURLWithImageUrlStr:@"" withErrorImage:[UIImage imageNamed:@""]];
+//    if (<#condition#>) {
+//        <#statements#>
+//    }
+
     self.todaySaleListTitleLabel.text = tempModel.p_name;
 //    self.todaySaleListCompanyLabel.text = @"";
     self.todaySaleListFormatLabel.text = tempModel.s_standard;

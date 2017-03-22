@@ -12,7 +12,8 @@
 typedef void(^MoreButtonBlock)(NSInteger moreButtonBlock);
 @interface MainCollectionReusableView : UICollectionReusableView
 
-@property (weak, nonatomic) IBOutlet UILabel *sectionTitleLabe;
+@property (weak, nonatomic) IBOutlet UIImageView *titleImageView;
+
 @property (weak, nonatomic) IBOutlet IndexButton *moreButtonForMainCell;
 //block 、
 @property (nonatomic,copy)MoreButtonBlock morebuttonIndexBlock;

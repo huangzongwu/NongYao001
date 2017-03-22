@@ -24,7 +24,7 @@ typedef void(^ButtonActionTypeBlock)(IndexButton *footButton,NSInteger buttonAct
  2 -- 查看物流（待发货状态中的详情也是物流信息）
  3 -- 确认收货
  4 -- 立即评价
- 5 -- 详情
+ 5 -- 再次购买
 */
 @property (nonatomic,strong)ButtonActionTypeBlock buttonActionTypeBlock;
 

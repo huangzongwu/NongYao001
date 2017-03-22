@@ -10,6 +10,8 @@
 #import "TodaySaleListModel.h"
 @interface TodaySaleListCollectionViewCell : UICollectionViewCell
 @property (weak, nonatomic) IBOutlet UIImageView *todaySaleListImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *saleImageView;
+
 @property (weak, nonatomic) IBOutlet UILabel *todaySaleListTitleLabel;
 @property (weak, nonatomic) IBOutlet UILabel *todaySaleListCompanyLabel;
 @property (weak, nonatomic) IBOutlet UILabel *todaySaleListFormatLabel;

@@ -15,9 +15,15 @@
 #pragma mark - 首页 -
 //今日特价
 - (NSString *)todayActivityBase ;
+//病虫害知识
+- (NSString *)informationPestsBase;
+//咨询
+- (NSString *)informationIndexBase;
 
-
-
+#pragma mark - 搜索 -
+- (NSString *)siteSearchBase;
+#pragma mark - 分类 -
+- (NSString *)productsBySortTypeBase;
 #pragma mark - 产品 -
 //- (NSString *)productBaseURL;
 //首页产品 cnum是热销产品的个数，rnum是推荐产品的个数
@@ -30,8 +36,9 @@
 //产品分类树
 - (NSString *)productClassTree;
 
-//模糊查询产品信息
-- (NSString *)fuzzySearchProductInfoWithCode:(NSString *)code withName:(NSString *)name withAreaid:(NSString *)areaId withPd:(NSString *)pd withSuppliername:(NSString *)suppliername withLevel:(NSString *)level withStatus:(NSString *)status withPrice:(NSString *)price withDate:(NSString *)date withPageindex:(NSInteger )pageIndex withPageSize:(NSString *)pageSize ;
+//产品的交易记录
+- (NSString *)productTradeRecordBase;
+
 
 #pragma mark - 购物车 -
 //购物车基本url
@@ -54,6 +61,12 @@
 
 //订单列表 -1全部、0,1B,1A待付款、1,进行中、9已完成
 - (NSString *)orderListWithUserID:(NSString *)userID withProduct:(NSString *)product withCode:(NSString *)code withOrderStatus:(NSString *)orderStatus withPageIndex:(NSInteger)pageIndex withPageSize:(NSInteger )pageSize;
+
+//用户退货订单查询
+- (NSString *)orderReturnListUserId:(NSString *)userId withCode:(NSString *)code withPageIndex:(NSInteger)pageIndex withPageSize:(NSInteger)pageSize;
+
+
+
 //生成订单
 - (NSString *)creatOrderPOSTUrl;
 //取消父订单
@@ -86,6 +99,7 @@
 
 
 #pragma mark - 个人信息 -
+
 //查询个人余额
 - (NSString *)searchUserAmountWithUserID:(NSString *)userID;
 //收货地址列表
@@ -112,6 +126,10 @@
 //个人中心 我的钱包数据
 - (NSString *)userDataBase;
 
+
+//修改头像
+- (NSString *)userIconBase;
+
 #pragma mark - 我的代理 -
 //基本代理数据
 - (NSString *)myAgentDataBase;
@@ -130,15 +148,36 @@
 - (NSString *)checkMobileCodeWithMobileNumber:(NSString *)mobileNumber withCode:(NSString *)code;
 //用户Base接口
 - (NSString *)userBase;
+//检验是否已经注册了
+- (NSString *)isUserRegisterBase;
 
 //代理商注册
 - (NSString *)AgentMerchantsBase;
+
+#pragma mark - 真假查询 -
+//农药--等级证号
+- (NSString *)getTrueCheckWithCertificateNo:(NSString *)certificateNo;
+//农药--有效成分
+- (NSString *)getTrueCheckWithComposition:(NSString *)composition;
+//农药--企业名称
+- (NSString *)getTrueCheckWithCompany:(NSString *)company;
+//肥料--等级证号
+- (NSString *)getTrueCheckTwoWithCertificateNo:(NSString *)certificateNo;
+//肥料--企业名称
+- (NSString *)getTrueCheckTwoWithCompany:(NSString *)company;
+
+//微生物--等级证号，即纯数字
+- (NSString *)getTrueCheckThreeWithCertificateNo:(NSString *)certificateNo;
+//微生物--企业名称，即不是纯数字
+- (NSString *)getTrueCheckThreeWithCompany:(NSString *)company;
 
 
 
 #pragma mark - 其他 -
 //地区信息
 - (NSString *)getAreaTree;
+//上传头像
+- (NSString *)uploadImage;
 
 
 

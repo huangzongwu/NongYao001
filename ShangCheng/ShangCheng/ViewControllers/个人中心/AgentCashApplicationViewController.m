@@ -183,6 +183,7 @@
 
     if ([manager.memberInfoModel.u_type isEqualToString:@"1"]) {
         //代理商
+        
     }else {
         //其他用户
         nameStr = self.nameTextField.text;

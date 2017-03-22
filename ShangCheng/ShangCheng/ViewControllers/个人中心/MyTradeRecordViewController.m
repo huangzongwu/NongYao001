@@ -9,8 +9,17 @@
 #import "MyTradeRecordViewController.h"
 #import "TradeRecordTableViewCell.h"
 #import "Manager.h"
+#import "KongImageView.h"
+#import "MJRefresh.h"
 @interface MyTradeRecordViewController ()<UITableViewDataSource,UITableViewDelegate>
+//当前有页数
+@property (nonatomic,assign)NSInteger currentPage;
+//总共的页数
+@property (nonatomic,assign)NSInteger totalPage;
+
+
 @property (weak, nonatomic) IBOutlet UITableView *tradeRecordtableView;
+@property (nonatomic,strong)KongImageView *kongImageView;
 
 @end
 
@@ -25,34 +34,131 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    //加载空白页
+    self.kongImageView = [[[NSBundle mainBundle] loadNibNamed:@"KongImageView" owner:self options:nil] firstObject];
+    [self.kongImageView.reloadAgainButton addTarget:self action:@selector(reloadAgainButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+    self.kongImageView.frame = self.tradeRecordtableView.bounds;
+    [self.tradeRecordtableView addSubview:self.kongImageView];
     
+    
+
+    //下拉刷新
+    [self downPushRefresh];
+    //上啦加载
+    [self upPushReload];
+    //执行一次刷新
+    [self.tradeRecordtableView headerBeginRefreshing];
+
+}
+
+
+//重新加载按钮
+- (void)reloadAgainButtonAction:(IndexButton *)sender {
+    [self.tradeRecordtableView headerBeginRefreshing];
+}
+
+
+//下拉刷新
+- (void)downPushRefresh {
+    [self.tradeRecordtableView addHeaderWithCallback:^{
+        [self httpReloadDataWithPageIndex:1];
+    }];
+}
+
+//上拉加载
+- (void)upPushReload {
+    [self.tradeRecordtableView addFooterWithCallback:^{
+        //当前页小于总页数，可以进行加载
+        if (self.currentPage < self.totalPage) {
+            [self httpReloadDataWithPageIndex:self.currentPage+1];
+
+        }else {
+            [self.tradeRecordtableView footerEndRefreshing];
+
+        }
+    }];
+}
+
+- (void)httpReloadDataWithPageIndex:(NSInteger )pageIndex {
     Manager *manager = [Manager shareInstance];
     if (self.isCash == YES) {
         self.title = @"提现记录";
         //单纯的体现记录
-        [manager httpSearchUserAgentCashListWithUserId:manager.memberInfoModel.u_id withPageIndex:1 withPageSize:10 withSearchSuccess:^(id successResult) {
-            [self.tradeRecordtableView reloadData];
+        [manager httpSearchUserAgentCashListWithUserId:manager.memberInfoModel.u_id withPageIndex:pageIndex withPageSize:10 withSearchSuccess:^(id successResult) {
+            //得到总页数
+            self.totalPage = [successResult integerValue];
+            //如果是下拉刷新，将currentpage重置为1
+            if (pageIndex == 1) {
+                self.currentPage = 1;
+                //取消效果
+                [self.tradeRecordtableView headerEndRefreshing];
+                
+                //查看是否空白页
+                [self isShowKongImageViewWithType:KongTypeWithKongData withKongMsg:[NSString stringWithFormat:@"暂时没有%@",self.title]];
+                
+            }else {
+                //如果是加载，那么更新currentpage
+                self.currentPage = pageIndex;
+                //取消效果
+                [self.tradeRecordtableView footerEndRefreshing];
+                
+            }
 
+
+            [self.tradeRecordtableView reloadData];
+            
         } withSearchFail:^(NSString *failResultStr) {
+            [self.tradeRecordtableView headerEndRefreshing];
+            [self.tradeRecordtableView footerEndRefreshing];
+
+            //是否显示空白页
+            [self isShowKongImageViewWithType:KongTypeWithNetError withKongMsg:@"网络错误"];
             
         }];
         
     }else {
         self.title = @"交易记录";
         //交易记录
-        [manager httpSearchUserAccountListWithUserId:manager.memberInfoModel.u_id withSdt:@"" withEdt:@"" withPageIndex:1 withPageSize:10 withSearchSuccess:^(id successResult) {
+        [manager httpSearchUserAccountListWithUserId:manager.memberInfoModel.u_id withSdt:@"" withEdt:@"" withPageIndex:pageIndex withPageSize:10 withSearchSuccess:^(id successResult) {
+            
+            //得到总页数
+            self.totalPage = [successResult integerValue];
+            //如果是下拉刷新，将currentpage重置为1
+            if (pageIndex == 1) {
+                self.currentPage = 1;
+                //取消效果
+                [self.tradeRecordtableView headerEndRefreshing];
+                
+                //查看是否空白页
+                [self isShowKongImageViewWithType:KongTypeWithKongData withKongMsg:[NSString stringWithFormat:@"暂时没有%@",self.title]];
+                
+            }else {
+                //如果是加载，那么更新currentpage
+                self.currentPage = pageIndex;
+                //取消效果
+                [self.tradeRecordtableView footerEndRefreshing];
+                
+            }
+            
             
             [self.tradeRecordtableView reloadData];
             
-        } withSearchFail:^(NSString *failResultStr) {
             
+        } withSearchFail:^(NSString *failResultStr) {
+            //是否显示空白页
+            [self.tradeRecordtableView headerEndRefreshing];
+            [self.tradeRecordtableView footerEndRefreshing];
+            
+            //是否显示空白页
+            [self isShowKongImageViewWithType:KongTypeWithNetError withKongMsg:@"网络错误"];
+        
         }];
-
+        
     }
-    
-    
-    
+
 }
+
+
 
 
 #pragma mark - TableView Delegate -
@@ -133,6 +239,37 @@
     
 }
 
+//空白页
+- (void)isShowKongImageViewWithType:(KongType )kongType withKongMsg:(NSString *)msg {
+    
+    Manager *manager = [Manager shareInstance];
+    if (self.isCash == YES) {
+        //提现
+
+        if (manager.cashDateKeyArr.count == 0 ) {
+            [self.kongImageView showKongViewWithKongMsg:msg withKongType:kongType];
+            
+        }else {
+            [self.kongImageView hiddenKongView];
+            
+        }
+
+        
+    }else {
+
+        if (manager.tradeDateKeyArr.count == 0 ) {
+            [self.kongImageView showKongViewWithKongMsg:msg withKongType:kongType];
+            
+        }else {
+            [self.kongImageView hiddenKongView];
+            
+        }
+
+        
+    }
+
+    
+}
 
 
 - (void)didReceiveMemoryWarning {

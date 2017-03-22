@@ -10,7 +10,10 @@
 #import "TodaySaleTableViewCell.h"
 #import "Manager.h"
 #import "MJRefresh.h"
+#import "KongImageView.h"
 @interface TodaySaleViewController ()<UITableViewDelegate,UITableViewDataSource>
+//空白页
+@property (nonatomic,strong)KongImageView *kongImageView;
 
 @property (weak, nonatomic) IBOutlet UITableView *todaySaleTableView;
 @property (nonatomic,strong)NSMutableArray *todaySaleDataSourceArr;
@@ -25,6 +28,12 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    //加载空白页
+    self.kongImageView = [[[NSBundle mainBundle] loadNibNamed:@"KongImageView" owner:self options:nil] firstObject];
+    [self.kongImageView.reloadAgainButton addTarget:self action:@selector(reloadAgainButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+    self.kongImageView.frame = self.view.bounds;
+    [self.view addSubview:self.kongImageView];
+    
     
     [self downPushRefresh];
     [self.todaySaleTableView headerBeginRefreshing];
@@ -32,6 +41,12 @@
     
 }
 
+//重新加载
+- (void)reloadAgainButtonAction:(IndexButton *)sender {
+    [self.todaySaleTableView headerBeginRefreshing];
+
+    
+}
 
 //刷新
 - (void)downPushRefresh {
@@ -44,13 +59,30 @@
             [self.todaySaleTableView headerEndRefreshing];
             self.todaySaleDataSourceArr = [NSMutableArray arrayWithArray:successResult];
             [self.todaySaleTableView reloadData];
-            
+            //是否显示空白页
+            [self isShowKongImageViewWithType:KongTypeWithKongData withKongMsg:@"暂无今日特价"];
+
         } withTodayFail:^(NSString *failResultStr) {
+            //消失刷新效果
+            [self.todaySaleTableView headerEndRefreshing];
+            [self isShowKongImageViewWithType:KongTypeWithNetError withKongMsg:@"网络错误"];
             
         }];
         
     }];
 }
+
+//空白页
+- (void)isShowKongImageViewWithType:(KongType )kongType withKongMsg:(NSString *)msg {
+
+    if (self.todaySaleDataSourceArr.count > 0) {
+        [self.kongImageView hiddenKongView];
+    }else {
+        [self.kongImageView showKongViewWithKongMsg:msg withKongType:kongType];
+    }
+    
+}
+
 
 #pragma mark - tableView delegate -
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {

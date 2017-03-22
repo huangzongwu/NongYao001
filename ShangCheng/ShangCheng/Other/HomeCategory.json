@@ -22,22 +22,22 @@
 	{
 		"img" : "s_bch",
 		"categoryName" : "病虫害知识",
-		"pushId" : "toCategoryFive"
+		"pushId" : "homeToPestsTreeVC"
 	},
 	{
 		"img" : "s_btn_zjcx",
 		"categoryName" : "真假查询",
-		"pushId" : "toCategorySix"
+		"pushId" : "homeToTrueCheckVC"
 	},
 	{
 		"img" : "s_btn_zxkf",
 		"categoryName" : "在线客服",
-		"pushId" : "toCategorySeven"
+		"pushId" : "homeToWebViewVC"
 	},
 	{
 		"img" : "s_ntcx",
-		"categoryName" : "农业资讯",
-		"pushId" : "toCategoryEight"
+		"categoryName" : "我的钱包",
+		"pushId" : "homeToMyWalletVC"
 	}
 
 ]

@@ -20,8 +20,29 @@
     
     self.receiverAndMobileLabel.text = [NSString stringWithFormat:@"%@  %@",receiveAddressModel.receiverName,phoneStr];
     
-    self.receiveAddressLabel.text = [NSString stringWithFormat:@"%@ %@ %@ %@",receiveAddressModel.capitalname,receiveAddressModel.cityname,receiveAddressModel.countyname,receiveAddressModel.receiveAddress];
+    NSString *detailAddressStr = @"" ;
+    if (receiveAddressModel.capitalname!= nil && receiveAddressModel.capitalname.length > 0) {
+        detailAddressStr = [detailAddressStr stringByAppendingString:receiveAddressModel.capitalname];
+        detailAddressStr = [detailAddressStr stringByAppendingString:@" "];
+    }
     
+    if (receiveAddressModel.cityname!= nil && receiveAddressModel.cityname.length > 0) {
+        detailAddressStr = [detailAddressStr stringByAppendingString:receiveAddressModel.cityname];
+        detailAddressStr = [detailAddressStr stringByAppendingString:@" "];
+    }
+    
+    if (receiveAddressModel.countyname!= nil && receiveAddressModel.countyname.length > 0) {
+        detailAddressStr = [detailAddressStr stringByAppendingString:receiveAddressModel.countyname];
+        detailAddressStr = [detailAddressStr stringByAppendingString:@" "];
+    }
+    
+    if (receiveAddressModel.receiveAddress!= nil && receiveAddressModel.receiveAddress.length > 0) {
+        detailAddressStr = [detailAddressStr stringByAppendingString:receiveAddressModel.receiveAddress];
+        detailAddressStr = [detailAddressStr stringByAppendingString:@" "];
+    }
+    
+    
+    self.receiveAddressLabel.text = detailAddressStr;
 
     
     //如果是默认地址，前面就有对勾，如果不是默认地址，就没有对勾

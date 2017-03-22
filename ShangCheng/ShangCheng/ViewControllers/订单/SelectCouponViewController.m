@@ -10,7 +10,11 @@
 #import "CouponTableViewCell.h"
 #import "AddCouponViewController.h"
 #import "Manager.h"
+#import "KongImageView.h"
 @interface SelectCouponViewController ()<UITableViewDelegate,UITableViewDataSource>
+//空白页
+@property (nonatomic,strong)KongImageView *kongImageView;
+
 @property (nonatomic,strong)NSMutableArray *couponDataSourceArr;
 //TableView
 @property (weak, nonatomic) IBOutlet UITableView *couponTableView;
@@ -40,22 +44,40 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    
+    //加载空白页
+    self.kongImageView = [[[NSBundle mainBundle] loadNibNamed:@"KongImageView" owner:self options:nil] firstObject];
+    [self.kongImageView.reloadAgainButton addTarget:self action:@selector(reloadAgainButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+    self.kongImageView.frame = self.view.bounds;
+    [self.view addSubview:self.kongImageView];
+
     //网络加载数据
     [self updateCouponListData];
     
 }
 
+//重新加载按钮
+- (void)reloadAgainButtonAction:(UIButton *)sender {
+    
+    //网络加载数据
+    [self updateCouponListData];
+
+    
+}
+
+
 - (void)updateCouponListData {
     //数据请求优惠券
     Manager *manager = [Manager shareInstance];
     [manager httpCouponListWithUserID:manager.memberInfoModel.u_id withCouponSuccessResult:^(id successResult) {
-        
+        [self.kongImageView hiddenKongView];//空白页消失
         self.couponDataSourceArr = successResult;
         //刷新数据
         [self.couponTableView reloadData];
         
     } withCouponFailResult:^(NSString *failResultStr) {
         NSLog(@"%@",failResultStr);
+        [self.kongImageView showKongViewWithKongMsg:@"网络错误" withKongType:KongTypeWithNetError];
         
     }];
 

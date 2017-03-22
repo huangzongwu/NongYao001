@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface ProductModel : NSObject
+@interface ProductModel : NSObject<NSCoding>
 //农药id
 @property (nonatomic,strong)NSString *productID;
 //农药的图片链接
@@ -23,7 +23,8 @@
 @property (nonatomic,strong)NSString *productFormatStr;
 //农药的价格
 @property (nonatomic,strong)NSString *productPrice;
-
+//是否是活动产品
+@property (nonatomic,assign)BOOL isSaleProduct;
 
 - (void)setValue:(id)value forUndefinedKey:(NSString *)key ;
 

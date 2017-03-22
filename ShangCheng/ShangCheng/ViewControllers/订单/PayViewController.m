@@ -341,9 +341,7 @@
             
             //验证成功后，进行余额支付
             [manager userConfirmPayWithUserID:manager.memberInfoModel.u_id withRID:[successResult objectForKey:@"tradeno"] withPayCode:@"" withPayType:@"0" withTotalamount:[NSString stringWithFormat:@"%.2f",self.totalAmountFloat] withBalance:[NSString stringWithFormat:@"%.2f",self.useBalanceFloat] withPayAmount:[NSString stringWithFormat:@"%.2f",self.totalAmountFloat-self.useBalanceFloat] withBank:@"" withItemArr:self.orderIDArr withUserConfirmPaySuccess:^(id successResult) {
-#warning 通知
-                //发送通知到订单列表，刷新
-                [[NSNotificationCenter defaultCenter] postNotificationName:@"refreshOrderList" object:self userInfo:nil];
+
                 
                 //支付成功后，跳转到支付成功界面
                 [self performSegueWithIdentifier:@"toPayCompleteVC" sender:nil];

@@ -11,5 +11,5 @@
 @interface LeftProductClassTableViewCell : UITableViewCell
 @property (weak, nonatomic) IBOutlet UILabel *leftCellLabel;
 
-- (void)updateLeftCellWithTitle:(NSString *)titleStr;
+- (void)updateLeftCellWithTitle:(NSString *)titleStr withIsSelectItem:(BOOL)isSelect;
 @end

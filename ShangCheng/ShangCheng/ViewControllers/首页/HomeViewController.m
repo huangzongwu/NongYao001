@@ -8,7 +8,6 @@
 
 #import "HomeViewController.h"
 #import "Manager.h"
-
 #import "ImageCollectionReusableView.h"
 #import "MaxSaleHotCollectionReusableView.h"
 #import "HotCollectionReusableView.h"
@@ -17,14 +16,19 @@
 #import "TodaySaleImageCollectionViewCell.h"
 #import "DetailHorizontalCollectionViewCell.h"
 #import "DetailVerticalCollectionViewCell.h"
-
+#import "WebPageViewController.h"
 #import "ProductDetailViewController.h"
-@interface HomeViewController ()<UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout>
+@interface HomeViewController ()<UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout,SDCycleScrollViewDelegate>
 @property (weak, nonatomic) IBOutlet UICollectionView *collectionView;
 
 //八大分类数据源
 @property (nonatomic,strong)NSArray *categoryDataSource;
+//最惠热点数据源（广告条）
+@property (nonatomic,strong)NSMutableArray *adScrollViewDataSourceArr;
 
+
+#pragma mark - 测试数据 -
+//@property (nonatomic,strong)ProductModel *tempTestModel;
 
 @end
 
@@ -33,6 +37,15 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    
+//    self.tempTestModel = [[ProductModel alloc] init];
+//    self.tempTestModel.productTitle = @"测试产品";
+//    self.tempTestModel.productCompany = @"测试厂家";
+//    self.tempTestModel.productFormatStr = @"测试规格";
+//    self.tempTestModel.productPrice = @"100";
+
+    
+
     
     [self.collectionView registerNib:[UINib nibWithNibName:@"ImageCollectionReusableView" bundle:nil] forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"imageHeader"];
     [self.collectionView registerNib:[UINib nibWithNibName:@"MaxSaleHotCollectionReusableView" bundle:nil] forSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:@"maxSaleHotFooter"];
@@ -53,6 +66,17 @@
     } withFailHomeResult:^(NSString *failResultStr) {
         NSLog(@"%@",failResultStr);
     }];
+    
+    //网络请求广告条数据
+    self.adScrollViewDataSourceArr = [NSMutableArray array];//初始化数组
+    [[Manager shareInstance] httpAdScrollViewDataSourceWithAdSuccess:^(id successResult) {
+        self.adScrollViewDataSourceArr = successResult;
+        [self.collectionView reloadSections:[NSIndexSet indexSetWithIndex:0]];
+    } withAdFail:^(NSString *failResultStr) {
+        NSLog(@"%@",failResultStr);
+    }];
+    
+    
     
 }
 
@@ -86,8 +110,13 @@
             return 1;
             break;
         case 2:
-#warning 原来是 renturn 2; 
-            return 0;
+        {
+            if ([[[Manager shareInstance].homeDataSourceDic objectForKey:@"热销"] count] > 2) {
+                return 2;
+            }else {
+                return 0;
+            }
+        }
             break;
         default:
         {
@@ -107,10 +136,10 @@
             return CGSizeMake(kScreenW, kScreenW/2);
             break;
         case 1:
-            return CGSizeMake(kScreenW, 12);
+            return CGSizeMake(kScreenW, 11);
             break;
         case 2:
-            return CGSizeMake(kScreenW, 50+17);
+            return CGSizeMake(kScreenW, 40+17);
             break;
 
         default:
@@ -125,7 +154,7 @@
                 return CGSizeMake(kScreenW, 0);
             }
             */
-            return CGSizeMake(kScreenW, 70+15);
+            return CGSizeMake(kScreenW, 53+11);
         }
             break;
     }
@@ -157,15 +186,15 @@
             //人气热卖
         {
             if (indexPath.row == 0) {
-                return CGSizeMake(kScreenW/3-5, kScreenW/2);
+                return CGSizeMake((kScreenW-1)*2/5, kScreenW*2/5+63);
             }else{
-                return CGSizeMake(kScreenW*2/3, kScreenW/2);
+                return CGSizeMake((kScreenW-1)*3/5, kScreenW*2/5+63);
 
             }
         }
             break;
         default:
-            return CGSizeMake(kScreenW/2, kScreenW/2+50);
+            return CGSizeMake((kScreenW-1)/2, kScreenW/2+80);
 
             break;
     }
@@ -184,6 +213,15 @@
 
             }else{
                 MaxSaleHotCollectionReusableView *maxSaleHotFooter = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:@"maxSaleHotFooter" forIndexPath:indexPath];
+
+                //设置代理
+                maxSaleHotFooter.cycleView.delegate = self;
+                
+                NSMutableArray *titleArr = [NSMutableArray array];
+                for (PestsListModel *tempModel in self.adScrollViewDataSourceArr) {
+                    [titleArr addObject:tempModel.i_title];
+                }
+                [maxSaleHotFooter updateMaxSaleHotCell:titleArr];
                 return maxSaleHotFooter;
 
             }
@@ -192,6 +230,7 @@
             break;
         case 1: {
             UICollectionReusableView *spaceHeader = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"spaceHeader" forIndexPath:indexPath];
+
             return spaceHeader;
         }
         case 2:
@@ -249,7 +288,8 @@
         case 1:
         {
             TodaySaleImageCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"cellIdentifier2" forIndexPath:indexPath];
-//            cell.backgroundView.backgroundColor = [UIColor grayColor];
+
+            //            cell.backgroundView.backgroundColor = [UIColor redColor];
             return cell;
 
         }
@@ -260,12 +300,10 @@
                 //纵向
                 DetailVerticalCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"cellIdentifier4" forIndexPath:indexPath];
                
-                
-
                 ProductModel *tempModel = [[manager.homeDataSourceDic objectForKey:@"热销"] objectAtIndex:0];
-                
-                [cell updateDetailVerticalCollectionViewCell:tempModel];
-                //            cell.backgroundView.backgroundColor = [UIColor grayColor];
+
+                [cell updateDetailVerticalCollectionViewCell:tempModel withIsHideCompanyLabel:YES];
+
                 return cell;
             }else{
                 //两个横向
@@ -274,7 +312,6 @@
                 ProductModel *tempModel2 = [[manager.homeDataSourceDic objectForKey:@"热销"] objectAtIndex:2];
 
                 [cell updateDetailHorizontalCollectionViewCellWithUpModel:tempModel1 withDownModel:tempModel2];
-                //            cell.backgroundView.backgroundColor = [UIColor grayColor];
                 return cell;
             }
          
@@ -291,7 +328,7 @@
             ProductClassModel *tempClassModel = [[[Manager shareInstance].homeDataSourceDic objectForKey:@"推荐"] objectAtIndex:indexPath.section-3];
             
             ProductModel *tempProductModel = tempClassModel.productArr[indexPath.row];
-            [cell updateDetailVerticalCollectionViewCell:tempProductModel];
+            [cell updateDetailVerticalCollectionViewCell:tempProductModel withIsHideCompanyLabel:NO];
             
             return cell;
         }
@@ -315,12 +352,36 @@
                 [self.tabBarController setSelectedIndex:2];
 
             }else {
-                NSString *pushId = [self.categoryDataSource[indexPath.row] objectForKey:@"pushId"];
-                if (pushId.length > 0) {
-                    [self performSegueWithIdentifier:pushId sender:indexPath];
+                //3-我的收藏 7-我的钱包，需要登录了才可以进入
+                if (indexPath.row == 3 || indexPath.row == 7) {
+                    Manager *manager = [Manager shareInstance];
+                    if ([manager isLoggedInStatus] == YES) {
+                        NSString *pushId = [self.categoryDataSource[indexPath.row] objectForKey:@"pushId"];
+                        if (pushId.length > 0) {
+                            [self performSegueWithIdentifier:pushId sender:indexPath];
+                            
+                        }
+                    }else {
+                        AlertManager *alertM = [AlertManager shareIntance];
+                        [alertM showAlertViewWithTitle:nil withMessage:@"请您先登录" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
+                            
+                            //跳转到登录界面
+                            //未登录,跳转到登录界面
+                            UINavigationController *loginNav = [self.storyboard instantiateViewControllerWithIdentifier:@"loginNavigationController"];
+                            [self presentViewController:loginNav animated:YES completion:nil];
+                            
+                        }];
                     
-                }
+                    }
+                }else {
+                    NSString *pushId = [self.categoryDataSource[indexPath.row] objectForKey:@"pushId"];
+                    if (pushId.length > 0) {
+                        [self performSegueWithIdentifier:pushId sender:indexPath];
+                        
+                    }
 
+                }
+                
             }
            
         }
@@ -337,21 +398,28 @@
             break;
     }
     
-    
-   
-}
-//人气热卖中上面的button
-- (IBAction)upHotButtonAction:(DetailHorizontalButton *)sender {
-    //index是2-1
-    [self performSegueWithIdentifier:@"homeToDetail" sender:[NSIndexPath indexPathForItem:1 inSection:2]];
-    
-}
-//人气热卖中下面的button
-- (IBAction)downHotButtonAction:(DetailHorizontalButton *)sender {
-    //index是2-2
-    [self performSegueWithIdentifier:@"homeToDetail" sender:[NSIndexPath indexPathForItem:2 inSection:2]];
 }
 
+
+//人气热卖中上面的产品点击事件
+- (IBAction)selectUpProductTap:(UITapGestureRecognizer *)sender {
+    //index是2-1
+    [self performSegueWithIdentifier:@"homeToDetail" sender:[NSIndexPath indexPathForItem:1 inSection:2]];}
+
+//人气热卖中下面的产品点击事件
+- (IBAction)selectDownProductTap:(UITapGestureRecognizer *)sender {
+    //index是2-2
+    [self performSegueWithIdentifier:@"homeToDetail" sender:[NSIndexPath indexPathForItem:2 inSection:2]];}
+
+
+
+#pragma mark  - 最惠热点滚动条点击代理方法 -
+- (void)cycleScrollView:(SDCycleScrollView *)cycleScrollView didSelectItemAtIndex:(NSInteger)index {
+    NSLog(@"%ld",index);
+    PestsListModel *model = self.adScrollViewDataSourceArr[index];
+    NSLog(@"%@", model.i_source_url);
+    [self performSegueWithIdentifier:@"homeToWebViewVC" sender:@[model.i_title,model.i_source_url]];
+}
 
 
 - (void)didReceiveMemoryWarning {
@@ -367,12 +435,13 @@
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
     
-    NSIndexPath *selectIndex = sender;
-    NSLog(@"%ld -- %ld",selectIndex.section ,selectIndex.row);
-    
-    //到详情页面
+       //到详情页面
     if ([segue.identifier isEqualToString:@"homeToDetail"]) {
         //传值
+        NSIndexPath *selectIndex = sender;
+        NSLog(@"%ld -- %ld",selectIndex.section ,selectIndex.row);
+        
+
         ProductDetailViewController *productDetailVC = [segue destinationViewController];
 
         //人气热卖
@@ -393,7 +462,18 @@
         }
 
     }
-    
+    //webView
+    if ([segue.identifier isEqualToString:@"homeToWebViewVC"]) {
+        WebPageViewController *webPageVC = [segue destinationViewController];
+        if ([sender isKindOfClass:[NSArray class]]) {
+            webPageVC.tempTitleStr = sender[0];
+            webPageVC.webUrl = sender[1];
+        }else {
+            webPageVC.tempTitleStr = @"在线客服";
+            webPageVC.webUrl = @"http://kefu.qycn.com/vclient/chat/?m=m&websiteid=99706";
+        }
+       
+    }
     
 }
 

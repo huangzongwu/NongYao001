@@ -11,9 +11,10 @@
 #import "AddReceiveAddressViewController.h"
 #import "ReceiveAddressModel.h"
 #import "MJRefresh.h"
+#import "KongImageView.h"
 @interface ReceiveAddressViewController ()<UITableViewDataSource,UITableViewDelegate>
 @property (weak, nonatomic) IBOutlet UITableView *receiveAddressTableView;
-
+@property (nonatomic,strong)KongImageView *kongImageView;
 
 @end
 
@@ -28,6 +29,14 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    //加载空白页
+    self.kongImageView = [[[NSBundle mainBundle] loadNibNamed:@"KongImageView" owner:self options:nil] firstObject];
+    [self.kongImageView.reloadAgainButton addTarget:self action:@selector(reloadAgainButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+    self.kongImageView.frame = self.view.bounds;
+    [self.view addSubview:self.kongImageView];
+
+    
+    
     // 让cell自适应高度
     self.receiveAddressTableView.rowHeight = UITableViewAutomaticDimension;
     //设置估算高度
@@ -35,9 +44,16 @@
     
     [self downPushRefresh];
     
+    [self.receiveAddressTableView headerBeginRefreshing];
+    
 }
 
-//上拉刷新
+//空白页中的重新刷新
+- (void)reloadAgainButtonAction:(IndexButton *)sender {
+    [self.receiveAddressTableView headerBeginRefreshing];
+}
+
+//下拉刷新
 - (void)downPushRefresh {
     
     [self.receiveAddressTableView addHeaderWithCallback:^{
@@ -61,7 +77,7 @@
     Manager *manager = [Manager shareInstance];
     //重新刷新列表
     [manager receiveAddressListWithUserIdOrReceiveId:manager.memberInfoModel.u_id withAddressListSuccess:^(id successResult) {
-
+        
         if (selectAddress!= nil && selectAddress.length > 0) {
             
             //默认地址，进行标记
@@ -77,11 +93,15 @@
         
         //刷新列表
         [self.receiveAddressTableView reloadData];
+        //不显示空白页
+        [self.kongImageView hiddenKongView];
         
     } withAddressListFail:^(NSString *failResultStr) {
         NSLog(@"刷新失败");
         //下拉刷新效果消失
         [self.receiveAddressTableView headerEndRefreshing];
+        //
+        [self.kongImageView showKongViewWithKongMsg:@"网络问题" withKongType:KongTypeWithNetError];
     }];
 
 }

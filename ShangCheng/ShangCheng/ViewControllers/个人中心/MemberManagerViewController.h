@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
+typedef void(^RefreshUserIconBlock)();
 @interface MemberManagerViewController : UIViewController
-
+@property (nonatomic,strong)RefreshUserIconBlock refreshUserIconBlock;
 @end
