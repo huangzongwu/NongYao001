@@ -39,8 +39,9 @@
 
 @implementation HomeViewController
 - (IBAction)leftBarButtonAction:(UIBarButtonItem *)sender {
-//    [self.tabBarController setSelectedIndex:1];
+
     [self performSegueWithIdentifier:@"homeToClassVC" sender:nil];
+    
     
 }
 
