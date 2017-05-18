@@ -11,6 +11,7 @@
 #import "Manager.h"
 #import "KongImageView.h"
 #import "MJRefresh.h"
+#import "SVProgressHUD.h"
 @interface MyTradeRecordViewController ()<UITableViewDataSource,UITableViewDelegate>
 //当前有页数
 @property (nonatomic,assign)NSInteger currentPage;
@@ -30,7 +31,10 @@
      
 }
 
-
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    [SVProgressHUD dismiss];
+}
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
@@ -83,12 +87,18 @@
     Manager *manager = [Manager shareInstance];
     if (self.isCash == YES) {
         self.title = @"提现记录";
+        if (pageIndex == 1 && [SVProgressHUD isVisible] == NO) {
+            [SVProgressHUD show];
+        }
+        
         //单纯的体现记录
         [manager httpSearchUserAgentCashListWithUserId:manager.memberInfoModel.u_id withPageIndex:pageIndex withPageSize:10 withSearchSuccess:^(id successResult) {
+            
             //得到总页数
             self.totalPage = [successResult integerValue];
             //如果是下拉刷新，将currentpage重置为1
             if (pageIndex == 1) {
+                [SVProgressHUD dismiss];
                 self.currentPage = 1;
                 //取消效果
                 [self.tradeRecordtableView headerEndRefreshing];
@@ -108,6 +118,8 @@
             [self.tradeRecordtableView reloadData];
             
         } withSearchFail:^(NSString *failResultStr) {
+            [SVProgressHUD dismiss];
+            
             [self.tradeRecordtableView headerEndRefreshing];
             [self.tradeRecordtableView footerEndRefreshing];
 
@@ -118,9 +130,13 @@
         
     }else {
         self.title = @"交易记录";
+        if (pageIndex == 1 && [SVProgressHUD isVisible] == NO) {
+            [SVProgressHUD show];
+        }
+
         //交易记录
         [manager httpSearchUserAccountListWithUserId:manager.memberInfoModel.u_id withSdt:@"" withEdt:@"" withPageIndex:pageIndex withPageSize:10 withSearchSuccess:^(id successResult) {
-            
+            [SVProgressHUD dismiss];
             //得到总页数
             self.totalPage = [successResult integerValue];
             //如果是下拉刷新，将currentpage重置为1
@@ -145,6 +161,7 @@
             
             
         } withSearchFail:^(NSString *failResultStr) {
+            [SVProgressHUD dismiss];
             //是否显示空白页
             [self.tradeRecordtableView headerEndRefreshing];
             [self.tradeRecordtableView footerEndRefreshing];

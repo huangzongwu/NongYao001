@@ -7,12 +7,12 @@
 	{
 		"img" : "s_btn_nyfl",
 		"categoryName" : "农药分类",
-		"pushId" : ""
+		"pushId" : "homeToClassVC"
 	},
 	{
 		"img" : "s_btn_gwc",
 		"categoryName" : "购物车",
-		"pushId" : ""
+		"pushId" : "homeToShoppingCarVC"
 	},
 	{
 		"img" : "s_btn_wdsc",

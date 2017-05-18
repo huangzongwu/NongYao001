@@ -9,5 +9,7 @@
 #import <UIKit/UIKit.h>
 
 @interface TodaySaleListViewController : UIViewController
-@property(nonatomic,strong)NSString *temp_a_id;
+@property (nonatomic,strong)NSString *temp_a_id;
+@property (nonatomic,strong)NSString *headerImageUrl;
+@property (nonatomic,strong)NSString *tempTitle;
 @end

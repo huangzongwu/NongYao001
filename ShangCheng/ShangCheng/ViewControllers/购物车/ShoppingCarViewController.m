@@ -16,6 +16,9 @@
 #import "Manager.h"
 #import "MJRefresh.h"
 #import "KongImageView.h"
+#import "SVProgressHUD.h"
+#import <ShareSDK/ShareSDK.h>
+#import <ShareSDKUI/ShareSDK+SSUI.h>
 @interface ShoppingCarViewController ()<UICollectionViewDataSource,UICollectionViewDelegate,UICollectionViewDelegateFlowLayout>
 @property (nonatomic,strong)KongImageView *kongImageView;
 
@@ -52,6 +55,8 @@
         [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(refreshAllNotification:) name:@"logOff" object:nil];
 
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshMyFavoriteNotification:) name:@"refreshMyFavorite" object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshShoppingCarNumberNotification:) name:@"refreshShoppingCarNumber" object:nil];
+
     }
     return self;
 }
@@ -59,6 +64,16 @@
 //返回button
 - (void)leftBarButtonAction:(UIBarButtonItem *)sender {
     [self.navigationController popViewControllerAnimated:YES];
+}
+
+//更新购物车角标
+- (void)refreshShoppingCarNumberNotification:(NSNotification *)sender {
+    //如果是从tabbar进入的购物车，才会有这个角标
+    if ([[self.navigationController.viewControllers firstObject] isKindOfClass:[ShoppingCarViewController class]]) {
+        self.navigationController.tabBarItem.badgeValue = [Manager shareInstance].shoppingNumberStr;
+
+    }
+    
 }
 
 //切换账号，都需要更新
@@ -93,10 +108,23 @@
     }
 }
 
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    [SVProgressHUD dismiss];
+    //页面消失，如果是编辑状态，就恢复
+    if (self.isEditing == YES) {
+        [self editBarButtonAction:self.navigationItem.rightBarButtonItem];
+    }
+    
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     NSLog(@"%@",[self.navigationController viewControllers]);
+    
+    
+    
     
     //加载空白页
     self.kongImageView = [[[NSBundle mainBundle] loadNibNamed:@"KongImageView" owner:self options:nil] firstObject];
@@ -113,13 +141,17 @@
         self.navigationItem.leftBarButtonItem = leftItem;
     }
     
+    
+    
     //下拉刷新加载
     [self downPushRefresh];
     
-    //请求购物车和收藏数据
-    //请求购物车和收藏数据
-    [self httpShoppingDataSource];
-    [self httpMyFavoriteDataSource];
+    //如果不是tabbar进入的购物车，就要请求购物车和收藏数据。如果是从tabbar进入的就会自动下拉刷新
+    if (![[self.navigationController.viewControllers firstObject] isKindOfClass:[ShoppingCarViewController class]]) {
+        [self httpShoppingDataSource];
+        [self httpMyFavoriteDataSource];
+
+    }
 }
 
 //空白页的按钮
@@ -159,8 +191,14 @@
     Manager *manager = [Manager shareInstance];
     if ([manager isLoggedInStatus] == YES) {
     
+        if ([SVProgressHUD isVisible] == NO) {
+            [SVProgressHUD show];
+        }
+
         //请求数据购物车数据
         [manager httpShoppingCarDataWithUserId:manager.memberInfoModel.u_id WithSuccessResult:^(id successResult) {
+            
+            [SVProgressHUD dismiss];//风火轮消失
             
             //结束刷新效果
             [self.shoppingCollectionView headerEndRefreshing];
@@ -189,6 +227,7 @@
             
         } withFailResult:^(NSString *failResultStr) {
             NSLog(@"请求失败");
+            [SVProgressHUD dismiss];
             //结束刷新效果
             [self.shoppingCollectionView headerEndRefreshing];
             [self isShowKongImageViewWithType:KongTypeWithNetError withKongMsg:@"网络错误"];
@@ -231,9 +270,10 @@
 #pragma mark - collectionView Delegate -
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
     //前面是购物车的产品，最后一个是收藏
-    
     return [Manager shareInstance].shoppingCarDataSourceArr.count + 1;
+    
 }
+
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
     Manager *manager = [Manager shareInstance];
     if (section < manager.shoppingCarDataSourceArr.count) {
@@ -383,16 +423,16 @@
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     Manager *manager = [Manager shareInstance];
     if (indexPath.section < manager.shoppingCarDataSourceArr.count) {
-            ShoppingCarModel *tempShoppingCarModel = [[[Manager shareInstance] shoppingCarDataSourceArr] objectAtIndex:indexPath.row];
+            ShoppingCarModel *tempShoppingCarModel = [[[Manager shareInstance] shoppingCarDataSourceArr] objectAtIndex:indexPath.section];
             
             ProductModel *tempProductModel = tempShoppingCarModel.shoppingCarProduct;
             //跳转到详情页
-            [self performSegueWithIdentifier:@"shoppingCarToDetailVC" sender:tempProductModel.productID];
+        [self performSegueWithIdentifier:@"shoppingCarToDetailVC" sender:@[tempProductModel.productID,@"pid"]];
         
     }else {
         Manager *manager = [Manager shareInstance];
         MyFavoriteListModel *tempFavoriteModel = manager.myFavoriteArr[indexPath.row];
-        [self performSegueWithIdentifier:@"shoppingCarToDetailVC" sender:tempFavoriteModel.favoriteProductFormatID];
+        [self performSegueWithIdentifier:@"shoppingCarToDetailVC" sender:@[tempFavoriteModel.favoriteProductFormatID,@"sid"]];
 
         
     }
@@ -401,11 +441,12 @@
 #pragma mark - 加入购物车 -
 - (IBAction)joinShoppingCarButtonAction:(IndexButton *)sender {
     NSLog(@"%ld",sender.indexForButton.row);
+    AlertManager *alertM = [AlertManager shareIntance];
+
     Manager *manager = [Manager shareInstance];
     MyFavoriteListModel *tempFavoriteModel = manager.myFavoriteArr[sender.indexForButton.row];
     
-    [manager httpProductToShoppingCarWithFormatId:tempFavoriteModel.favoriteProductFormatID withProductCount:@"1" withSuccessToShoppingCarResult:^(id successResult) {
-        AlertManager *alertM = [AlertManager shareIntance];
+    [manager httpProductToShoppingCarWithFormatId:tempFavoriteModel.favoriteProductFormatID withProductCount:tempFavoriteModel.s_min_quantity withSuccessToShoppingCarResult:^(id successResult) {
         [alertM showAlertViewWithTitle:nil withMessage:@"加入购物车成功" actionTitleArr:nil withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
             //重新请求购物车列表
             [self httpShoppingDataSource];
@@ -414,6 +455,7 @@
         
     } withFailToShoppingCarResult:^(NSString *failResultStr) {
         NSLog(@"加入失败");
+        [alertM showAlertViewWithTitle:nil withMessage:@"加入购物车失败，请稍后再试" actionTitleArr:nil withViewController:self withReturnCodeBlock:nil];
     }];
 
     
@@ -431,15 +473,15 @@
     if (self.isEditing == YES) {
         //正在编辑状态
         sender.title = @"完成";
-        self.editingView.hidden = YES;
-        self.notEditingView.hidden = NO;
+        self.editingView.hidden = NO;
+        self.notEditingView.hidden = YES;
         
         
     }else {
         //不在编辑状态
         sender.title = @"编辑";
-        self.editingView.hidden = NO;
-        self.notEditingView.hidden = YES;
+        self.editingView.hidden = YES;
+        self.notEditingView.hidden = NO;
         
     }
 }
@@ -483,46 +525,149 @@
 
 //编辑状态的删除按钮
 - (IBAction)editDeleteButtonAction:(UIButton *)sender {
+    AlertManager *alertM = [AlertManager shareIntance];
+
     Manager *manager = [Manager shareInstance];
-    
-    //查看是否选择了产品
+    //如果选择了产品
     if ([manager isSelectAnyOneProduct] == YES) {
-        //设置set为了删除数据源
-        NSMutableIndexSet *deleteIndexSet = [NSMutableIndexSet indexSet];
-        //从所有产品中，得到选中的产品的下标，即i的值
-        for (int i = 0; i < manager.shoppingCarDataSourceArr.count; i++) {
-            if ([manager.shoppingCarDataSourceArr[i] isSelectedShoppingCar] == YES) {
-                //如果选中了这个产品，那么就将下标加入
-                [deleteIndexSet addIndex:i];
+        [alertM showAlertViewWithTitle:nil withMessage:@"确定要删除这件产品？" actionTitleArr:@[@"取消",@"确认"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
+            if (actionBlockNumber == 1) {
+                //设置set为了删除数据源
+                NSMutableIndexSet *deleteIndexSet = [NSMutableIndexSet indexSet];
+                //从所有产品中，得到选中的产品的下标，即i的值
+                for (int i = 0; i < manager.shoppingCarDataSourceArr.count; i++) {
+                    if ([manager.shoppingCarDataSourceArr[i] isSelectedShoppingCar] == YES) {
+                        //如果选中了这个产品，那么就将下标加入
+                        [deleteIndexSet addIndex:i];
+                        
+                    }
+                }
+                //删除
+                [manager deleteShoppingCarWithProductIndexSet:deleteIndexSet WithSuccessResult:^(id successResult) {
+                    [self.shoppingCollectionView deleteSections:deleteIndexSet];
+                    
+                    //需要刷新全选按钮
+                    if (manager.isAllSelectForShoppingCar == YES) {
+                        [self.allSelectButton setBackgroundImage:[UIImage imageNamed:@"g_btn_select"] forState:UIControlStateNormal];
+                    }else {
+                        [self.allSelectButton setBackgroundImage:[UIImage imageNamed:@"g_btn_normal"] forState:UIControlStateNormal];
+                    }
+                    //计算总金额
+                    self.priceLabel.text = [NSString stringWithFormat:@"￥%.2f",[manager selectProductTotalPrice]];
+                    //计算总件数
+                    self.totalCountLabel.text = [NSString stringWithFormat:@"共%ld件",[manager isSelectProductCount]];
+                    
+                } withFailResult:^(NSString *failResultStr) {
+                    //删除失败
+                    [alertM showAlertViewWithTitle:nil withMessage:@"删除失败" actionTitleArr:nil withViewController:self withReturnCodeBlock:nil];
+                }];
+
+            }
+        }];
+
+    }else {
+        
+        [alertM showAlertViewWithTitle:nil withMessage:@"您还没有选择产品" actionTitleArr:nil withViewController:self withReturnCodeBlock:nil];
+    }
+    
+}
+
+
+//加入收藏
+- (IBAction)editJoinFavoriteButtonAction:(UIButton *)sender {
+    AlertManager *alertM = [AlertManager shareIntance];
+    
+    Manager *manager = [Manager shareInstance];
+    //如果选择了产品
+    if ([manager isSelectAnyOneProduct] == YES) {
+        [alertM showAlertViewWithTitle:nil withMessage:@"确定要收藏这些产品？" actionTitleArr:@[@"取消",@"确认"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
+            if (actionBlockNumber == 1) {
+
+                NSMutableArray *formatIdArr = [NSMutableArray array];
+                for (ShoppingCarModel *tempModel in manager.shoppingCarDataSourceArr) {
+                    if (tempModel.isSelectedShoppingCar == YES) {
+                        [formatIdArr addObject:tempModel.shoppingCarProduct.productFormatID];
+                    }
+                }
+                
+                //收藏
+                [manager httpAddFavoriteWithUserId:manager.memberInfoModel.u_id withFormatIdArr:formatIdArr withAddFavoriteSuccess:^(id successResult) {
+                    
+                    [alertM showAlertViewWithTitle:nil withMessage:@"收藏成功" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
+
+                } withAddFavoriteFail:^(NSString *failResultStr) {
+                    [alertM showAlertViewWithTitle:nil withMessage:@"收藏失败，请稍后再试！" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
+                }];
                 
             }
-        }
-        //删除
-        [[Manager shareInstance] deleteShoppingCarWithProductIndexSet:deleteIndexSet WithSuccessResult:^(id successResult) {
-            [self.shoppingCollectionView deleteSections:deleteIndexSet];
-            
-            //需要刷新全选按钮
-            if (manager.isAllSelectForShoppingCar == YES) {
-                [self.allSelectButton setBackgroundImage:[UIImage imageNamed:@"g_btn_select"] forState:UIControlStateNormal];
-            }else {
-                [self.allSelectButton setBackgroundImage:[UIImage imageNamed:@"g_btn_normal"] forState:UIControlStateNormal];
-            }
-            //计算总金额
-            self.priceLabel.text = [NSString stringWithFormat:@"￥%.2f",[manager selectProductTotalPrice]];
-            //计算总件数
-            self.totalCountLabel.text = [NSString stringWithFormat:@"共%ld件",[manager isSelectProductCount]];
-            
-        } withFailResult:^(NSString *failResultStr) {
-            //删除失败
         }];
         
     }else {
-        AlertManager *alert = [AlertManager shareIntance];
-        [alert showAlertViewWithTitle:nil withMessage:@"您还没有选择产品" actionTitleArr:nil withViewController:self withReturnCodeBlock:nil];
+        
+        [alertM showAlertViewWithTitle:nil withMessage:@"您还没有选择产品" actionTitleArr:nil withViewController:self withReturnCodeBlock:nil];
     }
     
     
 }
+
+//分享
+- (IBAction)shareButtonAction:(UIButton *)sender {
+    AlertManager *alertM = [AlertManager shareIntance];
+    
+    Manager *manager = [Manager shareInstance];
+    //如果选择了产品
+    if ([manager isSelectAnyOneProduct] == YES) {
+        
+        //1、创建分享参数
+        NSArray* imageArray = @[[UIImage imageNamed:@"mainIcon"]];
+        //    （注意：图片必须要在Xcode左边目录里面，名称必须要传正确，如果要分享网络图片，可以这样传iamge参数 images:@[@"http://mob.com/Assets/images/logo.png?v=20150320"]）
+        if (imageArray) {
+            
+            NSMutableDictionary *shareParams = [NSMutableDictionary dictionary];
+            [shareParams SSDKSetupShareParamsByText:@"中国农药第一网中国最大最专业的农药网上交易平台"
+                                             images:imageArray
+                                                url:[NSURL URLWithString:@"https://itunes.apple.com/cn/app/id1234823386?mt=8"]
+                                              title:@"中国农药第一网"
+                                               type:SSDKContentTypeAuto];
+            //有的平台要客户端分享需要加此方法，例如微博
+            [shareParams SSDKEnableUseClientShare];
+            //2、分享（可以弹出我们的分享菜单和编辑界面）
+            [ShareSDK showShareActionSheet:nil //要显示菜单的视图, iPad版中此参数作为弹出菜单的参照视图，只有传这个才可以弹出我们的分享菜单，可以传分享的按钮对象或者自己创建小的view 对象，iPhone可以传nil不会影响
+                                     items:nil
+                               shareParams:shareParams
+                       onShareStateChanged:^(SSDKResponseState state, SSDKPlatformType platformType, NSDictionary *userData, SSDKContentEntity *contentEntity, NSError *error, BOOL end) {
+                           
+                           switch (state) {
+                               case SSDKResponseStateSuccess:
+                               {
+                                   UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"分享成功" message:nil delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil];
+                                   [alertView show];
+                                   break;
+                               }
+                               case SSDKResponseStateFail:
+                               {
+                                   UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"分享失败" message:[NSString stringWithFormat:@"%@",error] delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
+                                   [alert show];
+                                   break;
+                               }
+                               default:
+                                   break;
+                           }
+                       }
+             ];
+            
+        }
+
+        
+    }else {
+        
+        [alertM showAlertViewWithTitle:nil withMessage:@"您还没有选择产品" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
+
+    }
+    
+}
+
+
 
 //立即支付按钮
 - (IBAction)payButtonAction:(UIButton *)sender {
@@ -576,7 +721,8 @@
             }
             
         } withPreviewFailResult:^(NSString *failResultStr) {
-            
+            AlertManager *alert = [AlertManager shareIntance];
+            [alert showAlertViewWithTitle:nil withMessage:@"未知错误，请稍后再试，或者联系客服" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
         }];
         
     }else {
@@ -635,8 +781,8 @@
     //点击cell跳转到详情
     if ([segue.identifier isEqualToString:@"shoppingCarToDetailVC"]) {
         ProductDetailViewController *productDetailVC = [segue destinationViewController];
-        productDetailVC.productID = sender;
-        
+        productDetailVC.productID = sender[0];
+        productDetailVC.type = sender[1];
     }
     
 }

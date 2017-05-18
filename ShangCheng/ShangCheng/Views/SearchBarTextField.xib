@@ -29,7 +29,7 @@
                     <textInputTraits key="textInputTraits" returnKeyType="search"/>
                 </textField>
             </subviews>
-            <color key="backgroundColor" red="0.0" green="1" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
             <constraints>
                 <constraint firstAttribute="bottom" secondItem="btY-pc-hrD" secondAttribute="bottom" id="7Xe-ey-l8v"/>
                 <constraint firstItem="btY-pc-hrD" firstAttribute="leading" secondItem="7sl-mq-zxe" secondAttribute="trailing" constant="7" id="8DN-7r-FUE"/>

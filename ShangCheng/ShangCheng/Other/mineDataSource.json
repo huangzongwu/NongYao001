@@ -26,10 +26,10 @@
                   {"icon1":"w_icon_wdpj","info":"我的评价","pushId":"mineToMyCommentListVC"},
                   {"icon1":"w_icon_wdsc","info":"我的收藏","pushId":"mineToMyFavoriteVC"},
                   {"icon1":"w_icon_lljl","info":"浏览记录","pushId":"mineToMyFavoriteVC"},
-                  {"info1":"900","info":"消息通知","pushId":""},
-                  {"icon1":"w_icon_gywm","info":"关于我们","pushId":"homeToAboutUsVC"},
+                  {"icon1":"w_icon_xxtz","info":"消息通知","pushId":"mineToMessageVC"},
+                  {"icon1":"w_icon_gywm","info":"关于我们","pushId":"mineToAboutUsVC"},
                   {"icon1":"w_icon_yjfk","info":"意见反馈","pushId":"mineToFeedBackVC"},
-                  {"info1":"900","info":"设置","pushId":"mineVCToSettingVC"}
+                  {"icon1":"w_icon_sz","info":"设置","pushId":"mineVCToSettingVC"}
                  ]
                  
                 ],
@@ -59,10 +59,10 @@
                      {"icon1":"w_icon_wdpj","info":"我的评价","pushId":"mineToMyCommentListVC"},
                      {"icon1":"w_icon_wdsc","info":"我的收藏","pushId":"mineToMyFavoriteVC"},
                      {"icon1":"w_icon_lljl","info":"浏览记录","pushId":"mineToMyFavoriteVC"},
-                     {"info1":"900","info":"消息通知","pushId":""},
-                     {"icon1":"w_icon_gywm","info":"关于我们","pushId":"homeToAboutUsVC"},
+                     {"icon1":"w_icon_xxtz","info":"消息通知","pushId":"mineToMessageVC"},
+                     {"icon1":"w_icon_gywm","info":"关于我们","pushId":"mineToAboutUsVC"},
                      {"icon1":"w_icon_yjfk","info":"意见反馈","pushId":"mineToFeedBackVC"},
-                     {"info1":"900","info":"设置","pushId":"mineVCToSettingVC"}
+                     {"icon1":"w_icon_sz","info":"设置","pushId":"mineVCToSettingVC"}
                      ]
                     
                     ]

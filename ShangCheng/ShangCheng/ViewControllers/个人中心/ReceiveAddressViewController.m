@@ -11,6 +11,7 @@
 #import "AddReceiveAddressViewController.h"
 #import "ReceiveAddressModel.h"
 #import "MJRefresh.h"
+#import "SVProgressHUD.h"
 #import "KongImageView.h"
 @interface ReceiveAddressViewController ()<UITableViewDataSource,UITableViewDelegate>
 @property (weak, nonatomic) IBOutlet UITableView *receiveAddressTableView;
@@ -25,7 +26,10 @@
     }
     [self.navigationController popViewControllerAnimated:YES];
 }
-
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    [SVProgressHUD dismiss];
+}
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
@@ -76,8 +80,12 @@
 - (void)reloadAddressDataWithSelectAddress:(NSString *)selectAddress {
     Manager *manager = [Manager shareInstance];
     //重新刷新列表
+    if ([SVProgressHUD isVisible] == NO) {
+        [SVProgressHUD show];
+    }
+
     [manager receiveAddressListWithUserIdOrReceiveId:manager.memberInfoModel.u_id withAddressListSuccess:^(id successResult) {
-        
+        [SVProgressHUD dismiss];
         if (selectAddress!= nil && selectAddress.length > 0) {
             
             //默认地址，进行标记
@@ -98,6 +106,8 @@
         
     } withAddressListFail:^(NSString *failResultStr) {
         NSLog(@"刷新失败");
+        [SVProgressHUD dismiss];
+        
         //下拉刷新效果消失
         [self.receiveAddressTableView headerEndRefreshing];
         //
@@ -130,32 +140,31 @@
     ReceiveAddressModel *tempModel = manager.receiveAddressArr[indexPath.section];
     
     [cell updateReceiveAddressCell:tempModel withIndex:indexPath];
-    //按钮点击block
-    cell.rightNextBlock = ^(NSIndexPath *rightNextBlock) {
-        ReceiveAddressModel *selectModel = manager.receiveAddressArr[rightNextBlock.section];
-        //编辑地址
-        [self performSegueWithIdentifier:@"receiveListToDetailReceiveVC" sender:selectModel];
 
-        
-    };
+    
     return cell;
 }
 
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+//选择某个地址
+- (IBAction)selectAddressButtonAction:(IndexButton *)sender {
     Manager *manager = [Manager shareInstance];
     //选中了这个地址,现将所有的选择状态都变为no
     for (ReceiveAddressModel *tempModel in manager.receiveAddressArr) {
         tempModel.isSelect = NO;
     }
     //将选中的那个状态变为YES
-    ReceiveAddressModel *selectModel = manager.receiveAddressArr[indexPath.section];
+    ReceiveAddressModel *selectModel = manager.receiveAddressArr[sender.indexForButton.section];
     selectModel.isSelect = YES;
+    [self.receiveAddressTableView reloadData];
     
-    if (self.selectModelBlock != nil) {
-        self.selectModelBlock();
-        //返回
-        [self.navigationController popViewControllerAnimated:YES];
-    }
+
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    Manager *manager = [Manager shareInstance];
+    ReceiveAddressModel *selectModel = manager.receiveAddressArr[indexPath.section];
+    //编辑地址
+    [self performSegueWithIdentifier:@"receiveListToDetailReceiveVC" sender:selectModel];
 }
 
 //新增地址

@@ -9,7 +9,7 @@
 #import "RegisterDelegateViewController.h"
 #import "SelectAddressView.h"
 #import "Manager.h"
-
+#import "SVProgressHUD.h"
 @interface RegisterDelegateViewController ()<UITextFieldDelegate>
 
 @property (weak, nonatomic) IBOutlet UITextField *nameTextField;
@@ -85,6 +85,11 @@
     
 }
 
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    [SVProgressHUD dismiss ];
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
@@ -99,8 +104,7 @@
 
 - (IBAction)selectAreaInfoButton:(UIButton *)sender {
     
-    [self.nameTextField resignFirstResponder];
-    [self.phoneTextField resignFirstResponder];
+    [self keyboardDismissAction];
     
     
     //得到地区数据，然后显示
@@ -113,13 +117,21 @@
         
     }else {
         //没有数据，就从本地获取或者网络请求
+        if ([SVProgressHUD isVisible] == NO) {
+            [SVProgressHUD show];
+        }
+
         [manager httpAreaTreeWithSuccessAreaInfo:^(id successResult) {
             NSLog(@"地区成功2");
+            [SVProgressHUD dismiss];
             //刷新pickView
             [self showAddressPickView];
             
         } withFailAreaInfo:^(NSString *failResultStr) {
             NSLog(@"地区请求失败");
+            [SVProgressHUD dismiss];
+            [[AlertManager shareIntance] showAlertViewWithTitle:nil withMessage:@"地区读取失败" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
+
         }];
     }
 }
@@ -139,13 +151,20 @@
 
 //注册按钮
 - (IBAction)registerButtonAction:(UIButton *)sender {
+    [self keyboardDismissAction];
+
     if (self.areaID != nil && ![self.areaID isEqualToString:@""]) {
         if (self.nameTextField.text.length > 0) {
             if (self.phoneTextField.text.length == 11) {
                 //注册
                 NSLog(@"注册代理商");
-                
+                if ([SVProgressHUD isVisible] == NO) {
+                    [SVProgressHUD show];
+                }
+
                 [[Manager shareInstance] httpRegisterDelegateWithTrueName:self.nameTextField.text withPhone:self.phoneTextField.text withAreaId:self.areaID withRegisterSuccessResult:^(id successResult) {
+                    [SVProgressHUD dismiss];
+                    
                     AlertManager *alert = [AlertManager shareIntance];
                     
                     [alert showAlertViewWithTitle:@"注册成功" withMessage:successResult actionTitleArr:successResult withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
@@ -154,6 +173,8 @@
                     
                     
                 } withRegisterFailResult:^(NSString *failResultStr) {
+                    [SVProgressHUD dismiss];
+                    
                     AlertManager *alert = [AlertManager shareIntance];
                     [alert showAlertViewWithTitle:@"注册失败" withMessage:failResultStr actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
                 }];
@@ -177,6 +198,16 @@
 }
 - (IBAction)leftBarButtonAction:(UIBarButtonItem *)sender {
     [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (void)keyboardDismissAction {
+    [self.nameTextField resignFirstResponder];
+    [self.phoneTextField resignFirstResponder];
+    
+}
+
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    [self keyboardDismissAction];
 }
 
 - (void)didReceiveMemoryWarning {

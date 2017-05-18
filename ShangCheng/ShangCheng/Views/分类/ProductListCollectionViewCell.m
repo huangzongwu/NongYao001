@@ -12,7 +12,7 @@
 
 - (void)updateProductListCellWithProductModel:(SearchListModel *)tempModel {
     
-    [self.productListImageView setWebImageURLWithImageUrlStr:tempModel.p_icon withErrorImage:[UIImage imageNamed:@"productImage"]];
+    [self.productListImageView setWebImageURLWithImageUrlStr:tempModel.p_icon withErrorImage:[UIImage imageNamed:@"icon_pic_cp"] withIsCenter:YES];
     self.productListNameLabel.text = tempModel.p_name;
     self.productListCompanyLabel.text = tempModel.f_name;
     self.productListFormatLabel.text = tempModel.p_standard;

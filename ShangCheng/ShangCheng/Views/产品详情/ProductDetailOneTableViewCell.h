@@ -12,8 +12,9 @@
 @property (weak, nonatomic) IBOutlet UILabel *titleLabel;
 @property (weak, nonatomic) IBOutlet UILabel *contentLabel;
 
-- (void)updateProductDetailOneCellWithDic:(ProductDetailModel *)productDetailModel withIndex:(NSIndexPath *)indexPath;
+- (void)updateProductDetailOneCellWithProductInfoDic:(ProductDetailModel *)productDetailModel withIndex:(NSIndexPath *)indexPath;
 
+- (void)updateProductDetailOneCellWithUseInfoDic:(ProductDetailModel *)productDetailModel withIndex:(NSIndexPath *)indexPath;
 
 
 @end

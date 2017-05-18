@@ -135,13 +135,12 @@
 
 //更新标题和价格
 - (void)upSelectProductNameAndPriceWithModel:(ProductDetailModel *)detailModel {
-    [self.productImageView setWebImageURLWithImageUrlStr:detailModel.productModel.productImageUrlstr withErrorImage:[UIImage imageNamed:@"productImage"]];
+    [self.productImageView setWebImageURLWithImageUrlStr:detailModel.productModel.productImageUrlstr withErrorImage:[UIImage imageNamed:@"icon_pic_cp"] withIsCenter:YES];
     self.productTitleLabel.text = detailModel.productModel.productTitle;
     self.productPriceLabel.text = [NSString stringWithFormat:@"￥%@", detailModel.productModel.productPrice ];
     
+    
 }
-
-
 
 
 //关闭button
@@ -196,7 +195,8 @@
     //最小起订数量
     self.productDetailModel.p_standard_qty = selectFormatModel.s_min_quantity;
     //图片
-
+    //产品编码
+    self.productDetailModel.p_pid = selectFormatModel.s_code;
     
     //刷新价格和产品名
     [self upSelectProductNameAndPriceWithModel:self.productDetailModel];
@@ -259,20 +259,28 @@
             }
         }
         
-        [manager httpProductToShoppingCarWithFormatId:self.productDetailModel.productModel.productFormatID withProductCount:tempProductCount withSuccessToShoppingCarResult:^(id successResult) {
-            
-            [alertM showAlertViewWithTitle:nil withMessage:@"加入购物车成功" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
-                //消失
-                [self dismissButtonAction:nil];
-
+        if ([tempProductCount integerValue] > 0) {
+            [manager httpProductToShoppingCarWithFormatId:self.productDetailModel.productModel.productFormatID withProductCount:tempProductCount withSuccessToShoppingCarResult:^(id successResult) {
+                
+                [alertM showAlertViewWithTitle:nil withMessage:@"加入购物车成功" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
+                    //消失
+                    [self dismissButtonAction:nil];
+                    
+                }];
+                
+                //发送通知，让购物车界面刷新
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"refreshShoppingCarVC" object:self userInfo:nil];
+                
+            } withFailToShoppingCarResult:^(NSString *failResultStr) {
+                NSLog(@"加入失败");
+                [alertM showAlertViewWithTitle:nil withMessage:@"加入购物车失败，请稍后再试" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
             }];
+
+        }else {
+            [alertM showAlertViewWithTitle:nil withMessage:@"请选择产品规格" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
             
-            //发送通知，让购物车界面刷新
-            [[NSNotificationCenter defaultCenter] postNotificationName:@"refreshShoppingCarVC" object:self userInfo:nil];
-            
-        } withFailToShoppingCarResult:^(NSString *failResultStr) {
-            NSLog(@"加入失败");
-        }];
+        }
+        
         
         //block刷新详情页的UI
 //        self.refreshFormatBlock();

@@ -17,12 +17,7 @@
     self.footOneButtonBlock(sender.indexForButton, @"orderPay");
 }
 
-//确认付款
-- (IBAction)enterPayAction:(IndexButton *)sender {
-    NSLog(@"%ld",sender.indexForButton.section);
-    
-    self.footOneButtonBlock(sender.indexForButton, @"enterPay");
-}
+
 
 //取消订单
 - (IBAction)cancelOrderAction:(IndexButton *)sender {

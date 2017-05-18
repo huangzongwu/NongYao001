@@ -20,6 +20,7 @@
 @property (nonatomic,strong)NSString *o_activity_id;//活动id
 @property (nonatomic,strong)NSString *activitytitle;//活动标题
 @property (nonatomic,strong)NSString *p_icon;//图片
+@property (nonatomic,strong)NSString *f_name;//厂家
 @property (nonatomic,strong)NSString *o_price;//单价
 @property (nonatomic,strong)NSString *p_pid;//商品编码
 @property (nonatomic,strong)NSString *statusvalue;//状态值

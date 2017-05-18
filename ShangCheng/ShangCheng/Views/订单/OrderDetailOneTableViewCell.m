@@ -20,10 +20,10 @@
         self.statusAndTotalPriceLabel.text = tempSonOrderModel.statusvalue;
 //    }
     
-    [self.orderImageView setWebImageURLWithImageUrlStr:tempSonOrderModel.p_icon withErrorImage:[UIImage imageNamed:@"productImage"]];
+    [self.orderImageView setWebImageURLWithImageUrlStr:tempSonOrderModel.p_icon withErrorImage:[UIImage imageNamed:@"icon_pic_cp"] withIsCenter:YES];
     
     self.orderTitleLabel.text = tempSonOrderModel.p_name;
-    self.orderCompanyLabel.text = @"未知厂家";
+    self.orderCompanyLabel.text = tempSonOrderModel.f_name;
     self.orderFormatAndCountLabel.text = [NSString stringWithFormat:@"规格:%@  数量:%@",tempSonOrderModel.productst,tempSonOrderModel.o_num];
     self.orderUnitPriceLabel.text = [NSString stringWithFormat:@"￥%@", tempSonOrderModel.o_price];
 }

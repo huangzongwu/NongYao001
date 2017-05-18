@@ -11,7 +11,7 @@
 @interface MyAgentPeopleModel : NSObject
 @property (nonatomic,strong)NSString *u_id;
 @property (nonatomic,strong)NSString *u_r_id;
-@property (nonatomic,strong)NSString *u_login_id;
+//@property (nonatomic,strong)NSString *u_login_id;
 @property (nonatomic,strong)NSString *u_type;
 @property (nonatomic,strong)NSString *u_typename;
 @property (nonatomic,strong)NSString *u_truename;

@@ -11,6 +11,7 @@
 @interface ProductFormatModel : NSObject
 //规格id
 @property (nonatomic,strong)NSString *s_id;
+@property (nonatomic,strong)NSString *s_code;
 //规格字符串
 @property (nonatomic,strong)NSString *productst;
 //价格
@@ -23,7 +24,7 @@
 @property (nonatomic,assign)BOOL isSelect;
 //实际选择的数量
 @property (nonatomic,assign)NSInteger seletctCount;
-
+@property (nonatomic,assign)BOOL isActivity;
 - (void)setValue:(id)value forUndefinedKey:(NSString *)key;
 
 @end

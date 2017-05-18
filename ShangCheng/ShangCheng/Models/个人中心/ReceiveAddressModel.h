@@ -12,7 +12,6 @@
 @property (nonatomic,strong)NSString *receiverID;
 @property (nonatomic,strong)NSString *receiverName;
 @property (nonatomic,strong)NSString *receiveMobile;
-@property (nonatomic,strong)NSString *receiveTel;
 @property (nonatomic,strong)NSString *areaID;
 @property (nonatomic,strong)NSString *capitalname;
 @property (nonatomic,strong)NSString *cityname;

@@ -8,6 +8,7 @@
 
 #import "AddCouponViewController.h"
 #import "Manager.h"
+#import "SVProgressHUD.h"
 @interface AddCouponViewController ()<UITextFieldDelegate>
 @property (weak, nonatomic) IBOutlet UITextField *couponIdTextField;
 @property (weak, nonatomic) IBOutlet UIButton *enterAddButton;
@@ -55,11 +56,18 @@
 
 //确认绑定按钮
 - (IBAction)addButtonAction:(UIButton *)sender {
+    AlertManager *alertM = [AlertManager shareIntance];
+
     Manager *manager = [Manager shareInstance];
     if (self.couponIdTextField.text != nil && self.couponIdTextField.text.length > 0) {
+        if ([SVProgressHUD isVisible] == NO) {
+            [SVProgressHUD show];
+        }
+
         [manager addCouponWithCouponId:self.couponIdTextField.text withUserId:manager.memberInfoModel.u_id withAddCouponSuccess:^(id successResult) {
+            [SVProgressHUD dismiss];
+            
             //添加成功
-            AlertManager *alertM = [AlertManager shareIntance];
             [alertM showAlertViewWithTitle:nil withMessage:@"添加成功" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
                 //发送通知刷新
                 [[NSNotificationCenter defaultCenter] postNotificationName:@"refreshCouponCount" object:self userInfo:nil];
@@ -71,14 +79,18 @@
             
         } withAddCouponFail:^(NSString *failResultStr) {
             //失败
+            [SVProgressHUD dismiss];
+            [alertM showAlertViewWithTitle:nil withMessage:@"添加优惠券失败，轻松好后再试，或者联系客服" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
         }];
         
     }else {
-        AlertManager *alertM = [AlertManager shareIntance];
         [alertM showAlertViewWithTitle:nil withMessage:@"请输入优惠券码" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
     }
 }
 
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    [self.couponIdTextField resignFirstResponder];
+}
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

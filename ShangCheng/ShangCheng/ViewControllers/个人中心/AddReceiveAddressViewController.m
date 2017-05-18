@@ -8,6 +8,7 @@
 
 #import "AddReceiveAddressViewController.h"
 #import "SelectAddressView.h"
+#import "SVProgressHUD.h"
 @interface AddReceiveAddressViewController ()
 @property (weak, nonatomic) IBOutlet UITextField *receiverNameTextField;
 
@@ -31,7 +32,16 @@
 - (IBAction)leftBarButtonAction:(UIBarButtonItem *)sender {
     [self.navigationController popViewControllerAnimated:YES];
 }
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear: animated];
+    [SVProgressHUD dismiss];
+}
 
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    [self.receiverNameTextField resignFirstResponder];
+    [self.mobileTextField resignFirstResponder];
+    [self.receiveAddressTextField resignFirstResponder];
+}
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
@@ -87,6 +97,10 @@
 
 
 - (IBAction)areaButtonAction:(UIButton *)sender {
+    [self.receiverNameTextField resignFirstResponder];
+    [self.mobileTextField resignFirstResponder];
+    [self.receiveAddressTextField resignFirstResponder];
+    
     //得到地区数据，然后显示
     Manager *manager = [Manager shareInstance];
     if (manager.areaArr.count > 0 ) {
@@ -97,13 +111,20 @@
         
     }else {
         //没有数据，就从本地获取或者网络请求
+        if ([SVProgressHUD isVisible] == NO) {
+            [SVProgressHUD show];
+        }
+
         [manager httpAreaTreeWithSuccessAreaInfo:^(id successResult) {
             NSLog(@"地区成功2");
+            [SVProgressHUD dismiss];
             //刷新pickView
             [self showAddressPickView];
             
         } withFailAreaInfo:^(NSString *failResultStr) {
             NSLog(@"地区请求失败");
+            [SVProgressHUD dismiss];
+            [[AlertManager shareIntance] showAlertViewWithTitle:nil withMessage:@"地区读取失败" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
         }];
     }
 }
@@ -189,17 +210,27 @@
         self.addressModelCopy.receiveMobile = self.mobileTextField.text;
         self.addressModelCopy.receiveAddress = self.receiveAddressTextField.text;
 
-        
+        if ([SVProgressHUD isVisible] == NO) {
+            [SVProgressHUD show];
+        }
+
         //发起数据请求修改
         [manager motifyReceiveAddressWithReceiveAddressModel:self.addressModelCopy withMotifySuccess:^(id successResult) {
+            [SVProgressHUD dismiss];
+            [[AlertManager shareIntance] showAlertViewWithTitle:nil withMessage:@"修改收货地址成功" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
+                //返回刷新
+                self.refreshAddressListBlock(self.addressModelCopy.receiverID);
 
-            //返回刷新
-            self.refreshAddressListBlock(self.addressModelCopy.receiverID);
-            
-            [self.navigationController popViewControllerAnimated:YES];
+                
+                [self.navigationController popViewControllerAnimated:YES];
+
+            }];
+
             
         } withMotifyFail:^(NSString *failResultStr) {
             NSLog(@"%@",failResultStr);
+            [SVProgressHUD dismiss];
+            [[AlertManager shareIntance] showAlertViewWithTitle:nil withMessage:@"修改收货地址失败，请稍后再试" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
         }];
         
     }else {
@@ -214,24 +245,29 @@
         self.addReceiveAddressModel.receiverName = self.receiverNameTextField.text;
         self.addReceiveAddressModel.receiveMobile = self.mobileTextField.text;
         self.addReceiveAddressModel.receiveAddress = self.receiveAddressTextField.text;
+        if ([SVProgressHUD isVisible] == NO) {
+            [SVProgressHUD show];
+        }
+
         //发起请求
         [manager addReceiveAddressWithReceiveAddressModel:self.addReceiveAddressModel withUserId:manager.memberInfoModel.u_id withAddReceiveAddressSuccess:^(id successResult) {
-            //返回刷新
-            self.refreshAddressListBlock(successResult);
-
-            [self.navigationController popViewControllerAnimated:YES];
+            [SVProgressHUD dismiss];
             
-
+            [[AlertManager shareIntance] showAlertViewWithTitle:nil withMessage:@"新增收货地址成功" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
+                //返回刷新
+                self.refreshAddressListBlock(successResult);
+                
+                [self.navigationController popViewControllerAnimated:YES];
+                
+            }];
+            
         } withAddReceiveAddressFail:^(NSString *failResultStr) {
             NSLog(@"%@",failResultStr);
+            [SVProgressHUD dismiss];
+            [[AlertManager shareIntance] showAlertViewWithTitle:nil withMessage:@"新增收货地址失败，请稍后再试" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
 
         }];
-        
-
-        
     }
-    
-
     
 }
 

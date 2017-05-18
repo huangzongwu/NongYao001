@@ -10,6 +10,7 @@
 #import "Manager.h"
 #import "AlertManager.h"
 #import "RegisterTwoViewController.h"
+#import "SVProgressHUD.h"
 @interface RegisterViewController ()<UITextFieldDelegate>
 @property (weak, nonatomic) IBOutlet UITextField *mobileNumberTextField;
 @property (weak, nonatomic) IBOutlet UITextField *codeTextField;
@@ -65,6 +66,10 @@
 
 }
 
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    [SVProgressHUD dismiss];
+}
 - (void)viewDidDisappear:(BOOL)animated {
     [super viewDidDisappear:animated];
     //定制器取消
@@ -125,6 +130,8 @@
 
 //获取短信验证码
 - (IBAction)getMobileNumber:(UIButton *)sender {
+    [self keyboardDismissAction];
+
     if (self.mobileNumberTextField.text.length == 11) {
         //获取验证码
         [[Manager shareInstance] httpMobileCodeWithMobileNumber:self.mobileNumberTextField.text withCodeSuccessResult:^(id successResult) {
@@ -149,17 +156,29 @@
 
 //下一步
 - (IBAction)nextButtonAction:(UIButton *)sender {
+    [self keyboardDismissAction];
+
 //    [self performSegueWithIdentifier:@"registerNext" sender:sender];
     
+    
+    AlertManager *alert = [AlertManager shareIntance];
+
     //先判断一下是否已经注册了
     Manager *manager = [Manager shareInstance];
     if (self.mobileNumberTextField.text.length == 11 ) {
+        if ([SVProgressHUD isVisible] == NO) {
+            [SVProgressHUD show];
+        }
+
         [manager httpCheckIsUserRegisterWithMobile:self.mobileNumberTextField.text withIsRegisterSuccess:^(id successResult) {
+            
             //未注册可以进行下一步
             if (self.codeTextField.text.length > 0) {
                 
                 //验证一下验证码是否正确
                 [[Manager shareInstance] httpCheckMobileCodeWithMobileNumber:self.mobileNumberTextField.text withCode:self.codeTextField.text withCodeSuccessResult:^(id successResult) {
+                    [SVProgressHUD dismiss];
+
                     if ([successResult isEqualToString:@"200"]) {
                         //下一步
                         [self performSegueWithIdentifier:@"registerNext" sender:sender];
@@ -167,7 +186,8 @@
                     }
                 } withCodeFailResult:^(NSString *failResultStr) {
                     //
-                    AlertManager *alert = [AlertManager shareIntance];
+                    [SVProgressHUD dismiss];
+
                     [alert showAlertViewWithTitle:nil withMessage:[NSString stringWithFormat:@"短信验证失败，%@",failResultStr ] actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
                         
                     }];
@@ -176,20 +196,36 @@
                 
             }else {
                 NSLog(@"请输入验证码");
+                [SVProgressHUD dismiss];
+
+                [alert showAlertViewWithTitle:nil withMessage:@"请输入验证码" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
+
             }
             
         } withIsRegisterFail:^(NSString *failResultStr) {
             NSLog(@"%@",failResultStr);
+            [SVProgressHUD dismiss];
+            [alert showAlertViewWithTitle:nil withMessage:failResultStr actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
+
         }];
 
     }else {
         NSLog(@"请输入正确的手机号");
+        [alert showAlertViewWithTitle:nil withMessage:@"请输入正确的手机号" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
+
     }
     
     
 }
 
+- (void)keyboardDismissAction {
+    [self.codeTextField resignFirstResponder];
+    [self.mobileNumberTextField resignFirstResponder];
+}
 
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    [self keyboardDismissAction];
+}
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.

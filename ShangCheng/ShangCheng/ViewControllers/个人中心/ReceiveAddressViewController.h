@@ -14,4 +14,5 @@ typedef void(^SelectModelBlock)();
 @interface ReceiveAddressViewController : UIViewController
 
 @property (nonatomic,copy)SelectModelBlock selectModelBlock;
+
 @end

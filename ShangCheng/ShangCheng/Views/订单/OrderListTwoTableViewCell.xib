@@ -86,25 +86,32 @@
                             <constraint firstItem="jGc-Oo-fid" firstAttribute="centerY" secondItem="ODf-9A-pKE" secondAttribute="centerY" id="uMI-0x-o86"/>
                         </constraints>
                     </scrollView>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="---" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5nX-HF-IhS">
-                        <rect key="frame" x="15" y="139" width="290" height="18.5"/>
-                        <color key="backgroundColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="￥---" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5nX-HF-IhS">
+                        <rect key="frame" x="269" y="139" width="36" height="19"/>
                         <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                        <nil key="textColor"/>
+                        <color key="textColor" red="0.81568627449999997" green="0.090196078430000007" blue="0.08235294118" alpha="1" colorSpace="calibratedRGB"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="共0件商品，" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="38a-eE-wbw">
+                        <rect key="frame" x="175" y="139" width="86" height="19"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                        <color key="textColor" red="0.20000000000000001" green="0.20000000000000001" blue="0.20000000000000001" alpha="1" colorSpace="calibratedRGB"/>
                         <nil key="highlightedColor"/>
                     </label>
                 </subviews>
                 <constraints>
                     <constraint firstItem="YWi-jO-3gx" firstAttribute="leading" secondItem="5G1-Yp-hcT" secondAttribute="trailing" constant="5" id="0Zy-HF-F19"/>
-                    <constraint firstAttribute="trailing" secondItem="5nX-HF-IhS" secondAttribute="trailing" constant="15" id="4ic-PO-Fa0"/>
+                    <constraint firstItem="5nX-HF-IhS" firstAttribute="top" secondItem="ODf-9A-pKE" secondAttribute="bottom" constant="10" id="0hH-wo-tQi"/>
+                    <constraint firstAttribute="trailing" secondItem="5nX-HF-IhS" secondAttribute="trailing" constant="15" id="1Bg-u4-zY4"/>
+                    <constraint firstItem="38a-eE-wbw" firstAttribute="top" secondItem="ODf-9A-pKE" secondAttribute="bottom" constant="10" id="2s3-vC-yEI"/>
+                    <constraint firstItem="5nX-HF-IhS" firstAttribute="leading" secondItem="38a-eE-wbw" secondAttribute="trailing" constant="8" id="DPB-B4-5GX"/>
                     <constraint firstItem="gCC-QT-ALD" firstAttribute="leading" secondItem="a88-mT-YWS" secondAttribute="trailing" constant="6" id="MEX-Z8-Oiv"/>
                     <constraint firstItem="a88-mT-YWS" firstAttribute="leading" secondItem="YWi-jO-3gx" secondAttribute="trailing" constant="5" id="Nqm-S6-kY5"/>
                     <constraint firstItem="FZJ-OG-7PH" firstAttribute="centerY" secondItem="a88-mT-YWS" secondAttribute="centerY" id="Pgn-zr-SO0"/>
                     <constraint firstAttribute="trailing" secondItem="FZJ-OG-7PH" secondAttribute="trailing" constant="5" id="UNa-tl-FZg"/>
+                    <constraint firstAttribute="bottom" secondItem="5nX-HF-IhS" secondAttribute="bottom" constant="9" id="V2P-Kx-mFq"/>
                     <constraint firstItem="5G1-Yp-hcT" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" id="V3u-Qv-LF6"/>
                     <constraint firstItem="a88-mT-YWS" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="10" id="YO6-rY-s9b"/>
-                    <constraint firstItem="5nX-HF-IhS" firstAttribute="top" secondItem="ODf-9A-pKE" secondAttribute="bottom" constant="10" id="c7j-44-fxD"/>
-                    <constraint firstAttribute="bottom" secondItem="5nX-HF-IhS" secondAttribute="bottom" constant="10" id="caf-LJ-CmZ"/>
                     <constraint firstItem="a88-mT-YWS" firstAttribute="centerY" secondItem="YWi-jO-3gx" secondAttribute="centerY" id="egq-1R-Ali"/>
                     <constraint firstItem="ODf-9A-pKE" firstAttribute="top" secondItem="a88-mT-YWS" secondAttribute="bottom" constant="10" id="fsE-5P-q3e"/>
                     <constraint firstItem="ODf-9A-pKE" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" id="hgB-hA-qn7"/>
@@ -112,7 +119,7 @@
                     <constraint firstItem="a88-mT-YWS" firstAttribute="centerY" secondItem="5G1-Yp-hcT" secondAttribute="centerY" id="knL-vD-okA"/>
                     <constraint firstAttribute="trailing" secondItem="ODf-9A-pKE" secondAttribute="trailing" id="mAd-Ey-5X3"/>
                     <constraint firstItem="gCC-QT-ALD" firstAttribute="centerY" secondItem="a88-mT-YWS" secondAttribute="centerY" id="ocf-ms-Mmx"/>
-                    <constraint firstItem="5nX-HF-IhS" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="15" id="x7J-Md-OHv"/>
+                    <constraint firstAttribute="bottom" secondItem="38a-eE-wbw" secondAttribute="bottom" constant="9" id="q4B-Wn-yzq"/>
                 </constraints>
             </tableViewCellContentView>
             <connections>
@@ -121,10 +128,11 @@
                 <outlet property="orderStateLabel" destination="FZJ-OG-7PH" id="kxL-Pl-G6Q"/>
                 <outlet property="productContentView" destination="jGc-Oo-fid" id="UfU-cA-dVB"/>
                 <outlet property="productContentViewWidthLayout" destination="fKv-tC-9ff" id="ylK-wz-aVV"/>
+                <outlet property="productCountLabel" destination="38a-eE-wbw" id="3hM-Fp-MuJ"/>
                 <outlet property="selectButtonWidthLayout" destination="d2I-5S-J8Q" id="Yj6-dQ-reN"/>
                 <outlet property="selectOrderButton" destination="5G1-Yp-hcT" id="g3s-76-Emu"/>
             </connections>
-            <point key="canvasLocation" x="25" y="93.5"/>
+            <point key="canvasLocation" x="25" y="93"/>
         </tableViewCell>
     </objects>
     <resources>

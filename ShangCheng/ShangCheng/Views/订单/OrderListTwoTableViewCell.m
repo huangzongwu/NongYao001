@@ -12,9 +12,9 @@
 - (void)updateOrderLIstOneCellWithModel:(SupOrderModel *)model withWhichTableView:(NSString *)whichTableView withCellIndex:(NSIndexPath *)cellIndex {
     
     self.selectOrderButton.indexForButton = cellIndex;
-    //看看是那个TableView，只有第二个TableView，且状态为0或者1B 才会有选中button。否则就没有选中button
+    //看看是那个TableView，只有第二个TableView，且状态为0 才会有选中button。否则就没有选中button
     if ([whichTableView isEqualToString:@"2"]) {
-        if ([model.p_status isEqualToString:@"0"] || [model.p_status isEqualToString:@"1B"]) {
+        if ([model.p_status isEqualToString:@"0"] ) {
             self.selectButtonWidthLayout.constant = 25;
         }else {
             self.selectButtonWidthLayout.constant = 0;
@@ -34,27 +34,17 @@
     }
     
     self.orderNumberLabel.text = model.p_code;
-    //待付款
-    if ([model.p_status isEqualToString:@"0"] || [model.p_status isEqualToString:@"1B"] ) {
-        self.orderStateLabel.text = @"待付款";
-    }
-    //待确认（属于待付款）
-    if ([model.p_status isEqualToString:@"1A"]) {
-        self.orderStateLabel.text = @"待确认";
-    }
-    //进行中
-    if ([model.p_status isEqualToString:@"1"] ) {
-        self.orderStateLabel.text = @"进行中";
-    }
-    //已完成
-    if ([model.p_status isEqualToString:@"9"]) {
-        self.orderStateLabel.text = @"已完成";
-    }
+    
+    
+
+    
+    self.orderStateLabel.text = model.statusvalue;
+  
     
     
     
-//    self.productCountLabel.text = [NSString stringWithFormat:@"共%ld件商品", model.subOrderArr.count];
-    self.orderPriceLabel.text = [NSString stringWithFormat:@"共%ld件商品￥%.2f",model.subOrderArr.count, [model.p_o_price_total floatValue] - [model.p_discount floatValue]];
+    self.productCountLabel.text = [NSString stringWithFormat:@"共%ld件商品，", model.subOrderArr.count];
+    self.orderPriceLabel.text = [NSString stringWithFormat:@"￥%.2f",[model.p_o_price_total floatValue] - [model.p_discount floatValue]];
 
     //首先清空原有的imageView
     for (UIView *tempImageView in self.productContentView.subviews) {
@@ -69,8 +59,8 @@
     for (int i = 0; i < model.subOrderArr.count; i++) {
         UIImageView *tempProductImageView = [[UIImageView alloc] initWithFrame:CGRectMake(10+(self.productContentView.bounds.size.height-10)*i, 10, self.productContentView.bounds.size.height-20, self.productContentView.bounds.size.height-20)];
         SonOrderModel *tempSonOrderModel = model.subOrderArr[i];
-        tempProductImageView.image = [UIImage imageNamed:@"productImage"];
-        [tempProductImageView setWebImageURLWithImageUrlStr:tempSonOrderModel.p_icon withErrorImage:[UIImage imageNamed:@"productImage"]];
+        tempProductImageView.image = [UIImage imageNamed:@"icon_pic_cp"];
+        [tempProductImageView setWebImageURLWithImageUrlStr:tempSonOrderModel.p_icon withErrorImage:[UIImage imageNamed:@"icon_pic_cp"] withIsCenter:YES];
         [self.productContentView addSubview:tempProductImageView];
         //圆角
         tempProductImageView.layer.masksToBounds = YES;

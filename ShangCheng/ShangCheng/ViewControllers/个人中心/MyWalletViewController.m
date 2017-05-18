@@ -10,7 +10,7 @@
 #import "MyWalletTableViewCell.h"
 #import "Manager.h"
 #import "MyTradeRecordViewController.h"
-
+#import "SVProgressHUD.h"
 @interface MyWalletViewController ()<UITableViewDataSource,UITableViewDelegate>
 //TableView
 @property (weak, nonatomic) IBOutlet UITableView *myWalletTableView;
@@ -26,12 +26,30 @@
 @end
 
 @implementation MyWalletViewController
+- (instancetype)initWithCoder:(NSCoder *)aDecoder {
+    self = [super initWithCoder:aDecoder];
+    if (self) {
+       
+        //通知，刷新金额
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshMoney:) name:@"refreshMoney" object:nil];
+    }
+    return self;
+}
 
-
+//刷新用户金额
+- (void)refreshMoney:(NSNotification *)sender {
+    [self httpMyWalletInfo];
+    
+}
 - (IBAction)leftBarButtonAction:(UIBarButtonItem *)sender {
     [self.navigationController popViewControllerAnimated:YES];
 }
 
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear: animated];
+    [SVProgressHUD dismiss];
+    
+}
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
@@ -51,10 +69,23 @@
     self.dataSource = [NSMutableArray arrayWithObjects:dataArr1,dataArr2,dataArr3, nil];
     
     //请求余额信息
+    [self httpMyWalletInfo];
+    
+    
+
+}
+
+
+- (void)httpMyWalletInfo {
+    //请求余额信息
     //查询账户余额
     Manager *manager = [Manager shareInstance];
+    if ([SVProgressHUD isVisible] == NO) {
+        [SVProgressHUD show];
+    }
+
     [manager searchUserAmount:manager.memberInfoModel.u_id withAmountSuccessBlock:^(id successResult) {
-        
+        [SVProgressHUD dismiss];
         //将最新的余额存入模型中
         
         manager.memberInfoModel.u_amount = [[[successResult objectAtIndex:0] objectForKey:@"u_amount"] doubleValue];
@@ -71,9 +102,9 @@
         
         
     } withAmountFailBlock:^(NSString *failResultStr) {
-        
+        [SVProgressHUD dismiss];
+        [[AlertManager shareIntance] showAlertViewWithTitle:nil withMessage:@"用户金额信息请求失败，请稍后充值" actionTitleArr:nil withViewController:self withReturnCodeBlock:nil];
     }];
-    
 
 }
 
@@ -119,6 +150,10 @@
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    //当手指离开某行时，就让某行的选中状态消失
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    
+
     NSDictionary *tempDic = [self.dataSource[indexPath.section] objectAtIndex:indexPath.row];
 
     

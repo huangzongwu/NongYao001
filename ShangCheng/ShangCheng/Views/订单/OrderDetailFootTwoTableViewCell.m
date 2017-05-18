@@ -24,7 +24,7 @@
         //已付款
         self.needPayPriceLabel.text = [NSString stringWithFormat:@"实付款：￥%.2f", [tempSupModel.p_o_price_total floatValue] - [tempSupModel.p_discount floatValue]];
         self.payTimeLabel.hidden = NO;
-        self.payTimeLabel.text = [NSString stringWithFormat:@"下单时间：%@",tempSupModel.p_time_pay];
+        self.payTimeLabel.text = [NSString stringWithFormat:@"付款时间：%@",tempSupModel.p_time_pay];
 
     }
 }

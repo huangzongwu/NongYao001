@@ -13,6 +13,7 @@
 #import "PestsCollectionReusableView.h"
 #import "SearchViewController.h"
 #import "KongImageView.h"
+#import "SVProgressHUD.h"
 @interface PestsTreeViewController ()<UITableViewDelegate,UITableViewDataSource,UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout>
 @property (nonatomic,strong)KongImageView *kongImageView;
 
@@ -31,6 +32,10 @@
     [self.navigationController popViewControllerAnimated:YES];
 }
 
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear: animated];
+    [SVProgressHUD dismiss];
+}
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
@@ -47,11 +52,20 @@
 - (void)reloadAgainButtonAction:(IndexButton *)sender {
     //请求数据
     Manager *manager = [Manager shareInstance];
+    //显示风火轮
+    if ([SVProgressHUD isVisible] == NO) {
+        [SVProgressHUD show];
+    }
     [manager httpInformationPestsTreeWithPestsTreeSuccess:^(id successResult) {
+        //风火轮消失
+        [SVProgressHUD dismiss];
         [self.leftTableView reloadData];
         [self.rightCollectionView reloadData];
         [self isShowKongImageViewWithType:KongTypeWithKongData withKongMsg:@"暂时没有病虫害"];
     } withPestsTreeFail:^(NSString *failResultStr) {
+        //风火轮消失
+        [SVProgressHUD dismiss];
+
         NSLog(@"%@",failResultStr);
         [self isShowKongImageViewWithType:KongTypeWithNetError withKongMsg:@"网络错误"];
 

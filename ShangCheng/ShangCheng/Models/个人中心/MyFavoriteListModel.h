@@ -18,7 +18,7 @@
 @property (nonatomic,strong)NSString *favoriteProductFormatID;
 @property (nonatomic,strong)NSString *favoriteProductFormatStr;
 @property (nonatomic,strong)NSString *favoriteProductPriceStr;
-
+@property (nonatomic,strong)NSString *s_min_quantity;
 - (void)setValue:(id)value forUndefinedKey:(NSString *)key;
 
 @end

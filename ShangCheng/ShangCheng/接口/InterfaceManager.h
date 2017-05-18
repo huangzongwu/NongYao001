@@ -13,6 +13,8 @@
 + (InterfaceManager *)shareInstance;
 
 #pragma mark - 首页 -
+//banner图
+- (NSString *)linkManageBase;
 //今日特价
 - (NSString *)todayActivityBase ;
 //病虫害知识
@@ -26,10 +28,12 @@
 - (NSString *)productsBySortTypeBase;
 #pragma mark - 产品 -
 //- (NSString *)productBaseURL;
-//首页产品 cnum是热销产品的个数，rnum是推荐产品的个数
-- (NSString *)homeProductURLWithCnum:(NSString *)cnum withRnum:(NSString *)rnum;
+//首页产品 cnum是热销产品的个数，
+- (NSString *)homeHotProductWithCnum:(NSString *)cnum ;
+//首页产品 rnum是推荐产品的个数
+- (NSString *)homeProductURLWithRnum:(NSString *)rnum ;
 //产品详情
-- (NSString *)productDetailURLWithProductID:(NSString *)productID withIsst:(NSString *)isst;
+- (NSString *)productDetailURLWithProductID:(NSString *)productID withType:(NSString *)type withIsst:(NSString *)isst ;
 //产品所有规格
 - (NSString *)productAllFarmatWithProductID:(NSString *)productID;
 
@@ -60,7 +64,7 @@
 - (NSString *)computeCouponMoneyPOST;
 
 //订单列表 -1全部、0,1B,1A待付款、1,进行中、9已完成
-- (NSString *)orderListWithUserID:(NSString *)userID withProduct:(NSString *)product withCode:(NSString *)code withOrderStatus:(NSString *)orderStatus withPageIndex:(NSInteger)pageIndex withPageSize:(NSInteger )pageSize;
+- (NSString *)orderListWithUserID:(NSString *)userID withType:(NSString *)type withCode:(NSString *)code withOrderStatus:(NSString *)orderStatus withPageIndex:(NSInteger)pageIndex withPageSize:(NSInteger )pageSize ;
 
 //用户退货订单查询
 - (NSString *)orderReturnListUserId:(NSString *)userId withCode:(NSString *)code withPageIndex:(NSInteger)pageIndex withPageSize:(NSInteger)pageSize;
@@ -76,6 +80,9 @@
 
 //物流信息
 - (NSString *)logisticsWithOrderId:(NSString *)orderId withType:(NSString *)type;
+
+//子订单确认收货
+- (NSString *)UserReceiptBase;
 
 #pragma mark - 支付 -
 //支付前验证
@@ -148,11 +155,16 @@
 - (NSString *)checkMobileCodeWithMobileNumber:(NSString *)mobileNumber withCode:(NSString *)code;
 //用户Base接口
 - (NSString *)userBase;
-//检验是否已经注册了
+//注册时检验是否已经注册了
 - (NSString *)isUserRegisterBase;
 
 //代理商注册
 - (NSString *)AgentMerchantsBase;
+
+#pragma mark - 消息中心 -
+//消息通知base
+- (NSString *)messageNotificationBase;
+
 
 #pragma mark - 真假查询 -
 //农药--等级证号
@@ -171,8 +183,8 @@
 //微生物--企业名称，即不是纯数字
 - (NSString *)getTrueCheckThreeWithCompany:(NSString *)company;
 
-
-
+#pragma mark - 发送银行卡号 -
+- (NSString *)sendBankCard;
 #pragma mark - 其他 -
 //地区信息
 - (NSString *)getAreaTree;

@@ -32,7 +32,9 @@
     if ([key isEqualToString:@"r_star_level"]) {
         self.starCount = [value integerValue];
     }
-    
+    if ([key isEqualToString:@"o_price"]) {
+        self.productPrice = value;
+    }
   
 }
 

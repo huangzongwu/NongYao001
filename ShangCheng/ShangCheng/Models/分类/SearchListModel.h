@@ -24,4 +24,6 @@
 @property (nonatomic,strong)NSString *p_price;
 @property (nonatomic,strong)NSString *p_sort3;
 @property (nonatomic,strong)NSString *p_activity_show_id;
+
+- (void)setValue:(id)value forUndefinedKey:(NSString *)key;
 @end

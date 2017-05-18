@@ -14,6 +14,7 @@
 #import "SearchViewController.h"
 #import "ProductListViewController.h"
 #import "KongImageView.h"
+#import "SVProgressHUD.h"
 @interface ClassViewController ()<UITableViewDataSource,UITableViewDelegate,UICollectionViewDataSource,UICollectionViewDelegate,UICollectionViewDelegateFlowLayout>
 @property (nonatomic,strong)KongImageView *kongImageView;
 
@@ -27,15 +28,31 @@
 @end
 
 @implementation ClassViewController
+- (void)leftBarButtonAction:(UIBarButtonItem *)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
 
-
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    [SVProgressHUD dismiss];
+}
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    
+    //只有不是跟视图的时候，才有返回按钮
+    if ([self.navigationController viewControllers].count > 1) {
+        UIBarButtonItem *leftItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"s_icon_back"] style:UIBarButtonItemStyleDone target:self action:@selector(leftBarButtonAction:)];
+        leftItem.tintColor = [UIColor whiteColor];
+        self.navigationItem.leftBarButtonItem = leftItem;
+//        self.hidesBottomBarWhenPushed = YES;
+    }
+
+    
     //加载空白页
     self.kongImageView = [[[NSBundle mainBundle] loadNibNamed:@"KongImageView" owner:self options:nil] firstObject];
     [self.kongImageView.reloadAgainButton addTarget:self action:@selector(reloadAgainButtonAction:) forControlEvents:UIControlEventTouchUpInside];
-    self.kongImageView.frame = self.view.bounds;
+    self.kongImageView.frame = CGRectMake(0, 137, kScreenW, kScreenH-137);
     [self.view addSubview:self.kongImageView];
     
     //加载数据
@@ -50,6 +67,7 @@
         [self.kongImageView hiddenKongView];
     }else {
         [self.kongImageView showKongViewWithKongMsg:msg withKongType:kongType];
+        self.kongImageView.reloadAgainButton.hidden = NO;
     }
     
 }
@@ -58,7 +76,12 @@
 - (void)reloadAgainButtonAction:(IndexButton *)sender {
     //请求分类数据
     Manager *manager = [Manager shareInstance];
+    if ([SVProgressHUD isVisible] == NO) {
+        [SVProgressHUD show];
+    }
+
     [manager httpProductClassTreeWithClassTreeSuccess:^(id successResult) {
+        [SVProgressHUD dismiss];//风火轮消失
         //看看是否显示空白页
         [self isShowKongImageViewWithType:KongTypeWithKongData withKongMsg:@"暂无分类"];
 
@@ -68,7 +91,7 @@
         
     } withClassTreeFali:^(NSString *failResultStr) {
         NSLog(@"%@",failResultStr);
-
+        [SVProgressHUD dismiss];//风火轮消失
         [self isShowKongImageViewWithType:KongTypeWithNetError withKongMsg:@"网络错误"];
         
     }];
@@ -182,7 +205,7 @@
 //item 大小
 - (CGSize )collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
     
-    return CGSizeMake((kScreenW*13/18 - 43-18)/3, 30);
+    return CGSizeMake((kScreenW*13/18 - 30-9)/2, 30);
 
 }
 
@@ -192,7 +215,7 @@
     NSArray *rightArr = [manager.productClassTreeArr[self.selectLeftInt] subItemArr];
     NSArray *rightDetailArr = [rightArr[indexPath.section] subItemArr];
     ClassModel *rightDetailModel = rightDetailArr[indexPath.row];
-    [rightCell updateRightCellWithTitle:rightDetailModel.d_value];
+    [rightCell updateRightCellWithTitle:rightDetailModel.d_desc];
     
     return rightCell;
     
@@ -208,7 +231,7 @@
     
     UINavigationController *searchNav = [self.storyboard instantiateViewControllerWithIdentifier:@"searchNavigationController"];
     //跳转到列表界面
-    [searchNav.viewControllers[0] performSegueWithIdentifier:@"searchToListVC" sender:@[@"TypeProduct",rightDetailModel.d_value]];
+    [searchNav.viewControllers[0] performSegueWithIdentifier:@"searchToListVC" sender:@[@"TypeProduct",rightDetailModel.d_code]];
 
 
     [self presentViewController:searchNav animated:NO completion:nil];

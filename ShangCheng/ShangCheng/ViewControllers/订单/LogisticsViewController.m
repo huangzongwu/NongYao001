@@ -9,6 +9,8 @@
 #import "LogisticsViewController.h"
 #import "LogisticsModel.h"
 #import "LogisticsTableViewCell.h"
+#import "SVProgressHUD.h"
+#import "UIImageView+ImageViewCategory.h"
 @interface LogisticsViewController ()<UITableViewDataSource,UITableViewDelegate>
 @property (nonatomic,strong)NSMutableArray *logisticsDataSource;
 @property (weak, nonatomic) IBOutlet UITableView *logisticsTabelView;
@@ -27,6 +29,10 @@
     [self.navigationController popViewControllerAnimated:YES];
 }
 
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear: animated];
+    [SVProgressHUD dismiss];
+}
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
@@ -42,7 +48,12 @@
     
     //网络请求物流信息
     Manager *manager = [Manager shareInstance];
+    if ([SVProgressHUD isVisible] == NO) {
+        [SVProgressHUD show];
+    }
+
     [manager orderLogisticsWithOrderId:self.tempSonOrderModel.o_id withSuccessLogisticsBlock:^(id successResult) {
+        [SVProgressHUD dismiss];
         
         for (NSDictionary *tempDic in successResult) {
             LogisticsModel *logisticsModel = [[LogisticsModel alloc] init];
@@ -54,7 +65,9 @@
         
         
     } withFailLogisticsBlock:^(NSString *failResultStr) {
-        
+        [SVProgressHUD dismiss];
+        AlertManager *alertM = [AlertManager shareIntance];
+        [alertM showAlertViewWithTitle:nil withMessage:@"物流信息获取失败" actionTitleArr:nil withViewController:self withReturnCodeBlock:nil];
     }];
     
     
@@ -62,7 +75,7 @@
 }
 
 - (void)upHeadView {
-    
+    [self.orderProductImageView setWebImageURLWithImageUrlStr:self.tempSonOrderModel.p_icon withErrorImage:[UIImage imageNamed:@"icon_pic_cp.png"] withIsCenter:YES];
     self.orderProductTitleLabel.text = self.tempSonOrderModel.p_name;
     self.orderProductFormatLabel.text = [NSString stringWithFormat:@"规格:%@  数量:%@",self.tempSonOrderModel.productst,self.tempSonOrderModel.o_num];
     self.orderProductPriceLabel.text = [NSString stringWithFormat:@"￥%@",self.tempSonOrderModel.o_price_total];

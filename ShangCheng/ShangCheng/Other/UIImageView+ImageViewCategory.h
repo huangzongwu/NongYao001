@@ -10,7 +10,7 @@
 #import "Manager.h"
 @interface UIImageView (ImageViewCategory)
 
-- (void)setWebImageURLWithImageUrlStr:(NSString *)imageUrlStr withErrorImage:(UIImage *)errorImage;
+- (void)setWebImageURLWithImageUrlStr:(NSString *)imageUrlStr withErrorImage:(UIImage *)errorImage withIsCenter:(BOOL)isCenter ;
 
 
 @end

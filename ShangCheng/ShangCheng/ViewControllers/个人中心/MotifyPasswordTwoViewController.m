@@ -9,6 +9,7 @@
 #import "MotifyPasswordTwoViewController.h"
 #import "Manager.h"
 #import "AlertManager.h"
+#import "SVProgressHUD.h"
 @interface MotifyPasswordTwoViewController ()<UITextFieldDelegate>
 @property (weak, nonatomic) IBOutlet UITextField *passwordTextField;
 @property (weak, nonatomic) IBOutlet UITextField *passwordAgainTextField;
@@ -65,7 +66,10 @@
     
 }
 
-
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    [SVProgressHUD dismiss];
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -75,12 +79,19 @@
 
 //确认修改
 - (IBAction)enterMotifyButtonAction:(UIButton *)sender {
+    AlertManager *alertM = [AlertManager shareIntance];
+    [self keyboardDismissAction];//键盘消失
 
     if ([self.passwordTextField.text isEqualToString:self.passwordAgainTextField.text] && self.passwordAgainTextField.text.length > 0 ) {
+        if ([SVProgressHUD isVisible] == NO) {
+            [SVProgressHUD show];
+        }
+
         
         Manager *manager = [Manager shareInstance];
         [manager httpMotifyPasswordWithUserId:manager.memberInfoModel.u_id withPassword:[manager digest:self.passwordTextField.text] withMotifyPasswordSuccess:^(id successResult) {
-            AlertManager *alertM = [AlertManager shareIntance];
+            [SVProgressHUD dismiss ];
+            
             [alertM showAlertViewWithTitle:nil withMessage:successResult actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
                 if ([successResult isEqualToString:@"修改成功"]) {
 
@@ -90,15 +101,22 @@
             }];
         
         } withMotifyPasswordFail:^(NSString *failResultStr) {
-            
+            [SVProgressHUD dismiss];
+            [alertM showAlertViewWithTitle:nil withMessage:@"修改密码失败" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
         }];
 
     }
     
-  
-
 }
 
+- (void)keyboardDismissAction {
+    [self.passwordTextField resignFirstResponder];
+    [self.passwordAgainTextField resignFirstResponder];
+}
+
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    [self keyboardDismissAction];
+}
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

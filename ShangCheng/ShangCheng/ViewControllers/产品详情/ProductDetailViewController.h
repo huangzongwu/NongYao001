@@ -10,5 +10,6 @@
 #import "ProductModel.h"
 @interface ProductDetailViewController : UIViewController
 @property (nonatomic,strong)NSString *productID;
+@property (nonatomic,strong)NSString *type;//pid和sid
 @property (nonatomic,assign)BOOL isPopRootVC;
 @end

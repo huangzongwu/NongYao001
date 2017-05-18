@@ -11,15 +11,13 @@
 @implementation TodaySaleListCollectionViewCell
 - (void)updateTodaySaleListCellWithModel:(TodaySaleListModel *)tempModel {
     
-    [self.todaySaleListImageView setWebImageURLWithImageUrlStr:@"" withErrorImage:[UIImage imageNamed:@""]];
-//    if (<#condition#>) {
-//        <#statements#>
-//    }
+    [self.todaySaleListImageView setWebImageURLWithImageUrlStr:tempModel.p_icon withErrorImage:[UIImage imageNamed:@""] withIsCenter:YES];
+
 
     self.todaySaleListTitleLabel.text = tempModel.p_name;
 //    self.todaySaleListCompanyLabel.text = @"";
     self.todaySaleListFormatLabel.text = tempModel.s_standard;
-    self.todaySaleListPriceLabel.text = tempModel.d_price;
+    self.todaySaleListPriceLabel.text = [NSString stringWithFormat:@"￥%@", tempModel.d_price];
     
 }
 

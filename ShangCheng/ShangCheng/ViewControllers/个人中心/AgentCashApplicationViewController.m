@@ -8,6 +8,7 @@
 
 #import "AgentCashApplicationViewController.h"
 #import "Manager.h"
+#import "SVProgressHUD.h"
 //下面两个宏 是用于输入金额的限制
 #define myDotNumbers     @"0123456789.\n"
 #define myNumbers          @"0123456789\n"
@@ -32,7 +33,7 @@
 
 @property (weak, nonatomic) IBOutlet UIButton *enterAgentCashButton;//确认提现button
 
-//选择的方式0-支付宝，1-微信，
+//选择的方式0-支付宝，1-微信，2-银行卡
 @property (nonatomic,assign)NSInteger selectTypeInt;
 
 @end
@@ -107,6 +108,10 @@
     [self.navigationController popViewControllerAnimated:YES];
     
 }
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    [SVProgressHUD dismiss];
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -126,6 +131,21 @@
         self.codeViewHeightLayout.constant = 0;
         self.selectAgentTypeIntoIcon.hidden = YES;
         
+        //给提现的银行开始赋值
+     
+        if (manager.memberInfoModel.a_bank_code!= nil && manager.memberInfoModel.a_bank_code.length > 0) {
+            self.selectTypeInt = 2;
+            self.selectTypeImageView.image = [UIImage imageNamed:@"d_icon_yh"];
+            
+            NSString *tailBankCode = [manager.memberInfoModel.a_bank_code substringFromIndex:manager.memberInfoModel.a_bank_code.length-4];
+            self.selectTypeNameLabel.text = [NSString stringWithFormat:@"提现到尾号为**%@的银行卡",tailBankCode];
+
+        }else {
+            self.selectTypeInt = -1;
+            self.selectTypeImageView.image = [UIImage imageNamed:@"d_icon_yh"];
+            self.selectTypeNameLabel.text = @"未绑定银行卡，请先绑定银行卡";
+        }
+        
     }else {
         //其他用户，
         //需要提现类型
@@ -139,6 +159,7 @@
 
         //默认是第一个支付方式
         self.selectTypeInt = 0;
+        self.selectTypeImageView.image = [UIImage imageNamed:@"d_icon_zfb"];
         
     }
     
@@ -149,6 +170,8 @@
 
 //点击切换提现方式
 - (IBAction)changeTypeTap:(UITapGestureRecognizer *)sender {
+    [self keyboardDismissAction];
+
     UIAlertController *alertC = [UIAlertController alertControllerWithTitle:@"提现到" message:nil preferredStyle:UIAlertControllerStyleActionSheet];
     UIAlertAction *action1 = [UIAlertAction actionWithTitle:@"支付宝" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         self.selectTypeInt = 0;
@@ -160,10 +183,13 @@
         self.selectTypeImageView.image = [UIImage imageNamed:@"d_icon_wxzf"];
         self.selectTypeNameLabel.text = @"提现到微信";
     }];
-    UIAlertAction *action3 = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];
+  
+    
+    UIAlertAction *action4 = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];
     [alertC addAction:action1];
     [alertC addAction:action2];
-    [alertC addAction:action3];
+
+    [alertC addAction:action4];
     [self presentViewController:alertC animated:YES completion:nil];
     
 }
@@ -171,6 +197,8 @@
 
 //确认提现功能
 - (IBAction)enterAgentCashButtonAction:(UIButton *)sender {
+    [self keyboardDismissAction];
+
     NSString *bankNameStr = @"";
     NSString *nameStr;
     NSString *codeStr;
@@ -183,7 +211,9 @@
 
     if ([manager.memberInfoModel.u_type isEqualToString:@"1"]) {
         //代理商
-        
+        nameStr = manager.memberInfoModel.u_truename;
+        bankNameStr = manager.memberInfoModel.a_bank_name;
+        codeStr = manager.memberInfoModel.a_bank_code;
     }else {
         //其他用户
         nameStr = self.nameTextField.text;
@@ -202,14 +232,22 @@
     
     
     if (isCommit == YES) {
+        if ([SVProgressHUD isVisible] == NO) {
+            [SVProgressHUD show];
+        }
+
         [manager httpUserAgentCashApplicationWithUserId:manager.memberInfoModel.u_id withType:[NSString stringWithFormat:@"%ld",self.selectTypeInt] withBankName:bankNameStr withName:nameStr withCode:codeStr withAmount:self.agentCashAmountTextField.text withNote:@"" withAgentCashSuccess:^(id successResult) {
+            [SVProgressHUD dismiss];
+            
             [alertM showAlertViewWithTitle:nil withMessage:@"申请成功" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
                 [self.navigationController popViewControllerAnimated:YES];
             }];
             
             
         } withAgentCashFail:^(NSString *failResultStr) {
-            
+            [SVProgressHUD dismiss];
+            [alertM showAlertViewWithTitle:nil withMessage:@"申请提现失败，请联系客服" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
+
         }];
 
     }else {
@@ -217,6 +255,16 @@
     }
     
     
+}
+
+- (void)keyboardDismissAction {
+    [self.codeTextField resignFirstResponder];
+    [self.nameTextField resignFirstResponder];
+    [self.agentCashAmountTextField resignFirstResponder];
+}
+
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    [self keyboardDismissAction];
 }
 
 - (void)didReceiveMemoryWarning {

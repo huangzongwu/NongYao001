@@ -25,6 +25,7 @@
 @property (weak, nonatomic) IBOutlet UIImageView *fourStarImageView;
 @property (weak, nonatomic) IBOutlet UIImageView *fiveStarImageView;
 
+@property (weak, nonatomic) IBOutlet UILabel *replyContentLabel;
 - (void)updateMyCommentCellWithCommentModel:(MyCommentListModel *)tempModel;
 
 

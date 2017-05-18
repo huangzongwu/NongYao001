@@ -9,6 +9,7 @@
 #import "ForgetPasswordTwoViewController.h"
 #import "AlertManager.h"
 #import "Manager.h"
+#import "SVProgressHUD.h"
 @interface ForgetPasswordTwoViewController ()
 
 @property (weak, nonatomic) IBOutlet UITextField *passwordTextField;
@@ -79,7 +80,11 @@
 }
 
 
-
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    [SVProgressHUD dismiss];
+    
+}
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
@@ -88,24 +93,40 @@
 
 
 - (IBAction)enterButtonAction:(UIButton *)sender {
+    [self keyboardDismissAction];
+
     AlertManager *alertM = [AlertManager shareIntance];
     Manager *manager = [Manager shareInstance];
 
     if ([self.passwordTextField.text isEqualToString:self.passwordAgainTextField.text]) {
         //忘记密码重置
+        if ([SVProgressHUD isVisible] == NO) {
+            [SVProgressHUD show];
+        }
+
         [manager httpForgetPasswordWithMobile:self.tempMobile withPassword:self.passwordTextField.text withForgetSuccess:^(id successResult) {
+            [SVProgressHUD dismiss];
             
             [alertM showAlertViewWithTitle:nil withMessage:@"修改成功" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
                 [self.navigationController popToRootViewControllerAnimated:YES];
             }];
            
         } withForgetFail:^(NSString *failResultStr) {
+            [SVProgressHUD dismiss];
             [alertM showAlertViewWithTitle:nil withMessage:@"修改密码失败，请稍后再试" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
         }];
     }else {
         [alertM showAlertViewWithTitle:nil withMessage:@"两个密码不一致" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
     }
     
+}
+
+- (void)keyboardDismissAction {
+    [self.passwordTextField resignFirstResponder];
+    [self.passwordAgainTextField resignFirstResponder];
+}
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    [self keyboardDismissAction];
 }
 
 - (void)didReceiveMemoryWarning {

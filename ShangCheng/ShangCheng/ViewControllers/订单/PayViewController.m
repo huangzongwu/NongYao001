@@ -15,7 +15,7 @@
 #import "DataSigner.h"
 #import "WXApi.h"
 #import "AppDelegate.h"
-
+#import "SVProgressHUD.h"
 @interface PayViewController ()<UITableViewDataSource,UITableViewDelegate,WXApiDelegate>
 
 @property (weak, nonatomic) IBOutlet UITableView *payTableView;
@@ -93,6 +93,11 @@
     
 }
 
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear: animated];
+    [SVProgressHUD dismiss];
+}
+
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -103,8 +108,15 @@
     
     //查询账户余额
     Manager *manager = [Manager shareInstance];
+    if ([SVProgressHUD isVisible] == NO) {
+        [SVProgressHUD show];
+    }
+
     [manager searchUserAmount:manager.memberInfoModel.u_id withAmountSuccessBlock:^(id successResult) {
-//        self.memberBalanceFloat = 0.00;
+        
+        [SVProgressHUD dismiss];
+        
+//        self.memberBalanceFloat = 2.00;
         self.memberBalanceFloat = [[[successResult objectAtIndex:0] objectForKey:@"u_amount"] floatValue];
         //将最新的余额存入模型中
         manager.memberInfoModel.u_amount = [[[successResult objectAtIndex:0] objectForKey:@"u_amount"] floatValue];
@@ -123,6 +135,7 @@
         }
         
     } withAmountFailBlock:^(NSString *failResultStr) {
+        [SVProgressHUD dismiss];
         
     }];
     
@@ -226,6 +239,9 @@
 
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+
    //没有选择余额，或者余额不足，就需要三方支付
     if (self.isSelectBalance == NO || self.memberBalanceFloat < self.totalAmountFloat) {
         NSLog(@"需要三方支付");
@@ -297,68 +313,99 @@
 #pragma mark - 支付 -
 
 - (IBAction)enterPayButtonAction:(UIButton *)sender {
+    AlertManager *alertM = [AlertManager shareIntance];
     //没有选择余额，或者余额不足，就需要三方支付，即网上支付，线下支付，会跳转到其他页面
     Manager *manager = [Manager shareInstance];
     NSLog(@"总价：%@ -- 使用余额：%@ -- 支付金额%@",[NSString stringWithFormat:@"%.2f",self.totalAmountFloat],[NSString stringWithFormat:@"%.2f",self.useBalanceFloat],[NSString stringWithFormat:@"%.2f",self.totalAmountFloat-self.useBalanceFloat]);
+    
+   
+    [alertM showAlertViewWithTitle:nil withMessage:@"立即支付此订单?" actionTitleArr:@[@"否",@"是"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
+        if (actionBlockNumber == 1) {
+            if (self.isSelectBalance == NO || self.memberBalanceFloat < self.totalAmountFloat) {
+                
+                if (self.payKindInt == 0) {
+                    //进行支付验证 --- 支付宝
+                    if ([SVProgressHUD isVisible] == NO) {
+                        [SVProgressHUD show];
+                    }
+                    
+                    [manager paybeforeVerifyWithUserId:manager.memberInfoModel.u_id withTotalAmount:[NSString stringWithFormat:@"%.2f",self.totalAmountFloat] withBalance:[NSString stringWithFormat:@"%.2f",self.useBalanceFloat] withPayAmount:[NSString stringWithFormat:@"%.2f",self.totalAmountFloat-self.useBalanceFloat] withOrderIdArr:self.orderIDArr withPayType:@"0" withVerifySuccessBlock:^(id successResult) {
+                        [SVProgressHUD dismiss];
+                        
+                        //验证成功，可以支付了。，
+                        [self aliPayActionWithOrderInfo:[successResult objectForKey:@"orderinfo"]];
+                        
+                    } withVerfityFailBlock:^(NSString *failResultStr) {
+                        [SVProgressHUD dismiss];
+                        [alertM showAlertViewWithTitle:nil withMessage:failResultStr actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
+                        
+                        
+                    }];
+                    
+                }else {
+                    //微信
+                    if ([SVProgressHUD isVisible] == NO) {
+                        [SVProgressHUD show];
+                    }
+                    [manager paybeforeVerifyWithUserId:manager.memberInfoModel.u_id withTotalAmount:[NSString stringWithFormat:@"%.2f",self.totalAmountFloat] withBalance:[NSString stringWithFormat:@"%.2f",self.useBalanceFloat] withPayAmount:[NSString stringWithFormat:@"%.2f",self.totalAmountFloat-self.useBalanceFloat] withOrderIdArr:self.orderIDArr withPayType:@"1" withVerifySuccessBlock:^(id successResult) {
+                        [SVProgressHUD dismiss];
+                        
+                        //验证成功，可以支付了。，
+                        [self weixinPayAction:successResult];
+                        
+                    } withVerfityFailBlock:^(NSString *failResultStr) {
+                        [SVProgressHUD dismiss];
+                        [alertM showAlertViewWithTitle:nil withMessage:failResultStr actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
+                        
+                    }];
+                    
+                }
+                
+            }else {
+                //风火轮
+                if ([SVProgressHUD isVisible] == NO) {
+                    [SVProgressHUD show];
+                }
+                
+                //        //直接通过余额支付
+                //        [self performSegueWithIdentifier:@"toPayCompleteVC" sender:nil];
+                
+                NSLog(@"%@",[NSString stringWithFormat:@"%.2f",self.totalAmountFloat]);
+                NSLog(@"%@",[NSString stringWithFormat:@"%.2f",self.useBalanceFloat]);
+                NSLog(@"%@",[NSString stringWithFormat:@"%.2f",self.totalAmountFloat-self.useBalanceFloat]);
 
-    if (self.isSelectBalance == NO || self.memberBalanceFloat < self.totalAmountFloat) {
-
-        if (self.payKindInt == 0) {
-            //进行支付验证 --- 支付宝
-            
-            [manager paybeforeVerifyWithUserId:manager.memberInfoModel.u_id withTotalAmount:[NSString stringWithFormat:@"%.2f",self.totalAmountFloat] withBalance:[NSString stringWithFormat:@"%.2f",self.useBalanceFloat] withPayAmount:[NSString stringWithFormat:@"%.2f",self.totalAmountFloat-self.useBalanceFloat] withOrderIdArr:self.orderIDArr withPayType:@"0" withVerifySuccessBlock:^(id successResult) {
                 
-                //验证成功，可以支付了。，
-                [self aliPayActionWithOrderInfo:[successResult objectForKey:@"orderinfo"]];
-//                [self aliPayActionWithPayID:[successResult objectForKey:@"tradeno"] withAppId:[successResult objectForKey:@"appid"] withPayMoney:[NSString stringWithFormat:@"%.2f",self.totalAmountFloat-self.useBalanceFloat]];
-
-
                 
-            } withVerfityFailBlock:^(NSString *failResultStr) {
+                //验证
+                [manager paybeforeVerifyWithUserId:manager.memberInfoModel.u_id withTotalAmount:[NSString stringWithFormat:@"%.2f",self.totalAmountFloat] withBalance:[NSString stringWithFormat:@"%.2f",self.useBalanceFloat] withPayAmount:[NSString stringWithFormat:@"%.2f",self.totalAmountFloat-self.useBalanceFloat] withOrderIdArr:self.orderIDArr withPayType:@"6" withVerifySuccessBlock:^(id successResult) {
+                    
+                    //验证成功后，进行余额支付
+                    [manager userConfirmPayWithUserID:manager.memberInfoModel.u_id withRID:[successResult objectForKey:@"tradeno"] withPayCode:@""  withBank:@"" withUserConfirmPaySuccess:^(id successResult) {
+                        [SVProgressHUD dismiss];//风火轮消失
+                        
+                        
+                        //支付成功后，跳转到支付成功界面
+                        [self performSegueWithIdentifier:@"toPayCompleteVC" sender:nil];
+                        
+                    } withPayFail:^(NSString *failResultStr) {
+                        [SVProgressHUD dismiss];//风火轮消失
+                        [alertM showAlertViewWithTitle:nil withMessage:failResultStr actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
+                        
+                    }];
+                    
+                    
+                    
+                    
+                } withVerfityFailBlock:^(NSString *failResultStr) {
+                    [SVProgressHUD dismiss];
+                    
+                }];
                 
-            }];
-
-        }else {
-            //微信
-            [manager paybeforeVerifyWithUserId:manager.memberInfoModel.u_id withTotalAmount:[NSString stringWithFormat:@"%.2f",self.totalAmountFloat] withBalance:[NSString stringWithFormat:@"%.2f",self.useBalanceFloat] withPayAmount:[NSString stringWithFormat:@"%.2f",self.totalAmountFloat-self.useBalanceFloat] withOrderIdArr:self.orderIDArr withPayType:@"1" withVerifySuccessBlock:^(id successResult) {
                 
-                //验证成功，可以支付了。，
-                [self weixinPayAction:successResult];
-                
-            } withVerfityFailBlock:^(NSString *failResultStr) {
-                
-            }];
+            }
 
         }
-        
-    }else {
-        
-//        //直接通过余额支付
-//        [self performSegueWithIdentifier:@"toPayCompleteVC" sender:nil];
-
-        //验证
-        [manager paybeforeVerifyWithUserId:manager.memberInfoModel.u_id withTotalAmount:[NSString stringWithFormat:@"%.2f",self.totalAmountFloat] withBalance:[NSString stringWithFormat:@"%.2f",self.useBalanceFloat] withPayAmount:[NSString stringWithFormat:@"%.2f",self.totalAmountFloat-self.useBalanceFloat] withOrderIdArr:self.orderIDArr withPayType:@"" withVerifySuccessBlock:^(id successResult) {
-            
-            //验证成功后，进行余额支付
-            [manager userConfirmPayWithUserID:manager.memberInfoModel.u_id withRID:[successResult objectForKey:@"tradeno"] withPayCode:@"" withPayType:@"0" withTotalamount:[NSString stringWithFormat:@"%.2f",self.totalAmountFloat] withBalance:[NSString stringWithFormat:@"%.2f",self.useBalanceFloat] withPayAmount:[NSString stringWithFormat:@"%.2f",self.totalAmountFloat-self.useBalanceFloat] withBank:@"" withItemArr:self.orderIDArr withUserConfirmPaySuccess:^(id successResult) {
-
-                
-                //支付成功后，跳转到支付成功界面
-                [self performSegueWithIdentifier:@"toPayCompleteVC" sender:nil];
-                
-            } withPayFail:^(NSString *failResultStr) {
-                
-            }];
-            
-            
-            
-            
-        } withVerfityFailBlock:^(NSString *failResultStr) {
-            
-        }];
-       
-        
-    }
+    }];
     
 }
 
@@ -368,6 +415,7 @@
 #pragma mark - 支付宝支付 -
 - (void)aliPayActionWithOrderInfo:(NSString *)orderInfo {
     Manager *manager = [Manager shareInstance];
+    AlertManager *alertM = [AlertManager shareIntance];
 
     NSString *appScheme = @"Nongyao001Alisdk";
 
@@ -398,10 +446,10 @@
                 
             } withPaymentVerifyFail:^(NSString *failResultStr) {
                 NSLog(@"%@",failResultStr);
+                [alertM showAlertViewWithTitle:nil withMessage:@"支付验证失败，请尽快联系客服处理" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
             }];
             
         }
-        
         
     }];
 
@@ -616,8 +664,17 @@
     
     if ([segue.identifier isEqualToString:@"toDownLinePayVC"]) {
         DownLinePayViewController *downLinePayVC = [segue destinationViewController];
+        downLinePayVC.isSelectBalance = self.isSelectBalance;
         downLinePayVC.memberBalanceFloat = self.memberBalanceFloat;
         downLinePayVC.orderTotalAmountFloat = self.totalAmountFloat;
+        downLinePayVC.orderIDArr = self.orderIDArr;
+        downLinePayVC.selectBalanceBlock = ^{
+            //默认选择余额
+            self.isSelectBalance = YES;
+            [self isSelectBalanceUIWithSelectYesOrNo:self.isSelectBalance];
+
+
+        };
         
         
     }

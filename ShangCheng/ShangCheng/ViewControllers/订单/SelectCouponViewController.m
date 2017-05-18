@@ -11,6 +11,7 @@
 #import "AddCouponViewController.h"
 #import "Manager.h"
 #import "KongImageView.h"
+#import "SVProgressHUD.h"
 @interface SelectCouponViewController ()<UITableViewDelegate,UITableViewDataSource>
 //空白页
 @property (nonatomic,strong)KongImageView *kongImageView;
@@ -65,11 +66,20 @@
     
 }
 
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    [SVProgressHUD dismiss];
+}
 
 - (void)updateCouponListData {
     //数据请求优惠券
     Manager *manager = [Manager shareInstance];
+    if ([SVProgressHUD isVisible] == NO) {
+        [SVProgressHUD show];
+    }
+
     [manager httpCouponListWithUserID:manager.memberInfoModel.u_id withCouponSuccessResult:^(id successResult) {
+        [SVProgressHUD dismiss];//风火轮消失
         [self.kongImageView hiddenKongView];//空白页消失
         self.couponDataSourceArr = successResult;
         //刷新数据
@@ -77,55 +87,92 @@
         
     } withCouponFailResult:^(NSString *failResultStr) {
         NSLog(@"%@",failResultStr);
+        [SVProgressHUD dismiss];//风火轮消失
         [self.kongImageView showKongViewWithKongMsg:@"网络错误" withKongType:KongTypeWithNetError];
         
     }];
 
 }
 
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 2;
+}
 
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    if (indexPath.section == 0) {
+        return 40;
+    }else{
+        return 186;
+    }
+}
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return self.couponDataSourceArr.count;
+    if (section == 0) {
+        if (self.isSelectCoupon == YES) {
+            return 1;
+        }else {
+            return 0;
+
+        }
+    }
+    return self.couponDataSourceArr.count ;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
    
-    CouponTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"couponCell" forIndexPath:indexPath];
-    CouponModel *tempModel = self.couponDataSourceArr[indexPath.row];
+    if (indexPath.section == 0) {
+        UITableViewCell *cell1 = [tableView dequeueReusableCellWithIdentifier:@"noSelectCouponCell" forIndexPath:indexPath];
+        
+        return cell1;
+    }else {
+        CouponTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"couponCell" forIndexPath:indexPath];
+        CouponModel *tempModel = self.couponDataSourceArr[indexPath.row];
+        
+        [cell updateCouponCellWith:tempModel];
+        
+        return cell;
 
-    [cell updateCouponCellWith:tempModel];
+    }
     
-    return cell;
     
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     if (self.isSelectCoupon == YES) {
-        Manager *manager = [Manager shareInstance];
-        //得到点击的这个购物券
-        CouponModel *tempModel = self.couponDataSourceArr[indexPath.row];
-        
-        //创建购物车id数组
-        NSMutableArray *shoppingCarIdArr = [NSMutableArray array];
-        for (ShoppingCarModel *tempCarModel in self.previewOrderProductArr) {
-            [shoppingCarIdArr addObject:tempCarModel.c_id];
-        }
-        //网络请求计算优惠券金额
-        [manager httpComputeCouponMoneyWithUserID:manager.memberInfoModel.u_id withCouponID:tempModel.c_id withShoppingCarIDArr:shoppingCarIdArr withComputeMoneySuccessResult:^(id successResult) {
-            //去掉“”引号
-            //        successResult = [(NSString *)successResult stringByReplacingOccurrencesOfString:@"\"" withString:@""];
-            //返回到预订单界面
-            self.couponDicBlock(@{@"couponId":tempModel.c_id,@"saleCode":tempModel.c_code,@"saleMoney":successResult});
+        if (indexPath.section == 0) {
+            //不选择任何购物券
+            self.couponDicBlock(@{@"couponId":@"",@"saleCode":@"",@"saleMoney":@"0"});
             //
             [self.navigationController popViewControllerAnimated:YES];
             
+        }else {
+            Manager *manager = [Manager shareInstance];
+            //得到点击的这个购物券
+            CouponModel *tempModel = self.couponDataSourceArr[indexPath.row];
             
-        } withComputeMoneyFailResult:^(NSString *failResultStr) {
-            //
-            
-        }];
+            //创建购物车id数组
+            NSMutableArray *shoppingCarIdArr = [NSMutableArray array];
+            for (ShoppingCarModel *tempCarModel in self.previewOrderProductArr) {
+                [shoppingCarIdArr addObject:tempCarModel.c_id];
+            }
+            AlertManager *alertM = [AlertManager shareIntance];
+            //网络请求计算优惠券金额
+            [manager httpComputeCouponMoneyWithUserID:manager.memberInfoModel.u_id withCouponID:tempModel.c_id withShoppingCarIDArr:shoppingCarIdArr withComputeMoneySuccessResult:^(id successResult) {
+                //去掉“”引号
+                //        successResult = [(NSString *)successResult stringByReplacingOccurrencesOfString:@"\"" withString:@""];
+                //返回到预订单界面
+                self.couponDicBlock(@{@"couponId":tempModel.c_id,@"saleCode":tempModel.c_code,@"saleMoney":successResult});
+                //
+                [self.navigationController popViewControllerAnimated:YES];
+                
+                
+            } withComputeMoneyFailResult:^(NSString *failResultStr) {
+                //
+                [alertM showAlertViewWithTitle:nil withMessage:@"优惠券计算失败，请稍后再试，或者联系客服" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
+            }];
 
+        }
+      
     }
 }
 

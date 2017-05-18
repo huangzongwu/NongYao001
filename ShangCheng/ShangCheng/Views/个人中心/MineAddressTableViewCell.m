@@ -13,8 +13,6 @@
     
     if (addressModel.receiveMobile.length > 0) {
         self.nameAndPhoneLabel.text = [NSString stringWithFormat:@"%@  %@",addressModel.receiverName,addressModel.receiveMobile];
-    }else if (addressModel.receiveTel.length > 0) {
-        self.nameAndPhoneLabel.text = [NSString stringWithFormat:@"%@  %@",addressModel.receiverName,addressModel.receiveTel];
     }else {
         self.nameAndPhoneLabel.text = [NSString stringWithFormat:@"%@  未知电话",addressModel.receiverName];
     }

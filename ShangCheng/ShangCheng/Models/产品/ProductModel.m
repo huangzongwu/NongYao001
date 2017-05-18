@@ -32,10 +32,10 @@
         self.productPrice = value;
     }
     if ([key isEqualToString:@"p_activity_show_id"]) {
-        if ([value isEqualToString:@"1"]) {
-            self.isSaleProduct = YES;
-        }else {
+        if ([value isEqualToString:@"0"]) {
             self.isSaleProduct = NO;
+        }else {
+            self.isSaleProduct = YES;
         }
     }
 

@@ -11,13 +11,14 @@
 @implementation DownLineTableViewCell
 
 - (void)updateBankUIWithBankDic:(NSMutableDictionary *)bankDic {
+    self.bankImageView.image = [UIImage imageNamed:[bankDic objectForKey:@"img"]];
     self.bankNameLabel.text = [bankDic objectForKey:@"bankName"];
-    self.bankCarNumberLabel.text = [bankDic objectForKey:@"bankNumber"];
+    self.bankCarNumberLabel.text = [NSString stringWithFormat:@"卡号：%@", [bankDic objectForKey:@"bankNumber"] ];
     
     if ([[bankDic objectForKey:@"isSelect"] isEqualToString:@"YES"]) {
-        self.selectMarkImageView.backgroundColor = [UIColor redColor];
+        self.selectMarkImageView.image = [UIImage imageNamed:@"g_btn_select"];
     }else {
-        self.selectMarkImageView.backgroundColor = [UIColor lightGrayColor];
+        self.selectMarkImageView.image = [UIImage imageNamed:@"g_btn_normal"];
 
     }
     

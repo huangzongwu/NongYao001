@@ -11,7 +11,6 @@
 @interface MemberInfoModel : NSObject<NSCoding>
 
 @property (nonatomic,strong)NSString *u_id;//用户id
-@property (nonatomic,strong)NSString *u_login_id;//登录账号
 @property (nonatomic,strong)NSString *userPassword;//登录密码，接口没有，自己需要赋值
 @property (nonatomic,strong)NSString *u_icon;//用户头像
 @property (nonatomic,strong)NSString *u_r_id;//角色id
@@ -40,7 +39,11 @@
 @property (nonatomic,assign)double u_amount_frozen;//冻结余额
 @property (nonatomic,strong)NSString *token;//token
 //@property (nonatomic,strong)NSString *rversion;
-
+//一些代理商字段
+@property (nonatomic,strong)NSString *a_bank_name;
+@property (nonatomic,strong)NSString *a_bank_code;
+@property (nonatomic,strong)NSString *a_line_num;
+@property (nonatomic,strong)NSString *a_suc_order_num;
 
 
 - (void)setValue:(id)value forUndefinedKey:(NSString *)key ;

@@ -19,9 +19,7 @@
     if ([key isEqualToString:@"r_address"]) {
         self.receiveAddress = value;
     }
-    if ([key isEqualToString:@"r_telephone"]) {
-        self.receiveTel = value;
-    }
+    
     if ([key isEqualToString:@"r_mobile"]) {
         self.receiveMobile = value;
     }
@@ -55,7 +53,7 @@
     receiveAddressModel.receiverID = [_receiverID copy];
     receiveAddressModel.receiverName = [_receiverName copy];
     receiveAddressModel.receiveMobile = [_receiveMobile copy];
-    receiveAddressModel.receiveTel = [_receiveTel copy];
+
     receiveAddressModel.areaID = [_areaID copy];
     receiveAddressModel.capitalname = [_capitalname copy];
     receiveAddressModel.cityname = [_cityname copy];

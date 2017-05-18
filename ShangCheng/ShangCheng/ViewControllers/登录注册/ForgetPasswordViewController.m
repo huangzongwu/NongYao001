@@ -9,6 +9,7 @@
 #import "ForgetPasswordViewController.h"
 #import "Manager.h"
 #import "ForgetPasswordTwoViewController.h"
+#import "SVProgressHUD.h"
 @interface ForgetPasswordViewController ()<UITextFieldDelegate>
 @property (weak, nonatomic) IBOutlet UILabel *mobileLabel;
 
@@ -60,6 +61,10 @@
     
 }
 
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    [SVProgressHUD dismiss];
+}
 
 - (void)viewDidDisappear:(BOOL)animated {
     [super viewDidDisappear:animated];
@@ -81,6 +86,7 @@
 
 #pragma mark - 获取验证码 和 倒计时 -
 - (IBAction)getCodeButtonAction:(UIButton *)sender {
+    [self keyboardDismissAction];
 
     //获取验证码
         [[Manager shareInstance] httpMobileCodeWithMobileNumber:self.tempMobile withCodeSuccessResult:^(id successResult) {
@@ -144,16 +150,25 @@
 
 //下一步
 - (IBAction)nextButtonAction:(UIButton *)sender {
+    [self keyboardDismissAction];
+
     //验证码检验
     if (self.codeTextField.text > 0) {
         //验证一下验证码是否正确
+        if ([SVProgressHUD isVisible] == NO) {
+            [SVProgressHUD show];
+        }
+
         [[Manager shareInstance] httpCheckMobileCodeWithMobileNumber:self.tempMobile withCode:self.codeTextField.text withCodeSuccessResult:^(id successResult) {
+            [SVProgressHUD dismiss];
+            
             if ([successResult isEqualToString:@"200"]) {
                 //下一步
                 [self performSegueWithIdentifier:@"forgetPasswordToTwoVC" sender:sender];
                 
             }
         } withCodeFailResult:^(NSString *failResultStr) {
+            [SVProgressHUD dismiss];
             //
             AlertManager *alert = [AlertManager shareIntance];
             [alert showAlertViewWithTitle:nil withMessage:[NSString stringWithFormat:@"短信验证失败，%@",failResultStr ] actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
@@ -169,11 +184,17 @@
         }];
 
     }
-   
-    
+}
+
+
+- (void)keyboardDismissAction {
+    [self.codeTextField resignFirstResponder];
     
 }
 
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    [self keyboardDismissAction];
+}
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

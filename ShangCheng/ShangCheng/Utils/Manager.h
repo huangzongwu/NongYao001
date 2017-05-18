@@ -32,6 +32,9 @@
 #import "PestsTreeModel.h"
 #import "PestsListModel.h"
 #import "ProductCommentModel.h"
+#import "BannerModel.h"
+#import "MessageNotificationModel.h"
+#import "PestsDetailModel.h"
 typedef void(^SuccessResult)(id successResult);
 typedef void(^FailResult)(NSString *failResultStr);
 
@@ -49,7 +52,8 @@ typedef void(^FailResult)(NSString *failResultStr);
 @property (nonatomic,strong)NSMutableArray *productClassTreeArr;
 //搜索或者分类的产品数据源
 @property (nonatomic,strong)NSMutableArray *searchProductListDataSourceArr;
-
+//购物车数量
+@property (nonatomic,strong)NSString *shoppingNumberStr;
 //购物车的商品数据源
 @property (nonatomic,strong)NSMutableArray *shoppingCarDataSourceArr;
 //购物车是否全选
@@ -91,9 +95,15 @@ typedef void(^FailResult)(NSString *failResultStr);
 //售后退货
 @property (nonatomic,strong)NSMutableArray *afterMarketArr;
 
+//消息列表
+@property (nonatomic,strong)NSMutableArray *messageArr;
+
 + (Manager *)shareInstance;
 
 #pragma mark - 首页 -
+//头部banner
+- (void)httpBannerScrollViewDataSourceWithBannerSuccess:(SuccessResult)bannerSuccess withBannerFail:(FailResult)bannerFail;
+
 //广告条
 - (void)httpAdScrollViewDataSourceWithAdSuccess:(SuccessResult)adSuccess withAdFail:(FailResult)adFail;
 //今日特价
@@ -118,10 +128,12 @@ typedef void(^FailResult)(NSString *failResultStr);
 - (void)httpProductTypeWithCode:(NSString *)code withSort:(NSString *)sort withDesc:(NSString *)desc withPageIndex:(NSInteger)pageIndex withTypeSuccess:(SuccessResult )typeSuccess withTypeFail:(FailResult)typeFail;
 
 #pragma mark - 产品 -
-//首页产品 cnum是热销产品的个数，rnum是推荐产品的个数
-- (void)httpHomeProductWithCnum:(NSString *)cnum withRnum:(NSString *)rnum withSuccessHomeResult:(SuccessResult)successHomeResult withFailHomeResult:(FailResult)failHomeResult;
+//热卖产品
+- (void)httpHomeHotProductWithCnum:(NSString *)cnum withHotSuccess:(SuccessResult)hotSuccess withHotFail:(FailResult)hotFail;
+//首页推荐产品rnum是推荐产品的个数
+- (void)httpHomeProductWithRnum:(NSString *)rnum withSuccessHomeResult:(SuccessResult)successHomeResult withFailHomeResult:(FailResult)failHomeResult ;
 //获取产品详情
-- (void)httpProductDetailInfoWithProductID:(NSString *)productId withProductDetailModel:(ProductDetailModel *)productDetailModel withSuccessDetailResult:(SuccessResult)successDetailResult withFailDetailResult:(FailResult)failDetailResult;
+- (void)httpProductDetailInfoWithProductID:(NSString *)productId withType:(NSString *)type withProductDetailModel:(ProductDetailModel *)productDetailModel withSuccessDetailResult:(SuccessResult)successDetailResult withFailDetailResult:(FailResult)failDetailResult ;
 //获取产品的所有规格
 //- (void)httpProductAllFarmatInfoWithProductID:(NSString *)productId  withProductDetailModel:(ProductDetailModel *)productDetailModel withSuccessFarmatResult:(SuccessResult)successFarmatResult withFailFarmatResult:(FailResult)failFarmatResult;
 
@@ -137,7 +149,8 @@ typedef void(^FailResult)(NSString *failResultStr);
 #pragma mark - 购物车 -
 //将产品加入购物车
 - (void)httpProductToShoppingCarWithFormatId:(NSString *)sidStr withProductCount:(NSString *)countStr withSuccessToShoppingCarResult:(SuccessResult)successToShoppingCarResult withFailToShoppingCarResult:(FailResult)failToShoppingCarResult ;
-
+//购物车数量
+- (void)httpShoppingCarNumberWithUserid:(NSString *)userId withNumberSuccess:(SuccessResult )numberSuccess withNumberFail:(FailResult)numberFail;
 //判断是否全选
 - (void)isAllSelectForShoppingCarAction ;
 //判断是否有选择产品
@@ -173,7 +186,7 @@ typedef void(^FailResult)(NSString *failResultStr);
 
 
 //订单列表。 pageIndex页数,pageSize多少数据
-- (void)getOrderListDataWithUserID:(NSString *)userID withProduct:(NSString *)product withCode:(NSString *)code withWhichTableView:(NSString *)whichTableView withPageIndex:(NSInteger)pageIndex withPageSize:(NSInteger )pageSize withOrderListSuccessResult:(SuccessResult)orderListSuccessResult withOrderListFailResult:(FailResult)orderListFailResult ;
+- (void)getOrderListDataWithUserID:(NSString *)userID withType:(NSString *)type withCode:(NSString *)code withWhichTableView:(NSString *)whichTableView withPageIndex:(NSInteger)pageIndex withPageSize:(NSInteger )pageSize withOrderListSuccessResult:(SuccessResult)orderListSuccessResult withOrderListFailResult:(FailResult)orderListFailResult ;
 
 //生成订单
 - (void)creatOrderWithUserID:(NSString *)userID withReceivedID:(NSString *)receivedID withTotalAmount:(NSString *)totalAmount withDiscount:(NSString *)discount withCouponId:(NSString *)couponId withArr:(NSMutableArray *)itemArr withOrderSuccessResult:(SuccessResult)orderSuccessResult withOrderFailResult:(FailResult)orderFailResult;
@@ -184,8 +197,8 @@ typedef void(^FailResult)(NSString *failResultStr);
 //取消子订单
 - (void)cancelSonOrderWithUserId:(NSString *)userid withOrderID:(NSString *)orderID withCancelMessage:(NSString *)cancelMessage withCancelSuccessResult:(SuccessResult )cancelSuccessResult withCancelFailResult:(FailResult )cancelFailResult;
 
-//查询订单
-- (void)searchOrderInfoWithOrderID:(NSString *)orderId ;
+
+
 
 //物流信息
 - (void)orderLogisticsWithOrderId:(NSString *)orderID withSuccessLogisticsBlock:(SuccessResult )successLogisticsBlock withFailLogisticsBlock:(FailResult)failLogisticsBlock;
@@ -193,6 +206,11 @@ typedef void(^FailResult)(NSString *failResultStr);
 //售后列表
 - (void)httpOrderReturnListWithUserId:(NSString *)userId withCode:(NSString *)code withPageIndex:(NSInteger )pageIndex withPageSize:(NSInteger )pageSize withOrderReturnSuccess:(SuccessResult )orderReturnSuccess withOrderReturnFail:(FailResult)orderReturnFail;
 
+//子订单确认收货
+- (void)httpSonOrderEnterReceiptWithUserId:(NSString *)userId withSonOrderId:(NSString *)sonOrderId withReceiptSuccess:(SuccessResult)receiptSuccess withReceiptFail:(FailResult)receiptFail;
+
+//通过订单id获取订单信息
+- (void)httpGetOrderInfoWithOrderId:(NSString *)orderId withOrderInfoSuccess:(SuccessResult)orderInfoSuccess withOrderInfoFail:(FailResult)orderInfoFail;
 
 #pragma mark - 支付 -
 //支付前验证
@@ -202,7 +220,7 @@ typedef void(^FailResult)(NSString *failResultStr);
 - (void)aliPaySignDataStr:(NSString *)dataStr withSignSuccessResult:(SuccessResult)signSuccessResult withSignFailResult:(FailResult)signFailResult;
 
 //用户确认支付
-- (void)userConfirmPayWithUserID:(NSString *)userID withRID:(NSString *)rid withPayCode:(NSString *)payCode withPayType:(NSString *)payType withTotalamount:(NSString *)totalAmount withBalance:(NSString *)balance withPayAmount:(NSString *)payAmount withBank:(NSString *)bank withItemArr:(NSArray *)itemArr withUserConfirmPaySuccess:(SuccessResult)paySuccess withPayFail:(FailResult)payFail ;
+- (void)userConfirmPayWithUserID:(NSString *)userID withRID:(NSString *)rid withPayCode:(NSString *)payCode withBank:(NSString *)bank withUserConfirmPaySuccess:(SuccessResult)paySuccess withPayFail:(FailResult)payFail ;
 
 //支付后，去后台验证
 - (void)afterPayOrderPaymentVerifyWithPayId:(NSString *)payId withVerifyCount:(NSInteger )verifyCount withPaymentVerifySuccess:(SuccessResult )paymentVerifySuccess withPaymentVerifyFail:(FailResult)paymentVerifyFail ;
@@ -255,7 +273,7 @@ typedef void(^FailResult)(NSString *failResultStr);
 
 #pragma mark - 收藏 -
 //添加到收藏
-- (void)httpAddFavoriteWithUserId:(NSString *)userId withFormatId:(NSString *)formatId withAddFavoriteSuccess:(SuccessResult )addFavoriteSuccess withAddFavoriteFail:(FailResult )addFavoriteFail;
+- (void)httpAddFavoriteWithUserId:(NSString *)userId withFormatIdArr:(NSMutableArray *)formatIdArr withAddFavoriteSuccess:(SuccessResult )addFavoriteSuccess withAddFavoriteFail:(FailResult )addFavoriteFail ;
 
 //收藏列表
 - (void)httpMyFavoriteListWithUserId:(NSString *)userId withMyFavoriteSuccess:(SuccessResult )favoriteSuccess withMyFavoriteFail:(FailResult )favoriteFail;
@@ -277,7 +295,7 @@ typedef void(^FailResult)(NSString *failResultStr);
 //修改个人头像
 - (void)httpMotifyMemberAvatarWithUserId:(NSString *)userId withMotifyAvatarImage:(UIImage *)avatarImg withMotifyAvatarSuccess:(SuccessResult)motifyAvatarSuccess withMotifyAvatarFail:(FailResult)motifyAvatarFail ;
 //修改个人资料
-- (void)httpMotifyMemberInfoWithUserID:(NSString *)userID withUsername:(NSString *)userName withEmail:(NSString *)email withMobile:(NSString *)mobile withQQ:(NSString *)qq withAreaId:(NSString *)areaId WithMotifyMemberSuccess:(SuccessResult )motifySuccess withMotifyMemberFail:(FailResult)motifyFail;
+- (void)httpMotifyMemberInfoWithUserID:(NSString *)userID withUsername:(NSString *)userName withEmail:(NSString *)email withQQ:(NSString *)qq withAreaId:(NSString *)areaId WithMotifyMemberSuccess:(SuccessResult )motifySuccess withMotifyMemberFail:(FailResult)motifyFail;
 //修改密码
 - (void)httpMotifyPasswordWithUserId:(NSString *)userId withPassword:(NSString *)password withMotifyPasswordSuccess:(SuccessResult )motifyPasswordSuccess withMotifyPasswordFail:(FailResult )motifyPasswordFail;
 #pragma mark - 我的代理 -
@@ -292,7 +310,7 @@ typedef void(^FailResult)(NSString *failResultStr);
 //从本地获取浏览记录
 - (void)getLocationBrowseList;
 //添加浏览记录
-- (BOOL)addBrowseListActionWithBrowseProduct:(ProductModel *)browseProduct;
+- (BOOL)addBrowseListActionWithBrowseProduct:(ProductDetailModel *)browseProduct ;
 //删除浏览记录
 - (BOOL)deleteBrowseListActionWithBrowseWithIndex:(NSInteger)deleteIndex;
 
@@ -322,10 +340,22 @@ typedef void(^FailResult)(NSString *failResultStr);
 //注册代理商
 - (void)httpRegisterDelegateWithTrueName:(NSString *)trueName withPhone:(NSString *)phone withAreaId:(NSString *)areaId withRegisterSuccessResult:(SuccessResult)registerSuccessResult withRegisterFailResult:(FailResult)registerFailResult;
 
-//检验是否注册了
+//注册时检验是否注册了
 - (void)httpCheckIsUserRegisterWithMobile:(NSString *)mobile withIsRegisterSuccess:(SuccessResult )isRegisterSuccess withIsRegisterFail:(FailResult)isRegisterFail;
+//登录时，检查是否注册了
+- (void)httpCheckIsUserRegisterForLoginWithMobile:(NSString *)mobile withIsRegisterSuccess:(SuccessResult )isRegisterSuccess withIsRegisterFail:(FailResult)isRegisterFail ;
+
+
 #pragma mark - 忘记密码 -
 - (void)httpForgetPasswordWithMobile:(NSString *)mobile withPassword:(NSString *)password withForgetSuccess:(SuccessResult)forgetSuccess withForgetFail:(FailResult)forgetFail;
+
+#pragma mark - 发送银行卡号 -
+- (void)httpSendBankCardWithTel:(NSString *)telStr withBankType:(NSInteger)bankType withSendBankSuccess:(SuccessResult )sendBankSuccess withSendBankFail:(FailResult)sendBankFail ;
+
+#pragma mark - 消息通知 -
+- (void)httpMessageNotificationWithType:(NSString *)type withTitle:(NSString *)title withKeyword:(NSString *)keyword withIntroduce:(NSString *)introduce withPageindex:(NSInteger )pageIndex withMessageSuccess:(SuccessResult)messageSuccess withMessageFail:(FailResult)messageFail;
+
+- (void)httpMessageDetailInfoWithPestsId:(NSString *)pestsid withDetailInfoSuccess:(SuccessResult)detailInfoSuccess withDetailInfoFail:(FailResult)detailInfoFail ;
 
 #pragma mark - 图片连接处理 -
 - (NSURL *)webImageURlWith:(NSString *)imageUrlStr;

@@ -11,7 +11,7 @@
 @implementation MyAgentPeopleTableViewCell
 - (void)updateMyAgentPeopleCellWithAgentModel:(MyAgentPeopleModel *)tempModel {
     
-    [self.peopleImageView setWebImageURLWithImageUrlStr:tempModel.u_icon withErrorImage:[UIImage imageNamed:@"test.png"]];
+    [self.peopleImageView setWebImageURLWithImageUrlStr:tempModel.u_icon withErrorImage:[UIImage imageNamed:@"w_icon_mrtx"] withIsCenter:NO];
     
     self.peopleNameLabel.text = tempModel.u_truename;
     //电话号码隐藏中间四位

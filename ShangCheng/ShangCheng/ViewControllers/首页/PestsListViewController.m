@@ -11,8 +11,9 @@
 #import "MJRefresh.h"
 #import "Manager.h"
 #import "SearchBarButton.h"
-#import "WebPageViewController.h"
+#import "WebPageTwoViewController.h"
 #import "KongImageView.h"
+#import "SVProgressHUD.h"
 @interface PestsListViewController ()<UITableViewDataSource,UITableViewDelegate>
 @property (nonatomic,strong)KongImageView *kongImageView;
 @property (weak, nonatomic) IBOutlet UITableView *pestsListTableView;
@@ -25,6 +26,10 @@
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear: animated];
+    [SVProgressHUD dismiss];
+}
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
@@ -106,8 +111,13 @@
 - (void)httpSearchDataWithPageIndex:(NSInteger )pageIndex {
     
     Manager *manager = [Manager shareInstance];
+    
+    if ([SVProgressHUD isVisible] == NO) {
+        [SVProgressHUD show];
+    }
+
     [manager searchActionWithKeyword:self.tempKeyword withType:@"病虫害" withSort:@"" withDesc:@"1" withPageindex:pageIndex withSearchSuccess:^(id successResult) {
-        
+        [SVProgressHUD dismiss];//风火轮消失
         //请求成功，得到总页数
         self.totalPage = [successResult integerValue];
         //如果是下拉刷新，将currentpage重置为1
@@ -117,6 +127,7 @@
             [self.pestsListTableView headerEndRefreshing];
             [self isShowKongImageViewWithType:KongTypeWithSearchKong withKongMsg:@"暂无搜索数据"];
         }else {
+            [SVProgressHUD dismiss];//风火轮消失
             //如果是加载，那么更新currentpage
             self.currentPage = pageIndex;
             //取消效果
@@ -141,7 +152,12 @@
 //分类的 网络请求数据
 - (void)httpTypeDataWithPageIndex:(NSInteger )pageIndex {
     Manager *manager = [Manager shareInstance];
+    if ([SVProgressHUD isVisible] == NO) {
+        [SVProgressHUD show];
+    }
+
     [manager httpPestsTypeWithCode:self.tempCode withPageIndex:pageIndex withTypeSuccess:^(id successResult) {
+        [SVProgressHUD dismiss];//风火轮消失
         //请求成功，得到总页数
         self.totalPage = [successResult integerValue];
         //如果是下拉刷新，将currentpage重置为1
@@ -152,6 +168,7 @@
             [self isShowKongImageViewWithType:KongTypeWithKongData withKongMsg:@"暂无病虫害数据"];
             
         }else {
+            [SVProgressHUD dismiss];//风火轮消失
             //如果是加载，那么更新currentpage
             self.currentPage = pageIndex;
             //取消效果
@@ -189,7 +206,7 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     PestsListTableViewCell *pestsCell = [tableView dequeueReusableCellWithIdentifier:@"pestsListCell" forIndexPath:indexPath];
     Manager *manager = [Manager shareInstance];
-    PestsListModel *searchListModel = manager.searchPestsDataSourceArr[indexPath.row];
+    PestsListModel *searchListModel = manager.searchPestsDataSourceArr[indexPath.section];
     [pestsCell updatePestsListCellWithModel:searchListModel];
     
     return pestsCell;
@@ -198,7 +215,7 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     Manager *manager = [Manager shareInstance];
-    PestsListModel *searchListModel = manager.searchPestsDataSourceArr[indexPath.row];
+    PestsListModel *searchListModel = manager.searchPestsDataSourceArr[indexPath.section];
     NSLog(@"%@--%@",searchListModel.i_title,searchListModel.i_source_url);
     [self performSegueWithIdentifier:@"pestsListToWebViewVC" sender:searchListModel];
 }
@@ -231,9 +248,9 @@
     
     if ([segue.identifier isEqualToString:@"pestsListToWebViewVC"]) {
         PestsListModel *tempModel = (PestsListModel *)sender;
-        WebPageViewController *webPageVC = [segue destinationViewController];
-        webPageVC.webUrl = tempModel.i_source_url;
-        webPageVC.tempTitleStr = tempModel.i_title;
+        WebPageTwoViewController *webTwoPageVC = [segue destinationViewController];
+        webTwoPageVC.tempTitleStr = tempModel.i_title;
+        webTwoPageVC.tempId = tempModel.i_id;
     }
 }
 

@@ -9,6 +9,7 @@
 #import "MotifyPasswordViewController.h"
 #import "Manager.h"
 #import "AlertManager.h"
+#import "SVProgressHUD.h"
 @interface MotifyPasswordViewController ()<UITextFieldDelegate>
 @property (weak, nonatomic) IBOutlet UILabel *mobileLabel;
 @property (weak, nonatomic) IBOutlet UITextField *codeTextField;
@@ -69,6 +70,11 @@
     [self endTimeDown];
 }
 
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    [SVProgressHUD dismiss];
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
@@ -83,10 +89,7 @@
 
 }
 
-//消失
-//- (IBAction)dismissRegisterVC:(UIBarButtonItem *)sender {
-//    [self dismissViewControllerAnimated:YES completion:nil];
-//}
+
 
 #pragma mark - 获取验证码 和 倒计时 -
 //开始倒计时
@@ -129,11 +132,14 @@
 
 //获取短信验证码
 - (IBAction)getMobileNumber:(UIButton *)sender {
+    [self keyboardDismissAction];
+
     Manager *manager = [Manager shareInstance];
     
     if (manager.memberInfoModel.u_mobile.length == 11) {
-        //获取验证码
-        [[Manager shareInstance] httpMobileCodeWithMobileNumber:manager.memberInfoModel.u_mobile withCodeSuccessResult:^(id successResult) {
+
+        [manager httpMobileCodeWithMobileNumber:manager.memberInfoModel.u_mobile withCodeSuccessResult:^(id successResult) {
+            
             if ([successResult isEqualToString:@"200"]) {
                 AlertManager *alert = [AlertManager shareIntance];
                 [alert showAlertViewWithTitle:nil withMessage:@"短信验证码发送成功，请注意查收" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
@@ -143,6 +149,7 @@
                 }];
             }
         } withCodeFailResult:^(NSString *failResultStr) {
+            
             AlertManager *alert = [AlertManager shareIntance];
             [alert showAlertViewWithTitle:nil withMessage:[NSString stringWithFormat:@"短信验证发送失败，%@",failResultStr ] actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
                 
@@ -160,13 +167,22 @@
 - (IBAction)nextButtonAction:(UIButton *)sender {
 //    [self performSegueWithIdentifier:@"motifyNextVC" sender:nil];
     
+    
+    AlertManager *alertM = [AlertManager shareIntance];
     Manager *manager = [Manager shareInstance];
+    [self keyboardDismissAction];
+
     
     if (manager.memberInfoModel.u_mobile.length == 11 ) {
         if (self.codeTextField.text.length > 0) {
             
+            if ([SVProgressHUD isVisible] == NO) {
+                [SVProgressHUD show];
+            }
+
             //验证一下验证码是否正确
             [[Manager shareInstance] httpCheckMobileCodeWithMobileNumber:manager.memberInfoModel.u_mobile withCode:self.codeTextField.text withCodeSuccessResult:^(id successResult) {
+                [SVProgressHUD dismiss];
                 if ([successResult isEqualToString:@"200"]) {
                     //下一步
                     [self performSegueWithIdentifier:@"motifyNextVC" sender:nil];
@@ -175,8 +191,9 @@
                 }
             } withCodeFailResult:^(NSString *failResultStr) {
                 //
-                AlertManager *alert = [AlertManager shareIntance];
-                [alert showAlertViewWithTitle:nil withMessage:[NSString stringWithFormat:@"短信验证失败，%@",failResultStr ] actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
+                [SVProgressHUD dismiss];
+
+                [alertM showAlertViewWithTitle:nil withMessage:[NSString stringWithFormat:@"短信验证码验证失败，%@",failResultStr ] actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
                     
                 }];
                 
@@ -184,12 +201,22 @@
             
         }else {
             NSLog(@"请输入验证码");
+            [alertM showAlertViewWithTitle:nil withMessage:@"请输入验证码" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
         }
     }else {
         NSLog(@"请输入正确的手机号");
+        [alertM showAlertViewWithTitle:nil withMessage:@"请输入正确的手机号" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
+
     }
     
-    
+}
+
+- (void)keyboardDismissAction {
+    [self.codeTextField resignFirstResponder];
+
+}
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    [self keyboardDismissAction];
 }
 
 

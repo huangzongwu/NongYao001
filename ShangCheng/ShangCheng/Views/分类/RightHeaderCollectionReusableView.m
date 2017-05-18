@@ -22,8 +22,11 @@
     if (tempClassModel.isMore == YES) {
         //已经点开了更多
         [self.rightHeaderButton setTitle:@"收回" forState:UIControlStateNormal];
+        self.jiantouImageView.image = [UIImage imageNamed:@"s_icon_shouhui"];
     }else {
         [self.rightHeaderButton setTitle:@"更多" forState:UIControlStateNormal];
+        self.jiantouImageView.image = [UIImage imageNamed:@"s_icon_into"];
+
 
     }
     

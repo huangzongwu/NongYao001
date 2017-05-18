@@ -32,9 +32,7 @@
 }
 
 - (void)addPlacehold {
-    if (self.isAddDelegate == YES) {
-        self.delegate = self;
-    }
+    
     
     self.holdLabel = [[UILabel alloc]initWithFrame:CGRectMake(4, 0, 280, 30)];
 
@@ -60,6 +58,9 @@
     // Drawing code
     self.holdLabel.text = self.textViewPlacehold;
     [self textViewDidChange:self];
+    if (self.isAddDelegate == YES) {
+        self.delegate = self;
+    }
 }
 
 

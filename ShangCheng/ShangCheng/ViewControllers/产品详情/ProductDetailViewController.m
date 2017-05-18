@@ -9,6 +9,7 @@
 #import "ProductDetailViewController.h"
 #import "SelectProductViewController.h"
 #import "ProductDetailOneTableViewCell.h"
+#import "ProductDetailTwoTableViewCell.h"
 #import "ProductDetailHeaderTableViewCell.h"
 #import "Manager.h"
 #import "UIImageView+ImageViewCategory.h"
@@ -17,6 +18,7 @@
 #import "MJRefresh.h"
 #import "ProductTradeRecordModel.h"
 #import "ProductDetailFourTableViewCell.h"
+#import "WebPageViewController.h"
 @interface ProductDetailViewController ()<UITableViewDelegate,UITableViewDataSource>
 
 @property (weak, nonatomic) IBOutlet UIView *headerView;
@@ -61,21 +63,168 @@
 @property (nonatomic,assign)BOOL isFavorite;
 //收藏按钮
 @property (weak, nonatomic) IBOutlet UIButton *favoriteButton;
+@property (weak, nonatomic) IBOutlet UIImageView *isActivityImageView;
+@property (weak, nonatomic) IBOutlet UILabel *gwcNumberLabel;
+//webView通过cellHeight修改cell的高度
+@property(nonatomic,assign)float cellHeight;
+
+
 
 @end
 
 @implementation ProductDetailViewController
 
+- (instancetype)initWithCoder:(NSCoder *)aDecoder {
+    self = [super initWithCoder:aDecoder];
+    if (self) {
+        //通知，登陆成功
+        [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(setTableViewCellHight:)  name:@"getCellHightNotification" object:nil];
+    }
+    return self;
+}
+
+
 - (IBAction)leftBarButtonAction:(UIBarButtonItem *)sender {
     [self.navigationController popViewControllerAnimated:YES];
 }
 
+- (IBAction)favoriteBarButtonAction:(UIBarButtonItem *)sender {
+    Manager *manager = [Manager shareInstance];
+    AlertManager *alertM = [AlertManager shareIntance];
+    
+    if ([manager isLoggedInStatus] == YES) {
+        
+        if (self.isFavorite == NO) {
+            //没有收藏过，现在可以收藏
+            
+            
+            [manager httpAddFavoriteWithUserId:manager.memberInfoModel.u_id withFormatIdArr:@[self.productDetailModel.productModel.productFormatID] withAddFavoriteSuccess:^(id successResult) {
+                
+                
+                [alertM showAlertViewWithTitle:nil withMessage:@"收藏成功" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
+                //改变收藏按钮
+                self.isFavorite = YES;
+                [self scrollViewDidScroll:self.detailTableView];
+//                sender.image = [[UIImage imageNamed:@"s_icon_jrsc_select_2@2x.png"]imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+                
+            } withAddFavoriteFail:^(NSString *failResultStr) {
+                [alertM showAlertViewWithTitle:nil withMessage:[NSString stringWithFormat:@"收藏失败，%@",failResultStr] actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
 
+                
+            }];
+            
+        }else {
+            [alertM showAlertViewWithTitle:nil withMessage:@"已经收藏过了，无需重复收藏" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
+            
+        }
+    }else {
+        [alertM showAlertViewWithTitle:nil withMessage:@"您还没有登录" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
+            
+        }];
+    }
+    
+}
+
+//联系客服
+- (IBAction)telToPeopleServiceAction:(UIBarButtonItem *)sender {
+    //联系客服
+    [self performSegueWithIdentifier:@"productDetailToWebViewVC" sender:nil];
+    
+//    AlertManager *alertM = [AlertManager shareIntance];
+//    [alertM showAlertViewWithTitle:@"拨打客服电话" withMessage:@"是否要拨打客服电话400-6076-152" actionTitleArr:@[@"取消",@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
+//        if (actionBlockNumber == 1) {
+//            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"tel:4006076152"]];
+//            
+//        }
+//    }];
+    
+}
+
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    //刷新此页面购物车的角标
+    //
+    Manager *manager = [Manager shareInstance];
+    if ([manager isLoggedInStatus] == YES) {
+        if (manager.shoppingNumberStr != nil && [manager.shoppingNumberStr integerValue]>0) {
+            self.gwcNumberLabel.hidden = NO;
+            self.gwcNumberLabel.text = manager.shoppingNumberStr;
+        }else {
+            self.gwcNumberLabel.hidden = YES;
+        }
+    }
+    //进入先让navigation消失
+    [self scrollViewDidScroll:self.detailTableView];
+
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    //显示navigationbar
+    [self.navigationController.navigationBar setBackgroundImage:[self getImageWithAlpha:1] forBarMetrics:UIBarMetricsDefault];
+    //显示navigation 那条线
+    [self isClearNavigationBarLine:NO];
+}
+
+- (void)viewDidDisappear:(BOOL)animated {
+    [super viewDidDisappear:animated];
+    //显示navigationbar
+    [self.navigationController.navigationBar setBackgroundImage:[self getImageWithAlpha:1] forBarMetrics:UIBarMetricsDefault];
+    //显示navigation 那条线
+    [self isClearNavigationBarLine:NO];
+
+}
+
+
+//修改barbuttonItem,参数：是否显示navigationBar
+- (void)modifyBarButtonItemWithIsShowNavigationBar:(BOOL)isShowNavigationBar {
+    //左边的item
+    NSArray<UIBarButtonItem*> * leftArray = self.navigationItem.leftBarButtonItems;
+    UIBarButtonItem *leftItem = leftArray[0];
+    //右边的item
+    NSArray<UIBarButtonItem*> * rightArray = self.navigationItem.rightBarButtonItems;
+    UIBarButtonItem *rightItem = rightArray[0];
+    UIBarButtonItem *rightItem1 = rightArray[1];
+
+    if (isShowNavigationBar == YES) {
+        //显示navigationBar
+        leftItem.image =  [[UIImage imageNamed:@"s_icon_back3.png"]imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+        if (self.isFavorite == YES) {
+            rightItem.image =  [[UIImage imageNamed:@"s_icon_jrsc_select.png"]imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+
+        }else {
+            rightItem.image =  [[UIImage imageNamed:@"s_icon_jrsc.png"]imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+
+        }
+        rightItem1.image =  [[UIImage imageNamed:@"s_icon_lxkf.png"]imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+
+    }else {
+        //隐藏navigationBar
+        leftItem.image =  [[UIImage imageNamed:@"s_icon_back_2-.png"]imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+        if (self.isFavorite == YES) {
+            rightItem.image =  [[UIImage imageNamed:@"s_icon_jrsc_select_2.png"]imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+
+        }else {
+            rightItem.image =  [[UIImage imageNamed:@"s_icon_jrsc_2.png"]imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+
+        }
+        rightItem1.image =  [[UIImage imageNamed:@"s_icon_lxkf-_2.png"]imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+
+    }
+    
+    
+    
+    
+
+    
+}
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    Manager *manager = [Manager shareInstance];
+    [self modifyBarButtonItemWithIsShowNavigationBar:NO];
     
+    Manager *manager = [Manager shareInstance];
     //自适应高度
     // 让cell自适应高度
     self.detailTableView.rowHeight = UITableViewAutomaticDimension;
@@ -90,12 +239,12 @@
     
     
     //头部高度计算
-    self.headerView.frame = CGRectMake(0, 0, kScreenW,  kScreenW + 2 + 115 + 13 + 46 + 13);
+    self.headerView.frame = CGRectMake(0, 0, kScreenW, kScreenW + 2 + 115 + 13 + 46 + 13 - 27 );
     
     self.productDetailModel = [[ProductDetailModel alloc] init];
     
     //获取产品详细信息
-    [manager httpProductDetailInfoWithProductID:self.productID withProductDetailModel:self.productDetailModel withSuccessDetailResult:^(id successResult) {
+    [manager httpProductDetailInfoWithProductID:self.productID withType:self.type withProductDetailModel:self.productDetailModel withSuccessDetailResult:^(id successResult) {
         [self.kongImageView hiddenKongView];
         
         [self updateAllViewWithDetailModel:self.productDetailModel];
@@ -107,7 +256,7 @@
         [self httpIsFavoriteProductWithFormatId:self.productDetailModel.productModel.productFormatID];
         
         //将这个产品加入浏览记录里面
-        [manager addBrowseListActionWithBrowseProduct:self.productDetailModel.productModel];
+        [manager addBrowseListActionWithBrowseProduct:self.productDetailModel];
         
         
 //        //获取所有的规格数据
@@ -129,13 +278,14 @@
     }];
     
     
-    //下拉刷新
-    [self downPushRefresh];
+//    //下拉刷新
+//    [self downPushRefresh];
+//    
+//    //上啦加载
+//    [self upPushReload];
+//    
+
     
-    //上啦加载
-    [self upPushReload];
-    
-   
     
     
 }
@@ -184,6 +334,9 @@
 
 //查看这个商品是否被关注了
 - (void)httpIsFavoriteProductWithFormatId:(NSString *)formatId {
+    NSArray<UIBarButtonItem*> * rightArray = self.navigationItem.rightBarButtonItems;
+    UIBarButtonItem *favoriteItem = rightArray[0];
+    
     Manager *manager = [Manager shareInstance];
     //如果登陆了就看看是否被收藏了
     if ([manager isLoggedInStatus] == YES) {
@@ -192,17 +345,24 @@
             if ([successResult isEqualToString:@"1"]) {
                 //收藏了
                 self.isFavorite = YES;
-                [self.favoriteButton setImage:[UIImage imageNamed:@"s_icon_ysc"] forState:UIControlStateNormal];
+                [self scrollViewDidScroll:self.detailTableView];
+//                favoriteItem.image =  [[UIImage imageNamed:@"s_icon_jrsc_select_2.png"]imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+
+
             }else {
                 //未收藏
                 self.isFavorite = NO;
-                [self.favoriteButton setImage:[UIImage imageNamed:@"s_icon_jrsc"] forState:UIControlStateNormal];
+//                favoriteItem.image =  [[UIImage imageNamed:@"s_icon_jrsc_2.png"]imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+                [self scrollViewDidScroll:self.detailTableView];
+
             }
             
         } withIsFavoriteFail:^(NSString *failResultStr) {
             //获取失败了，就默认为没有收藏
             self.isFavorite = NO;
-            [self.favoriteButton setImage:[UIImage imageNamed:@"s_icon_jrsc"] forState:UIControlStateNormal];
+//            [self.favoriteButton setImage:[UIImage imageNamed:@"s_icon_jrsc"] forState:UIControlStateNormal];
+            [self scrollViewDidScroll:self.detailTableView];
+
         }];
     }
     
@@ -239,7 +399,11 @@
             //最小起订数量
             self.productDetailModel.p_standard_qty = tempFormatModel.s_min_quantity;
             //图片
-            
+            if (tempFormatModel.imageArr.count > 0) {
+                self.productDetailModel.productModel.productImageUrlstr = tempFormatModel.imageArr[0];
+            }
+            //是否活动
+            self.productDetailModel.productModel.isSaleProduct = tempFormatModel.isActivity;
         }
 
     }
@@ -254,7 +418,12 @@
     //图片赋值
     //1、根据图片的个数，计算contentView的宽度
     
-    [self.productImageView setWebImageURLWithImageUrlStr:tempDetailModel.productModel.productImageUrlstr withErrorImage:[UIImage imageNamed:@"productImage"]];
+    [self.productImageView setWebImageURLWithImageUrlStr:tempDetailModel.productModel.productImageUrlstr withErrorImage:[UIImage imageNamed:@"icon_pic_cp"] withIsCenter:YES];
+    if (tempDetailModel.productModel.isSaleProduct == YES) {
+        self.isActivityImageView.hidden = NO;
+    }else {
+        self.isActivityImageView.hidden = YES;
+    }
     self.productTitleLabel.text = tempDetailModel.productModel.productTitle;
     self.productCompanyLabel.text = tempDetailModel.productModel.productCompany;
     self.productFormatLabel.text = [NSString stringWithFormat:@"产品规格：%@", tempDetailModel.productModel.productFormatStr ];
@@ -263,6 +432,97 @@
     self.selectFormatLabel.text = [NSString stringWithFormat:@"已选 \"%@\"",tempDetailModel.productModel.productFormatStr];
     
 }
+
+
+#pragma mark - 头部隐藏 -
+//隐藏navigationBar下面的那条线
+- (void)isClearNavigationBarLine:(BOOL )hideLine {
+    /*
+     navigationBar上有两个视图：1、_UINavigationBarBackground；2、_UINavigationBarBackIndicatorView
+     其中_UINavigationBarBackground中又有两个视图：1、_UIBackdropView；2、UIImageView，这个imageView就是那一条线
+     而_UINavigationBarBackIndicatorView上面没有视图了
+     */
+    
+    //获取navigationBar上面的上面的视图
+    NSArray *list = self.navigationController.navigationBar.subviews;
+    for (UIView *navigationBarBackgroud in list) {
+        
+        //找到_UINavigationBarBackground
+        if ([navigationBarBackgroud isKindOfClass:NSClassFromString(@"_UIBarBackground")]) {
+            //在获取_UINavigationBarBackground上面的视图
+            for (UIView *lineImageView in navigationBarBackgroud.subviews) {
+                
+                //如果上面是imageView的话，就是那条线
+                if ([lineImageView isKindOfClass:[UIImageView class]]) {
+                    if (hideLine == YES) {
+                        //将这个线隐藏
+                        lineImageView.hidden = YES;
+                    }else {
+                        //不隐藏这个线
+                        lineImageView.hidden = NO;
+                    }
+                    
+                }
+            }
+        }
+    }
+    
+}
+
+//--------------------------------------
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    
+    CGFloat yOffset  = scrollView.contentOffset.y;
+    NSLog(@"++%f",yOffset);
+    
+    [self.navigationController setNavigationBarHidden:NO animated:NO];
+    CGFloat alpha = yOffset/80.0f>1.0f?1:yOffset/80.0f;
+    NSLog(@"%f",alpha);
+    //改变navigation的背景色
+    [self.navigationController.navigationBar setBackgroundImage:[self getImageWithAlpha:alpha] forBarMetrics:UIBarMetricsDefault];
+    //改变通知按钮的颜色
+    if (alpha>0.6) {
+        NSLog(@"1111");
+        //出现了navigationbar
+        [self isClearNavigationBarLine:NO];
+        
+        //更换navigationItem样式
+        [self modifyBarButtonItemWithIsShowNavigationBar:YES];
+        
+    }else{
+        NSLog(@"2222");
+        //消失了navigationbar
+        [self isClearNavigationBarLine:YES];
+        //更换navigationItem样式
+
+        [self modifyBarButtonItemWithIsShowNavigationBar:NO];
+    }
+    
+}
+
+
+/**
+ *  根据透明度去绘制一个图片，也可以省略此处用一个透明的图片，没这个效果好
+ */
+-(UIImage *)getImageWithAlpha:(CGFloat)alpha{
+    
+    UIColor *color = kColor(221, 76, 64, alpha);
+    CGSize colorSize=CGSizeMake(1, 1);
+    
+    UIGraphicsBeginImageContext(colorSize);
+    
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    
+    CGContextSetFillColorWithColor(context, color.CGColor);
+    
+    CGContextFillRect(context, CGRectMake(0, 0, 1, 1));
+    
+    UIImage *img=UIGraphicsGetImageFromCurrentImageContext();
+    
+    UIGraphicsEndImageContext();
+    return img;
+}
+
 
 #pragma mark - 请求评价列表 -
 - (void)httpProductCommentListWithPageIndex:(NSInteger )pageIndex {
@@ -288,9 +548,15 @@
         }
         
         for (NSDictionary *tempDic in [successResult objectForKey:@"content"]) {
+           
+            
             ProductCommentModel *productCommentModel = [[ProductCommentModel alloc] init];
             [productCommentModel setValuesForKeysWithDictionary:tempDic];
-            [self.userCommentListArr addObject:productCommentModel];
+            if ([productCommentModel.r_status isEqualToString:@"1"]) {
+                //这条评论审核通过，可以展示
+                [self.userCommentListArr addObject:productCommentModel];
+
+            }
         }
         
 //        //假数据
@@ -371,11 +637,32 @@
     
 }
 
+
+-(void)setTableViewCellHight:(NSNotification *)info
+{
+    NSDictionary * dic=info.userInfo;
+    //判断通知中的参数是否与原来的值一致,防止死循环
+    if (_cellHeight != [[dic objectForKey:@"height"]floatValue])
+    {
+        _cellHeight=[[dic objectForKey:@"height"]floatValue];
+        [self.detailTableView reloadData];
+    }
+}
+
 #pragma mark - tableView Delegate -
+
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     return 1;
 }
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    if (self.selectType == SelectTypeProductDetail) {
+        return 11 + 1;
+    }
+    
+    if (self.selectType == SelectTypeUseInfo) {
+        return 4;
+    }
+    
     if (self.selectType == SelectTypeUserComment) {
         if (self.userCommentListArr.count == 0) {
             return 1;//显示空白
@@ -390,7 +677,7 @@
             return self.tradeRecordListArr.count;
         }
     }
-    return 11;
+    return 0;
 }
 
 
@@ -407,13 +694,24 @@
 }
 //产品详情按钮
 - (IBAction)buttonOneAction:(LineButton *)sender {
+    
     self.selectType = SelectTypeProductDetail;
     [self.detailTableView reloadData];
+    
+    //移除mjrefresh
+    [self.detailTableView removeHeader];
+    [self.detailTableView removeFooter];
 }
 //使用说明
 - (IBAction)buttonTwoAction:(LineButton *)sender {
     self.selectType = SelectTypeUseInfo;
     [self.detailTableView reloadData];
+    
+    //移除mjrefresh
+    [self.detailTableView removeHeader];
+    [self.detailTableView removeFooter];
+
+    
 }
 //用户评价
 - (IBAction)buttonThreeAction:(LineButton *)sender {
@@ -423,6 +721,9 @@
     if (self.userCommentListArr == nil) {
         [self httpProductCommentListWithPageIndex:1];
     }
+    //添加mjrefresh
+    [self downPushRefresh];
+    [self upPushReload];
 
 }
 //交易记录
@@ -432,6 +733,9 @@
     if (self.tradeRecordListArr == nil) {
         [self httpProductTradeListWithPageIndex:1];
     }
+    //添加mjrefresh
+    [self downPushRefresh];
+    [self upPushReload];
     
 }
 
@@ -440,22 +744,33 @@
     switch (self.selectType) {
         case SelectTypeProductDetail:
         {
-            ProductDetailOneTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"detailOneCell" forIndexPath:indexPath];
+            if (indexPath.row < 11) {
+                //前面的表格信息
+                ProductDetailOneTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"productDetailOneCell" forIndexPath:indexPath];
+                
+                [cell updateProductDetailOneCellWithProductInfoDic:self.productDetailModel withIndex:indexPath];
+                return cell;
+            }else {
+                //最后的图文
+                ProductDetailTwoTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"productDetailTwoCell" forIndexPath:indexPath];
+                [cell updateProductDetailTwoCell:self.productDetailModel.p_introduce];
+                return cell;
+            }
             
-            [cell updateProductDetailOneCellWithDic:self.productDetailModel withIndex:indexPath];
-            return cell;
    
         }
             break;
             
         case SelectTypeUseInfo:
         {
-            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"" forIndexPath:indexPath];
+            ProductDetailOneTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"productDetailOneCell" forIndexPath:indexPath];
+            
+            [cell updateProductDetailOneCellWithUseInfoDic:self.productDetailModel withIndex:indexPath];
             return cell;
         }
             break;
             
-            case SelectTypeUserComment:
+        case SelectTypeUserComment:
         {
             if (self.userCommentListArr.count == 0) {
                 //空白
@@ -521,53 +836,66 @@
 
 //进入购物车界面
 - (IBAction)pushShoppingCarButtonAction:(UIButton *)sender {
-   
+    Manager *manager = [Manager shareInstance];
+    AlertManager *alertM = [AlertManager shareIntance];
     //
-    [self performSegueWithIdentifier:@"productDetailToShoppingCarVC" sender:nil];
+    if ([manager isLoggedInStatus] == YES) {
+        [self performSegueWithIdentifier:@"productDetailToShoppingCarVC" sender:nil];
+
+    }else {
+        
+        //未登录
+        [alertM showAlertViewWithTitle:nil withMessage:@"您未登录" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
+            
+        }];
+        
+    }
     
     
 }
-//加入收藏
-- (IBAction)joinFavoriteButtonAction:(UIButton *)sender {
+
+//立即购买
+- (IBAction)buyNowButtonAction:(UIButton *)sender {
     
     Manager *manager = [Manager shareInstance];
     AlertManager *alertM = [AlertManager shareIntance];
     
     if ([manager isLoggedInStatus] == YES) {
+        NSString *tempProductCount ;
         
-        if (self.isFavorite == NO) {
-            //没有收藏过，现在可以收藏
-            [manager httpAddFavoriteWithUserId:manager.memberInfoModel.u_id withFormatId:self.productDetailModel.productModel.productFormatID withAddFavoriteSuccess:^(id successResult) {
-                
-                [alertM showAlertViewWithTitle:nil withMessage:@"收藏成功" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
-
-                
-            } withAddFavoriteFail:^(NSString *failResultStr) {
-                
-            }];
-
-        }else {
-            [alertM showAlertViewWithTitle:nil withMessage:@"已经收藏过了，无需重复收藏" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
-
+        //如果是从产品详情中加入购物车
+        for (ProductFormatModel *tempFormatModel in self.productDetailModel.productFarmatArr) {
+            if (tempFormatModel.isSelect == YES) {
+                tempProductCount = [NSString stringWithFormat:@"%ld",tempFormatModel.seletctCount];
+            }
         }
+        
+        if ([tempProductCount integerValue] > 0) {
+            [manager httpProductToShoppingCarWithFormatId:self.productDetailModel.productModel.productFormatID withProductCount:tempProductCount withSuccessToShoppingCarResult:^(id successResult) {
+                //发送通知，让购物车界面刷新
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"refreshShoppingCarVC" object:self userInfo:nil];
+                //跳转到购物车界面
+                [self performSegueWithIdentifier:@"productDetailToShoppingCarVC" sender:nil];
+                
+                
+            } withFailToShoppingCarResult:^(NSString *failResultStr) {
+                NSLog(@"加入失败");
+                [alertM showAlertViewWithTitle:nil withMessage:@"加入购物车失败，请稍后再试" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
+            }];
+            
+        }else {
+            [alertM showAlertViewWithTitle:nil withMessage:@"选择产品的个数不能为0" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
+            
+        }
+        
     }else {
-        [alertM showAlertViewWithTitle:nil withMessage:@"您还没有登录" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
+        //未登录
+        [alertM showAlertViewWithTitle:nil withMessage:@"您未登录" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
             
         }];
+        
     }
-    
-}
 
-//联系客服
-- (IBAction)telToPeopleServiceAction:(UIButton *)sender {
-    AlertManager *alertM = [AlertManager shareIntance];
-    [alertM showAlertViewWithTitle:@"拨打客服电话" withMessage:@"是否要拨打客服电话400-6076-152" actionTitleArr:@[@"取消",@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
-        if (actionBlockNumber == 1) {
-            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"tel:4006076152"]];
-
-        }
-    }];
-    
     
 }
 
@@ -598,6 +926,13 @@
         };
     }
     
+    if ([segue.identifier isEqualToString:@"productDetailToWebViewVC"]) {
+        WebPageViewController *webPageVC = [segue destinationViewController];
+        
+        webPageVC.tempTitleStr = @"在线客服";
+        webPageVC.webUrl = @"http://kefu.qycn.com/vclient/chat/?m=m&websiteid=99706";
+
+    }
     
 }
 

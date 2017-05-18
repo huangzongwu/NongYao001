@@ -14,6 +14,7 @@
 #import "ProductListCollectionReusableView.h"
 #import "KongImageView.h"
 #import "ProductDetailViewController.h"
+#import "SVProgressHUD.h"
 @interface ProductListViewController ()<UICollectionViewDelegate,UICollectionViewDelegateFlowLayout,UICollectionViewDataSource>
 @property (nonatomic,strong)KongImageView *kongImageView;
 @property (weak, nonatomic) IBOutlet UICollectionView *productListCollectionView;
@@ -35,6 +36,10 @@
 
 - (void)tapSearchAction:(UITapGestureRecognizer *)sender {
     [self.navigationController popViewControllerAnimated:YES];
+}
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    [SVProgressHUD dismiss];
 }
 
 - (void)viewDidLoad {
@@ -124,6 +129,9 @@
 //搜索的 网络请求数据
 - (void)httpSearchDataWithPageIndex:(NSInteger )pageIndex {
     Manager *manager = [Manager shareInstance];
+    if (pageIndex == 1 && [SVProgressHUD isVisible] == NO) {
+        [SVProgressHUD show];
+    }
     NSString *sortStr ;
     NSString *descStr ;
     switch (self.sortType) {
@@ -173,6 +181,7 @@
         self.totalPage = [successResult integerValue];
         //如果是下拉刷新，将currentpage重置为1
         if (pageIndex == 1) {
+            [SVProgressHUD dismiss];//风火轮消失
             self.currentPage = 1;
             //取消效果
             [self.productListCollectionView headerEndRefreshing];
@@ -191,6 +200,7 @@
 
         
     } withSearchFail:^(NSString *failResultStr) {
+        [SVProgressHUD dismiss];//风火轮消失
         [self.productListCollectionView headerEndRefreshing];
         [self.productListCollectionView footerEndRefreshing];
         [self isShowKongImageViewWithType:KongTypeWithNetError withKongMsg:@"网络错误"];
@@ -203,6 +213,10 @@
 //分类的 网络请求数据
 - (void)httpTypeDataWithPageIndex:(NSInteger )pageIndex {
     Manager *manager = [Manager shareInstance];
+    //只要刷新才有风火轮
+    if (pageIndex == 1 && [SVProgressHUD isVisible] == NO) {
+        [SVProgressHUD show];
+    }
     
     NSString *sortStr ;
     NSString *descStr ;
@@ -252,6 +266,7 @@
         self.totalPage = [successResult integerValue];
         //如果是下拉刷新，将currentpage重置为1
         if (pageIndex == 1) {
+            [SVProgressHUD dismiss];
             self.currentPage = 1;
             //取消效果
             [self.productListCollectionView headerEndRefreshing];
@@ -267,6 +282,8 @@
         }
         [self.productListCollectionView reloadData];
     } withTypeFail:^(NSString *failResultStr) {
+        [SVProgressHUD dismiss];
+
         [self.productListCollectionView headerEndRefreshing];
         [self.productListCollectionView footerEndRefreshing];
         [self isShowKongImageViewWithType:KongTypeWithNetError withKongMsg:@"网络错误"];
@@ -440,6 +457,7 @@
         SearchListModel *searchListModel = (SearchListModel *)sender;
         ProductDetailViewController *productDetailVC = [segue destinationViewController];
         productDetailVC.productID = searchListModel.p_id;
+        productDetailVC.type = @"pid";
     }
     
 }

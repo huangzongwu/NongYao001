@@ -26,6 +26,7 @@
 @property (nonatomic,strong)NSString *s_min_quantity;
 //商品错误信息
 @property (nonatomic,strong)NSString *productErrorMsg;
+@property (nonatomic,assign)BOOL isActivity;
 
 - (void)setValue:(id)value forUndefinedKey:(NSString *)key ;
 

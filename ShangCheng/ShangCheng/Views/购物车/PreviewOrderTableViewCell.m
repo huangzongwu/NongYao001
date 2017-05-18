@@ -11,7 +11,7 @@
 @implementation PreviewOrderTableViewCell
 - (void)updatePreviewOrderCellWithShoppingCarModel:(ShoppingCarModel *)shoppingCarModel {
     
-    [self.productImageView setWebImageURLWithImageUrlStr:shoppingCarModel.shoppingCarProduct.productImageUrlstr withErrorImage:[UIImage imageNamed:@"productImage"]];
+    [self.productImageView setWebImageURLWithImageUrlStr:shoppingCarModel.shoppingCarProduct.productImageUrlstr withErrorImage:[UIImage imageNamed:@"icon_pic_cp"] withIsCenter:YES];
     self.productNameLabel.text = shoppingCarModel.shoppingCarProduct.productTitle;
     self.productCompanyLabel.text = shoppingCarModel.shoppingCarProduct.productCompany;
     self.productFormatAndCountLabel.text = [NSString stringWithFormat:@"规格：%@  数量：%@", shoppingCarModel.shoppingCarProduct.productFormatStr,shoppingCarModel.c_number];

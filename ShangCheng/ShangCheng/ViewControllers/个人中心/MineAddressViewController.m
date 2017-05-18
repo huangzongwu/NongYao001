@@ -12,6 +12,7 @@
 #import "AddReceiveAddressViewController.h"
 #import "KongImageView.h"
 #import "MJRefresh.h"
+#import "SVProgressHUD.h"
 @interface MineAddressViewController ()<UITableViewDataSource,UITableViewDelegate>
 @property (weak, nonatomic) IBOutlet UITableView *addressListTableView;
 @property (nonatomic,strong)KongImageView *kongImageView;
@@ -23,6 +24,10 @@
     [self.navigationController popViewControllerAnimated:YES];
 }
 
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    [SVProgressHUD dismiss];
+}
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
@@ -53,13 +58,20 @@
 
 - (void)httpReceiveAddressList {
     Manager *manager = [Manager shareInstance];
-
+    if ([SVProgressHUD isVisible] == NO) {
+        [SVProgressHUD show];
+    }
+    
     [manager receiveAddressListWithUserIdOrReceiveId:manager.memberInfoModel.u_id withAddressListSuccess:^(id successResult) {
+        [SVProgressHUD dismiss];
+        
         [self.addressListTableView reloadData];
         [self.addressListTableView headerEndRefreshing];
 
     } withAddressListFail:^(NSString *failResultStr) {
         NSLog(@"失败");
+        [SVProgressHUD dismiss];
+        
         [self.addressListTableView headerEndRefreshing];
 
         [self isShowKongImageViewWithType:KongTypeWithNetError withKongMsg:@"网络错误"];
@@ -125,21 +137,30 @@
 //删除按钮
 - (IBAction)deleteButtonAction:(IndexButton *)sender {
     Manager *manager =  [Manager shareInstance];
-    ReceiveAddressModel *tempAddressModel = manager.receiveAddressArr[sender.indexForButton.section];
-    [manager deleteReceiveAddressWithAddressModel:tempAddressModel withDeleteAddressSuccess:^(id successResult) {
-        
-        if ([successResult isEqualToString:@"1"]) {
-            //由于删除了默认地址，需要重新请求地址
-            [self httpReceiveAddressList];
+    AlertManager *alertM = [AlertManager shareIntance];
+    
+    [alertM showAlertViewWithTitle:nil withMessage:@"是否要删除这个收货地址" actionTitleArr:@[@"取消",@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
+        if (actionBlockNumber == 1) {
+            ReceiveAddressModel *tempAddressModel = manager.receiveAddressArr[sender.indexForButton.section];
+            [manager deleteReceiveAddressWithAddressModel:tempAddressModel withDeleteAddressSuccess:^(id successResult) {
+                
+                if ([successResult isEqualToString:@"1"]) {
+                    //由于删除了默认地址，需要重新请求地址
+                    [self httpReceiveAddressList];
+                }
+                
+                //刷新UI
+                [self.addressListTableView reloadData];
+                
+                
+            } withDeleteAddressFail:^(NSString *failResultStr) {
+                [alertM showAlertViewWithTitle:nil withMessage:@"删除地址失败，请稍后再试" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
+            }];
+
         }
-        
-        //刷新UI
-        [self.addressListTableView reloadData];
-        
-        
-    } withDeleteAddressFail:^(NSString *failResultStr) {
-        
     }];
+    
+    
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {

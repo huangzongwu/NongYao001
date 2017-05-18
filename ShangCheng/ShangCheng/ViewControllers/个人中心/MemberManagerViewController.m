@@ -11,6 +11,7 @@
 #import "SelectAddressView.h"
 #import "Manager.h"
 #import "UIImageView+ImageViewCategory.h"
+#import "SVProgressHUD.h"
 @interface MemberManagerViewController ()<UIImagePickerControllerDelegate,UINavigationControllerDelegate>
 
 
@@ -41,6 +42,11 @@ UIImagePickerController *picker;
     [self.navigationController popViewControllerAnimated:YES];
 }
 
+
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    [SVProgressHUD dismiss];
+}
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
@@ -70,7 +76,7 @@ UIImagePickerController *picker;
 - (void)reloadMemberUserInfo {
     Manager *manager = [Manager shareInstance];
     //头像
-    [self.headerImageView setWebImageURLWithImageUrlStr:manager.memberInfoModel.u_icon withErrorImage:[UIImage imageNamed:@"test.png"]];
+    [self.headerImageView setWebImageURLWithImageUrlStr:manager.memberInfoModel.u_icon withErrorImage:[UIImage imageNamed:@"w_icon_mrtx"] withIsCenter:NO];
     
     self.nickNameLabel.text = manager.memberInfoModel.u_truename;
     self.phoneNumberLabel.text = manager.memberInfoModel.u_mobile;
@@ -141,9 +147,14 @@ UIImagePickerController *picker;
         
         //给图片进行压缩
         UIImage *submitImg = [manager compressOriginalImage:tempImage toMaxDataSizeKBytes:100];
-
+        if ([SVProgressHUD isVisible] == NO) {
+            [SVProgressHUD show];
+        }
+        
         //上传图片
         [manager httpMotifyMemberAvatarWithUserId:manager.memberInfoModel.u_id withMotifyAvatarImage:submitImg withMotifyAvatarSuccess:^(id successResult) {
+            [SVProgressHUD dismiss];
+            
             //上传成功后，给模型赋值
             manager.memberInfoModel.u_icon = successResult;
             //更新当前页面的头像
@@ -153,6 +164,9 @@ UIImagePickerController *picker;
             
         } withMotifyAvatarFail:^(NSString *failResultStr) {
             //上传失败
+            [SVProgressHUD dismiss];
+            [[AlertManager shareIntance] showAlertViewWithTitle:nil withMessage:@"上传头像失败" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
+            
             NSLog(@"%@", failResultStr);
         }];
 
@@ -190,13 +204,21 @@ UIImagePickerController *picker;
         
     }else {
         //没有数据，就从本地获取或者网络请求
+        if ([SVProgressHUD isVisible] == NO) {
+            [SVProgressHUD show];
+        }
+
         [manager httpAreaTreeWithSuccessAreaInfo:^(id successResult) {
             NSLog(@"地区成功2");
+            [SVProgressHUD dismiss];
             //刷新pickView
             [self showAddressPickView];
             
         } withFailAreaInfo:^(NSString *failResultStr) {
             NSLog(@"地区请求失败");
+            [SVProgressHUD dismiss];
+            [[AlertManager shareIntance] showAlertViewWithTitle:nil withMessage:@"地区读取失败" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
+
         }];
     }
 
@@ -214,7 +236,7 @@ UIImagePickerController *picker;
             //如果两个选择了新的地址，就要网络请求修改地址
             
             //可以提交
-            [manager httpMotifyMemberInfoWithUserID:manager.memberInfoModel.u_id withUsername:manager.memberInfoModel.u_truename withEmail:manager.memberInfoModel.u_email withMobile:manager.memberInfoModel.u_mobile withQQ:manager.memberInfoModel.u_qq withAreaId:areaId WithMotifyMemberSuccess:^(id successResult) {
+            [manager httpMotifyMemberInfoWithUserID:manager.memberInfoModel.u_id withUsername:manager.memberInfoModel.u_truename withEmail:manager.memberInfoModel.u_email withQQ:manager.memberInfoModel.u_qq withAreaId:areaId WithMotifyMemberSuccess:^(id successResult) {
                 
                 //修改成功，更新模型
                 manager.memberInfoModel.capitalname = shengStr;
@@ -227,7 +249,7 @@ UIImagePickerController *picker;
 
                 
             } withMotifyMemberFail:^(NSString *failResultStr) {
-                
+                [[AlertManager shareIntance] showAlertViewWithTitle:nil withMessage:@"修改地区信息失败" actionTitleArr:nil withViewController:self withReturnCodeBlock:nil];
             }];
 
             

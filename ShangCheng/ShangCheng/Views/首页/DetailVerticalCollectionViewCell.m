@@ -9,9 +9,9 @@
 #import "DetailVerticalCollectionViewCell.h"
 #import "UIImageView+ImageViewCategory.h"
 @implementation DetailVerticalCollectionViewCell
-- (void)updateDetailVerticalCollectionViewCell:(ProductModel *)tempProductModel withIsHideCompanyLabel:(BOOL)isHideCompanyLabel {
-    
-    [self.productImageView setWebImageURLWithImageUrlStr:tempProductModel.productImageUrlstr withErrorImage:[UIImage imageNamed:@"productImage"]];
+- (void)updateDetailVerticalCollectionViewCell:(ProductModel *)tempProductModel withIndexPath:(NSIndexPath *)tempIndex {
+
+    [self.productImageView setWebImageURLWithImageUrlStr:tempProductModel.productImageUrlstr withErrorImage:[UIImage imageNamed:@"icon_pic_cp"]withIsCenter:YES];
     
     //是否显示活动角标
     if (tempProductModel.isSaleProduct == YES) {
@@ -21,18 +21,19 @@
     }
     
     self.productTitleLabel.text = tempProductModel.productTitle;
-    //有的cell没有公司，有的cell有。所以要判断
-    if (isHideCompanyLabel == YES) {
-        self.productCompanyLabel.hidden = YES;
-        self.companyLabelHeightLayout.constant = 0;
-    }else {
-        self.productCompanyLabel.hidden = NO;
-        self.companyLabelHeightLayout.constant = 17;
-    }
-    self.productCompanyLabel.text = tempProductModel.productCompany;
+         self.productCompanyLabel.text = tempProductModel.productCompany;
     self.productFormatLabel.text = tempProductModel.productFormatStr;
     self.productPriceLabel.text = [NSString stringWithFormat:@"￥%@", tempProductModel.productPrice ];
     
+    
+    if (tempIndex.row % 2 == 0) {
+        //左边的item
+        self.leftLayout.constant = 7.5;
+        self.rightLayout.constant = 7.5/2;
+    }else {
+        self.leftLayout.constant = 7.5/2;
+        self.rightLayout.constant = 7.5;
+    }
     
 }
 

@@ -11,14 +11,19 @@
 @implementation ProductDetailThreeTableViewCell
 - (void)updateProductDetailThreeCellWithModel:(ProductCommentModel *)tempModel {
 
-    [self.headerImageView setWebImageURLWithImageUrlStr:tempModel.u_icon withErrorImage:[UIImage imageNamed:@"productImage"]];
+    [self.headerImageView setWebImageURLWithImageUrlStr:tempModel.u_icon withErrorImage:[UIImage imageNamed:@"w_icon_mrtx"] withIsCenter:NO];
     self.nameLabel.text = tempModel.mobile;
     //星级
     [self showStarWithLevel:[tempModel.r_star_level integerValue]];
     //内容
     self.contentLabel.text = tempModel.r_content;
     self.timeLabel.text = tempModel.r_time_create;
-    self.replyContentLabel.text = [NSString stringWithFormat:@"回复 %@：%@",tempModel.mobile, tempModel.r_content_reply ];
+    
+    if (tempModel.r_content_reply.length > 0) {
+        self.replyContentLabel.text = [NSString stringWithFormat:@"回复 %@：%@",tempModel.mobile, tempModel.r_content_reply ];
+    }else {
+        self.replyContentLabel.text = @"";
+    }
 }
 
 - (void)showStarWithLevel:(NSInteger )level {

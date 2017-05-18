@@ -12,7 +12,7 @@
 #import "SearchBarTextField.h"
 
 @interface SearchViewController ()<UITextFieldDelegate>
-
+@property (nonatomic,strong)SearchBarTextField *searchBarTextField;
 @end
 
 @implementation SearchViewController
@@ -29,9 +29,9 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     //加载 搜索框
-    SearchBarTextField *searchBarTextField = [[[NSBundle mainBundle] loadNibNamed:@"SearchBarTextField" owner:self options:nil] firstObject];
-    searchBarTextField.searchTextField.delegate = self;
-    self.navigationItem.titleView = searchBarTextField;
+    self.searchBarTextField = [[[NSBundle mainBundle] loadNibNamed:@"SearchBarTextField" owner:self options:nil] firstObject];
+    self.searchBarTextField.searchTextField.delegate = self;
+    self.navigationItem.titleView = self.searchBarTextField;
 }
 
 
@@ -55,6 +55,12 @@
     }
 
     return YES;
+}
+
+
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    [self.searchBarTextField.searchTextField resignFirstResponder];
+    
 }
 
 

@@ -8,8 +8,15 @@
 
 #import <UIKit/UIKit.h>
 
+typedef void(^SelectBalanceBlock)();
 @interface DownLinePayViewController : UIViewController
+//订单号数组
+@property (nonatomic,strong)NSArray *orderIDArr;
+@property (nonatomic,assign)BOOL isSelectBalance;//是否选择使用余额
 @property (nonatomic,assign)float memberBalanceFloat;//账户余额
 //订单总额
 @property (nonatomic,assign)float orderTotalAmountFloat;
+//选择余额
+@property (nonatomic,copy)SelectBalanceBlock selectBalanceBlock;
+
 @end

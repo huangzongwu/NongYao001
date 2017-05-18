@@ -13,6 +13,14 @@
     if ([key isEqualToString:@"s_image_fir"] || [key isEqualToString:@"s_image_sec"] || [key isEqualToString:@"s_image_sec2"] || [key isEqualToString:@"s_image_sec3"] || [key isEqualToString:@"s_image_sec4"]) {
         [self.imageArr addObject:value];
     }
+    if ([key isEqualToString:@"s_activity_show_id"]) {
+        if ([value isEqualToString:@"0"]) {
+            self.isActivity = NO;
+        }else {
+            self.isActivity = YES;
+        }
+
+    }
 }
 
 

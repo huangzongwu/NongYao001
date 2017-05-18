@@ -13,7 +13,7 @@
 - (void)updatePestsListCellWithModel:(PestsListModel *)tempModel {
     
     
-    [self.pestsImageView setWebImageURLWithImageUrlStr:tempModel.i_icon_path withErrorImage:[UIImage imageNamed:@"pestsTest"]];
+    [self.pestsImageView setWebImageURLWithImageUrlStr:tempModel.i_icon_path withErrorImage:[UIImage imageNamed:@"icon_pic_cp"] withIsCenter:YES];
     self.pestsTitleLabel.text = tempModel.i_title;
     self.pestsDetailLabel.text = tempModel.i_introduce;
     self.pestsAuthorLabel.text = tempModel.i_author;

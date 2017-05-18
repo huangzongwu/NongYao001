@@ -9,6 +9,7 @@
 #import "SetNickNameViewController.h"
 #import "AlertManager.h"
 #import "Manager.h"
+#import "SVProgressHUD.h"
 @interface SetNickNameViewController ()<UITextFieldDelegate>
 //右上角的确定按钮
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *enterBarButton;
@@ -22,6 +23,7 @@
     [self.navigationController popViewControllerAnimated:YES];
 }
 
+
 - (IBAction)rightBarButtonAction:(UIBarButtonItem *)sender {
     Manager *manager = [Manager shareInstance];
 
@@ -32,8 +34,12 @@
         [alertM showAlertViewWithTitle:nil withMessage:@"昵称太短了" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
     }else if (self.nickNameTextField.text.length > 3 && self.nickNameTextField.text.length < 21) {
         
+        if ([SVProgressHUD isVisible] == NO) {
+            [SVProgressHUD show];
+        }
         //可以提交
-        [manager httpMotifyMemberInfoWithUserID:manager.memberInfoModel.u_id withUsername:self.nickNameTextField.text withEmail:manager.memberInfoModel.u_email withMobile:manager.memberInfoModel.u_mobile withQQ:manager.memberInfoModel.u_qq withAreaId:manager.memberInfoModel.countycode WithMotifyMemberSuccess:^(id successResult) {
+        [manager httpMotifyMemberInfoWithUserID:manager.memberInfoModel.u_id withUsername:self.nickNameTextField.text withEmail:manager.memberInfoModel.u_email withQQ:manager.memberInfoModel.u_qq withAreaId:manager.memberInfoModel.countycode WithMotifyMemberSuccess:^(id successResult) {
+            [SVProgressHUD dismiss];
             
             //修改成功，更新模型
             manager.memberInfoModel.u_truename = self.nickNameTextField.text;
@@ -44,7 +50,8 @@
             
             
         } withMotifyMemberFail:^(NSString *failResultStr) {
-            
+            [SVProgressHUD dismiss];
+            [alertM showAlertViewWithTitle:nil withMessage:@"修改信息失败" actionTitleArr:nil withViewController:self withReturnCodeBlock:nil];
         }];
         
         
@@ -56,6 +63,11 @@
     
 }
 
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    [SVProgressHUD dismiss];
+    
+}
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
@@ -72,10 +84,9 @@
     
 }
 
-
-
-
-
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    [self.nickNameTextField resignFirstResponder];
+}
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

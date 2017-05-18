@@ -22,7 +22,7 @@
 @property(nonatomic,strong)NSString *r_content;//内容
 @property(nonatomic,strong)NSString *r_content_reply;//回复内容
 @property(nonatomic,strong)NSString *r_type;//
-@property(nonatomic,strong)NSString *r_status;//
+@property(nonatomic,strong)NSString *r_status;//1是审核通过
 @property(nonatomic,strong)NSString *r_anonymity;
 @property(nonatomic,strong)NSString *r_note;//备注
 @property(nonatomic,strong)NSString *mobile;//手机号

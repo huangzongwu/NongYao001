@@ -20,6 +20,31 @@
 }
 
 #pragma mark - 首页 -
+- (void)httpBannerScrollViewDataSourceWithBannerSuccess:(SuccessResult)bannerSuccess withBannerFail:(FailResult)bannerFail {
+    NSString *url = [NSString stringWithFormat:@"%@?id=&type=0",[[InterfaceManager shareInstance]linkManageBase]];
+    [[NetManager shareInstance] getRequestWithURL:url withParameters:nil withContentTypes:nil withHeaderArr:nil withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+        NSLog(@"%ld",operation.response.statusCode);
+        NSLog(@"%@",[self dictionaryToJson:successResult]);
+        
+        
+        NSMutableArray *dataSourceArr = [NSMutableArray array];
+        
+        for (NSDictionary *tempDic in successResult) {
+            BannerModel *bannerModel = [[BannerModel alloc] init];
+            [bannerModel setValuesForKeysWithDictionary:tempDic];
+            [dataSourceArr addObject:bannerModel];
+        }
+        
+        
+        
+        bannerSuccess(dataSourceArr);
+    } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
+        NSLog(@"%ld",operation.response.statusCode);
+        bannerFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]]);
+    }];
+    
+}
+
 //广告条
 - (void)httpAdScrollViewDataSourceWithAdSuccess:(SuccessResult)adSuccess withAdFail:(FailResult)adFail {
     NSString *url = [NSString stringWithFormat:@"%@?code=12816&pageindex=1&pagesize=5",[[InterfaceManager shareInstance] informationIndexBase]] ;
@@ -41,7 +66,7 @@
         
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld",operation.response.statusCode);
-        
+        adFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]]);
     }];
 
 }
@@ -64,7 +89,7 @@
         
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld -- %@",operation.response.statusCode,errorResult);
-        todayFail([NSString stringWithFormat:@"%ld",operation.response.statusCode ]);
+        todayFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]]);
     }];
 }
 
@@ -86,7 +111,7 @@
         
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld -- %@",operation.response.statusCode,errorResult);
-        searchTodayFail([NSString stringWithFormat:@"%ld",operation.response.statusCode ]);
+        searchTodayFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]]);
     }];
 
 }
@@ -116,7 +141,7 @@
         
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld",operation.response.statusCode);
-        pestsFail([NSString stringWithFormat:@"%ld",operation.response.statusCode]);
+        pestsFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]]);
     }];
     
 }
@@ -143,7 +168,7 @@
         
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld",operation.response.statusCode);
-        typeFail([NSString stringWithFormat:@"%ld",operation.response.statusCode]);
+        typeFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]]);
 
     }];
 
@@ -202,7 +227,7 @@
         }
        } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld",operation.response.statusCode);
-           searchFail([NSString stringWithFormat:@"%ld",operation.response.statusCode]);
+           searchFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]]);
     }];
     
 }
@@ -232,7 +257,7 @@
 #pragma mark - 分类 -
 //type=type&code=&sort=&desc=&pageindex=1&pagesize=10
 - (void)httpProductTypeWithCode:(NSString *)code withSort:(NSString *)sort withDesc:(NSString *)desc withPageIndex:(NSInteger)pageIndex withTypeSuccess:(SuccessResult )typeSuccess withTypeFail:(FailResult)typeFail {
-    NSString *url = [[NSString stringWithFormat:@"%@?type=type&code=%@&sort=%@&desc=%@&pageindex=%ld&pagesize=10",[[InterfaceManager shareInstance] productsBySortTypeBase],code,sort,desc,pageIndex] stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+    NSString *url = [[NSString stringWithFormat:@"%@?type=type&code=%@&level=3&sort=%@&desc=%@&pageindex=%ld&pagesize=10",[[InterfaceManager shareInstance] productsBySortTypeBase],code,sort,desc,pageIndex] stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
     [[NetManager shareInstance] getRequestWithURL:url withParameters:nil withContentTypes:nil withHeaderArr:nil withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
         NSLog(@"%ld",operation.response.statusCode);
         NSLog(@"%@",[self dictionaryToJson:successResult]);
@@ -250,7 +275,7 @@
         
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld",operation.response.statusCode);
-        typeFail([NSString stringWithFormat:@"%ld",operation.response.statusCode]);
+        typeFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]]);
 
     }];
 }
@@ -263,12 +288,26 @@
     }
     return _homeDataSourceDic;
 }
-
-//首页产品 cnum是热销产品的个数，rnum是推荐产品的个数
-- (void)httpHomeProductWithCnum:(NSString *)cnum withRnum:(NSString *)rnum withSuccessHomeResult:(SuccessResult)successHomeResult withFailHomeResult:(FailResult)failHomeResult {
-    
-    [[NetManager shareInstance] getRequestWithURL:[[InterfaceManager shareInstance] homeProductURLWithCnum:cnum withRnum:rnum] withParameters:nil withContentTypes:nil withHeaderArr:nil withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+//热卖产品
+- (void)httpHomeHotProductWithCnum:(NSString *)cnum withHotSuccess:(SuccessResult)hotSuccess withHotFail:(FailResult)hotFail {
+    [[NetManager shareInstance] getRequestWithURL:[[InterfaceManager shareInstance] homeHotProductWithCnum:cnum] withParameters:nil withContentTypes:nil withHeaderArr:nil withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+        NSLog(@"%@",[self dictionaryToJson:successResult]);
+        if (operation.response.statusCode == 200) {
+            //解析
+            [self analyzeHomeHotProductJsonDic:successResult withSuccessHomeResult:hotSuccess withFailHomeResult:hotFail];
+        }
         
+    } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
+        NSLog(@"%ld",operation.response.statusCode);
+        hotFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]]);
+    }];
+}
+
+//首页产品 ，rnum是推荐产品的个数
+- (void)httpHomeProductWithRnum:(NSString *)rnum withSuccessHomeResult:(SuccessResult)successHomeResult withFailHomeResult:(FailResult)failHomeResult {
+    
+    [[NetManager shareInstance] getRequestWithURL:[[InterfaceManager shareInstance] homeProductURLWithRnum:rnum] withParameters:nil withContentTypes:nil withHeaderArr:nil withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+        NSLog(@"%@",[self dictionaryToJson:successResult]);
         if (operation.response.statusCode == 200) {
             //网络成功，解析数据
             [self analyzeHomeProductJsonDic:successResult withSuccessHomeResult:successHomeResult withFailHomeResult:failHomeResult];
@@ -277,15 +316,14 @@
         
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld",operation.response.statusCode);
-        failHomeResult([operation.responseObject objectForKey:@"Message"]);
+        failHomeResult([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]]);
     }];
 }
 
-- (void)analyzeHomeProductJsonDic:(NSDictionary *)jsonDic withSuccessHomeResult:(SuccessResult)successHomeResult withFailHomeResult:(FailResult)failHomeResult {
-
+- (void)analyzeHomeHotProductJsonDic:(NSDictionary *)jsonDic withSuccessHomeResult:(SuccessResult)successHomeResult withFailHomeResult:(FailResult)failHomeResult {
     //解析热销产品
     NSMutableArray *hotArr = [NSMutableArray array];
-    NSArray *crazeArr = [jsonDic objectForKey:@"craze"];
+    NSArray *crazeArr = [jsonDic objectForKey:@"content"];
     for (NSDictionary *crazeDic in crazeArr) {
         ProductModel *hotProductModel = [[ProductModel alloc] init];
         [hotProductModel setValuesForKeysWithDictionary:crazeDic];
@@ -294,10 +332,16 @@
     }
     [self.homeDataSourceDic setValue:hotArr forKey:@"热销"];
     
+    successHomeResult(self.homeDataSourceDic);
+}
+
+
+- (void)analyzeHomeProductJsonDic:(NSDictionary *)jsonDic withSuccessHomeResult:(SuccessResult)successHomeResult withFailHomeResult:(FailResult)failHomeResult {
+
     //解析推荐产品
     NSMutableArray *recommendArr = [NSMutableArray array];
-    NSArray *recomArr = [jsonDic objectForKey:@"recom"];
-    for (NSDictionary *recomDic in recomArr) {
+//    NSArray *recomArr = [jsonDic objectForKey:@"recom"];
+    for (NSDictionary *recomDic in jsonDic) {
         ProductClassModel *tempClassModel = [[ProductClassModel alloc] init];
         [tempClassModel setValuesForKeysWithDictionary:recomDic];
         tempClassModel.productArr = [NSMutableArray array];
@@ -320,9 +364,9 @@
 
 
 //获取产品详情
-- (void)httpProductDetailInfoWithProductID:(NSString *)productId withProductDetailModel:(ProductDetailModel *)productDetailModel withSuccessDetailResult:(SuccessResult)successDetailResult withFailDetailResult:(FailResult)failDetailResult {
-
-    [[NetManager shareInstance] getRequestWithURL:[[InterfaceManager shareInstance] productDetailURLWithProductID:productId withIsst:@"1"] withParameters:nil withContentTypes:nil withHeaderArr:nil withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+- (void)httpProductDetailInfoWithProductID:(NSString *)productId withType:(NSString *)type withProductDetailModel:(ProductDetailModel *)productDetailModel withSuccessDetailResult:(SuccessResult)successDetailResult withFailDetailResult:(FailResult)failDetailResult {
+    
+    [[NetManager shareInstance] getRequestWithURL:[[InterfaceManager shareInstance] productDetailURLWithProductID:productId withType:type withIsst:@"1"] withParameters:nil withContentTypes:nil withHeaderArr:nil withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
         NSLog(@"%@",[self dictionaryToJson:successResult]);
         
         if (operation.response.statusCode == 200) {
@@ -332,7 +376,7 @@
         
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld",operation.response.statusCode);
-        failDetailResult([operation.responseObject objectForKey:@"Message"]);
+        failDetailResult([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]]);
     }];
     
 }
@@ -399,6 +443,7 @@
     
     [[NetManager shareInstance] getRequestWithURL:[[InterfaceManager shareInstance] productClassTree] withParameters:nil withContentTypes:nil withHeaderArr:nil withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
         NSLog(@"%ld",operation.response.statusCode);
+        NSLog(@"%@",[self dictionaryToJson:successResult]);
         
         self.productClassTreeArr = nil;
 //        self.productClassTreeArr = [NSMutableArray arrayWithArray:successResult];
@@ -426,7 +471,7 @@
 
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld",operation.response.statusCode);
-        classTreeFail(@"请求分类失败");
+        classTreeFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]]);
     }];
 }
 
@@ -444,7 +489,7 @@
 
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
-        tradeRecordFail([NSString stringWithFormat:@"%ld",operation.response.statusCode]);
+        tradeRecordFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]]);
     }];
     
 }
@@ -459,7 +504,17 @@
 
         }
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
-        isFavoriteFail([NSString stringWithFormat:@"%ld",operation.response.statusCode]);
+        id messageInfo = [NSJSONSerialization JSONObjectWithData:operation.responseObject options:NSJSONReadingAllowFragments error:nil];
+        NSString *messageStr ;
+        if ([messageInfo isKindOfClass:[NSString class]]) {
+            messageStr = messageInfo;
+        }else {
+            NSDictionary *messageDic = (NSDictionary *)messageInfo;
+            
+            messageStr = [messageDic objectForKey:@"Message"];
+        }
+        
+        isFavoriteFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,messageStr]);
     }];
 }
 
@@ -477,15 +532,68 @@
     
     [[NetManager shareInstance] postRequestWithURL:[[InterfaceManager shareInstance] shoppingCarBaseURL] withParameters:parametersDic withContentTypes:@"string" withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
         NSLog(@" %ld",operation.response.statusCode);
+        //请求一下购物车角标
+        [self httpShoppingCarNumberWithUserid:self.memberInfoModel.u_id withNumberSuccess:nil withNumberFail:nil];
+        
         successToShoppingCarResult(successResult);
 
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"请求失败 %ld--%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]);
+        id messageInfo = [NSJSONSerialization JSONObjectWithData:operation.responseObject options:NSJSONReadingAllowFragments error:nil];
+        NSString *messageStr ;
+        if ([messageInfo isKindOfClass:[NSString class]]) {
+            messageStr = messageInfo;
+        }else {
+            NSDictionary *messageDic = (NSDictionary *)messageInfo;
+            
+            messageStr = [messageDic objectForKey:@"Message"];
+        }
+
+        failToShoppingCarResult([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,messageStr]);
 
     }];
     
     
 }
+
+//购物车数量
+- (void)httpShoppingCarNumberWithUserid:(NSString *)userId withNumberSuccess:(SuccessResult )numberSuccess withNumberFail:(FailResult)numberFail {
+    
+    NSString *url = [NSString stringWithFormat:@"%@?id=%@&num=", [[InterfaceManager shareInstance] shoppingCarBaseURL],userId ];
+    [[NetManager shareInstance] getRequestWithURL:url withParameters:nil withContentTypes:@"string" withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+        NSLog(@"%ld",operation.response.statusCode);
+        if (operation.response.statusCode == 200) {
+            if ([successResult isEqualToString:@"0"]) {
+                self.shoppingNumberStr = nil;
+            }else {
+                self.shoppingNumberStr = successResult;
+            }
+            //发送通知，刷新购物车角标
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"refreshShoppingCarNumber" object:self userInfo:nil];
+            if (numberSuccess != nil) {
+                numberSuccess(successResult);
+
+            }
+        }
+    } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
+        NSLog(@"%ld",operation.response.statusCode);
+        id messageInfo = [NSJSONSerialization JSONObjectWithData:operation.responseObject options:NSJSONReadingAllowFragments error:nil];
+        NSString *messageStr ;
+        if ([messageInfo isKindOfClass:[NSString class]]) {
+            messageStr = messageInfo;
+        }else {
+            NSDictionary *messageDic = (NSDictionary *)messageInfo;
+            
+            messageStr = [messageDic objectForKey:@"Message"];
+        }
+
+        if (numberFail != nil) {
+            numberFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,messageStr]);
+
+        }
+    }];
+}
+
 
 - (NSMutableArray *)shoppingCarDataSourceArr {
     if (!_shoppingCarDataSourceArr) {
@@ -558,6 +666,9 @@
         if (operation.response.statusCode == 200) {
             //请求成功，封装模型
             [self analyzeShoppingCarDataWithJsonData:successResult WithSuccessResult:shoppingCarSuccessResult];
+            //请求一下购物车的数量
+            [self httpShoppingCarNumberWithUserid:self.memberInfoModel.u_id withNumberSuccess:nil withNumberFail:nil];
+
             
         }else {
             failResult(@"未知错误，请稍后再试");
@@ -566,7 +677,7 @@
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"购物车请求失败 %ld--%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]);
         
-        failResult([operation.responseObject objectForKey:@"Message"]);
+        failResult([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]]);
 
     }];
     
@@ -598,7 +709,6 @@
 
 
 //删除购物车的内容
-//删除购物车的内容
 - (void)deleteShoppingCarWithProductIndexSet:(NSMutableIndexSet *)productIndexSet WithSuccessResult:(SuccessResult)deleteSuccessResult withFailResult:(FailResult)deleteFailResult {
     
     //遍历产品集合，然后拼成字符串
@@ -628,13 +738,26 @@
             
             //判断一下是否全选了
             [self isAllSelectForShoppingCarAction];
+            //请求购物车的数量
+            [self httpShoppingCarNumberWithUserid:self.memberInfoModel.u_id withNumberSuccess:nil withNumberFail:nil];
+
             
             //block返回，刷新UI
             deleteSuccessResult(productIndexSet);
         }
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         //删除失败
-        NSLog(@"%ld -- %@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]);
+        id messageInfo = [NSJSONSerialization JSONObjectWithData:operation.responseObject options:NSJSONReadingAllowFragments error:nil];
+        NSString *messageStr ;
+        if ([messageInfo isKindOfClass:[NSString class]]) {
+            messageStr = messageInfo;
+        }else {
+            NSDictionary *messageDic = (NSDictionary *)messageInfo;
+            
+            messageStr = [messageDic objectForKey:@"Message"];
+        }
+
+        deleteFailResult([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,messageStr]);
     }];
     
 }
@@ -678,9 +801,18 @@
         }
         
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
-        NSLog(@"%ld -- %@",operation.response.statusCode,errorResult);
-        addOrLessFailResult([operation.responseObject objectForKey:@"Message"]);
+        id messageInfo = [NSJSONSerialization JSONObjectWithData:operation.responseObject options:NSJSONReadingAllowFragments error:nil];
+        NSString *messageStr ;
+        if ([messageInfo isKindOfClass:[NSString class]]) {
+            messageStr = messageInfo;
+        }else {
+            NSDictionary *messageDic = (NSDictionary *)messageInfo;
+            
+            messageStr = [messageDic objectForKey:@"Message"];
+        }
 
+        
+        addOrLessFailResult([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,messageStr]);
     }];
     
 }
@@ -715,10 +847,13 @@
     
     [[NetManager shareInstance] postRequestWithURL:[[InterfaceManager shareInstance] orderPreviewUrl] withParameters:parametersDic withContentTypes:nil withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
         NSLog(@"%ld ",operation.response.statusCode);
-        previewSuccessResult(successResult);
+        if (operation.response.statusCode == 200) {
+            previewSuccessResult(successResult);
+
+        }
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld -- %@",operation.response.statusCode,errorResult);
-        
+        previewFailResult([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]]);
 
     }];
     
@@ -740,7 +875,7 @@
         
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
-        couponFailResult([NSString stringWithFormat:@"%ld",operation.response.statusCode]);
+        couponFailResult([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]]);
     }];
     
 }
@@ -775,7 +910,17 @@
 
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
+        id messageInfo = [NSJSONSerialization JSONObjectWithData:operation.responseObject options:NSJSONReadingAllowFragments error:nil];
+        NSString *messageStr ;
+        if ([messageInfo isKindOfClass:[NSString class]]) {
+            messageStr = messageInfo;
+        }else {
+            NSDictionary *messageDic = (NSDictionary *)messageInfo;
+            
+            messageStr = [messageDic objectForKey:@"Message"];
+        }
 
+        addCouponFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,messageStr]);
     }];
     
     
@@ -797,13 +942,24 @@
     
     [[NetManager shareInstance] postRequestWithURL:[[InterfaceManager shareInstance] computeCouponMoneyPOST] withParameters:parametersDic withContentTypes:@"string" withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
         
-//        NSLog(@"%ld",operation.response.statusCode);
-//        NSLog(@"%@",[[NSString alloc] initWithData:successResult encoding:NSUTF8StringEncoding]);
+        if (operation.response.statusCode == 200) {
+            computeMoneySuccessResult(successResult);
+
+        }
         
-        computeMoneySuccessResult(successResult);
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
+        id messageInfo = [NSJSONSerialization JSONObjectWithData:operation.responseObject options:NSJSONReadingAllowFragments error:nil];
+        NSString *messageStr ;
+        if ([messageInfo isKindOfClass:[NSString class]]) {
+            messageStr = messageInfo;
+        }else {
+            NSDictionary *messageDic = (NSDictionary *)messageInfo;
+            
+            messageStr = [messageDic objectForKey:@"Message"];
+        }
 
+        computeMoneyFailResult([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,messageStr]);
     }];
     
 }
@@ -824,7 +980,7 @@
     return _orderListDataSourceDic;
 }
 //订单列表。 pageIndex页数,pageSize多少数据
-- (void)getOrderListDataWithUserID:(NSString *)userID withProduct:(NSString *)product withCode:(NSString *)code withWhichTableView:(NSString *)whichTableView withPageIndex:(NSInteger)pageIndex withPageSize:(NSInteger )pageSize withOrderListSuccessResult:(SuccessResult)orderListSuccessResult withOrderListFailResult:(FailResult)orderListFailResult {
+- (void)getOrderListDataWithUserID:(NSString *)userID withType:(NSString *)type withCode:(NSString *)code withWhichTableView:(NSString *)whichTableView withPageIndex:(NSInteger)pageIndex withPageSize:(NSInteger )pageSize withOrderListSuccessResult:(SuccessResult)orderListSuccessResult withOrderListFailResult:(FailResult)orderListFailResult {
     NSString *orderStatusStr ;
     //全部
     if ([whichTableView isEqualToString:@"1"]) {
@@ -845,7 +1001,7 @@
     
     
     //网络请求
-    [[NetManager shareInstance] getRequestWithURL:[[InterfaceManager shareInstance] orderListWithUserID:userID withProduct:product withCode:code withOrderStatus:orderStatusStr withPageIndex:pageIndex withPageSize:pageSize] withParameters:nil withContentTypes:nil withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+    [[NetManager shareInstance] getRequestWithURL:[[InterfaceManager shareInstance] orderListWithUserID:userID withType:type withCode:code withOrderStatus:orderStatusStr withPageIndex:pageIndex withPageSize:pageSize] withParameters:nil withContentTypes:nil withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
         
         NSLog(@"%@",[self dictionaryToJson:successResult]);
         //请求成功
@@ -863,55 +1019,9 @@
         }
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"请求失败");
+        orderListFailResult([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]]);
     }];
     
-    /*
-    
-    if (upPushReload == YES) {
-        //加载，直接请求数据
-        [[NetManager shareInstance] getRequestWithURL:[[InterfaceManager shareInstance] orderListWithUserID:userID withProduct:product withCode:code withOrderStatus:orderStatusStr withPageIndex:pageIndex withPageSize:pageSize] withParameters:nil withContentTypes:nil withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
-            NSLog(@"%ld -- %@",operation.response.statusCode,successResult);
-            NSLog(@"%@",[self dictionaryToJson:successResult]);
-            if (operation.response.statusCode == 200) {
-                
-                //加载更多数据，不用清空原有数据，直接解析
-                [self analyzeOrderListWithJsonDic:successResult withOrderStatus:whichTableView withOrderListSuccessResult:orderListSuccessResult withOrderListFailResult:orderListFailResult];
-                
-            }
-            
-        } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
-            //失败
-            NSLog(@"%ld -- %@",operation.response.statusCode,errorResult);
-            orderListFailResult([operation.responseObject objectForKey:@"Message"]);
-            
-        }];
-
-        
-    }else if ([[[self.orderListDataSourceDic objectForKey:whichTableView] objectForKey:@"isHttp"] isEqualToString:@"1"]) {
-        //看看对应的字典中 isHttp 这个参数是不是1，如果是1，就要重新请求数据
-
-        //请求数据
-        [[NetManager shareInstance] getRequestWithURL:[[InterfaceManager shareInstance] orderListWithUserID:userID withProduct:product withCode:code withOrderStatus:orderStatusStr withPageIndex:pageIndex withPageSize:pageSize] withParameters:nil withContentTypes:nil withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
-            NSLog(@"%ld -- %@",operation.response.statusCode,successResult);
-            NSLog(@"%@",[self dictionaryToJson:successResult]);
-            if (operation.response.statusCode == 200) {
-                //清空原有数据
-                    [[[self.orderListDataSourceDic objectForKey:whichTableView] objectForKey:@"content"] removeAllObjects];
-                //将isHttp变为 @“0”
-                [[self.orderListDataSourceDic objectForKey:whichTableView] setObject:@"0" forKey:@"isHttp"];
-                //解析
-                [self analyzeOrderListWithJsonDic:successResult withOrderStatus:whichTableView withOrderListSuccessResult:orderListSuccessResult withOrderListFailResult:orderListFailResult];
-                
-            }
-            
-        } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
-            //失败
-            NSLog(@"%ld -- %@",operation.response.statusCode,errorResult);
-            orderListFailResult([operation.responseObject objectForKey:@"Message"]);
-            
-        }];
-    }
-    */
 }
 
 //解析订单列表
@@ -969,16 +1079,25 @@
 //        successStr = [successStr stringByReplacingOccurrencesOfString:@"\"" withString:@""];
 //        NSLog(@"%@",successStr);
 
-        
-        orderSuccessResult(successResult);
-        // 发送通知到购物车界面，刷新
-        [[NSNotificationCenter defaultCenter] postNotificationName:@"refreshShoppingCarVC" object:self userInfo:nil];
-#warning 通知订单列表界面刷新
+        if (operation.response.statusCode == 200) {
+            orderSuccessResult(successResult);
+            // 发送通知到购物车界面，刷新
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"refreshShoppingCarVC" object:self userInfo:nil];
+        }
 
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
-        orderFailResult([operation.responseObject objectForKey:@"Message"]);
+        id messageInfo = [NSJSONSerialization JSONObjectWithData:operation.responseObject options:NSJSONReadingAllowFragments error:nil];
+        NSString *messageStr ;
+        if ([messageInfo isKindOfClass:[NSString class]]) {
+            messageStr = messageInfo;
+        }else {
+            NSDictionary *messageDic = (NSDictionary *)messageInfo;
+            
+            messageStr = [messageDic objectForKey:@"Message"];
+        }
 
+        orderFailResult([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,messageStr]);
     }];
 }
 
@@ -1025,7 +1144,7 @@
         
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
-
+        cancelFailResult([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]]);
     }];
 }
 
@@ -1110,6 +1229,8 @@
         
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
+        NSLog(@"%@",[operation.responseObject objectForKey:@"Message"]);
+        cancelFailResult ([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]]);
     }];
 }
 
@@ -1121,11 +1242,14 @@
     [[NetManager shareInstance] getRequestWithURL:[[InterfaceManager shareInstance] logisticsWithOrderId:orderID withType:@"user"] withParameters:nil withContentTypes:nil withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
         NSLog(@"%ld",operation.response.statusCode);
         NSLog(@"%@",[self dictionaryToJson:successResult]);
-        successLogisticsBlock(successResult);
+        if (operation.response.statusCode == 200) {
+            successLogisticsBlock(successResult);
+
+        }
         
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
-
+        failLogisticsBlock([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]]);
     }];
 }
 
@@ -1136,19 +1260,21 @@
     [[NetManager shareInstance] getRequestWithURL:[[InterfaceManager shareInstance] orderReturnListUserId:userId withCode:code withPageIndex:pageIndex withPageSize:pageSize] withParameters:nil withContentTypes:nil withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
         NSLog(@"%ld",operation.response.statusCode);
         NSLog(@"%@",[self dictionaryToJson:successResult]);
-        
-        //如果是pageIndex为1，就是刷新了
-        if (pageIndex == 1) {
-            self.afterMarketArr = [NSMutableArray array];
+        if (operation.response.statusCode == 200) {
+            //如果是pageIndex为1，就是刷新了
+            if (pageIndex == 1) {
+                self.afterMarketArr = [NSMutableArray array];
+            }
+            
+            [self analyzeOrderReturnListWithJson:successResult];
+            
+            orderReturnSuccess([successResult objectForKey:@"totalpages"]);
+
         }
         
-        [self analyzeOrderReturnListWithJson:successResult];
-        
-        orderReturnSuccess([successResult objectForKey:@"totalpages"]);
-
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
-        orderReturnFail([NSString stringWithFormat:@"%ld",operation.response.statusCode]);
+        orderReturnFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]]);
     }];
     
     
@@ -1159,7 +1285,6 @@
 - (void)analyzeOrderReturnListWithJson:(NSDictionary *)jsonDic{
     //得到模型数组
     NSLog(@"%@",[self dictionaryToJson:jsonDic]);
-    /*
     for (NSDictionary *contentDic in [jsonDic objectForKey:@"content"]) {
         
         NSMutableArray *sonOrderArr = [NSMutableArray array];
@@ -1179,30 +1304,72 @@
         
         [self.afterMarketArr addObject:supOrderModel];
     }
-    */
-    self.afterMarketArr = [NSMutableArray array];
-
-    for (int i = 0; i < 2; i++) {
-        SonOrderModel *son = [[SonOrderModel alloc] init];
-        son.p_name = @"乳油";
-        son.productst = @"100ml";
-        
-        
-        SupOrderModel *supmo = [[SupOrderModel alloc] init];
-        supmo.p_code = @"111111";
-        supmo.statusvalue = @"已退款";
-        supmo.p_o_price_total = @"900";
-        supmo.subOrderArr = [NSMutableArray array];
-        [supmo.subOrderArr addObject:son];
-        [supmo.subOrderArr addObject:son];
-        
-        
-        [self.afterMarketArr addObject:supmo];
-    }
- 
-    
 
 }
+
+//子订单确认收货
+- (void)httpSonOrderEnterReceiptWithUserId:(NSString *)userId withSonOrderId:(NSString *)sonOrderId withReceiptSuccess:(SuccessResult)receiptSuccess withReceiptFail:(FailResult)receiptFail {
+    NSDictionary *valueDic = @{@"userid":userId,@"oid":sonOrderId};
+    
+    //给value加密
+    NSString *secretStr = [self digest:[NSString stringWithFormat:@"%@Nongyao_Com001", [self dictionaryToJson:@[valueDic]]]];
+    
+    NSDictionary *parametersDic = @{@"m":secretStr,@"value":@[valueDic]};
+    
+    [[NetManager shareInstance] postRequestWithURL:[[InterfaceManager shareInstance] UserReceiptBase] withParameters:parametersDic withContentTypes:nil withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+        NSLog(@"%ld",operation.response.statusCode);
+        if (operation.response.statusCode == 200) {
+            
+            if ([successResult count] > 0) {
+                
+                NSMutableArray *sonArr = [NSMutableArray array];
+                for (NSDictionary *tempSonDic in [successResult[0] objectForKey:@"item"]) {
+                    SonOrderModel *enterSonOrder = [[SonOrderModel alloc] init];
+                    [enterSonOrder setValuesForKeysWithDictionary:tempSonDic];
+                    [sonArr addObject:enterSonOrder];
+                }
+                
+                SupOrderModel *enterOrder = [[SupOrderModel alloc] init];
+                enterOrder.subOrderArr = sonArr;
+                [enterOrder setValuesForKeysWithDictionary:successResult[0]];
+                receiptSuccess(enterOrder);
+            }
+        }
+        
+    } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
+        NSLog(@"%ld",operation.response.statusCode);
+        receiptFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]]);
+    }];
+    
+}
+
+//通过订单id获取订单信息
+- (void)httpGetOrderInfoWithOrderId:(NSString *)orderId withOrderInfoSuccess:(SuccessResult)orderInfoSuccess withOrderInfoFail:(FailResult)orderInfoFail {
+    NSString *url = [NSString stringWithFormat:@"%@?id=%@&type=pid&code=&status=&pageindex=1&pagesize=1",[[InterfaceManager shareInstance] creatOrderPOSTUrl],orderId];
+    [[NetManager shareInstance] getRequestWithURL:url withParameters:nil withContentTypes:nil withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+        NSLog(@"%@",[self dictionaryToJson:successResult]);
+        if (operation.response.statusCode == 200) {
+            //解析
+            NSMutableArray *sonArr = [NSMutableArray array];
+            for (NSDictionary *tempSonDic in [[[successResult objectForKey:@"content"] objectAtIndex:0] objectForKey:@"item"]) {
+                SonOrderModel *enterSonOrder = [[SonOrderModel alloc] init];
+                [enterSonOrder setValuesForKeysWithDictionary:tempSonDic];
+                [sonArr addObject:enterSonOrder];
+            }
+            
+            SupOrderModel *enterOrder = [[SupOrderModel alloc] init];
+            enterOrder.subOrderArr = sonArr;
+            [enterOrder setValuesForKeysWithDictionary:[[successResult objectForKey:@"content"] objectAtIndex:0]];
+            orderInfoSuccess(enterOrder);
+            
+            
+        }
+        
+    } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
+        orderInfoFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]]);
+    }];
+}
+
 
 
 #pragma mark - 个人中心 之 意见反馈 -
@@ -1225,7 +1392,17 @@
 
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
-        feedbackFail(@"提交意见失败，");
+        id messageInfo = [NSJSONSerialization JSONObjectWithData:operation.responseObject options:NSJSONReadingAllowFragments error:nil];
+        NSString *messageStr ;
+        if ([messageInfo isKindOfClass:[NSString class]]) {
+            messageStr = messageInfo;
+        }else {
+            NSDictionary *messageDic = (NSDictionary *)messageInfo;
+            
+            messageStr = [messageDic objectForKey:@"Message"];
+        }
+
+        feedbackFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,messageStr]);
     }];
     
 }
@@ -1243,7 +1420,7 @@
         
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
-        commentListFail([NSString stringWithFormat:@"%ld",operation.response.statusCode]);
+        commentListFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]]);
     }];
     
 }
@@ -1267,8 +1444,17 @@
         }
 
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
-        NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
+        id messageInfo = [NSJSONSerialization JSONObjectWithData:operation.responseObject options:NSJSONReadingAllowFragments error:nil];
+        NSString *messageStr ;
+        if ([messageInfo isKindOfClass:[NSString class]]) {
+            messageStr = messageInfo;
+        }else {
+            NSDictionary *messageDic = (NSDictionary *)messageInfo;
+            
+            messageStr = [messageDic objectForKey:@"Message"];
+        }
 
+        commentFailBlock([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,messageStr]);
     }];
     
 }
@@ -1278,10 +1464,19 @@
 - (void)paybeforeVerifyWithUserId:(NSString *)userID withTotalAmount:(NSString *)totalAmount withBalance:(NSString *)balance withPayAmount:(NSString *)payAmount withOrderIdArr:(NSArray *)orderIdArr withPayType:(NSString *)payType withVerifySuccessBlock:(SuccessResult )verifySuccessBlock withVerfityFailBlock:(FailResult)verfityFailBlock {
     NSMutableArray *itemArr = [NSMutableArray array];
     for (NSString *tempOrder in orderIdArr) {
-        [itemArr addObject:@{@"pid":tempOrder}];
+        NSRange range = [tempOrder rangeOfString:@","];
+        if (range.length == 1) {
+            NSString *tempOrderId = [tempOrder substringToIndex:range.location];
+            [itemArr addObject:@{@"pid":tempOrderId}];
+
+        }else{
+            [itemArr addObject:@{@"pid":tempOrder}];
+
+        }
+
     }
 
-    NSDictionary *valueDic = @{@"userid":userID,@"totalamount":totalAmount,@"balance":balance,@"payamount":payAmount,@"paytype":payType,@"item":itemArr};
+    NSDictionary *valueDic = @{@"userid":userID,@"totalamount":totalAmount,@"balance":balance,@"payamount":payAmount,@"paytype":payType,@"ftype":@"4",@"item":itemArr};
     
     
     //给value加密
@@ -1302,7 +1497,8 @@
         
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
-
+        NSLog(@"%@",[operation.responseObject objectForKey:@"Message"]);
+        verfityFailBlock([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]]);
     }];
     
 }
@@ -1327,19 +1523,14 @@
         }
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
-
+        signFailResult([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]]);
     }];
 }
 
 //用户确认支付
-- (void)userConfirmPayWithUserID:(NSString *)userID withRID:(NSString *)rid withPayCode:(NSString *)payCode withPayType:(NSString *)payType withTotalamount:(NSString *)totalAmount withBalance:(NSString *)balance withPayAmount:(NSString *)payAmount withBank:(NSString *)bank withItemArr:(NSArray *)itemArr withUserConfirmPaySuccess:(SuccessResult)paySuccess withPayFail:(FailResult)payFail {
+- (void)userConfirmPayWithUserID:(NSString *)userID withRID:(NSString *)rid withPayCode:(NSString *)payCode withBank:(NSString *)bank withUserConfirmPaySuccess:(SuccessResult)paySuccess withPayFail:(FailResult)payFail {
     
-    NSMutableArray *itemArr2 = [NSMutableArray array];
-    for (NSString *tempOrder in itemArr) {
-        [itemArr2 addObject:@{@"pid":tempOrder}];
-    }
-    
-    NSDictionary *valueDic = @{@"userid":userID,@"rid":rid,@"paycode":payCode,@"paytype":payType,@"totalamount":totalAmount,@"balance":balance,@"payamount":payAmount,@"bank":bank,@"item":itemArr2};
+    NSDictionary *valueDic = @{@"userid":userID,@"rid":rid,@"paycode":payCode,@"bank":bank};
     
     //给value加密
     NSString *secretStr = [self digest:[NSString stringWithFormat:@"%@Nongyao_Com001", [self dictionaryToJson:@[valueDic]]]];
@@ -1348,10 +1539,25 @@
 
     [[NetManager shareInstance] postRequestWithURL:[[InterfaceManager shareInstance] userConfirmPayPOST] withParameters:parametersDic withContentTypes:@"string" withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
         NSLog(@"%ld",operation.response.statusCode);
-        paySuccess(@"支付成功");
-    } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
-        NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
+        if (operation.response.statusCode == 200) {
+            paySuccess(@"支付成功");
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"refreshMoney" object:self userInfo:nil];
 
+
+        }
+        
+    } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
+        id messageInfo = [NSJSONSerialization JSONObjectWithData:operation.responseObject options:NSJSONReadingAllowFragments error:nil];
+        NSString *messageStr ;
+        if ([messageInfo isKindOfClass:[NSString class]]) {
+            messageStr = messageInfo;
+        }else {
+            NSDictionary *messageDic = (NSDictionary *)messageInfo;
+            
+            messageStr = [messageDic objectForKey:@"Message"];
+        }
+
+        payFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,messageStr]);
     }];
     
 }
@@ -1365,7 +1571,7 @@
     [[NetManager shareInstance] getRequestWithURL:[[InterfaceManager shareInstance] orderPaymentVerifyWithPayid:payId] withParameters:nil withContentTypes:@"string" withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
         NSLog(@"%ld",operation.response.statusCode);
         if (operation.response.statusCode == 200) {
-
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"refreshMoney" object:self userInfo:nil];
             paymentVerifySuccess(@"恭喜你支付成功");
         }
         
@@ -1379,7 +1585,17 @@
             [self afterPayOrderPaymentVerifyWithPayId:payId withVerifyCount:tempVerifyCount withPaymentVerifySuccess:paymentVerifySuccess withPaymentVerifyFail:paymentVerifyFail];
         }else {
             //如果5次都是失败，就是验证失败了
-            paymentVerifyFail(@"验证失败");
+            id messageInfo = [NSJSONSerialization JSONObjectWithData:operation.responseObject options:NSJSONReadingAllowFragments error:nil];
+            NSString *messageStr ;
+            if ([messageInfo isKindOfClass:[NSString class]]) {
+                messageStr = messageInfo;
+            }else {
+                NSDictionary *messageDic = (NSDictionary *)messageInfo;
+                
+                messageStr = [messageDic objectForKey:@"Message"];
+            }
+
+            paymentVerifyFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,messageStr]);
         }
     }];
     
@@ -1389,7 +1605,7 @@
 //获取充值信息
 - (void)userUserRechargeWithUserId:(NSString *)userId withAmount:(NSString *)amount withPayType:(NSInteger )payType withPayRechargeSuccess:(SuccessResult )rechargeSuccess withPayRechargeFail:(FailResult)rechargeFail {
     
-    NSDictionary *valueDic = @{@"userid":userId,@"amount":amount,@"paytype":[NSString stringWithFormat:@"%ld",payType]};
+    NSDictionary *valueDic = @{@"userid":userId,@"amount":amount,@"paytype":[NSString stringWithFormat:@"%ld",payType],@"ftype":@"4"};
     
     //给value加密
     NSString *secretStr = [self digest:[NSString stringWithFormat:@"%@Nongyao_Com001", [self dictionaryToJson:@[valueDic]]]];
@@ -1399,11 +1615,16 @@
     [[NetManager shareInstance] postRequestWithURL:[[InterfaceManager shareInstance] userRechargeBase] withParameters:parametersDic withContentTypes:nil withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
         
         NSLog(@"%ld--%@",operation.response.statusCode,successResult);
-        rechargeSuccess(successResult);
+        if (operation.response.statusCode == 200) {
+
+            
+            rechargeSuccess(successResult);
+
+        }
         
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
-        
+        rechargeFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]]);
     }];
     
 }
@@ -1417,6 +1638,8 @@
     [[NetManager shareInstance] getRequestWithURL:url withParameters:nil withContentTypes:@"string" withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
         NSLog(@"%ld",operation.response.statusCode);
         if (operation.response.statusCode == 200) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"refreshMoney" object:self userInfo:nil];
+
             verifySuccess(@"恭喜你充值成功");
         }
         
@@ -1430,7 +1653,17 @@
 
         }else {
             //如果5次都是失败，就是验证失败了
-            verifyFail(@"验证失败");
+            id messageInfo = [NSJSONSerialization JSONObjectWithData:operation.responseObject options:NSJSONReadingAllowFragments error:nil];
+            NSString *messageStr ;
+            if ([messageInfo isKindOfClass:[NSString class]]) {
+                messageStr = messageInfo;
+            }else {
+                NSDictionary *messageDic = (NSDictionary *)messageInfo;
+                
+                messageStr = [messageDic objectForKey:@"Message"];
+            }
+
+            verifyFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,messageStr]);
         }
     }];
 
@@ -1457,7 +1690,7 @@
         
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
-
+        walletFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]]);
     }];
 }
 
@@ -1467,12 +1700,15 @@
 - (void)searchUserAmount:(NSString *)userId withAmountSuccessBlock:(SuccessResult )amountSuccessBlock withAmountFailBlock:(FailResult)amountFailBlcok {
     [[NetManager shareInstance] getRequestWithURL:[[InterfaceManager shareInstance] searchUserAmountWithUserID:userId] withParameters:nil withContentTypes:nil withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
         NSLog(@"%ld",operation.response.statusCode);
-        amountSuccessBlock(successResult);
+        if (operation.response.statusCode == 200) {
+            amountSuccessBlock(successResult);
+
+        }
         
         
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
-
+        amountFailBlcok([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]]);
     }];
 }
 
@@ -1491,7 +1727,7 @@
         
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
-        addressListFailBlock([NSString stringWithFormat:@"%ld",operation.response.statusCode]);
+        addressListFailBlock([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]]);
     }];
     
 }
@@ -1532,10 +1768,9 @@
     }
 
 
-    if (tempReceiveAddressModel.receiveTel == nil) {
-        tempReceiveAddressModel.receiveTel = @"";
-    }
-    NSDictionary *valueDic = @{@"name":tempReceiveAddressModel.receiverName,@"address":tempReceiveAddressModel.receiveAddress,@"tel":tempReceiveAddressModel.receiveTel,@"mobile":tempReceiveAddressModel.receiveMobile,@"areaid":tempReceiveAddressModel.areaID,@"defaultaddress":defaltStr};
+    
+    
+    NSDictionary *valueDic = @{@"name":tempReceiveAddressModel.receiverName,@"address":tempReceiveAddressModel.receiveAddress,@"mobile":tempReceiveAddressModel.receiveMobile,@"areaid":tempReceiveAddressModel.areaID,@"defaultaddress":defaltStr};
 
     //给value加密
     NSString *secretStr = [self digest:[NSString stringWithFormat:@"%@Nongyao_Com001", [self dictionaryToJson:@[valueDic]]]];
@@ -1545,10 +1780,23 @@
     
     [[NetManager shareInstance] putRequestWithURL:[[InterfaceManager shareInstance] receiveAddressWithUserIdOrReceiveId:tempReceiveAddressModel.receiverID] withParameters:parametersDic withContentTypes:@"string" withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
         NSLog(@"%ld--",operation.response.statusCode);
-        motifySuccess(@"修改地址成功");
+        if (operation.response.statusCode == 200) {
+            motifySuccess(@"修改地址成功");
+
+        }
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
-        motifyFail(@"修改地址失败，请稍后再试");
+        id messageInfo = [NSJSONSerialization JSONObjectWithData:operation.responseObject options:NSJSONReadingAllowFragments error:nil];
+        NSString *messageStr ;
+        if ([messageInfo isKindOfClass:[NSString class]]) {
+            messageStr = messageInfo;
+        }else {
+            NSDictionary *messageDic = (NSDictionary *)messageInfo;
+            
+            messageStr = [messageDic objectForKey:@"Message"];
+        }
+
+        motifyFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,messageStr]);
     }];
 }
 
@@ -1562,11 +1810,7 @@
         defaltStr = @"0";
     }
     
-    
-    if (tempReceiveAddressModel.receiveTel == nil) {
-        tempReceiveAddressModel.receiveTel = @"";
-    }
-    NSDictionary *valueDic = @{@"name":tempReceiveAddressModel.receiverName,@"address":tempReceiveAddressModel.receiveAddress,@"tel":tempReceiveAddressModel.receiveTel,@"mobile":tempReceiveAddressModel.receiveMobile,@"userid":userid,@"areaid":tempReceiveAddressModel.areaID,@"defaultaddress":defaltStr};
+    NSDictionary *valueDic = @{@"name":tempReceiveAddressModel.receiverName,@"address":tempReceiveAddressModel.receiveAddress,@"mobile":tempReceiveAddressModel.receiveMobile,@"userid":userid,@"areaid":tempReceiveAddressModel.areaID,@"defaultaddress":defaltStr};
     
     //给value加密
     NSString *secretStr = [self digest:[NSString stringWithFormat:@"%@Nongyao_Com001", [self dictionaryToJson:@[valueDic]]]];
@@ -1576,11 +1820,24 @@
     
     [[NetManager shareInstance]postRequestWithURL:[[InterfaceManager shareInstance] receiveAddressBase] withParameters:parametersDic withContentTypes:@"string" withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
         NSLog(@"%ld--%@",operation.response.statusCode,successResult);
-        
-        addReceiveAddressSuccess(successResult);
+        if (operation.response.statusCode == 200) {
+            addReceiveAddressSuccess(successResult);
+
+        }
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
+        id messageInfo = [NSJSONSerialization JSONObjectWithData:operation.responseObject options:NSJSONReadingAllowFragments error:nil];
+        NSString *messageStr ;
+        if ([messageInfo isKindOfClass:[NSString class]]) {
+            messageStr = messageInfo;
+        }else {
+            NSDictionary *messageDic = (NSDictionary *)messageInfo;
+            
+            messageStr = [messageDic objectForKey:@"Message"];
+        }
 
+        addReceiveAddressFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,messageStr]);
+                                 
     }];
     
 }
@@ -1612,7 +1869,17 @@
         
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
+        id messageInfo = [NSJSONSerialization JSONObjectWithData:operation.responseObject options:NSJSONReadingAllowFragments error:nil];
+        NSString *messageStr ;
+        if ([messageInfo isKindOfClass:[NSString class]]) {
+            messageStr = messageInfo;
+        }else {
+            NSDictionary *messageDic = (NSDictionary *)messageInfo;
+            
+            messageStr = [messageDic objectForKey:@"Message"];
+        }
 
+        defaultFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,messageStr]);
     }];
     
     
@@ -1647,6 +1914,17 @@
         }
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
+        id messageInfo = [NSJSONSerialization JSONObjectWithData:operation.responseObject options:NSJSONReadingAllowFragments error:nil];
+        NSString *messageStr ;
+        if ([messageInfo isKindOfClass:[NSString class]]) {
+            messageStr = messageInfo;
+        }else {
+            NSDictionary *messageDic = (NSDictionary *)messageInfo;
+            
+            messageStr = [messageDic objectForKey:@"Message"];
+        }
+
+        deleteAddressFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,messageStr]);
 
     }];
     
@@ -1680,7 +1958,7 @@
         
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
-        commentFailBlock([NSString stringWithFormat:@"%ld",operation.response.statusCode]);
+        commentFailBlock([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]]);
     }];
     
 }
@@ -1689,9 +1967,13 @@
 
 #pragma mark - 收藏 -
 //添加到收藏
-- (void)httpAddFavoriteWithUserId:(NSString *)userId withFormatId:(NSString *)formatId withAddFavoriteSuccess:(SuccessResult )addFavoriteSuccess withAddFavoriteFail:(FailResult )addFavoriteFail {
+- (void)httpAddFavoriteWithUserId:(NSString *)userId withFormatIdArr:(NSMutableArray *)formatIdArr withAddFavoriteSuccess:(SuccessResult )addFavoriteSuccess withAddFavoriteFail:(FailResult )addFavoriteFail {
     
-    NSDictionary *valueDic = @{@"userid":userId,@"sid":formatId};
+    NSMutableArray *tempFormatIdArr = [NSMutableArray array];
+    for (NSString *formatId in formatIdArr) {
+        [tempFormatIdArr addObject:@{@"sid":formatId}];
+    }
+    NSDictionary *valueDic = @{@"userid":userId,@"item":tempFormatIdArr};
     
     //给value加密
     NSString *secretStr = [self digest:[NSString stringWithFormat:@"%@Nongyao_Com001", [self dictionaryToJson:@[valueDic]]]];
@@ -1709,11 +1991,17 @@
        
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
-        
-        NSDictionary *messageDic = [NSJSONSerialization JSONObjectWithData:operation.responseObject options:NSJSONReadingAllowFragments error:nil];
-        NSString *messageStr = [messageDic objectForKey:@"Message"];
-        NSLog(@"%@",messageStr);
+        id messageInfo = [NSJSONSerialization JSONObjectWithData:operation.responseObject options:NSJSONReadingAllowFragments error:nil];
+        NSString *messageStr ;
+        if ([messageInfo isKindOfClass:[NSString class]]) {
+            messageStr = messageInfo;
+        }else {
+            NSDictionary *messageDic = (NSDictionary *)messageInfo;
+            
+            messageStr = [messageDic objectForKey:@"Message"];
+        }
 
+        addFavoriteFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,messageStr]);
         
     }];
     
@@ -1731,6 +2019,7 @@
     
     [[NetManager shareInstance] getRequestWithURL:[[InterfaceManager shareInstance] myFavoriteListWithUserId:userId] withParameters:nil withContentTypes:nil withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
         NSLog(@"%ld",operation.response.statusCode);
+        NSLog(@"%@",[self dictionaryToJson:successResult]);
         if (operation.response.statusCode == 200) {
             //清空原有数据
             self.myFavoriteArr = nil;
@@ -1747,7 +2036,7 @@
         
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
-        favoriteFail([NSString stringWithFormat:@"%ld",operation.response.statusCode]);
+        favoriteFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]]);
     }];
     
 }
@@ -1777,7 +2066,18 @@
 
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
+        id messageInfo = [NSJSONSerialization JSONObjectWithData:operation.responseObject options:NSJSONReadingAllowFragments error:nil];
+        NSString *messageStr ;
+        if ([messageInfo isKindOfClass:[NSString class]]) {
+            messageStr = messageInfo;
+        }else {
+            NSDictionary *messageDic = (NSDictionary *)messageInfo;
+            
+            messageStr = [messageDic objectForKey:@"Message"];
+        }
 
+        favoriteFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,messageStr]);
+    
     }];
 }
 
@@ -1815,7 +2115,7 @@
         
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
-        searchFail([NSString stringWithFormat:@"%ld",operation.response.statusCode]);
+        searchFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]]);
     }];
     
     
@@ -1852,7 +2152,7 @@
         
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
-        searchFail([NSString stringWithFormat:@"%ld",operation.response.statusCode]);
+        searchFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]]);
     }];
     
     
@@ -1985,7 +2285,17 @@
 
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld -- %@",operation.response.statusCode,errorResult);
+        id messageInfo = [NSJSONSerialization JSONObjectWithData:operation.responseObject options:NSJSONReadingAllowFragments error:nil];
+        NSString *messageStr ;
+        if ([messageInfo isKindOfClass:[NSString class]]) {
+            messageStr = messageInfo;
+        }else {
+            NSDictionary *messageDic = (NSDictionary *)messageInfo;
+            
+            messageStr = [messageDic objectForKey:@"Message"];
+        }
 
+        agentCashFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,messageStr]);
     }];
     
 }
@@ -2012,21 +2322,25 @@
             }
             
         } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
-            motifyAvatarFail(@"上传失败");
+            NSDictionary *messageDic = [NSJSONSerialization JSONObjectWithData:operation.responseObject options:NSJSONReadingAllowFragments error:nil];
+            NSString *messageStr = [messageDic objectForKey:@"Message"];
+            motifyAvatarSuccess([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,messageStr]);
         }];
 
         
         
     } withUploadFail:^(NSString *failResultStr) {
-        motifyAvatarFail(@"上传失败");
+
+        motifyAvatarFail(failResultStr);
+        
     }];
     
 }
 
 //修改个人资料
-- (void)httpMotifyMemberInfoWithUserID:(NSString *)userID withUsername:(NSString *)userName withEmail:(NSString *)email withMobile:(NSString *)mobile withQQ:(NSString *)qq withAreaId:(NSString *)areaId WithMotifyMemberSuccess:(SuccessResult )motifySuccess withMotifyMemberFail:(FailResult)motifyFail {
+- (void)httpMotifyMemberInfoWithUserID:(NSString *)userID withUsername:(NSString *)userName withEmail:(NSString *)email withQQ:(NSString *)qq withAreaId:(NSString *)areaId WithMotifyMemberSuccess:(SuccessResult )motifySuccess withMotifyMemberFail:(FailResult)motifyFail {
     
-    NSDictionary *valueDic = @{@"username":userName,@"email":email,@"mobile":mobile,@"qq":qq,@"areaid":areaId,@"status":@"1"};
+    NSDictionary *valueDic = @{@"username":userName,@"email":email,@"qq":qq,@"areaid":areaId,@"status":@"1"};
     
     //给value加密
     NSString *secretStr = [self digest:[NSString stringWithFormat:@"%@Nongyao_Com001", [self dictionaryToJson:@[valueDic]]]];
@@ -2042,7 +2356,17 @@
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         
         NSLog(@"%ld -- %@",operation.response.statusCode,errorResult);
+        id messageInfo = [NSJSONSerialization JSONObjectWithData:operation.responseObject options:NSJSONReadingAllowFragments error:nil];
+        NSString *messageStr ;
+        if ([messageInfo isKindOfClass:[NSString class]]) {
+            messageStr = messageInfo;
+        }else {
+            NSDictionary *messageDic = (NSDictionary *)messageInfo;
+            
+            messageStr = [messageDic objectForKey:@"Message"];
+        }
 
+        motifyFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,messageStr]);
     }];
     
     
@@ -2080,7 +2404,17 @@
 
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld -- %@",operation.response.statusCode,errorResult);
+        id messageInfo = [NSJSONSerialization JSONObjectWithData:operation.responseObject options:NSJSONReadingAllowFragments error:nil];
+        NSString *messageStr ;
+        if ([messageInfo isKindOfClass:[NSString class]]) {
+            messageStr = messageInfo;
+        }else {
+            NSDictionary *messageDic = (NSDictionary *)messageInfo;
+            
+            messageStr = [messageDic objectForKey:@"Message"];
+        }
 
+        motifyPasswordFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,messageStr]);
     }];
     
 }
@@ -2113,7 +2447,7 @@
       
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld -- %@",operation.response.statusCode,errorResult);
-
+        myAgentFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]]);
     }];
 }
 
@@ -2137,7 +2471,8 @@
         
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld -- %@",operation.response.statusCode,errorResult);
-
+        myAgentFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]]);
+        
     }];
     
 }
@@ -2174,13 +2509,11 @@
         [self analyzeMyAgentOrderListDataWithJsonArr:[successResult objectForKey:@"content"]];
 
         myAgentSuccess([successResult objectForKey:@"totalpages"]);
-        
-
-        
 
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld -- %@",operation.response.statusCode,errorResult);
-
+        myAgentFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]]);
+        
     }];
 
 }
@@ -2252,11 +2585,11 @@
 }
 
 //添加浏览记录
-- (BOOL)addBrowseListActionWithBrowseProduct:(ProductModel *)browseProduct {
+- (BOOL)addBrowseListActionWithBrowseProduct:(ProductDetailModel *)browseProduct {
     //先看看是否添加的有这个元素
     BOOL isCanAdd = YES;
-    for (ProductModel *tempModel in self.mybrowseListArr) {
-        if ([tempModel.productFormatID isEqualToString:browseProduct.productFormatID]) {
+    for (ProductDetailModel *tempModel in self.mybrowseListArr) {
+        if ([tempModel.productModel.productFormatID isEqualToString:browseProduct.productModel.productFormatID]) {
             isCanAdd = NO;
         }
     }
@@ -2287,7 +2620,7 @@
 //删除浏览记录
 - (BOOL)deleteBrowseListActionWithBrowseWithIndex:(NSInteger)deleteIndex {
     
-    ProductModel *deleteModel = self.mybrowseListArr[deleteIndex];
+    ProductDetailModel *deleteModel = self.mybrowseListArr[deleteIndex];
     
     [self.mybrowseListArr removeObjectAtIndex:deleteIndex];
     //保存到本地
@@ -2328,6 +2661,8 @@
                     loginSuccessResult(successResult);
 #warning 登录成功发送通知
                     [[NSNotificationCenter defaultCenter] postNotificationName:@"logedIn" object:self userInfo:nil];
+                    //登录成功，就重新请求购物车数量
+                    [self httpShoppingCarNumberWithUserid:self.memberInfoModel.u_id withNumberSuccess:nil withNumberFail:nil];
                     
                 }else{
                     loginFailResult(@"未知错误，登录失败，请稍后再试");
@@ -2367,7 +2702,7 @@
     //    {"loginname":"admin","password":"3CBFCCCB67766883CF4F03B74A763CDC","facility":"1"}
     NetManager *netManager = [NetManager shareInstance];
     //参数.密码需要md5加密
-    NSDictionary *parameter = @{@"tel": mobile, @"code": mobileCode,@"facility":@"4"};
+    NSDictionary *parameter = @{@"tel": mobile, @"code": mobileCode,@"facility":@"4",@"isadmin":@"0"};
     
     [netManager putRequestWithURL:[[InterfaceManager shareInstance] loginPOSTAndPUTUrl] withParameters:parameter withContentTypes:nil withHeaderArr:nil withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
         //得到网络请求状态码
@@ -2380,9 +2715,15 @@
                 loginSuccessResult(successResult);
                 
 #warning 登录成功发送通知
+                //登录成功，就重新请求购物车数量
+                [self httpShoppingCarNumberWithUserid:self.memberInfoModel.u_id withNumberSuccess:nil withNumberFail:nil];
+                
                 [[NSNotificationCenter defaultCenter] postNotificationName:@"logedIn" object:self userInfo:nil];
                 
-            }            
+            }else {
+                loginFailResult(@"未知错误，登录失败，请稍后再试");
+
+            }
         }else{
             loginFailResult(@"未知服务器错误，请联系客服");
             
@@ -2454,11 +2795,113 @@
 
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld",operation.response.statusCode);
-        forgetFail([NSString stringWithFormat:@"%ld",operation.response.statusCode]);
+        id messageInfo = [NSJSONSerialization JSONObjectWithData:operation.responseObject options:NSJSONReadingAllowFragments error:nil];
+        NSString *messageStr ;
+        if ([messageInfo isKindOfClass:[NSString class]]) {
+            messageStr = messageInfo;
+        }else {
+            NSDictionary *messageDic = (NSDictionary *)messageInfo;
+            
+            messageStr = [messageDic objectForKey:@"Message"];
+        }
+
+        forgetFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,messageStr]);
     }];
     
     
 }
+
+#pragma mark - 发送银行卡号 -
+- (void)httpSendBankCardWithTel:(NSString *)telStr withBankType:(NSInteger)bankType withSendBankSuccess:(SuccessResult )sendBankSuccess withSendBankFail:(FailResult)sendBankFail {
+    NSDictionary *valueDic = @{@"tel":telStr,@"bankindex":[NSString stringWithFormat:@"%ld", bankType ]};
+    
+    //给value加密
+    NSString *secretStr = [self digest:[NSString stringWithFormat:@"%@Nongyao_Com001", [self dictionaryToJson:@[valueDic]]]];
+    
+    NSDictionary *parametersDic = @{@"m":secretStr,@"value":@[valueDic]};
+    
+    [[NetManager shareInstance] postRequestWithURL:[[InterfaceManager shareInstance] sendBankCard] withParameters:parametersDic withContentTypes:@"string" withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+        NSLog(@"%ld",operation.response.statusCode);
+        if (operation.response.statusCode == 200) {
+            sendBankSuccess(@"发送成功");
+        }
+    } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
+        NSLog(@"%ld",operation.response.statusCode);
+        id messageInfo = [NSJSONSerialization JSONObjectWithData:operation.responseObject options:NSJSONReadingAllowFragments error:nil];
+        NSString *messageStr ;
+        if ([messageInfo isKindOfClass:[NSString class]]) {
+            messageStr = messageInfo;
+        }else {
+            NSDictionary *messageDic = (NSDictionary *)messageInfo;
+            
+            messageStr = [messageDic objectForKey:@"Message"];
+        }
+
+        sendBankFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,messageStr]);
+    }];
+    
+}
+
+#pragma mark - 消息通知 -
+- (NSMutableArray *)messageArr {
+    if (_messageArr == nil) {
+        self.messageArr = [NSMutableArray array];
+    }
+    return _messageArr;
+}
+
+//消息通知
+- (void)httpMessageNotificationWithType:(NSString *)type withTitle:(NSString *)title withKeyword:(NSString *)keyword withIntroduce:(NSString *)introduce withPageindex:(NSInteger )pageIndex withMessageSuccess:(SuccessResult)messageSuccess withMessageFail:(FailResult)messageFail {
+    
+    NSString *url = [NSString stringWithFormat:@"%@?type=%@&title=%@&keyword=%@&introduce=%@&pageindex=%ld&pagesize=10",[[InterfaceManager shareInstance] messageNotificationBase],type,title,keyword,introduce,pageIndex];
+    [[NetManager shareInstance] getRequestWithURL:url withParameters:nil withContentTypes:nil withHeaderArr:nil withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+        NSLog(@"%ld",operation.response.statusCode);
+        NSLog(@"%@",[self dictionaryToJson:successResult]);
+
+        //如果是pageIndex为1，就是刷新了
+        if (pageIndex == 1) {
+            self.messageArr = [NSMutableArray array];
+        }
+        
+        
+        for (NSDictionary *jsonDic in [successResult objectForKey:@"content"]) {
+            
+            MessageNotificationModel *messageModel = [[MessageNotificationModel alloc] init];
+            [messageModel setValuesForKeysWithDictionary:jsonDic];
+            [self.messageArr addObject:messageModel];
+        }
+        
+       
+        messageSuccess([successResult objectForKey:@"totalpages"]);
+        
+        
+    } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
+        NSLog(@"%ld",operation.response.statusCode);
+        messageFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]]);
+    }];
+    
+    
+    
+}
+
+
+- (void)httpMessageDetailInfoWithPestsId:(NSString *)pestsid withDetailInfoSuccess:(SuccessResult)detailInfoSuccess withDetailInfoFail:(FailResult)detailInfoFail {
+    NSString *url = [NSString stringWithFormat:@"%@?id=%@&type=id&isfo=1", [[InterfaceManager shareInstance] messageNotificationBase],pestsid ];
+    [[NetManager shareInstance] getRequestWithURL:url withParameters:nil withContentTypes:nil withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+        if (operation.response.statusCode == 200) {
+            
+            PestsDetailModel *pestsDetailModel = [[PestsDetailModel alloc] init];
+            [pestsDetailModel setValuesForKeysWithDictionary:successResult[0]];
+            
+            detailInfoSuccess(pestsDetailModel);
+
+        }
+    } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
+        detailInfoFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]]);
+
+    }];
+}
+
 
 #pragma mark - MD5加密 -
 //  封装字符串加密方法
@@ -2562,11 +3005,19 @@
     self.myAgentDic = nil;
     self.myWalletDic = nil;
     self.mybrowseListArr = nil;
+    self.afterMarketArr = nil;
+    //清空一下本地的浏览记录
+    [self clearBrowseFromLocation];
+    //清空角标
+    self.shoppingNumberStr = nil;
+    
     
     //发送通知
 #warning 退出登录发送通知
     [[NSNotificationCenter defaultCenter] postNotificationName:@"logOff" object:self userInfo:nil];
-    
+    //发送通知刷新角标
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"refreshShoppingCarNumber" object:self userInfo:nil];
+
     
 }
 //清空本地的用户信息
@@ -2588,6 +3039,26 @@
     }
 }
 
+//清空本地的浏览记录
+- (void)clearBrowseFromLocation {
+    NSArray *_paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *_documentPath = [_paths lastObject];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    
+    NSString *memberInfoPath = [_documentPath stringByAppendingPathComponent:@"browseList.plist"];
+    
+    BOOL isExists = [fileManager fileExistsAtPath:memberInfoPath];
+    
+    if (isExists) {
+        
+        NSError *err;
+        
+        [fileManager removeItemAtPath:memberInfoPath error:&err];
+        
+    }
+
+}
+
 
 
 //获取手机验证码
@@ -2606,7 +3077,17 @@
         
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"请求失败 %ld--%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]);
-        codeFailResult([operation.responseObject objectForKey:@"Message"]);
+        id messageInfo = [NSJSONSerialization JSONObjectWithData:operation.responseObject options:NSJSONReadingAllowFragments error:nil];
+        NSString *messageStr ;
+        if ([messageInfo isKindOfClass:[NSString class]]) {
+            messageStr = messageInfo;
+        }else {
+            NSDictionary *messageDic = (NSDictionary *)messageInfo;
+            
+            messageStr = [messageDic objectForKey:@"Message"];
+        }
+
+        codeFailResult([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,messageStr]);
     }];
     
 }
@@ -2618,10 +3099,21 @@
         codeSuccessResult(@"200");
         
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
-//        NSLog(@"请求失败 %ld--%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]);
-        codeFailResult(@"验证失败");
+
+        id messageInfo = [NSJSONSerialization JSONObjectWithData:operation.responseObject options:NSJSONReadingAllowFragments error:nil];
+        NSString *messageStr ;
+        if ([messageInfo isKindOfClass:[NSString class]]) {
+            messageStr = messageInfo;
+        }else {
+            NSDictionary *messageDic = (NSDictionary *)messageInfo;
+            
+            messageStr = [messageDic objectForKey:@"Message"];
+        }
+
+        codeFailResult([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,messageStr]);
     }];
 }
+
 //注册
 - (void)httpRegisterWithMobileNumber:(NSString *)mobileNumber withPassword:(NSString *)password withUserType:(NSString *)usertType withAreaId:(NSString *)areaId withRegisterSuccess:(SuccessResult )registerSuccessResult withRegisterFailResult:(FailResult)registerFailResult {
     
@@ -2629,7 +3121,7 @@
     
 //    NSDictionary *valueDic = @{@"password":password,@"usertype":usertType,@"username":mobileNumber,@"email":@"",@"mobile":mobileNumber,@"qq":@"",@"areaid":areaId};
     
-    NSArray *valueArr = @[@{@"password":password},@{@"usertype":usertType},@{@"username":mobileNumber},@{@"email":@""},@{@"mobile":mobileNumber},@{@"qq":@""},@{@"areaid":areaId},@{@"stauts":@"1"}];
+    NSArray *valueArr = @[@{@"password":password},@{@"usertype":usertType},@{@"username":mobileNumber},@{@"email":@""},@{@"mobile":mobileNumber},@{@"qq":@""},@{@"areaid":areaId},@{@"status":@"1"}];
     
     NSString *newJsonStr = [self changeJsonStrSortWithOldStr:[self dictionaryToJson:valueArr]];
     
@@ -2646,11 +3138,18 @@
         registerSuccessResult(@"注册成功");
         
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
-        NSDictionary *errorMsgDic = [NSJSONSerialization JSONObjectWithData:operation.responseObject options:NSJSONReadingMutableContainers error:nil];
+        id messageInfo = [NSJSONSerialization JSONObjectWithData:operation.responseObject options:NSJSONReadingAllowFragments error:nil];
+        NSString *messageStr ;
+        if ([messageInfo isKindOfClass:[NSString class]]) {
+            messageStr = messageInfo;
+        }else {
+            NSDictionary *messageDic = (NSDictionary *)messageInfo;
+            
+            messageStr = [messageDic objectForKey:@"Message"];
+        }
 
-        
-        NSLog(@"请求失败 %ld--%@",operation.response.statusCode,[errorMsgDic objectForKey:@"Message"]);
-        registerFailResult([errorMsgDic objectForKey:@"Message"]);
+        registerFailResult([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,messageStr]);
+                                 
     }];
     
 }
@@ -2678,20 +3177,25 @@
         
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
 
-        NSDictionary *errorMsgDic = [NSJSONSerialization JSONObjectWithData:operation.responseObject options:NSJSONReadingMutableContainers error:nil];
+        id messageInfo = [NSJSONSerialization JSONObjectWithData:operation.responseObject options:NSJSONReadingAllowFragments error:nil];
+        NSString *messageStr ;
+        if ([messageInfo isKindOfClass:[NSString class]]) {
+            messageStr = messageInfo;
+        }else {
+            NSDictionary *messageDic = (NSDictionary *)messageInfo;
+            
+            messageStr = [messageDic objectForKey:@"Message"];
+        }
 
-        NSLog(@"请求失败 %ld--%@",operation.response.statusCode,[errorMsgDic objectForKey:@"Message"]);
-
-        registerFailResult([errorMsgDic objectForKey:@"Message"]);
-        
+        registerFailResult([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,messageStr]);
     }];
     
 }
 
-//检验是否注册了
+//注册时 检验是否注册了
 - (void)httpCheckIsUserRegisterWithMobile:(NSString *)mobile withIsRegisterSuccess:(SuccessResult )isRegisterSuccess withIsRegisterFail:(FailResult)isRegisterFail {
     NSString *url = [NSString stringWithFormat:@"%@?mobile=%@", [[InterfaceManager shareInstance] isUserRegisterBase],mobile];
-    [[NetManager shareInstance] getRequestWithURL:url withParameters:nil withContentTypes:nil withHeaderArr:nil withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+    [[NetManager shareInstance] getRequestWithURL:url withParameters:nil withContentTypes:@"string" withHeaderArr:nil withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
         NSLog(@"%ld",operation.response.statusCode);
         
         if (operation.response.statusCode == 200) {
@@ -2704,17 +3208,47 @@
 
         if (operation.response.statusCode == 400) {
             isRegisterFail(@"该手机好已经注册了");
+        }else {
+            isRegisterFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]]);
         }
 
     }];
     
 }
 
+//登录时，检查是否注册了
+- (void)httpCheckIsUserRegisterForLoginWithMobile:(NSString *)mobile withIsRegisterSuccess:(SuccessResult )isRegisterSuccess withIsRegisterFail:(FailResult)isRegisterFail {
+    NSString *url = [NSString stringWithFormat:@"%@?mobile=%@&s", [[InterfaceManager shareInstance] isUserRegisterBase],mobile];
+    [[NetManager shareInstance] getRequestWithURL:url withParameters:nil withContentTypes:@"string" withHeaderArr:nil withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+        NSLog(@"%ld",operation.response.statusCode);
+        
+        if (operation.response.statusCode == 200) {
+            isRegisterSuccess(@"该手机号码已经注册");
+            
+        }
+        
+    } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
+        NSLog(@"%ld",operation.response.statusCode);
+        
+        if (operation.response.statusCode == 400) {
+            isRegisterFail(@"该手机号未注册了");
+        }else {
+            isRegisterFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]]);
+        }
+        
+    }];
+    
+}
 
 
 #pragma mark - 图片连接处理 -
 - (NSURL *)webImageURlWith:(NSString *)imageUrlStr {
-    return [NSURL URLWithString:[NSString stringWithFormat:@"http://ima.ertj.cn:8002/%@",imageUrlStr]];
+    if ([imageUrlStr containsString:@"http://"]) {
+        return [NSURL URLWithString:imageUrlStr];
+    }else{
+        return [NSURL URLWithString:[NSString stringWithFormat:@"http://ima.ertj.cn:8002/%@",imageUrlStr]];
+
+    }
 }
 
 #pragma mark - 压缩 -
@@ -2786,7 +3320,7 @@
         
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld",operation.response.statusCode);
-
+        uploadFail(@"上传图片失败");
     }];
     
 

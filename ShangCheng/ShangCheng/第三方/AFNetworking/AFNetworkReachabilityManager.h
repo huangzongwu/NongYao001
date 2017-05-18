@@ -97,7 +97,7 @@ NS_ASSUME_NONNULL_BEGIN
 
  @return An initialized network reachability manager, actively monitoring the specified socket address.
  */
-+ (instancetype)managerForAddress:(const void *)address;
++ (instancetype)managerForAddress:(const struct sockaddr_in6 *)address;
 
 /**
  Initializes an instance of a network reachability manager from the specified reachability object.

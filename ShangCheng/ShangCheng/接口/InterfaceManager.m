@@ -31,6 +31,7 @@
     return @"http://api.ertj.cn:8001/";
     //本地
 //    return @"http://192.168.0.233:5260/";
+//    return @"fe80::b56e:46d4:4381:ab49%12:5260";
 
 }
 
@@ -39,6 +40,10 @@
 }
 
 #pragma mark - 首页 -
+//banner图
+- (NSString *)linkManageBase {
+    return [NSString stringWithFormat:@"%@/LinkManage",self.baseUrl];
+}
 //今日特价
 - (NSString *)todayActivityBase {
     return [NSString stringWithFormat:@"%@/TodayActivity",self.baseUrl];
@@ -47,7 +52,7 @@
 
 //病虫害知识
 - (NSString *)informationPestsBase {
-    return  [NSString stringWithFormat:@"%@/InformationPests",self.baseUrl];
+    return  [NSString stringWithFormat:@"%@/PestsType",self.baseUrl];
 }
 
 
@@ -67,14 +72,24 @@
 
 
 #pragma mark - 产品 -
+//首页产品 cnum是热销产品的个数，
+- (NSString *)homeHotProductWithCnum:(NSString *)cnum {
+    return [NSString stringWithFormat:@"%@/SellingProducts?pageindex=1&pagesize=%@",self.baseUrl,cnum];
+
+}
+
 //首页产品
-- (NSString *)homeProductURLWithCnum:(NSString *)cnum withRnum:(NSString *)rnum {
-    return [NSString stringWithFormat:@"%@/ProductHomePage?cnum=%@&rnum=%@",self.baseUrl,cnum,rnum];
+//- (NSString *)homeProductURLWithRnum:(NSString *)rnum {
+//    return [NSString stringWithFormat:@"%@/ProductHomePage?rnum=%@",self.baseUrl,rnum];
+//}
+
+- (NSString *)homeProductURLWithRnum:(NSString *)rnum {
+    return [NSString stringWithFormat:@"%@/ProductHomePage?rnum=%@",self.baseUrl,rnum];
 }
 
 //产品详情
-- (NSString *)productDetailURLWithProductID:(NSString *)productID withIsst:(NSString *)isst {
-    return [NSString stringWithFormat:@"%@/Product?id=%@&isst=%@&isfo=1",self.baseUrl,productID,isst];
+- (NSString *)productDetailURLWithProductID:(NSString *)productID withType:(NSString *)type withIsst:(NSString *)isst {
+    return [NSString stringWithFormat:@"%@/Product?id=%@&type=%@&isst=%@&isfo=1",self.baseUrl,productID,type,isst];
     
 }
 
@@ -136,9 +151,9 @@
 
 
 //订单列表 -1全部、0,1B,1A待付款、1,进行中、9已完成
-- (NSString *)orderListWithUserID:(NSString *)userID withProduct:(NSString *)product withCode:(NSString *)code withOrderStatus:(NSString *)orderStatus withPageIndex:(NSInteger)pageIndex withPageSize:(NSInteger )pageSize {
+- (NSString *)orderListWithUserID:(NSString *)userID withType:(NSString *)type withCode:(NSString *)code withOrderStatus:(NSString *)orderStatus withPageIndex:(NSInteger)pageIndex withPageSize:(NSInteger )pageSize {
 
-    return [NSString stringWithFormat:@"%@/OrderGenerated?id=%@&product=%@&code=%@&status=%@&pageindex=%ld&pagesize=%ld",self.baseUrl,userID,product,code,orderStatus,pageIndex,pageSize];
+    return [NSString stringWithFormat:@"%@/OrderGenerated?id=%@&type=%@&code=%@&status=%@&pageindex=%ld&pagesize=%ld",self.baseUrl,userID,type,code,orderStatus,pageIndex,pageSize];
 }
 
 //用户退货订单查询
@@ -166,6 +181,10 @@
     return [NSString stringWithFormat:@"%@/OrderTracking?id=%@&type=%@",self.baseUrl,orderId,type];
 }
 
+//子订单确认收货
+- (NSString *)UserReceiptBase{
+    return [NSString stringWithFormat:@"%@/UserReceipt",self.baseUrl];
+}
 
 #pragma mark - 支付 -
 //支付前验证
@@ -302,6 +321,13 @@
     return [NSString stringWithFormat:@"%@/AgentMerchants",self.baseUrl];
 }
 
+#pragma mark - 消息中心 -
+//消息通知base
+- (NSString *)messageNotificationBase {
+    return [NSString stringWithFormat:@"%@/Information",self.baseUrl];
+}
+
+
 
 #pragma mark - 真假查询 -
 - (NSString *)getTrueCheckWithCertificateNo:(NSString *)certificateNo {
@@ -336,6 +362,10 @@
     
 }
 
+#pragma mark - 发送银行卡号 -
+- (NSString *)sendBankCard {
+    return [NSString stringWithFormat:@"%@/SendBankCard",self.baseUrl];
+}
 
 #pragma mark - 其他 -
 //地区信息

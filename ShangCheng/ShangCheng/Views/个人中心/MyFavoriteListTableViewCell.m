@@ -11,7 +11,7 @@
 @implementation MyFavoriteListTableViewCell
 - (void)updateMyFavoriteListCell:(MyFavoriteListModel *)myFavotiteProductModel {
     
-    [self.productImageView setWebImageURLWithImageUrlStr:myFavotiteProductModel.productImageUrl withErrorImage:[UIImage imageNamed:@"productImage"]];
+    [self.productImageView setWebImageURLWithImageUrlStr:myFavotiteProductModel.productImageUrl withErrorImage:[UIImage imageNamed:@"icon_pic_cp"] withIsCenter:YES];
     
     self.productTitleLabel.text = myFavotiteProductModel.favoriteProductTitleStr;
     self.productCompanyLabel.text = myFavotiteProductModel.favoriteProductCompanyStr;
@@ -22,7 +22,7 @@
 
 - (void)updateMyBrowerListCell:(ProductModel *)myBrowerProductModel {
     
-    [self.productImageView setWebImageURLWithImageUrlStr:myBrowerProductModel.productImageUrlstr withErrorImage:[UIImage imageNamed:@"productImage"]];
+    [self.productImageView setWebImageURLWithImageUrlStr:myBrowerProductModel.productImageUrlstr withErrorImage:[UIImage imageNamed:@"icon_pic_cp"] withIsCenter:YES];
     
     self.productTitleLabel.text = myBrowerProductModel.productTitle;
     self.productCompanyLabel.text = myBrowerProductModel.productCompany;

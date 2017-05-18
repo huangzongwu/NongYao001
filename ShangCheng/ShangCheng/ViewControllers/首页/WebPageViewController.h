@@ -11,4 +11,6 @@
 @interface WebPageViewController : UIViewController
 @property (nonatomic,strong)NSString *webUrl;
 @property (nonatomic,strong)NSString *tempTitleStr;
+
+
 @end

@@ -14,8 +14,8 @@
 #import "DataSigner.h"
 #import "WXApi.h"
 #import "AppDelegate.h"
-
-//枚举，用于区别是支付商品，还是充值
+#import "SVProgressHUD.h"
+//枚举，
 typedef NS_ENUM(NSInteger , RechargeType) {
     //枚举值
     RechargeTypeAli ,
@@ -35,6 +35,10 @@ typedef NS_ENUM(NSInteger , RechargeType) {
     [self.navigationController popViewControllerAnimated:YES];
 }
 
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear: animated];
+    [SVProgressHUD dismiss];
+}
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
@@ -60,6 +64,8 @@ typedef NS_ENUM(NSInteger , RechargeType) {
 
 //刷新选择button的UI
 - (void)updateSelectButtonUI {
+    [self keyboardDismissAction];
+
     if (self.rechargeType == RechargeTypeAli ) {
         [self.selectAliButton setImage:[UIImage imageNamed:@"g_btn_select"]];
         [self.selectWXButton setImage:[UIImage imageNamed:@"g_btn_normal"]];
@@ -74,35 +80,51 @@ typedef NS_ENUM(NSInteger , RechargeType) {
 //立即充值
 - (IBAction)rechargeButtonAction:(UIButton *)sender {
     Manager *manager = [Manager shareInstance];
-    NSLog(@"%@",self.rechargeAmountTextField.text);
-    if (self.rechargeAmountTextField.text != nil && self.rechargeAmountTextField.text.length > 0) {
-        if ([self.rechargeAmountTextField.text floatValue]>0) {
-            //有金额，调用后台接口，返回支付信息
-            [manager userUserRechargeWithUserId:manager.memberInfoModel.u_id withAmount:self.rechargeAmountTextField.text withPayType:self.rechargeType withPayRechargeSuccess:^(id successResult) {
-                
-                switch (self.rechargeType) {
-                    case RechargeTypeAli:
-                        [self aliPayRechargeActionWithPayInfo:successResult];
-                        break;
-                    case RechargeTypeWX:
-                        [self weixinPayRechargeActionWithPayInfo:successResult];
-                        break;
-                    default:
-                        break;
+    AlertManager *alertM = [AlertManager shareIntance];
+    [self keyboardDismissAction];
+    
+    [alertM showAlertViewWithTitle:nil withMessage:@"是否要充值" actionTitleArr:@[@"取消",@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
+        if (actionBlockNumber == 1) {
+            NSLog(@"%@",self.rechargeAmountTextField.text);
+            if (self.rechargeAmountTextField.text != nil && self.rechargeAmountTextField.text.length > 0) {
+                if ([self.rechargeAmountTextField.text floatValue]>0) {
+                    //有金额，调用后台接口，返回支付信息
+                    if ([SVProgressHUD isVisible] == NO) {
+                        [SVProgressHUD show];
+                    }
+                    
+                    [manager userUserRechargeWithUserId:manager.memberInfoModel.u_id withAmount:self.rechargeAmountTextField.text withPayType:self.rechargeType withPayRechargeSuccess:^(id successResult) {
+                        [SVProgressHUD dismiss];
+                        
+                        switch (self.rechargeType) {
+                            case RechargeTypeAli:
+                                [self aliPayRechargeActionWithPayInfo:successResult];
+                                break;
+                            case RechargeTypeWX:
+                                [self weixinPayRechargeActionWithPayInfo:successResult];
+                                break;
+                            default:
+                                break;
+                        }
+                        
+                    } withPayRechargeFail:^(NSString *failResultStr) {
+                        [SVProgressHUD dismiss];
+                        [alertM showAlertViewWithTitle:nil withMessage:@"充值验证失败" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
+
+                    }];
+                    
+                }else{
+                    AlertManager *alertM = [AlertManager shareIntance];
+                    [alertM showAlertViewWithTitle:nil withMessage:@"金额要大于0元" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
                 }
-                    
-            } withPayRechargeFail:^(NSString *failResultStr) {
-                    
-            }];
-                
-        }else{
-            AlertManager *alertM = [AlertManager shareIntance];
-            [alertM showAlertViewWithTitle:nil withMessage:@"金额要大于0元" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
+            }else {
+                AlertManager *alertM = [AlertManager shareIntance];
+                [alertM showAlertViewWithTitle:nil withMessage:@"请输入充值金额" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
+            }
+
         }
-    }else {
-        AlertManager *alertM = [AlertManager shareIntance];
-        [alertM showAlertViewWithTitle:nil withMessage:@"请输入充值金额" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
-    }
+    }];
+    
 }
 
 
@@ -136,7 +158,9 @@ typedef NS_ENUM(NSInteger , RechargeType) {
                 AlertManager *alertM = [AlertManager shareIntance];
                 [alertM showAlertViewWithTitle:@"充值结果" withMessage:successResult actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
                     //返回 刷新充值金额
-#warning 刷新充值金额
+
+
+                    
                     [self.navigationController popViewControllerAnimated:YES];
                 }];
 
@@ -178,6 +202,15 @@ typedef NS_ENUM(NSInteger , RechargeType) {
     
 }
 
+
+- (void)keyboardDismissAction {
+    [self.rechargeAmountTextField resignFirstResponder];
+    
+}
+
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    [self keyboardDismissAction];
+}
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

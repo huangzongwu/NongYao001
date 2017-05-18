@@ -16,7 +16,7 @@
     self.orderStatusLabel.text = tempModel.statusvalue;
     
     SonOrderModel *sonOrderModel = tempModel.subOrderArr[0];
-    [self.orderProductImageView setWebImageURLWithImageUrlStr:sonOrderModel.p_icon withErrorImage:[UIImage imageNamed:@"productImage"]];
+    [self.orderProductImageView setWebImageURLWithImageUrlStr:sonOrderModel.p_icon withErrorImage:[UIImage imageNamed:@"icon_pic_cp"] withIsCenter:YES];
     self.orderProductNameLabel.text = sonOrderModel.p_name;
 //    self.orderProductCompanyLabel.text =;
     self.orderProductFormatLabel.text = sonOrderModel.productst;

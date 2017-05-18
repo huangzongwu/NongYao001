@@ -12,7 +12,7 @@
 @implementation MineCollectionViewCellOne
 - (void)updateMineCollectionViewCellOne {
     Manager *manager = [Manager shareInstance];
-    self.userHeaderImageView.image = [UIImage imageNamed:@"test.png"];
+    self.userHeaderImageView.image = [UIImage imageNamed:@"w_icon_mrtx"];
     self.myNameLabel.text = @"未登录";
     self.myAreaAndPhoneLabel.hidden = YES;
     self.myTypeImageView.hidden = YES;
@@ -21,7 +21,7 @@
     if ([manager isLoggedInStatus] == YES) {
         //已经登录了。
         //图片
-        [self.userHeaderImageView setWebImageURLWithImageUrlStr:manager.memberInfoModel.u_icon withErrorImage:[UIImage imageNamed:@"test.png"]];
+        [self.userHeaderImageView setWebImageURLWithImageUrlStr:manager.memberInfoModel.u_icon withErrorImage:[UIImage imageNamed:@"w_icon_mrtx"] withIsCenter:NO];
         //姓名
         self.myNameLabel.text = manager.memberInfoModel.u_truename;
         //地址手机号

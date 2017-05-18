@@ -11,6 +11,7 @@
 typedef void(^CouponDicBlock)(NSDictionary *couponDicBlock);
 
 @interface SelectCouponViewController : UIViewController
+
 //优惠券是否可选择，
 @property (nonatomic,assign)BOOL isSelectCoupon;
 

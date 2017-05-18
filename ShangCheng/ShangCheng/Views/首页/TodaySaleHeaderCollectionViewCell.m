@@ -7,7 +7,10 @@
 //
 
 #import "TodaySaleHeaderCollectionViewCell.h"
-
+#import "UIImageView+ImageViewCategory.h"
 @implementation TodaySaleHeaderCollectionViewCell
+- (void)updateHeaderCellWithImageUrl:(NSString *)tempImageUrl {
+    [self.headerImageView setWebImageURLWithImageUrlStr:tempImageUrl withErrorImage:[UIImage imageNamed:@"icon_pic_cp.png"] withIsCenter:YES];
+}
 
 @end

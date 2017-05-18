@@ -9,6 +9,8 @@
 #import "CommentViewController.h"
 #import "Manager.h"
 #import "UIImageView+ImageViewCategory.h"
+#import "SVProgressHUD.h"
+#import "PlaceholdTextView.h"
 @interface CommentViewController ()
 @property (weak, nonatomic) IBOutlet UIImageView *productImageView;
 @property (weak, nonatomic) IBOutlet UILabel *productTitleLabel;
@@ -24,7 +26,7 @@
 //选择的星星数量
 @property (nonatomic,assign) NSInteger selectStarCount;
 
-@property (weak, nonatomic) IBOutlet UITextView *commentTextView;
+@property (weak, nonatomic) IBOutlet PlaceholdTextView *commentTextView;
 
 //是否匿名评价
 @property (nonatomic,assign)BOOL isNickNameComment;
@@ -44,9 +46,15 @@
     self.isNickNameComment = YES;
     
 }
+
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear: animated];
+    [SVProgressHUD dismiss];
+}
+
 #pragma mark - 刷新头部产品的UI -
 - (void)updateHeaderProductView {
-    [self.productImageView setWebImageURLWithImageUrlStr:self.tempSonOrderModel.p_icon withErrorImage:[UIImage imageNamed:@"productImage"]];
+    [self.productImageView setWebImageURLWithImageUrlStr:self.tempSonOrderModel.p_icon withErrorImage:[UIImage imageNamed:@"icon_pic_cp"] withIsCenter:YES];
     self.productTitleLabel.text = self.tempSonOrderModel.p_name;
     self.productFormatLabel.text = [NSString stringWithFormat:@"规格:%@  数量:%@",self.tempSonOrderModel.productst,self.tempSonOrderModel.o_num];
 }
@@ -74,6 +82,8 @@
 }
 
 - (void)updateStarButtonUI {
+    [self.commentTextView resignFirstResponder];
+
     switch (self.selectStarCount) {
         case 1:
         {
@@ -142,12 +152,18 @@
 #warning 匿名评价
 //提交订单
 - (IBAction)commitCommentButton:(UIButton *)sender {
+    AlertManager *alertM = [AlertManager shareIntance];
+
     if (self.selectStarCount > 0 && self.commentTextView.text != nil && self.commentTextView.text.length > 0) {
         
         //提交评价
         Manager *manager = [Manager shareInstance];
-        AlertManager *alertM = [AlertManager shareIntance];
+        if ([SVProgressHUD isVisible] == NO) {
+            [SVProgressHUD show];
+        }
+
         [manager orderCommentWithUserid:manager.memberInfoModel.u_id withOrderId:self.tempSonOrderModel.o_id withStarLevel:[NSString stringWithFormat:@"%ld",self.selectStarCount] withContent:self.commentTextView.text withCommentSuccessBlock:^(id successResult) {
+            [SVProgressHUD dismiss];
             //评论成功后，将状态改变
             self.tempSonOrderModel.isreply = @"2";
             //返回刷新
@@ -158,16 +174,22 @@
             
             
         } withCommentFailBlock:^(NSString *failResultStr) {
-            
+            [SVProgressHUD dismiss];
+            [alertM showAlertViewWithTitle:nil withMessage:@"评价提交失败" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
         }];
         
     }else {
         NSLog(@"信息不完整");
+        [alertM showAlertViewWithTitle:nil withMessage:@"提交信息不完整，请填写完整后再次提交" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
+
     }
     
 }
 
-
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    [self.commentTextView resignFirstResponder];
+    
+}
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

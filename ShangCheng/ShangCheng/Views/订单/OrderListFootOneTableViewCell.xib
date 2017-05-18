@@ -38,33 +38,8 @@
                             <action selector="orderPayAction:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="u21-WH-Lbx"/>
                         </connections>
                     </button>
-                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="IiI-mv-Xt2" customClass="IndexButton">
-                        <rect key="frame" x="138" y="8" width="80" height="27"/>
-                        <constraints>
-                            <constraint firstAttribute="width" constant="80" id="eSO-co-miZ"/>
-                        </constraints>
-                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                        <state key="normal" title="确认付款">
-                            <color key="titleColor" red="0.20000000000000001" green="0.20000000000000001" blue="0.20000000000000001" alpha="1" colorSpace="calibratedRGB"/>
-                        </state>
-                        <userDefinedRuntimeAttributes>
-                            <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
-                            <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
-                                <integer key="value" value="2"/>
-                            </userDefinedRuntimeAttribute>
-                            <userDefinedRuntimeAttribute type="number" keyPath="layer.borderWidth">
-                                <integer key="value" value="1"/>
-                            </userDefinedRuntimeAttribute>
-                            <userDefinedRuntimeAttribute type="color" keyPath="layer.borderColorFromUIColor">
-                                <color key="value" red="0.80000000000000004" green="0.80000000000000004" blue="0.80000000000000004" alpha="1" colorSpace="calibratedRGB"/>
-                            </userDefinedRuntimeAttribute>
-                        </userDefinedRuntimeAttributes>
-                        <connections>
-                            <action selector="enterPayAction:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="UzN-CQ-Mwp"/>
-                        </connections>
-                    </button>
                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ULT-kh-MpR" customClass="IndexButton">
-                        <rect key="frame" x="47" y="8" width="80" height="26.5"/>
+                        <rect key="frame" x="138" y="8" width="80" height="26.5"/>
                         <constraints>
                             <constraint firstAttribute="width" constant="80" id="r4P-wA-AiX"/>
                         </constraints>
@@ -91,19 +66,15 @@
                 </subviews>
                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                 <constraints>
-                    <constraint firstItem="IiI-mv-Xt2" firstAttribute="leading" secondItem="ULT-kh-MpR" secondAttribute="trailing" constant="11" id="3rz-RC-0ot"/>
-                    <constraint firstItem="OhS-C7-ors" firstAttribute="leading" secondItem="IiI-mv-Xt2" secondAttribute="trailing" constant="11" id="4qc-30-SRy"/>
                     <constraint firstAttribute="trailing" secondItem="OhS-C7-ors" secondAttribute="trailing" constant="11" id="AnD-us-0m7"/>
                     <constraint firstAttribute="bottom" secondItem="OhS-C7-ors" secondAttribute="bottom" constant="8" id="CG1-ho-gWW"/>
                     <constraint firstItem="ULT-kh-MpR" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="8" id="HBQ-4j-3DM"/>
                     <constraint firstAttribute="bottom" secondItem="ULT-kh-MpR" secondAttribute="bottom" constant="8" id="I50-Jb-Cjv"/>
-                    <constraint firstAttribute="bottom" secondItem="IiI-mv-Xt2" secondAttribute="bottom" constant="8" id="PUt-2u-AfX"/>
-                    <constraint firstItem="IiI-mv-Xt2" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="8" id="dG4-Le-bu3"/>
+                    <constraint firstItem="OhS-C7-ors" firstAttribute="leading" secondItem="ULT-kh-MpR" secondAttribute="trailing" constant="11" id="e25-Jk-gSR"/>
                     <constraint firstItem="OhS-C7-ors" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="8" id="h61-44-y3n"/>
                 </constraints>
             </tableViewCellContentView>
             <connections>
-                <outlet property="enterPayButton" destination="IiI-mv-Xt2" id="bZq-Xs-Imb"/>
                 <outlet property="orderCancelButton" destination="ULT-kh-MpR" id="UQw-fO-oQ8"/>
                 <outlet property="orderPayButton" destination="OhS-C7-ors" id="4oa-ly-M0B"/>
             </connections>

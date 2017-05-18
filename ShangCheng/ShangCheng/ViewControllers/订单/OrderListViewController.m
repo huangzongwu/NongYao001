@@ -17,6 +17,7 @@
 #import "MJRefresh.h"
 #import "Manager.h"
 #import "KongImageView.h"
+#import "SVProgressHUD.h"
 @interface OrderListViewController ()<UITableViewDataSource,UITableViewDelegate>
 //切换分类的scrollView
 @property (weak, nonatomic) IBOutlet UIScrollView *backScrollView;
@@ -78,6 +79,26 @@
     //标记一下有数据变动，需要刷新
     self.isHttpArr = [NSMutableArray arrayWithObjects:@"1",@"1",@"1",@"1",nil];
     
+    
+    switch ([self.whichTableView integerValue]) {
+        case 1:
+            [self.allTableView reloadData];
+            break;
+        case 2:
+            [self.waitPayTableView reloadData];
+
+            break;
+        case 3:
+            [self.goOnTableView reloadData];
+            break;
+        case 4:
+            [self.finishTableView reloadData];
+            break;
+        default:
+            break;
+    }
+
+    
 }
 
 //跳转到对应的订单类型
@@ -129,19 +150,19 @@
         [self.allTableView addHeaderWithCallback:^{
             NSLog(@"全部tableView刷新");
             
-            [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:1 withTableView:self.allTableView];
+            [self httpOrderListWithType:@"uid" withCode:@"" withPageIndex:1 withTableView:self.allTableView];
         }];
         [self.waitPayTableView addHeaderWithCallback:^{
             NSLog(@"待付款tableView刷新");
-            [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:1 withTableView:self.waitPayTableView];
+            [self httpOrderListWithType:@"uid" withCode:@"" withPageIndex:1 withTableView:self.waitPayTableView];
         }];
         [self.goOnTableView addHeaderWithCallback:^{
             NSLog(@"进行中tableView刷新");
-            [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:1  withTableView:self.goOnTableView];
+            [self httpOrderListWithType:@"uid" withCode:@"" withPageIndex:1  withTableView:self.goOnTableView];
         }];
         [self.finishTableView addHeaderWithCallback:^{
             NSLog(@"已完成tableView刷新");
-            [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:1 withTableView:self.finishTableView];
+            [self httpOrderListWithType:@"uid" withCode:@"" withPageIndex:1 withTableView:self.finishTableView];
         }];
     
 }
@@ -158,7 +179,7 @@
 
         if (tempCurrentPage < totalPage) {
 
-            [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:tempCurrentPage+1 withTableView:self.allTableView];
+            [self httpOrderListWithType:@"uid" withCode:@"" withPageIndex:tempCurrentPage+1 withTableView:self.allTableView];
 
         }else {
             [self.allTableView footerEndRefreshing];
@@ -172,7 +193,7 @@
         NSInteger totalPage = [[[[Manager shareInstance].orderListDataSourceDic objectForKey:self.whichTableView] objectForKey:@"totalpages"] integerValue];
         if (tempCurrentPage < totalPage) {
 
-            [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:tempCurrentPage+1 withTableView:self.waitPayTableView];
+            [self httpOrderListWithType:@"uid" withCode:@"" withPageIndex:tempCurrentPage+1 withTableView:self.waitPayTableView];
         }else{
             [self.waitPayTableView footerEndRefreshing];
         }
@@ -184,7 +205,7 @@
         NSInteger totalPage = [[[[Manager shareInstance].orderListDataSourceDic objectForKey:self.whichTableView] objectForKey:@"totalpages"] integerValue];
         if (tempCurrentPage < totalPage) {
 
-            [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:tempCurrentPage+1  withTableView:self.goOnTableView];
+            [self httpOrderListWithType:@"uid" withCode:@"" withPageIndex:tempCurrentPage+1  withTableView:self.goOnTableView];
         }else {
             [self.goOnTableView footerEndRefreshing];
         }
@@ -197,7 +218,7 @@
         if (tempCurrentPage < totalPage) {
 
 
-            [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:tempCurrentPage withTableView:self.finishTableView];
+            [self httpOrderListWithType:@"uid" withCode:@"" withPageIndex:tempCurrentPage withTableView:self.finishTableView];
         }else {
             [self.finishTableView footerEndRefreshing];
         }
@@ -206,6 +227,10 @@
     
 }
 
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear: animated];
+    [SVProgressHUD dismiss];
+}
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
@@ -327,15 +352,19 @@
 
 
 //请求订单数据
-- (void)httpOrderListWithProduct:(NSString *)product withCode:(NSString *)code withPageIndex:(NSInteger )pageIndex withTableView:(UITableView *)tempTableView  {
+- (void)httpOrderListWithType:(NSString *)type withCode:(NSString *)code withPageIndex:(NSInteger )pageIndex withTableView:(UITableView *)tempTableView  {
 
     Manager *manager = [Manager shareInstance];
     
     if ([manager isLoggedInStatus] == YES) {
-    
-        [manager getOrderListDataWithUserID:manager.memberInfoModel.u_id withProduct:product withCode:code withWhichTableView:self.whichTableView withPageIndex:pageIndex withPageSize:10 withOrderListSuccessResult:^(id successResult) {
+        if (pageIndex == 1 && [SVProgressHUD isVisible] == NO) {
+            [SVProgressHUD show];
+        }
+        
+        [manager getOrderListDataWithUserID:manager.memberInfoModel.u_id withType:type withCode:code withWhichTableView:self.whichTableView withPageIndex:pageIndex withPageSize:10 withOrderListSuccessResult:^(id successResult) {
             
             if (pageIndex == 1) {
+                [SVProgressHUD dismiss];
                 //刷新
                 //请求后，标记已经刷新过了
                 self.isHttpArr[[self.whichTableView integerValue]-1] = @"0";
@@ -357,6 +386,7 @@
 
         } withOrderListFailResult:^(NSString *failResultStr) {
             NSLog(@"%@", failResultStr);
+            [SVProgressHUD dismiss];
             //看看是否有空白页
             [self isShowKongImageViewWithType:KongTypeWithNetError withKongMsg:@"网络错误"];
         }];
@@ -383,7 +413,7 @@
     //需要刷新，才请求数据。默认请求全部数据
     if ([self.isHttpArr[0] isEqualToString:@"1"]) {
         
-        [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:1 withTableView:self.allTableView];
+        [self httpOrderListWithType:@"uid" withCode:@"" withPageIndex:1 withTableView:self.allTableView];
     }
 }
 //待付款
@@ -400,7 +430,7 @@
     //需要刷新，才请求数据。默认请求全部数据
     if ( [self.isHttpArr[1] isEqualToString:@"1"]) {
         
-        [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:1 withTableView:self.waitPayTableView];
+        [self httpOrderListWithType:@"uid" withCode:@"" withPageIndex:1 withTableView:self.waitPayTableView];
     }
 
 
@@ -418,7 +448,7 @@
     Manager *manager = [Manager shareInstance];
     if ([self.isHttpArr[2] isEqualToString:@"1"]) {
 
-        [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:1 withTableView:self.goOnTableView];
+        [self httpOrderListWithType:@"uid" withCode:@"" withPageIndex:1 withTableView:self.goOnTableView];
     }
 
 
@@ -439,7 +469,7 @@
     Manager *manager = [Manager shareInstance];
     if ( [self.isHttpArr[3] isEqualToString:@"1"]) {
 
-        [self httpOrderListWithProduct:@"" withCode:@"" withPageIndex:1 withTableView:self.finishTableView];
+        [self httpOrderListWithType:@"uid" withCode:@"" withPageIndex:1 withTableView:self.finishTableView];
     }
     
 }
@@ -473,6 +503,31 @@
     return 11;
 }
 - (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
+    Manager *manager = [Manager shareInstance];
+
+
+    NSMutableArray *dataArr;
+    if (tableView == self.allTableView) {
+        dataArr = [[manager.orderListDataSourceDic objectForKey:@"1"] objectForKey:@"content"];
+    }
+    if (tableView == self.waitPayTableView) {
+        dataArr = [[manager.orderListDataSourceDic objectForKey:@"2"] objectForKey:@"content"];
+    }
+    if (tableView == self.goOnTableView) {
+        dataArr = [[manager.orderListDataSourceDic objectForKey:@"3"] objectForKey:@"content"];
+    }
+    if (tableView == self.finishTableView) {
+        dataArr = [[manager.orderListDataSourceDic objectForKey:@"4"] objectForKey:@"content"];
+    }
+    
+    
+    SupOrderModel *supOrderModel = dataArr[section];
+    
+    //待付款，（这里不包含1A--待确认）
+    if ([supOrderModel.p_status isEqualToString:@"1A"] || [supOrderModel.p_status isEqualToString:@"1B"]){
+        return 1;
+    }
+    
     return 43 ;
 }
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -494,55 +549,58 @@
         dataArr = [[manager.orderListDataSourceDic objectForKey:@"4"] objectForKey:@"content"];
     }
    
-
     SupOrderModel *supOrderModel = dataArr[section];
-    
-    //待付款，（这里不包含1A--待确认）
-    if ([supOrderModel.p_status isEqualToString:@"0"] || [supOrderModel.p_status isEqualToString:@"1B"] ) {
+        
+    //待付款，（这里不包含1A 和1B --待确认）
+    if ([supOrderModel.p_status isEqualToString:@"0"]  ) {
         OrderListFootOneTableViewCell *footOneCell = [tableView dequeueReusableCellWithIdentifier:@"orderListFootOneCell"];
         footOneCell.orderPayButton.indexForButton = [NSIndexPath indexPathForRow:0 inSection:section];
-        footOneCell.enterPayButton.indexForButton = [NSIndexPath indexPathForRow:0 inSection:section];
         footOneCell.orderCancelButton.indexForButton = [NSIndexPath indexPathForRow:0 inSection:section];
         
         //三个按钮Action的Block
         footOneCell.footOneButtonBlock = ^(NSIndexPath * buttonIndex ,NSString *buttonActionStr){
             //得到点击的模型
             NSArray *modelArr = [[manager.orderListDataSourceDic objectForKey:self.whichTableView] objectForKey:@"content"];
-
+            
             SupOrderModel *selectModel = modelArr[buttonIndex.section];
             
-            //buttonActionStr有三种情况。1-orderPay  2-enterPay  3-cancelOrder
+            //buttonActionStr有两种情况。1-orderPay    2-cancelOrder
             //去支付
             if ([buttonActionStr isEqualToString:@"orderPay"]) {
                 
                 [self performSegueWithIdentifier:@"orderListToPayVC" sender:@[selectModel]];
             }
-            if ([buttonActionStr isEqualToString:@"enterPay"]) {
-                
-            }
+            
+            
             //取消订单
             if ([buttonActionStr isEqualToString:@"cancelOrder"]) {
                 SupOrderModel *selectModel = modelArr[buttonIndex.section];
-                [manager cancelSupOrderWithUserID:manager.memberInfoModel.u_id wiOrderID:selectModel.p_id withCancelSuccessResult:^(id successResult) {
-                    AlertManager *alertM = [AlertManager shareIntance];
-                    [alertM showAlertViewWithTitle:nil withMessage:@"取消订单成功" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
-                        //取消订单后，刷新 当前TableView。其他的在切换的时候刷新
+                AlertManager *alertM = [AlertManager shareIntance];
+                [alertM showAlertViewWithTitle:nil withMessage:@"是否取消该订单" actionTitleArr:@[@"取消",@"确认"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
+                    if (actionBlockNumber == 1) {
+                        
+                        [manager cancelSupOrderWithUserID:manager.memberInfoModel.u_id wiOrderID:selectModel.p_id withCancelSuccessResult:^(id successResult) {
+                            [alertM showAlertViewWithTitle:nil withMessage:@"取消订单成功" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
+                                //取消订单后，刷新 当前TableView。其他的在切换的时候刷新
+                                
+                                [tableView reloadData];
+                                //设为1，切换TableView就会执行刷新
+                                self.isHttpArr = [NSMutableArray arrayWithObjects:@"1",@"1",@"1",@"1", nil];
+                            }];
+                            
+                            
+                        } withCancelFailResult:^(NSString *failResultStr) {
+                            [alertM showAlertViewWithTitle:nil withMessage:@"取消订单失败" actionTitleArr:nil withViewController:self withReturnCodeBlock:nil];
+                        }];
 
-                        [tableView reloadData];
-                        //设为1，切换TableView就会执行刷新
-                        self.isHttpArr = [NSMutableArray arrayWithObjects:@"1",@"1",@"1",@"1", nil];
-                    }];
-                   
-                    
-                } withCancelFailResult:^(NSString *failResultStr) {
-                    
+                    }
                 }];
                 
             }
             
         };
         return footOneCell;
-    }else {
+    }else if ([supOrderModel.p_status isEqualToString:@"1"] || [supOrderModel.p_status isEqualToString:@"9"]) {
         
         OrderListFootTwoTableViewCell *footTwoCell = [tableView dequeueReusableCellWithIdentifier:@"orderListFootTwoCell"];
         footTwoCell.orderDetailInfoButton.indexForButton = [NSIndexPath indexPathForRow:0 inSection:section];
@@ -552,11 +610,17 @@
             
             SupOrderModel *selectModel = modelArr[buttonIndex.section];
             [self performSegueWithIdentifier:@"OrderListToOrderDetailVC" sender:selectModel];
-
+            
             
         };
         return footTwoCell;
+    }else {
+        //1A 1B,下面没有按钮
+        UIView *kongView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, kScreenW, 0)];
+        return kongView;
     }
+
+    
 }
 
 
@@ -576,8 +640,10 @@
         dataArr = [[[Manager shareInstance].orderListDataSourceDic objectForKey:@"4"] objectForKey:@"content"];
     }
     
+  
+
     SupOrderModel *supOrderModel = dataArr[indexPath.section];
-    
+        
     if (supOrderModel.subOrderArr.count < 2) {
         OrderListOneTableViewCell *oneCell = [tableView dequeueReusableCellWithIdentifier:@"orderListOneCell" forIndexPath:indexPath];
         [oneCell updateOrderLIstOneCellWithModel:supOrderModel withWhichTableView:self.whichTableView withCellIndex:indexPath];
@@ -586,16 +652,16 @@
             //只有第二个TableView，才有选择按钮
             //得到对应的模型
             NSArray *selectOrderArr = [[[Manager shareInstance].orderListDataSourceDic objectForKey:@"2"] objectForKey:@"content"];
-
+            
             SupOrderModel *selectModel = selectOrderArr[selectButton.indexForButton.section];
             selectModel.isSelectOrder = !selectModel.isSelectOrder;
             //改变UI
             if (selectModel.isSelectOrder == YES) {
                 [selectButton setImage:[UIImage imageNamed:@"g_btn_select"] forState:UIControlStateNormal];
-
+                
             }else {
                 [selectButton setImage:[UIImage imageNamed:@"g_btn_normal"] forState:UIControlStateNormal];
-
+                
             }
             
             
@@ -619,10 +685,13 @@
             }else {
                 selectButton.backgroundColor = [UIColor lightGrayColor];
             }
-
+            
         };
         return twoCell;
     }
+
+
+    
     
 }
 
@@ -676,10 +745,8 @@
     
 }
 
-- (IBAction)enterTogetherAction:(UIButton *)sender {
-    //查看那些订单被选择了
-    
-}
+
+
 
 
 #pragma mark - 空白页 -

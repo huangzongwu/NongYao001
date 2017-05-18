@@ -10,6 +10,7 @@
 #import "Manager.h"
 #import "MyAgentPeopleTableViewCell.h"
 #import "MyAgentOrderTableViewCell.h"
+#import "SVProgressHUD.h"
 @interface MyAgentViewController ()<UITableViewDataSource,UITableViewDelegate>
 //头部收益金额
 @property (weak, nonatomic) IBOutlet UILabel *incomeAmountLabel;
@@ -40,6 +41,10 @@
     [self.navigationController popViewControllerAnimated:YES];
 }
 
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    [SVProgressHUD dismiss];
+}
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
@@ -58,12 +63,16 @@
     
     
     //网络请求人员数据
+    if ([SVProgressHUD isVisible] == NO) {
+        [SVProgressHUD show];
+    }
+
     [manager httpMyAgentPeopleListDataWithUserId:manager.memberInfoModel.u_id withPageindex:1 withMyAgentSuccess:^(id successResult) {
-        
+        [SVProgressHUD dismiss];
         [self.myAgentTableView reloadData];
         
     } withMyagentFail:^(NSString *failResultStr) {
-        
+        [SVProgressHUD dismiss];
     }];
     
     
@@ -107,13 +116,17 @@
         }else {
             //需要请求
             //网络请求人员数据
-            
+            if ([SVProgressHUD isVisible] == NO) {
+                [SVProgressHUD show];
+            }
+
             [manager httpMyAgentPeopleListDataWithUserId:manager.memberInfoModel.u_id withPageindex:1 withMyAgentSuccess:^(id successResult) {
+                [SVProgressHUD dismiss];
                 
                 [self.myAgentTableView reloadData];
                 
             } withMyagentFail:^(NSString *failResultStr) {
-                
+                [SVProgressHUD dismiss];
             }];
             
         }
@@ -146,11 +159,17 @@
         }else {
             //需要请求
             //网络请求订单数据
+            if ([SVProgressHUD isVisible] == NO) {
+                [SVProgressHUD show];
+            }
+
             [manager httpMyAgentOrderListDataWithUserId:manager.memberInfoModel.u_id withPageindex:1 withMyAgentSuccess:^(id successResult) {
+                [SVProgressHUD dismiss];
+                
                 [self.myAgentTableView reloadData];
                 
             } withMyagentFail:^(NSString *failResultStr) {
-                
+                [SVProgressHUD dismiss];
             }];
             
             

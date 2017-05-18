@@ -11,7 +11,6 @@
 @implementation MaxSaleHotCollectionReusableView
 - (void)updateMaxSaleHotCell:(NSMutableArray *)maxSaleHotDataArr {
     //设置一下属性
-
     self.cycleView.titleLabelBackgroundColor = [UIColor whiteColor];
     self.cycleView.titleLabelTextColor = k333333Color;
     self.cycleView.titleLabelTextFont = [UIFont systemFontOfSize:15];

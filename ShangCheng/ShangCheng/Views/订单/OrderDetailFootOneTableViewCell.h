@@ -10,7 +10,7 @@
 #import "IndexButton.h"
 #import "SonOrderModel.h"
 
-typedef void(^ButtonActionTypeBlock)(IndexButton *footButton,NSInteger buttonActionTypeBlock);
+//typedef void(^ButtonActionTypeBlock)(IndexButton *footButton,NSInteger buttonActionTypeBlock);
 @interface OrderDetailFootOneTableViewCell : UITableViewCell
 //总价
 @property (weak, nonatomic) IBOutlet UILabel *orderTotalPriceLabel;
@@ -26,7 +26,7 @@ typedef void(^ButtonActionTypeBlock)(IndexButton *footButton,NSInteger buttonAct
  4 -- 立即评价
  5 -- 再次购买
 */
-@property (nonatomic,strong)ButtonActionTypeBlock buttonActionTypeBlock;
+//@property (nonatomic,strong)ButtonActionTypeBlock buttonActionTypeBlock;
 
 @property (nonatomic,strong)SonOrderModel *tempSonOrder;
 

@@ -14,10 +14,9 @@ typedef void(^RightNextBlock)(NSIndexPath *rightNextBlock);
 @interface ReceiveAddressTableViewCell : UITableViewCell
 @property (weak, nonatomic) IBOutlet UILabel *receiverAndMobileLabel;
 @property (weak, nonatomic) IBOutlet UILabel *receiveAddressLabel;
-@property (weak, nonatomic) IBOutlet NSLayoutConstraint *selectImageWidthLayout;
-@property (weak, nonatomic) IBOutlet IndexButton *rightNextButton;
-//点击后边的按钮block
-@property (nonatomic,copy) RightNextBlock rightNextBlock;
+@property (weak, nonatomic) IBOutlet IndexButton *leftSelectButton;
+
+
 
 - (void)updateReceiveAddressCell:(ReceiveAddressModel *)receiveAddressModel withIndex:(NSIndexPath *)cellIndex;
 

@@ -9,5 +9,7 @@
 #import <UIKit/UIKit.h>
 
 @interface TodaySaleHeaderCollectionViewCell : UICollectionViewCell
+@property (weak, nonatomic) IBOutlet UIImageView *headerImageView;
 
+- (void)updateHeaderCellWithImageUrl:(NSString *)tempImageUrl;
 @end

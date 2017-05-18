@@ -21,7 +21,7 @@
         [self.selectButton setBackgroundImage:[UIImage imageNamed:@"g_btn_normal"] forState:UIControlStateNormal];
     }
     
-    [self.headerImageView setWebImageURLWithImageUrlStr:tempShoppingCarModel.shoppingCarProduct.productImageUrlstr withErrorImage:[UIImage imageNamed:@"productImage"]];
+    [self.headerImageView setWebImageURLWithImageUrlStr:tempShoppingCarModel.shoppingCarProduct.productImageUrlstr withErrorImage:[UIImage imageNamed:@"icon_pic_cp"] withIsCenter:YES];
     self.titleLabel.text = tempShoppingCarModel.shoppingCarProduct.productTitle;
     
     self.companyLabel.text = tempShoppingCarModel.shoppingCarProduct.productCompany;

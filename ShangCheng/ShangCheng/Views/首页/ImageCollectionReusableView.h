@@ -7,7 +7,10 @@
 //
 
 #import <UIKit/UIKit.h>
-
+#import "SDCycleScrollView.h"
 @interface ImageCollectionReusableView : UICollectionReusableView
+@property (weak, nonatomic) IBOutlet SDCycleScrollView *imageScrollView;
+
+- (void)updateImageCellWithImgUrlArr:(NSArray *)imgUrlArr;
 
 @end

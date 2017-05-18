@@ -12,6 +12,7 @@
 #import "SelectCouponViewController.h"
 #import "PayViewController.h"
 #import "Manager.h"
+#import "SVProgressHUD.h"
 #import "AlertManager.h"
 
 @interface PreviewOrderViewController ()<UITableViewDataSource,UITableViewDelegate>
@@ -66,24 +67,35 @@
     [self upFootview];
    //底部实付款
     self.bottomPayMoneyLabel.text = [NSString stringWithFormat:@"  实付款：￥%.2f", [self computeProductTotalPrice] - [[self.saleMoneyDic objectForKey:@"saleMoney"] integerValue]];
-    
+    //风火轮
+    if ([SVProgressHUD isVisible] == NO) {
+        [SVProgressHUD show];
+    }
+
     //网络请求收货地址
     [manager receiveAddressListWithUserIdOrReceiveId:manager.memberInfoModel.u_id withAddressListSuccess:^(id successResult) {
-
-        for (ReceiveAddressModel *tempModel in manager.receiveAddressArr) {
-            if (tempModel.defaultAddress == YES) {
-                //首次进入，默认的地址就是选择的地址
-                tempModel.isSelect = YES;
-                //刷新收货地址UI
-                [self updateReceiveViewUI];
+        [SVProgressHUD dismiss];
+        
+        if (manager.receiveAddressArr.count > 0) {
+            for (ReceiveAddressModel *tempModel in manager.receiveAddressArr) {
+                if (tempModel.defaultAddress == YES) {
+                    //首次进入，默认的地址就是选择的地址
+                    tempModel.isSelect = YES;
+                    //刷新收货地址UI
+                    [self updateReceiveViewUI];
+                    
+                    break;
+                }
                 
-                break;
             }
 
+        }else {
+            self.selectReceiveNameAndMobileLabel.text = @"暂无地址，请添加新地址";
+            self.selectReceiveAddressLabel.text = @"---";
         }
         
     } withAddressListFail:^(NSString *failResultStr) {
-        
+        [SVProgressHUD dismiss];
     }];
 
 }
@@ -91,13 +103,13 @@
 //刷新收货地址UI
 - (void)updateReceiveViewUI {
     Manager *manager = [Manager shareInstance];
+    
+    
     ReceiveAddressModel *selectReceiveModel = [manager selectedReceiveAddressModel];
     
     NSString *phoneStr = @"";
     if (selectReceiveModel.receiveMobile != nil && selectReceiveModel.receiveMobile.length > 0) {
         phoneStr = selectReceiveModel.receiveMobile;
-    }else if (selectReceiveModel.receiveTel != nil && selectReceiveModel.receiveTel.length >0) {
-        phoneStr = selectReceiveModel.receiveTel;
     }
 
     self.selectReceiveNameAndMobileLabel.text = [NSString stringWithFormat:@"%@  %@",selectReceiveModel.receiverName,phoneStr];
@@ -141,17 +153,23 @@
     self.payTimeLabel.text = [NSString stringWithFormat:@"下单时间：%@",[manager getNowTimeStr]];
     
 }
+
 - (void)viewDidDisappear:(BOOL)animated {
     [super viewDidDisappear: animated];
     //界面消失，下单时间停止
     [self.tempTimer invalidate];
+    [SVProgressHUD dismiss];
 }
 //总金额
 - (float)computeProductTotalPrice {
     float totalPrice = 0;
     for (ShoppingCarModel *tempModel in self.selectedProductArr) {
-        // 一个产品的总价格 = 单价*数量
-        totalPrice += [tempModel.totalprice floatValue];
+        
+        if (tempModel.isActivity == NO) {
+            // 一个产品的总价格 = 单价*数量
+            totalPrice += [tempModel.totalprice floatValue];
+        }
+       
     }
     return totalPrice;
 
@@ -166,7 +184,7 @@
         self.couponLabel.text = @"未选择";
 
     }else {
-        self.couponLabel.text = [self.saleMoneyDic objectForKey:@"saleCode"];
+        self.couponLabel.text = [NSString stringWithFormat:@"优惠劵码：%@", [self.saleMoneyDic objectForKey:@"saleCode"] ];
 
     }
 
@@ -185,9 +203,10 @@
     }
     self.productCountLabel.text = [NSString stringWithFormat:@"%d件",totalCount];
     
+   
     
     //需付款
-    self.payMoneyLabel.text = [NSString stringWithFormat:@"需付款：%.2f", [self computeProductTotalPrice] - [[self.saleMoneyDic objectForKey:@"saleMoney"] integerValue]];
+    self.payMoneyLabel.text = [NSString stringWithFormat:@"需付款：%.2f", [self computeProductTotalPrice] - [[self.saleMoneyDic objectForKey:@"saleMoney"] floatValue]];
     //时间
     self.payTimeLabel.text = [NSString stringWithFormat:@"下单时间：%@",[manager getNowTimeStr]];
    
@@ -219,7 +238,7 @@
 
 
 
-#pragma mark - 头部地址选择 -
+
 
 #pragma mark - 联系客服 -
 - (IBAction)telToPeopleService:(UIButton *)sender {
@@ -237,13 +256,18 @@
 #pragma mark - 底部功能 -
 //提交订单，即生成订单
 - (IBAction)submitOrderButtonAction:(UIButton *)sender {
-
+    AlertManager *alertM = [AlertManager shareIntance];
     //得到地区数据
     Manager *manager = [Manager shareInstance];
     ReceiveAddressModel *selectReceiveModel = [manager selectedReceiveAddressModel];
     if (selectReceiveModel != nil && selectReceiveModel.receiverID != nil) {
-        [manager creatOrderWithUserID:manager.memberInfoModel.u_id withReceivedID:selectReceiveModel.receiverID withTotalAmount:[NSString stringWithFormat:@"%f",[self computeProductTotalPrice]] withDiscount:[self.saleMoneyDic objectForKey:@"saleMoney"] withCouponId:[self.saleMoneyDic objectForKey:@"couponId"] withArr:self.selectedProductArr withOrderSuccessResult:^(id successResult) {
-            
+        if ([SVProgressHUD isVisible] == NO) {
+            [SVProgressHUD show];
+        }
+
+        [manager creatOrderWithUserID:manager.memberInfoModel.u_id withReceivedID:selectReceiveModel.receiverID withTotalAmount:[NSString stringWithFormat:@"%.2f",[self computeProductTotalPrice]] withDiscount:[self.saleMoneyDic objectForKey:@"saleMoney"] withCouponId:[self.saleMoneyDic objectForKey:@"couponId"] withArr:self.selectedProductArr withOrderSuccessResult:^(id successResult) {
+            //风火轮消失
+            [SVProgressHUD dismiss];
             self.creatOrderId = successResult;
             //发送通知通知订单列表刷新页面
             [[NSNotificationCenter defaultCenter] postNotificationName:@"refreshOrderList" object:self userInfo:nil];
@@ -252,10 +276,14 @@
             
             
         } withOrderFailResult:^(NSString *failResultStr) {
-            
+            [SVProgressHUD dismiss];
+            [alertM showAlertViewWithTitle:nil withMessage:@"订单生成失败，请稍后再试" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
+
         }];
     }else {
         NSLog(@"未选择地址");
+        [alertM showAlertViewWithTitle:nil withMessage:@"您尚未选择地址" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
+
     }
 
     
@@ -282,12 +310,17 @@
 
         receiveAddressVC.selectModelBlock = ^(){
             
-            //刷新UI
-            [self updateReceiveViewUI];
+            if (manager.receiveAddressArr.count > 0) {
+                //刷新UI
+                [self updateReceiveViewUI];
+            }else {
+                self.selectReceiveNameAndMobileLabel.text = @"暂无地址，请添加新地址";
+                self.selectReceiveAddressLabel.text = @"---";
+            }
+            
         };
         
     }
-    
     
     //选择优惠劵
     if ([segue.identifier isEqualToString:@"toSelectCouponVC"]) {
@@ -303,14 +336,14 @@
                 //刷新footView 的ui
                 [self upFootview];
                 
-                self.bottomPayMoneyLabel.text = [NSString stringWithFormat:@"  实付款：￥%.2f", [self computeProductTotalPrice] - [[self.saleMoneyDic objectForKey:@"saleMoney"] integerValue]];
+                self.bottomPayMoneyLabel.text = [NSString stringWithFormat:@"  实付款：￥%.2f", [self computeProductTotalPrice] - [[self.saleMoneyDic objectForKey:@"saleMoney"] floatValue]];
                 
             };
             
         }else {
             //
             AlertManager *alertManager = [AlertManager shareIntance];
-            [alertManager showAlertViewWithTitle:nil withMessage:@"优惠券不可用" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
+            [alertManager showAlertViewWithTitle:@"优惠券不可用" withMessage:@"非活动产品未达到1000元" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
         }
 
     }
@@ -319,7 +352,7 @@
     if ([segue.identifier isEqualToString:@"previewOrderVCToPayVC"]) {
         PayViewController *payVC = [segue destinationViewController];
         payVC.orderIDArr = @[self.creatOrderId];
-        payVC.totalAmountFloat = [self computeProductTotalPrice] - [[self.saleMoneyDic objectForKey:@"saleMoney"] integerValue];
+        payVC.totalAmountFloat = [self computeProductTotalPrice] - [[self.saleMoneyDic objectForKey:@"saleMoney"] floatValue];
     }
     
     

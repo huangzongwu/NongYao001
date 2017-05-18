@@ -205,10 +205,17 @@
     //得到区数组
     NSArray *quArr = [shiArr[self.selectShiInt] objectForKey:@"item"];
     //得到区名称
-    NSString *quStr = [quArr[self.selectQuInt] objectForKey:@"a_name"];
+    NSString *quStr = @"";
+    NSString *tempAreaID;
+    if (quArr.count > 0) {
+        quStr = [quArr[self.selectQuInt] objectForKey:@"a_name"];
+        //得到区编码。执行block
+        tempAreaID = [quArr[self.selectQuInt] objectForKey:@"a_num"];
+    }else{
+        tempAreaID = [shiArr[self.selectShiInt]objectForKey:@"a_num"];
+    }
     
-    //得到区编码。执行block
-    NSString *tempAreaID = [quArr[self.selectQuInt] objectForKey:@"a_num"];
+    
 
     //将省市区名称拼接，执行block
     self.areaInfoBlock(tempAreaID ,shengStr ,shiStr ,quStr);

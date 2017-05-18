@@ -8,6 +8,8 @@
 
 #import "WebPageViewController.h"
 #import "KongImageView.h"
+#import "SVProgressHUD.h"
+#import "Manager.h"
 @interface WebPageViewController ()<UIWebViewDelegate>
 @property (nonatomic,strong)KongImageView *kongImageView;
 @property (weak, nonatomic) IBOutlet UIWebView *tempWebView;
@@ -29,6 +31,7 @@
     
     //加载空白页
     self.kongImageView = [[[NSBundle mainBundle] loadNibNamed:@"KongImageView" owner:self options:nil] firstObject];
+//    self.kongImageView.backgroundColor = [UIColor yellowColor];
     [self.kongImageView.reloadAgainButton addTarget:self action:@selector(reloadAgainButtonAction:) forControlEvents:UIControlEventTouchUpInside];
     self.kongImageView.frame = self.view.bounds;
     [self.view addSubview:self.kongImageView];
@@ -48,32 +51,44 @@
 //加载数据
 - (void)reloadAgainButtonAction:(IndexButton *)sender {
     //加载网页的方式
-    if (![self.webUrl containsString:@"http://"]) {
-        self.webUrl = [NSString stringWithFormat:@"http://%@", self.webUrl];
-    }
-    
-    NSURL *url = [NSURL URLWithString: self.webUrl];
-    
-    [self.tempWebView loadRequest:[NSURLRequest requestWithURL:url]];
+    if (self.webUrl != nil && ![self.webUrl isEqualToString:@""]) {
+        if (![self.webUrl containsString:@"http://"]) {
+            self.webUrl = [NSString stringWithFormat:@"http://%@", self.webUrl];
+        }
+        
+        NSURL *url = [NSURL URLWithString: self.webUrl];
+        
+        [self.tempWebView loadRequest:[NSURLRequest requestWithURL:url]];
 
+    }else {
+    
+        [self.kongImageView showKongViewWithKongMsg:@"此链接暂不存在" withKongType:KongTypeWithKongData];
+
+    }
 }
+
 
 - (void)webViewDidStartLoad:(UIWebView *)webView {
     NSLog(@"开始加载");
-//    [SVProgressHUD show];
+    
+    [SVProgressHUD show];
 }
 - (void)webViewDidFinishLoad:(UIWebView *)webView {
     NSLog(@"加载完毕");
-//    [SVProgressHUD dismiss];
+    [SVProgressHUD dismiss];
     
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error {
     NSLog(@"加载错误%@",error);
-//    [SVProgressHUD dismiss];
+    [SVProgressHUD dismiss];
     
     [self.kongImageView showKongViewWithKongMsg:@"加载失败" withKongType:KongTypeWithNetError];
     
+}
+- (void)viewWillDisappear:(BOOL)animated {
+    [SVProgressHUD dismiss];
+
 }
 
 - (void)didReceiveMemoryWarning {

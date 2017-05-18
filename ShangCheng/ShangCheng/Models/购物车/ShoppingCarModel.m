@@ -10,7 +10,13 @@
 
 @implementation ShoppingCarModel
 - (void)setValue:(id)value forUndefinedKey:(NSString *)key {
-    
+    if ([key isEqualToString:@"c_activity_id"]) {
+        if ([value isEqualToString:@"0"]) {
+            self.isActivity = NO;
+        }else {
+            self.isActivity = YES;
+        }
+    }
 }
 
 @end

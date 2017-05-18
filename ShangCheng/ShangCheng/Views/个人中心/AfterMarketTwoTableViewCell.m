@@ -15,12 +15,15 @@
     
     self.orderCodeLabel.text = tempModel.p_code;
     self.orderStatusLabel.text = tempModel.statusvalue;
+    SonOrderModel *oneSonOrderModel = tempModel.subOrderArr[0];
+    SonOrderModel *twoSonOrderModel = tempModel.subOrderArr[1];
+
     
     //看看有多少个子订单，模式都显示
     self.productImageViewOne.hidden = NO;
-    [self.productImageViewOne setWebImageURLWithImageUrlStr:@"" withErrorImage:[UIImage imageNamed:@"productImage"]];
+    [self.productImageViewOne setWebImageURLWithImageUrlStr:oneSonOrderModel.p_icon withErrorImage:[UIImage imageNamed:@"icon_pic_cp"] withIsCenter:YES];
     self.productImageViewTwo.hidden = NO;
-    [self.productImageViewTwo setWebImageURLWithImageUrlStr:@"" withErrorImage:[UIImage imageNamed:@"productImage"]];
+    [self.productImageViewTwo setWebImageURLWithImageUrlStr:twoSonOrderModel.p_icon withErrorImage:[UIImage imageNamed:@"icon_pic_cp"] withIsCenter:YES];
 
     self.productImageViewThree.hidden = NO;
     self.productImageViewFour.hidden = NO;
@@ -31,13 +34,21 @@
             self.productImageViewFour.hidden = YES;
             break;
         case 3:
+        {
             self.productImageViewFour.hidden = YES;
-            [self.productImageViewThree setWebImageURLWithImageUrlStr:@"" withErrorImage:[UIImage imageNamed:@"productImage"]];
-
+            SonOrderModel *threeSonOrderModel = tempModel.subOrderArr[2];
+            
+            [self.productImageViewThree setWebImageURLWithImageUrlStr:threeSonOrderModel.p_icon withErrorImage:[UIImage imageNamed:@"icon_pic_cp"] withIsCenter:YES];
+        }
             break;
         case 4:
-            [self.productImageViewThree setWebImageURLWithImageUrlStr:@"" withErrorImage:[UIImage imageNamed:@"productImage"]];
-            [self.productImageViewFour setWebImageURLWithImageUrlStr:@"" withErrorImage:[UIImage imageNamed:@"productImage"]];
+        {
+            SonOrderModel *threeSonOrderModel = tempModel.subOrderArr[2];
+            SonOrderModel *fourSonOrderModel = tempModel.subOrderArr[3];
+            
+            [self.productImageViewThree setWebImageURLWithImageUrlStr:threeSonOrderModel.p_icon withErrorImage:[UIImage imageNamed:@"icon_pic_cp"] withIsCenter:YES];
+            [self.productImageViewFour setWebImageURLWithImageUrlStr:fourSonOrderModel.p_icon withErrorImage:[UIImage imageNamed:@"icon_pic_cp"] withIsCenter:YES];
+        }
 
         default:
             break;

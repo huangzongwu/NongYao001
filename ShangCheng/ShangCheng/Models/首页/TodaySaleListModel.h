@@ -18,7 +18,11 @@
 @property (nonatomic,strong)NSString *d_price;//活动价格
 @property (nonatomic,strong)NSString *s_price_backup;//非活动价格
 @property (nonatomic,strong)NSString *d_inventory;//库存数量
+@property (nonatomic,strong)NSString *a_time_start;
 @property (nonatomic,strong)NSString *a_time_end;
+@property (nonatomic,strong)NSString *s_sales_volume;
+@property (nonatomic,strong)NSString *p_icon;
+@property (nonatomic,strong)NSString *s_code;
 @property (nonatomic,strong)NSString *a_ico;
 
 - (void)setValue:(id)value forUndefinedKey:(NSString *)key;

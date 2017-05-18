@@ -14,6 +14,7 @@
 #import "Manager.h"
 #import "MJRefresh.h"
 #import "OrderDetailViewController.h"
+#import "SVProgressHUD.h"
 @interface AfterMarketViewController ()<UITableViewDelegate,UITableViewDataSource>
 @property (weak, nonatomic) IBOutlet UITableView *afterMarketTableView;
 
@@ -30,6 +31,10 @@
 @implementation AfterMarketViewController
 - (IBAction)leftBarButtonAction:(UIBarButtonItem *)sender {
     [self.navigationController popViewControllerAnimated:YES];
+}
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    [SVProgressHUD dismiss];
 }
 
 - (void)viewDidLoad {
@@ -96,13 +101,19 @@
 - (void)httpOrderListWithPageIndex:(NSInteger)pageIndex {
     Manager *manager = [Manager shareInstance];
     
-    
+    if (pageIndex == 1 && [SVProgressHUD isVisible] == NO) {
+        [SVProgressHUD show];
+
+    }
+   
     [manager httpOrderReturnListWithUserId:manager.memberInfoModel.u_id withCode:@"" withPageIndex:pageIndex withPageSize:10 withOrderReturnSuccess:^(id successResult) {
         
         //得到总页数
         self.totalPage = [successResult integerValue];
         //如果是下拉刷新，将currentpage重置为1
         if (pageIndex == 1) {
+            [SVProgressHUD dismiss];//风火轮消失
+            
             self.currentPage = 1;
             //取消效果
             [self.afterMarketTableView headerEndRefreshing];
@@ -120,6 +131,8 @@
         [self.afterMarketTableView reloadData];
         
     } withOrderReturnFail:^(NSString *failResultStr) {
+        
+        [SVProgressHUD dismiss];
         
         [self.afterMarketTableView headerEndRefreshing];
         [self.afterMarketTableView footerEndRefreshing];

@@ -22,13 +22,16 @@
     
     NSMutableArray *buttonTitleArr = [NSMutableArray array];
     //待支付和带确认  是一个取消按钮
-    if ([tempSonOrderModel.o_status isEqualToString:@"0"] || [tempSonOrderModel.o_status isEqualToString:@"1A"] || [tempSonOrderModel.o_status isEqualToString:@"1B"]) {
+    if ([tempSonOrderModel.o_status isEqualToString:@"0"] || [tempSonOrderModel.o_status isEqualToString:@"1B"]) {
         
         [buttonTitleArr addObject:@"取消订单"];
     }
+    if ([tempSonOrderModel.o_status isEqualToString:@"5A"] || [tempSonOrderModel.o_status isEqualToString:@"5B"]) {
+        [buttonTitleArr addObject:@"物流信息"];
+    }
     
     //待收货 是两个按钮 物流和确认收货
-    if ([tempSonOrderModel.o_status isEqualToString:@"5A"] || [tempSonOrderModel.o_status isEqualToString:@"5"]) {
+    if ([tempSonOrderModel.o_status isEqualToString:@"5"]) {
         
         [buttonTitleArr addObject:@"物流信息"];
         [buttonTitleArr addObject:@"确认收货"];
@@ -46,7 +49,7 @@
     }
     
     //待发货 就是一个按钮，详情（物流）
-    if ([tempSonOrderModel.o_status isEqualToString:@"1"] || [tempSonOrderModel.o_status isEqualToString:@"2"] || [tempSonOrderModel.o_status isEqualToString:@"3A"] ||[tempSonOrderModel.o_status isEqualToString:@"3B"] ||[tempSonOrderModel.o_status isEqualToString:@"3"] ||[tempSonOrderModel.o_status isEqualToString:@"4A"] ||[tempSonOrderModel.o_status isEqualToString:@"4"] ) {
+    if ([tempSonOrderModel.o_status isEqualToString:@"1"] || [tempSonOrderModel.o_status isEqualToString:@"2"] || [tempSonOrderModel.o_status isEqualToString:@"3A"] ||[tempSonOrderModel.o_status isEqualToString:@"3B"] ||[tempSonOrderModel.o_status isEqualToString:@"3"] ||[tempSonOrderModel.o_status isEqualToString:@"4A"] ||[tempSonOrderModel.o_status isEqualToString:@"4"]) {
         
         [buttonTitleArr addObject:@"订单详情"];
     }
@@ -78,7 +81,7 @@
     
 }
 
-
+/*
 - (IBAction)oneButtonAction:(IndexButton *)sender {
     
     //待支付 带确认 都是取消订单
@@ -115,6 +118,7 @@
     
 }
 
+*/
 
 - (void)awakeFromNib {
     [super awakeFromNib];

@@ -19,7 +19,7 @@
         [self.selectButton setImage:[UIImage imageNamed:@"g_btn_normal"] forState:UIControlStateNormal];
     }
     
-    [self.headerImageView setWebImageURLWithImageUrlStr:tempShoppingCarModel.shoppingCarProduct.productImageUrlstr withErrorImage:[UIImage imageNamed:@"productImage"]];
+    [self.headerImageView setWebImageURLWithImageUrlStr:tempShoppingCarModel.shoppingCarProduct.productImageUrlstr withErrorImage:[UIImage imageNamed:@"icon_pic_cp"] withIsCenter:YES];
     self.titleLabel.text = tempShoppingCarModel.shoppingCarProduct.productTitle;
     
     self.companyLabel.text = tempShoppingCarModel.shoppingCarProduct.productCompany;
@@ -73,7 +73,10 @@
         }];
 
     }else {
-        NSLog(@"不得小于起订数量");
+        AlertManager *alertM = [AlertManager shareIntance];
+        
+        [alertM showAlertViewWithTitle:nil withMessage:@"不得小与起订数量" actionTitleArr:nil withViewController:[UIApplication sharedApplication].keyWindow.rootViewController withReturnCodeBlock:nil];
+
     }
     
     

@@ -8,9 +8,11 @@
 
 #import "TodaySaleViewController.h"
 #import "TodaySaleTableViewCell.h"
+#import "TodaySaleListViewController.h"
 #import "Manager.h"
 #import "MJRefresh.h"
 #import "KongImageView.h"
+#import "SVProgressHUD.h"
 @interface TodaySaleViewController ()<UITableViewDelegate,UITableViewDataSource>
 //空白页
 @property (nonatomic,strong)KongImageView *kongImageView;
@@ -25,6 +27,11 @@
     [self.navigationController popViewControllerAnimated:YES];
 }
 
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear: animated];
+    [SVProgressHUD dismiss];
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
@@ -33,7 +40,6 @@
     [self.kongImageView.reloadAgainButton addTarget:self action:@selector(reloadAgainButtonAction:) forControlEvents:UIControlEventTouchUpInside];
     self.kongImageView.frame = self.view.bounds;
     [self.view addSubview:self.kongImageView];
-    
     
     [self downPushRefresh];
     [self.todaySaleTableView headerBeginRefreshing];
@@ -53,8 +59,17 @@
     Manager *manager = [Manager shareInstance];
 
     [self.todaySaleTableView addHeaderWithCallback:^{
+
+        //增加风火轮
+        if ([SVProgressHUD isVisible] == NO) {
+            [SVProgressHUD show];
+        }
+
+        
         
         [manager todayActivityWithTodaySuccess:^(id successResult) {
+            //风火轮消失
+            [SVProgressHUD dismiss];
             //消失刷新效果
             [self.todaySaleTableView headerEndRefreshing];
             self.todaySaleDataSourceArr = [NSMutableArray arrayWithArray:successResult];
@@ -63,6 +78,8 @@
             [self isShowKongImageViewWithType:KongTypeWithKongData withKongMsg:@"暂无今日特价"];
 
         } withTodayFail:^(NSString *failResultStr) {
+            //风火轮消失
+            [SVProgressHUD dismiss];
             //消失刷新效果
             [self.todaySaleTableView headerEndRefreshing];
             [self isShowKongImageViewWithType:KongTypeWithNetError withKongMsg:@"网络错误"];
@@ -110,8 +127,15 @@
 
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    
-    [self performSegueWithIdentifier:@"todaySaleVCToTodaySaleListVC" sender:nil];
+    TodaySaleModel *tempModel = self.todaySaleDataSourceArr[indexPath.section];
+
+    NSString *tempTitle ;
+    if (indexPath.section == 0) {
+        tempTitle = @"今日特价";
+    }else {
+        tempTitle = @"明日特价";
+    }
+    [self performSegueWithIdentifier:@"todaySaleVCToTodaySaleListVC" sender:@[tempModel,tempTitle]];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -119,14 +143,22 @@
     // Dispose of any resources that can be recreated.
 }
 
-/*
+
 #pragma mark - Navigation
 
 // In a storyboard-based application, you will often want to do a little preparation before navigation
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
+    if ([segue.identifier isEqualToString:@"todaySaleVCToTodaySaleListVC"]) {
+        TodaySaleListViewController *todaySaleListVC = [segue destinationViewController];
+        TodaySaleModel *tempModel = sender[0];
+        todaySaleListVC.headerImageUrl = tempModel.a_image1;
+        todaySaleListVC.temp_a_id = tempModel.a_id;
+        todaySaleListVC.tempTitle = sender[1];
+    }
+    
 }
-*/
+
 
 @end

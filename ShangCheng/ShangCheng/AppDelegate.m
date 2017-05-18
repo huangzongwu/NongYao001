@@ -10,7 +10,18 @@
 #import "Manager.h"
 #import <AlipaySDK/AlipaySDK.h>
 #import "WXApi.h"
+#import <ShareSDK/ShareSDK.h>
+#import <ShareSDKConnector/ShareSDKConnector.h>
+//腾讯开放平台（对应QQ和QQ空间）SDK头文件
+#import <TencentOpenAPI/TencentOAuth.h>
+#import <TencentOpenAPI/QQApiInterface.h>
+//微信SDK头文件
+#import "WXApi.h"
+//新浪微博SDK头文件
+#import "WeiboSDK.h"
+//新浪微博SDK需要在项目Build Settings中的Other Linker Flags添加"-ObjC"
 
+#import "SVProgressHUD.h"
 #import "JPUSHService.h"
 #ifdef NSFoundationVersionNumber_iOS_9_x_Max
 #import <UserNotifications/UserNotifications.h>
@@ -26,7 +37,8 @@
     // Override point for customization after application launch.
     
     NSLog(@"%f -- %f",kScreenW,kScreenH);
-    
+    //状态栏白色
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent animated:NO];
     
     Manager *manager = [Manager shareInstance];
     //从本地读取个人信息，然后尝试自动登录一下
@@ -35,10 +47,25 @@
         //有个人信息。尝试一下登陆
 //        MemberInfoModel *model = [Manager shareInstance].memberInfoModel;
         NSLog(@"%@--%@",manager.memberInfoModel.u_mobile,manager.memberInfoModel.userPassword);
-        
+        //风火轮显示
+        [SVProgressHUD show];
         [[Manager shareInstance] loginActionWithUserID:manager.memberInfoModel.u_mobile withPassword:manager.memberInfoModel.userPassword withLoginSuccessResult:^(id successResult) {
             NSLog(@"免登陆成功");
+            //烽火论消失
+            [SVProgressHUD dismiss];
+            //获取购物车数量，显示在tabbar上
+            [manager httpShoppingCarNumberWithUserid:manager.memberInfoModel.u_id withNumberSuccess:^(id successResult) {
+
+            } withNumberFail:^(NSString *failResultStr) {
+                
+            }];
+            
+            
+            
+            
         } withLoginFailResult:^(NSString *failResultStr) {
+            //烽火论消失
+            [SVProgressHUD dismiss];
             NSLog(@"免登陆失败--%@",failResultStr);
         }];
         
@@ -52,10 +79,75 @@
     [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
     [JPUSHService setBadge:0];
 
-    
+    //shareSDK分享注册
+    [self registerShareSDK];
     
     return YES;
 }
+
+- (void)registerShareSDK {
+    /**
+     *  设置ShareSDK的appKey，如果尚未在ShareSDK官网注册过App，请移步到http://mob.com/login 登录后台进行应用注册
+     *  在将生成的AppKey传入到此方法中。
+     *  方法中的第二个第三个参数为需要连接社交平台SDK时触发，
+     *  在此事件中写入连接代码。第四个参数则为配置本地社交平台时触发，根据返回的平台类型来配置平台信息。
+     *  如果您使用的时服务端托管平台信息时，第二、四项参数可以传入nil，第三项参数则根据服务端托管平台来决定要连接的社交SDK。
+     */
+    [ShareSDK registerApp:@"1ce4ae67275fd"
+     
+          activePlatforms:@[
+                            //                            @(SSDKPlatformTypeSinaWeibo),
+                            //                            @(SSDKPlatformTypeMail),
+                            @(SSDKPlatformTypeSMS),
+                            //                            @(SSDKPlatformTypeCopy),
+                            @(SSDKPlatformTypeWechat),
+                            @(SSDKPlatformTypeQQ),
+                            @(SSDKPlatformSubTypeQQFriend),
+                            @(SSDKPlatformSubTypeQZone)]
+                 onImport:^(SSDKPlatformType platformType)
+     {
+         switch (platformType)
+         {
+             case SSDKPlatformTypeWechat:
+                 [ShareSDKConnector connectWeChat:[WXApi class]];
+                 break;
+             case SSDKPlatformTypeQQ:
+                 [ShareSDKConnector connectQQ:[QQApiInterface class] tencentOAuthClass:[TencentOAuth class]];
+                 break;
+             case SSDKPlatformTypeSinaWeibo:
+                 [ShareSDKConnector connectWeibo:[WeiboSDK class]];
+                 break;
+             default:
+                 break;
+         }
+     }
+          onConfiguration:^(SSDKPlatformType platformType, NSMutableDictionary *appInfo)
+     {
+         
+         switch (platformType)
+         {
+             case SSDKPlatformTypeSinaWeibo:
+                 //设置新浪微博应用信息,其中authType设置为使用SSO＋Web形式授权
+                 [appInfo SSDKSetupSinaWeiboByAppKey:@"568898243"
+                                           appSecret:@"38a4f8204cc784f81f9f0daaf31e02e3"
+                                         redirectUri:@"http://www.sharesdk.cn"
+                                            authType:SSDKAuthTypeBoth];
+                 break;
+             case SSDKPlatformTypeWechat:
+                 [appInfo SSDKSetupWeChatByAppId:@"wxad3c689bdfacc02c"
+                                       appSecret:@"64020361b8ec4c99936c0e3999a9f249"];
+                 break;
+             case SSDKPlatformTypeQQ:
+                 [appInfo SSDKSetupQQByAppId:@"1104679184"
+                                      appKey:@"63WyIVtrcdffzavU"
+                                    authType:SSDKAuthTypeBoth];
+                 break;
+            default:
+                 break;
+         }
+     }];
+}
+
 
 //注册极光
 - (void)registerJpushNotificationWithLaunchOptions:(NSDictionary *)launchOptions {
@@ -78,7 +170,7 @@
     // 如需继续使用pushConfig.plist文件声明appKey等配置内容，请依旧使用[JPUSHService setupWithOption:launchOptions]方式初始化。
     [JPUSHService setupWithOption:launchOptions appKey:@"0e7ffb64c4a20b8f8b9cecda"
                           channel:nil
-                 apsForProduction:NO
+                 apsForProduction:YES
             advertisingIdentifier:nil];
 }
 

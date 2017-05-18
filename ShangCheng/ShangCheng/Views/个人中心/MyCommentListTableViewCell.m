@@ -11,10 +11,10 @@
 @implementation MyCommentListTableViewCell
 - (void)updateMyCommentCellWithCommentModel:(MyCommentListModel *)tempModel {
     
-    [self.productImageView setWebImageURLWithImageUrlStr:tempModel.productImageUrl withErrorImage:[UIImage imageNamed:@"productImage"]];
+    [self.productImageView setWebImageURLWithImageUrlStr:tempModel.productImageUrl withErrorImage:[UIImage imageNamed:@"icon_pic_cp"] withIsCenter:YES];
     self.productNameLabel.text = tempModel.productTitleStr;
     self.productFormatLabel.text = tempModel.productFormatStr;
-    self.companyLabel.text = tempModel.productCompanyStr;
+    self.companyLabel.text = [NSString stringWithFormat:@"￥%@" ,tempModel.productPrice ];
     self.commentDetailLabel.text = tempModel.detailCommentStr;
     self.commentTimeLabel.text = tempModel.commentTimeStr;
     
@@ -69,7 +69,11 @@
             break;
     }
     
-    
+    if (tempModel.r_content_reply.length > 0) {
+        self.replyContentLabel.text = [NSString stringWithFormat:@"回复我：%@", tempModel.r_content_reply ];
+    }else {
+        self.replyContentLabel.text = @"";
+    }
 }
 
 - (void)awakeFromNib {

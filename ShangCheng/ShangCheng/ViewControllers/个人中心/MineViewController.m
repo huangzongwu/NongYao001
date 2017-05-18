@@ -16,6 +16,8 @@
 #import "MyTradeRecordViewController.h"
 #import "MemberManagerViewController.h"
 #import "MyFavoriteListViewController.h"
+#import "SVProgressHUD.h"
+#import "MJRefresh.h"
 @interface MineViewController ()<UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout>
 
 @property (weak, nonatomic) IBOutlet UICollectionView *mineCollectionView;
@@ -37,6 +39,8 @@
         [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(refreshCouponAction:) name:@"refreshCouponCount" object:nil];
         //通知，刷新账户信息
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshMemberHeaderViewUI:) name:@"refreshMemberInfoUI" object:nil];
+        //通知，刷新金额
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshMoney:) name:@"refreshMoney" object:nil];
 
         
     }
@@ -70,6 +74,14 @@
     //刷新一下用户的信息如头像，名称等
     [self.mineCollectionView reloadSections:[NSIndexSet indexSetWithIndex:0]];
 }
+
+//刷新用户金额
+- (void)refreshMoney:(NSNotification *)sender {
+    [self updateMyWalletWithIsLogin:YES];
+
+}
+
+
 
 //加载模块数据源
 - (void)updateDatasourceWithUserType:(NSString *)userType withIsReloadData:(BOOL)isReloadData {
@@ -129,15 +141,24 @@
     Manager *manager = [Manager shareInstance];
    
     if (isLogin == YES) {
+        if ([SVProgressHUD isVisible] == NO) {
+            [SVProgressHUD show];
+        }
+
         [manager httpMyWalletWithUserId:manager.memberInfoModel.u_id withMyWalletSuccess:^(id successResult) {
-            
+            [SVProgressHUD dismiss];
+            [self.mineCollectionView headerEndRefreshing];
             [self.mineCollectionView reloadSections:[NSIndexSet indexSetWithIndex:2]];
             
         } withMyWalletFail:^(NSString *failResultStr) {
-            
+            [SVProgressHUD dismiss];
+            [self.mineCollectionView headerEndRefreshing];
+
         }];
 
     }else {
+        [self.mineCollectionView headerEndRefreshing];
+
         manager.myWalletDic = nil;
         [self.mineCollectionView reloadSections:[NSIndexSet indexSetWithIndex:2]];
     }
@@ -169,7 +190,12 @@
         [self updateDatasourceWithUserType:@"2" withIsReloadData:NO];//未登录，默认显示普通用户
         [self updateMyWalletWithIsLogin:NO];
     }
+    
+    //下拉刷新
+    [self downRefreshAction];
 }
+
+
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear: animated];
@@ -183,8 +209,36 @@
     //显示navigation 那条线
     [self isClearNavigationBarLine:NO];
     
+    [SVProgressHUD dismiss];
 }
 
+#pragma mark - 下拉刷新 -
+- (void)downRefreshAction {
+    
+    [self.mineCollectionView addHeaderWithCallback:^{
+        
+        Manager *manager = [Manager shareInstance];
+        //判断状态，现在是否登陆了，用户显示是代理商还是普通用户
+        if ([manager isLoggedInStatus] == YES) {
+            //已经登录
+            [self updateDatasourceWithUserType:manager.memberInfoModel.u_type withIsReloadData:NO];
+            
+            //如果是代理。请求代理数据
+            [self updateMyAgentDataWithUserType:manager.memberInfoModel.u_type];
+            
+            //请求余额 可提现 优惠卷个数
+            [self updateMyWalletWithIsLogin:YES];
+            
+        }else {
+            //未登录
+            [self updateDatasourceWithUserType:@"2" withIsReloadData:NO];//未登录，默认显示普通用户
+            [self updateMyWalletWithIsLogin:NO];
+        }
+
+        
+    }];
+    
+}
 
 
 #pragma mark - 头部隐藏 -

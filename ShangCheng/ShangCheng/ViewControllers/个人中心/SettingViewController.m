@@ -9,6 +9,7 @@
 #import "SettingViewController.h"
 #import "Manager.h"
 #import "SDImageCache.h"
+//#import "AppDelegate.h"
 @interface SettingViewController ()<UITableViewDelegate,UITableViewDataSource>
 //退出登录按钮
 @property (weak, nonatomic) IBOutlet UIButton *loginOffButton;
@@ -35,7 +36,7 @@
     
     NSLog(@"%@",NSHomeDirectory());
     
-    self.dataSourceArr = @[@[@"清除缓存",@"消息推送"],@[@"我要评价"]];
+    self.dataSourceArr = @[@[@"清除缓存"],@[@"我要评价"]];
     
     //判断是否登录了，如果没有登录，退出登录就要隐藏
     Manager *manager = [Manager shareInstance];
@@ -98,6 +99,11 @@
                 }
             }
         }];
+    }
+    
+    if (indexPath.section == 1 && indexPath.row == 0) {
+        //跳转到App Store中进行评价
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://itunes.apple.com/cn/app/id1234823386?mt=8"]];
     }
     
 }

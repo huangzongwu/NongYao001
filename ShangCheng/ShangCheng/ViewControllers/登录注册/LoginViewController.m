@@ -10,6 +10,7 @@
 #import "RegisterAlertView.h"
 #import "Manager.h"
 #import "ForgetPasswordViewController.h"
+#import "SVProgressHUD.h"
 @interface LoginViewController ()<UITextFieldDelegate>
 @property (weak, nonatomic) IBOutlet UIScrollView *loginScrollView;
 @property (nonatomic,strong)RegisterAlertView *registerAlertView;
@@ -123,7 +124,10 @@
 
 
 
-
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    [SVProgressHUD dismiss];
+}
 - (void)viewDidDisappear:(BOOL)animated {
     [super viewDidDisappear:animated];
     //定制器取消
@@ -206,22 +210,33 @@
 
 //获取验证码
 - (IBAction)getLoginCodeButtonAction:(UIButton *)sender {
+    Manager *manager = [Manager shareInstance];
+    AlertManager *alert = [AlertManager shareIntance];
+
     if (self.codeLoginIDTextField.text.length == 11) {
-        Manager *manager = [Manager shareInstance];
-        [manager httpMobileCodeWithMobileNumber:self.codeLoginIDTextField.text withCodeSuccessResult:^(id successResult) {
-            if ([successResult isEqualToString:@"200"]) {
-                AlertManager *alert = [AlertManager shareIntance];
-                [alert showAlertViewWithTitle:nil withMessage:@"短信验证码发送成功，请注意查收" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
-                    //发送成功后，开始倒计时
-                    [self startTimeDown];
-                    
-                }];
-            }
-
-        } withCodeFailResult:^(NSString *failResultStr) {
+        //先检查这个手机号是否注册了
+        [manager httpCheckIsUserRegisterForLoginWithMobile:self.codeLoginIDTextField.text withIsRegisterSuccess:^(id successResult) {
             
+            //如果注册了，就可以获取验证码
+            [manager httpMobileCodeWithMobileNumber:self.codeLoginIDTextField.text withCodeSuccessResult:^(id successResult) {
+                if ([successResult isEqualToString:@"200"]) {
+                    
+                    [alert showAlertViewWithTitle:nil withMessage:@"短信验证码发送成功，请注意查收" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
+                        //发送成功后，开始倒计时
+                        [self startTimeDown];
+                        
+                    }];
+                }
+                
+            } withCodeFailResult:^(NSString *failResultStr) {
+                [alert showAlertViewWithTitle:nil withMessage:@"短信验证码发送失败，请联系客服" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
+            }];
+            
+        } withIsRegisterFail:^(NSString *failResultStr) {
+            //
+            [alert showAlertViewWithTitle:nil withMessage:@"该手机号尚未注册" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
         }];
-
+        
     }else {
         AlertManager *alert = [AlertManager shareIntance];
         [alert showAlertViewWithTitle:nil withMessage:@"请输入正确的手机号" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
@@ -247,17 +262,24 @@
 //    NSString *loginPassword = @"nongyao001";
     
     
-    
+    [self keyboardDismissAction];
+
 
     NSString *loginID = self.passwordLoginIDTextField.text;
     NSString *loginPassword = self.passwordLoginPasswordTextField.text ;
     
     Manager *manager = [Manager shareInstance];
-    [manager loginActionWithUserID:loginID withPassword:[manager digest:loginPassword] withLoginSuccessResult:^(id successResult) {
+    if ([SVProgressHUD isVisible] == NO) {
+        [SVProgressHUD show];
+    }
+    AlertManager *alertM = [AlertManager shareIntance];
 
+
+    [manager loginActionWithUserID:loginID withPassword:[manager digest:loginPassword] withLoginSuccessResult:^(id successResult) {
+        [SVProgressHUD dismiss];
+        
         if ([[successResult[0] objectForKey:@"code"] isEqualToString:@"0"]) {
             //需要重设密码
-            AlertManager *alertM = [AlertManager shareIntance];
             [alertM showAlertViewWithTitle:nil withMessage:@"系统升级，为了您的账户安全，请重置密码" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
                 //跳转到忘记密码中
                 [self performSegueWithIdentifier:@"toForgetPasswordVC" sender:self.passwordLoginIDTextField.text];
@@ -269,7 +291,8 @@
         }
         
     } withLoginFailResult:^(NSString *failResultStr) {
-        
+        [SVProgressHUD dismiss];
+        [alertM showAlertViewWithTitle:nil withMessage:failResultStr actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
     }];
 
 }
@@ -277,14 +300,22 @@
 
 //验证码登录按钮
 - (IBAction)loginButtonTwoAction:(UIButton *)sender {
+    [self keyboardDismissAction];
+
+    
     NSString *loginTel = self.codeLoginIDTextField.text;
     NSString *loginCode = self.codeLoginCodeTextField.text;
     Manager *manager = [Manager shareInstance];
+    if ([SVProgressHUD isVisible] == NO) {
+        [SVProgressHUD show];
+    }
+    AlertManager *alertM = [AlertManager shareIntance];
+
     [manager loginActionWithMobile:loginTel withMobileCode:loginCode withLoginSuccessResult:^(id successResult) {
+        [SVProgressHUD dismiss];
         
         if ([[successResult[0] objectForKey:@"code"] isEqualToString:@"0"]) {
             //需要重设密码
-            AlertManager *alertM = [AlertManager shareIntance];
             [alertM showAlertViewWithTitle:nil withMessage:@"系统升级，为了您的账户安全，请重置密码" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
                 //跳转到忘记密码中
                 [self performSegueWithIdentifier:@"toForgetPasswordVC" sender:self.codeLoginIDTextField.text];
@@ -296,7 +327,9 @@
         }
 
     } withLoginFailResult:^(NSString *failResultStr) {
-        
+        [SVProgressHUD dismiss];
+        [alertM showAlertViewWithTitle:nil withMessage:failResultStr actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
+
     }];
     
     
@@ -306,11 +339,14 @@
 #pragma mark - 切换登录方式 -
 //从密码界面到短信登录界面
 - (IBAction)toMessageLoginView:(UIButton *)sender {
-    
+    [self keyboardDismissAction];
+
     self.loginScrollView.contentOffset = CGPointMake(kScreenW, 0);
 }
 //从短信界面到密码登录界面
 - (IBAction)toPasswordLoginView:(UIButton *)sender {
+    [self keyboardDismissAction];
+
     //重置验证码
     [self endTimeDown];
     
@@ -360,6 +396,23 @@
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
+- (void)keyboardDismissAction {
+
+    [self.codeLoginIDTextField resignFirstResponder];
+    [self.codeLoginCodeTextField resignFirstResponder];
+    [self.passwordLoginIDTextField resignFirstResponder];
+    [self.passwordLoginPasswordTextField resignFirstResponder];
+
+    
+}
+- (IBAction)tapAction:(UITapGestureRecognizer *)sender {
+    [self keyboardDismissAction];
+
+}
+
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    [self keyboardDismissAction];
+}
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

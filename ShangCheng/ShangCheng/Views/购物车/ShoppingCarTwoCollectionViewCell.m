@@ -11,7 +11,7 @@
 @implementation ShoppingCarTwoCollectionViewCell
 - (void)updateShoppingCarTwoCellWithModel:(MyFavoriteListModel *)tempModel {
     
-    [self.myFavoriteImageView setWebImageURLWithImageUrlStr:tempModel.productImageUrl withErrorImage:[UIImage imageNamed:@"productImage"]];
+    [self.myFavoriteImageView setWebImageURLWithImageUrlStr:tempModel.productImageUrl withErrorImage:[UIImage imageNamed:@"icon_pic_cp"] withIsCenter:YES];
     
     self.myFavoriteTitleLabel.text = tempModel.favoriteProductTitleStr;
 //    self.productCompanyLabel.text = tempModel.favoriteProductCompanyStr;

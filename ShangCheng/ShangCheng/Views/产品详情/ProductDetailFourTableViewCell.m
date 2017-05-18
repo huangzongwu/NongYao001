@@ -11,7 +11,7 @@
 @implementation ProductDetailFourTableViewCell
 
 - (void)updateProductDetailFourCellWithModel:(ProductTradeRecordModel *)model {
-    [self.headerImageView setWebImageURLWithImageUrlStr:model.u_icon withErrorImage:[UIImage imageNamed:@"test"]];
+    [self.headerImageView setWebImageURLWithImageUrlStr:model.u_icon withErrorImage:[UIImage imageNamed:@"w_icon_mrtx"] withIsCenter:NO];
     self.nameLabel.text = model.truename;
     self.mobileLabel.text = model.mobile;
     self.buyCountLabel.text = [NSString stringWithFormat:@"购买数量：%@", model.o_num ];

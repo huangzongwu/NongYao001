@@ -10,12 +10,12 @@
 
 @implementation ReceiveAddressTableViewCell
 - (void)updateReceiveAddressCell:(ReceiveAddressModel *)receiveAddressModel withIndex:(NSIndexPath *)cellIndex{
+    //给button附上index
+    self.leftSelectButton.indexForButton = cellIndex;
 
     NSString *phoneStr = @"";
     if (receiveAddressModel.receiveMobile != nil && receiveAddressModel.receiveMobile.length == 11) {
         phoneStr = receiveAddressModel.receiveMobile;
-    }else if (receiveAddressModel.receiveTel != nil && receiveAddressModel.receiveTel.length == 11) {
-        phoneStr = receiveAddressModel.receiveTel;
     }
     
     self.receiverAndMobileLabel.text = [NSString stringWithFormat:@"%@  %@",receiveAddressModel.receiverName,phoneStr];
@@ -44,25 +44,17 @@
     
     self.receiveAddressLabel.text = detailAddressStr;
 
-    
-    //如果是默认地址，前面就有对勾，如果不是默认地址，就没有对勾
     if (receiveAddressModel.isSelect == YES) {
-        self.selectImageWidthLayout.constant = 32;
+        [self.leftSelectButton setImage:[UIImage imageNamed:@"g_icon_select"] forState:UIControlStateNormal];
     }else {
-        self.selectImageWidthLayout.constant = 0;
+        [self.leftSelectButton setImage:[UIImage imageNamed:@"g_icon_normal"] forState:UIControlStateNormal];
+
     }
     
     
-    //给button附上index
-    self.rightNextButton.indexForButton = cellIndex;
     
 }
-//右边进入编辑状态的按钮
-- (IBAction)rightNextButtonAction:(IndexButton *)sender {
-    
-    NSLog(@"%ld",sender.indexForButton.section);
-    self.rightNextBlock(sender.indexForButton);
-}
+
 
 - (void)awakeFromNib {
     [super awakeFromNib];
