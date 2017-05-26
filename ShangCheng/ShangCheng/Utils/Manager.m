@@ -2122,9 +2122,9 @@
 }
 
 //提现记录
-- (void)httpSearchUserAgentCashListWithUserId:(NSString *)userId withPageIndex:(NSInteger )pageIndex withPageSize:(NSInteger)pageSize withSearchSuccess:(SuccessResult )searchSuccess withSearchFail:(FailResult)searchFail {
-    
-    NSString *url = [NSString stringWithFormat:@"%@?id=%@&isHandle=&pageindex=%ld&pagesize=%ld",[[InterfaceManager shareInstance] AgentCashBase],userId,pageIndex,pageSize];
+- (void)httpSearchUserAgentCashListWithUserId:(NSString *)userId withUserType:(NSString *)userType withPageIndex:(NSInteger )pageIndex withPageSize:(NSInteger)pageSize withSearchSuccess:(SuccessResult )searchSuccess withSearchFail:(FailResult)searchFail {
+
+    NSString *url = [NSString stringWithFormat:@"%@?applyid=%@&status=&operation=&usertype=%@&pageindex=%ld&pagesize=%ld",[[InterfaceManager shareInstance] AgentCashBase],userId,userType,pageIndex,pageSize];
     
     [[NetManager shareInstance] getRequestWithURL:url withParameters:nil withContentTypes:nil withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
         NSLog(@"%ld",operation.response.statusCode);
@@ -3296,6 +3296,55 @@
     
     
 }
+
+#pragma mark - 判断是否首次进入这个app -
+- (BOOL)isFirstJoinApp {
+    //获取沙盒目录
+    NSArray *paths=NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,NSUserDomainMask,YES);
+    NSString *plistPath1 = [paths objectAtIndex:0];
+    
+    NSLog(@"---%@",plistPath1);
+    //得到完整的文件名
+    NSString *filename = [plistPath1 stringByAppendingPathComponent:@"nongyao001.plist"];
+    
+    //取plist数据
+    NSDictionary *plistDic = [NSDictionary dictionaryWithContentsOfFile:filename];
+    NSLog(@"%@",plistDic);
+    
+    //得到 首次进入判断 字段
+    NSString *isFirstJoinAppStr = [plistDic objectForKey:@"isFirstJoinApp"];
+    
+    //如果没有这个字段，就赋个初值
+    if (isFirstJoinAppStr == nil) {
+        NSLog(@"---%@",isFirstJoinAppStr);
+        
+        NSDictionary * dic = @{@"isFirstJoinApp":@"YES"};
+        [dic  writeToFile:filename atomically:YES];
+        NSLog(@"---%@",isFirstJoinAppStr);
+        
+        isFirstJoinAppStr = @"YES";
+    }
+    //返回是否是首次进入的bool值
+    if ([isFirstJoinAppStr isEqualToString:@"YES"]) {
+        return YES;
+    }else {
+        return NO;
+    }
+}
+
+- (void)setFirstJoinAppWithStatus:(NSString *)isFristStatus {
+    
+    NSArray *paths=NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,NSUserDomainMask,YES);
+    NSString *plistPath1 = [paths objectAtIndex:0];
+    
+    //得到完整的文件名
+    NSString *filename = [plistPath1 stringByAppendingPathComponent:@"nongyao001.plist"];
+    
+    NSDictionary * dic = @{@"isFirstJoinApp":isFristStatus};
+    [dic writeToFile:filename atomically:YES];
+    
+}
+
 
 
 #pragma mark - 其他 -

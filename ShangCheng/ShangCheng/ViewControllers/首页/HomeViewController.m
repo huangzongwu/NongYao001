@@ -42,7 +42,6 @@
 
     [self performSegueWithIdentifier:@"homeToClassVC" sender:nil];
     
-    
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -281,7 +280,7 @@
             break;
         case 2:
             //人气热卖
-            return CGSizeMake(kScreenW, kScreenW*2/5+63);
+            return CGSizeMake(kScreenW, kScreenW*2/5+71);
             
             break;
         default:
@@ -556,7 +555,6 @@
         NSIndexPath *selectIndex = sender;
         NSLog(@"%ld -- %ld",selectIndex.section ,selectIndex.row);
         
-
         ProductDetailViewController *productDetailVC = [segue destinationViewController];
 
         //人气热卖

@@ -90,9 +90,12 @@
         if (pageIndex == 1 && [SVProgressHUD isVisible] == NO) {
             [SVProgressHUD show];
         }
-        
+        NSString *userTypeStr = @"2";
+        if ([manager.memberInfoModel.u_type isEqualToString:@"1"]) {
+            userTypeStr = @"1";
+        }
         //单纯的体现记录
-        [manager httpSearchUserAgentCashListWithUserId:manager.memberInfoModel.u_id withPageIndex:pageIndex withPageSize:10 withSearchSuccess:^(id successResult) {
+        [manager httpSearchUserAgentCashListWithUserId:manager.memberInfoModel.u_id withUserType:userTypeStr withPageIndex:pageIndex withPageSize:10 withSearchSuccess:^(id successResult) {
             
             //得到总页数
             self.totalPage = [successResult integerValue];

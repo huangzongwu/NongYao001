@@ -286,7 +286,7 @@ typedef void(^FailResult)(NSString *failResultStr);
 - (void)httpSearchUserAccountListWithUserId:(NSString *)userId withSdt:(NSString *)sdt withEdt:(NSString *)edt withPageIndex:(NSInteger )pageIndex withPageSize:(NSInteger)pageSize withSearchSuccess:(SuccessResult )searchSuccess withSearchFail:(FailResult)searchFail ;
 
 //提现记录
-- (void)httpSearchUserAgentCashListWithUserId:(NSString *)userId withPageIndex:(NSInteger )pageIndex withPageSize:(NSInteger)pageSize withSearchSuccess:(SuccessResult )searchSuccess withSearchFail:(FailResult)searchFail;
+- (void)httpSearchUserAgentCashListWithUserId:(NSString *)userId withUserType:(NSString *)userType withPageIndex:(NSInteger )pageIndex withPageSize:(NSInteger)pageSize withSearchSuccess:(SuccessResult )searchSuccess withSearchFail:(FailResult)searchFail ;
 
 //提现申请  type提现方式 0支付宝 1微信 2银联；bankname银行名称；name开户姓名；code卡号；amount提现金额；note备注
 - (void)httpUserAgentCashApplicationWithUserId:(NSString *)userId withType:(NSString *)type withBankName:(NSString *)bankName withName:(NSString *)name withCode:(NSString *)code withAmount:(NSString *)amount withNote:(NSString *)note withAgentCashSuccess:(SuccessResult )agentCashSuccess withAgentCashFail:(FailResult)agentCashFail;
@@ -362,6 +362,11 @@ typedef void(^FailResult)(NSString *failResultStr);
 
 #pragma mark - 图片压缩 -
 - (UIImage *)compressOriginalImage:(UIImage *)originalImage toMaxDataSizeKBytes:(CGFloat)size ;
+
+
+#pragma mark - 判断是否首次进入这个app -
+- (BOOL)isFirstJoinApp;
+- (void)setFirstJoinAppWithStatus:(NSString *)isFristStatus ;
 
 #pragma mark - 其他 -
 //上传图片附件

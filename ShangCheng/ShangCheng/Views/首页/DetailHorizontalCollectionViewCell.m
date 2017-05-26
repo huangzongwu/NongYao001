@@ -8,6 +8,7 @@
 
 #import "DetailHorizontalCollectionViewCell.h"
 #import "UIImageView+ImageViewCategory.h"
+#import "UILabel+LabelCategory.h"
 @implementation DetailHorizontalCollectionViewCell
 - (void)updateDetailHorizontalCollectionViewCellWithLeftModel:(ProductModel *)leftModel UpModel:(ProductModel *)upModel withDownModel:(ProductModel *)downModel {
     
@@ -21,7 +22,7 @@
     self.leftProductTitleLabel.text = leftModel.productTitle;
     self.leftProductFormatLabel.text = leftModel.productFormatStr;
     self.leftProductPriceLabel.text = [NSString stringWithFormat:@"￥%@", leftModel.productPrice ];
-    
+//    [self.leftProductPriceLabel setPriceLabelWithPriceStr:leftModel.productPrice withFormatStr:leftModel.productFormatStr];
     
     //上面的产品
     [self.upProductImageView setWebImageURLWithImageUrlStr:upModel.productImageUrlstr withErrorImage:[UIImage imageNamed:@"icon_pic_cp"] withIsCenter:YES];

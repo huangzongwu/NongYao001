@@ -20,6 +20,29 @@
             [self.productFarmatArr addObject:formatModel];
         }
     }
+    
+    
+    //将使用说明封装成数组
+    if ([key isEqualToString:@"p_scope_crop"]) {
+        self.p_scope_crop_Arr = [value componentsSeparatedByString:@","];
+    }
+    
+    if ([key isEqualToString:@"p_treatment"]) {
+        self.p_treatment_str = value;
+        self.p_treatment_Arr = [value componentsSeparatedByString:@","];
+    }
+    
+    if ([key isEqualToString:@"p_dosage"]) {
+        self.p_dosage_Arr = [value componentsSeparatedByString:@","];
+    }
+    
+    if ([key isEqualToString:@"p_method"]) {
+        self.p_method_Arr = [value componentsSeparatedByString:@","];
+    }
+
+
+    
+    
 }
 
 
@@ -36,7 +59,7 @@
     [aCoder encodeObject:self.p_certificate forKey:@"p_certificate"];
     [aCoder encodeObject:self.p_license forKey:@"p_license"];
     [aCoder encodeObject:self.p_time_create forKey:@"p_time_create"];
-    [aCoder encodeObject:self.p_treatment forKey:@"p_treatment"];
+    [aCoder encodeObject:self.p_treatment_str forKey:@"p_treatment_str"];
     [aCoder encodeObject:self.p_status forKey:@"p_status"];
     [aCoder encodeObject:self.statusvalue forKey:@"statusvalue"];
     [aCoder encodeObject:self.p_introduce forKey:@"p_introduce"];
@@ -58,7 +81,7 @@
         self.p_certificate = [aDecoder decodeObjectForKey:@"p_certificate"];
         self.p_license = [aDecoder decodeObjectForKey:@"p_license"];
         self.p_time_create = [aDecoder decodeObjectForKey:@"p_time_create"];
-        self.p_treatment = [aDecoder decodeObjectForKey:@"p_treatment"];
+        self.p_treatment_str = [aDecoder decodeObjectForKey:@"p_treatment_str"];
         self.p_status = [aDecoder decodeObjectForKey:@"p_status"];
         self.statusvalue = [aDecoder decodeObjectForKey:@"statusvalue"];
         self.p_introduce = [aDecoder decodeObjectForKey:@"p_introduce"];

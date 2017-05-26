@@ -14,6 +14,7 @@
 #import "Manager.h"
 #import "SVProgressHUD.h"
 #import "AlertManager.h"
+#import "WebPageViewController.h"
 
 @interface PreviewOrderViewController ()<UITableViewDataSource,UITableViewDelegate>
 
@@ -242,14 +243,20 @@
 
 #pragma mark - 联系客服 -
 - (IBAction)telToPeopleService:(UIButton *)sender {
+    
+    //跳转cc客服
+    [self performSegueWithIdentifier:@"previewOrderToWebViewVC" sender:nil];
+    
+    /*
+    
     AlertManager *alertM = [AlertManager shareIntance];
-    [alertM showAlertViewWithTitle:@"拨打客服电话" withMessage:@"是否要拨打客服电话400-6076-152" actionTitleArr:@[@"取消",@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
+    [alertM showAlertViewWithTitle:@"拨打客服电话" withMessage:@"是否要拨打客服电话400-635-8880" actionTitleArr:@[@"取消",@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
         if (actionBlockNumber == 1) {
-            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"tel:4006076152"]];
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"tel:4006358880"]];
             
         }
     }];
-
+*/
 }
 
 
@@ -355,6 +362,13 @@
         payVC.totalAmountFloat = [self computeProductTotalPrice] - [[self.saleMoneyDic objectForKey:@"saleMoney"] floatValue];
     }
     
+    //跳转到cc客服
+    if ([segue.identifier isEqualToString:@"previewOrderToWebViewVC"]) {
+        WebPageViewController *webPageVC = [segue destinationViewController];
+
+        webPageVC.tempTitleStr = @"在线客服";
+        webPageVC.webUrl = @"http://kefu.qycn.com/vclient/chat/?m=m&websiteid=99706";
+    }
     
 }
 

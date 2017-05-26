@@ -131,23 +131,32 @@
     float tempCacheFloat = self.cacheSize;
     
     if (tempCacheFloat > 0) {
-        //如果大于1M,就换算成M
+        //如果大于1K,就换算成K
         if (tempCacheFloat >= 1024) {
             tempCacheFloat = tempCacheFloat / 1024.0;
             
-            //看看有没有达到 1G的
+            //看看有没有达到 1M的
             if (tempCacheFloat >= 1024) {
-                tempCacheFloat = tempCacheFloat / 1024;
-                return [NSString stringWithFormat:@"%.2f G",tempCacheFloat];
+                tempCacheFloat = tempCacheFloat / 1024.0;
+                
+                //看看有没有达到 1G的
+                if (tempCacheFloat >= 1024) {
+                    tempCacheFloat = tempCacheFloat / 1024.0;
+                    return [NSString stringWithFormat:@"%.2f G",tempCacheFloat];
+
+                }else {
+                    //不满1G
+                    return [NSString stringWithFormat:@"%.2f M",tempCacheFloat];
+                }
                 
             }else {
-                //不满1G
-                return [NSString stringWithFormat:@"%.2f M",tempCacheFloat];
+                //不满1M
+                return [NSString stringWithFormat:@"%.2f K",tempCacheFloat];
             }
             
         }else {
-            //不满1M
-            return [NSString stringWithFormat:@"%.2f KB",tempCacheFloat];
+            //不满1K
+            return [NSString stringWithFormat:@"%.2f B",tempCacheFloat];
         }
         
         

@@ -203,8 +203,10 @@
     NSString *nameStr;
     NSString *codeStr;
     float amount = [self.agentCashAmountTextField.text floatValue];
+    
     BOOL isCommit = NO;
-
+    NSString *notCommitStr = @"提现信息填写不完整";
+    
     
     Manager *manager = [Manager shareInstance];
     AlertManager *alertM = [AlertManager shareIntance];
@@ -221,13 +223,23 @@
     }
     
     //只有姓名、账号、金额都是有效的才可以提交
-    if (nameStr.length > 0 && codeStr.length > 0 && amount > 0) {
+    if (nameStr.length > 0 && codeStr.length > 0 && amount > 0 && amount <= manager.memberInfoModel.u_amount_avail) {
         isCommit = YES;
+    }else {
+        if (amount <= 0) {
+            notCommitStr = @"提现金额至少为0.01元";
+        }
+        if (amount > manager.memberInfoModel.u_amount_avail) {
+            notCommitStr = @"提现金额不能大于可提现金额";
+        }
+        
     }
+    
     
     //如果支付宝或者微信，bankNameStr可以为空,其余的不能为空
     if (self.selectTypeInt > 1 && bankNameStr.length == 0) {
         isCommit = NO;
+        notCommitStr = @"还没有选择提现的银行";
     }
     
     
@@ -240,6 +252,10 @@
             [SVProgressHUD dismiss];
             
             [alertM showAlertViewWithTitle:nil withMessage:@"申请成功" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
+                
+                //发送通知，刷新界面
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"refreshMoney" object:self userInfo:nil];
+                
                 [self.navigationController popViewControllerAnimated:YES];
             }];
             
@@ -251,7 +267,7 @@
         }];
 
     }else {
-        [alertM showAlertViewWithTitle:nil withMessage:@"信息没有填写完整" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
+        [alertM showAlertViewWithTitle:nil withMessage:notCommitStr actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
     }
     
     

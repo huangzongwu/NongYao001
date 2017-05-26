@@ -9,6 +9,7 @@
 #import "ProductDetailViewController.h"
 #import "SelectProductViewController.h"
 #import "ProductDetailOneTableViewCell.h"
+#import "ProductDetailOneBottomTableViewCell.h"
 #import "ProductDetailTwoTableViewCell.h"
 #import "ProductDetailHeaderTableViewCell.h"
 #import "Manager.h"
@@ -380,7 +381,7 @@
     [self.detailTableView reloadData];
 
 }
-//通过规格id找到在规格数组中的哪个,然后刷新UI
+//通过规格id找到在规格数组中的哪个,然后刷新UI 毒死蜱48%
 - (void)selectOneFormatWithFormatID:(NSString *)formatID {
 
     for (ProductFormatModel *tempFormatModel in self.productDetailModel.productFarmatArr) {
@@ -660,7 +661,9 @@
     }
     
     if (self.selectType == SelectTypeUseInfo) {
-        return 4;
+        return  self.productDetailModel.p_scope_crop_Arr.count * 4;
+        
+//        return 4;
     }
     
     if (self.selectType == SelectTypeUserComment) {
@@ -763,10 +766,19 @@
             
         case SelectTypeUseInfo:
         {
-            ProductDetailOneTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"productDetailOneCell" forIndexPath:indexPath];
+
+            if (indexPath.row % 4 != 3) {
+                ProductDetailOneTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"productDetailOneCell" forIndexPath:indexPath];
+                
+                [cell updateProductDetailOneCellWithUseInfoDic:self.productDetailModel withIndex:indexPath];
+                return cell;
+            }else {
+                ProductDetailOneBottomTableViewCell *bottomCell = [tableView dequeueReusableCellWithIdentifier:@"productDetailOneBottomCell" forIndexPath:indexPath];
+                
+                [bottomCell updateProductDetailOneBottomCellWithUseInfoDic:self.productDetailModel withIndex:indexPath];
+                return bottomCell;
+            }
             
-            [cell updateProductDetailOneCellWithUseInfoDic:self.productDetailModel withIndex:indexPath];
-            return cell;
         }
             break;
             

@@ -26,6 +26,8 @@
 #ifdef NSFoundationVersionNumber_iOS_9_x_Max
 #import <UserNotifications/UserNotifications.h>
 #endif
+#import "LeadViewController.h"
+
 
 @interface AppDelegate ()<WXApiDelegate,JPUSHRegisterDelegate>
 @end
@@ -41,6 +43,21 @@
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent animated:NO];
     
     Manager *manager = [Manager shareInstance];
+
+    //判断用户是否第一次使用，如果第一次使用，就要进入引导页
+    if ([manager isFirstJoinApp] == YES) {
+        //第一次登陆将入口设为引导页
+        //1.找到storyBoard
+        UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+        //2.找到第一个storyBoard中的黄色控制器
+        LeadViewController *leadVC = [mainStoryboard instantiateViewControllerWithIdentifier:@"identifierLeader"];
+        
+        self.window.rootViewController = leadVC;
+        
+    }
+    
+    
+    
     //从本地读取个人信息，然后尝试自动登录一下
     BOOL result = [manager readMemberInfoModelFromLocation];
     if (result == YES) {

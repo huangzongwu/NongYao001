@@ -8,6 +8,7 @@
 
 #import "DetailVerticalCollectionViewCell.h"
 #import "UIImageView+ImageViewCategory.h"
+#import "UILabel+LabelCategory.h"
 @implementation DetailVerticalCollectionViewCell
 - (void)updateDetailVerticalCollectionViewCell:(ProductModel *)tempProductModel withIndexPath:(NSIndexPath *)tempIndex {
 
@@ -24,6 +25,7 @@
          self.productCompanyLabel.text = tempProductModel.productCompany;
     self.productFormatLabel.text = tempProductModel.productFormatStr;
     self.productPriceLabel.text = [NSString stringWithFormat:@"￥%@", tempProductModel.productPrice ];
+//    [self.productPriceLabel setPriceLabelWithPriceStr:tempProductModel.productPrice withFormatStr:tempProductModel.productFormatStr];
     
     
     if (tempIndex.row % 2 == 0) {

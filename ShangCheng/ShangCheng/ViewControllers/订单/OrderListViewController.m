@@ -8,6 +8,7 @@
 
 #import "OrderListViewController.h"
 #import "PayViewController.h"
+#import "OrderListHeadTableViewCell.h"
 #import "OrderListOneTableViewCell.h"
 #import "OrderListTwoTableViewCell.h"
 #import "OrderListFootOneTableViewCell.h"
@@ -243,23 +244,27 @@
     
     //注册cell
     //全部的tableView
+    [self.allTableView registerNib:[UINib nibWithNibName:@"OrderListHeadTableViewCell" bundle:nil] forCellReuseIdentifier:@"orderListHeadCell"];
     [self.allTableView registerNib:[UINib nibWithNibName:@"OrderListOneTableViewCell" bundle:nil] forCellReuseIdentifier:@"orderListOneCell"];
     [self.allTableView registerNib:[UINib nibWithNibName:@"OrderListTwoTableViewCell" bundle:nil] forCellReuseIdentifier:@"orderListTwoCell"];
     [self.allTableView registerNib:[UINib nibWithNibName:@"OrderListFootOneTableViewCell" bundle:nil] forCellReuseIdentifier:@"orderListFootOneCell"];
     [self.allTableView registerNib:[UINib nibWithNibName:@"OrderListFootTwoTableViewCell" bundle:nil] forCellReuseIdentifier:@"orderListFootTwoCell"];
 
     //待支付的TableView
+    [self.waitPayTableView registerNib:[UINib nibWithNibName:@"OrderListHeadTableViewCell" bundle:nil] forCellReuseIdentifier:@"orderListHeadCell"];
     [self.waitPayTableView registerNib:[UINib nibWithNibName:@"OrderListOneTableViewCell" bundle:nil] forCellReuseIdentifier:@"orderListOneCell"];
     [self.waitPayTableView registerNib:[UINib nibWithNibName:@"OrderListTwoTableViewCell" bundle:nil] forCellReuseIdentifier:@"orderListTwoCell"];
     [self.waitPayTableView registerNib:[UINib nibWithNibName:@"OrderListFootOneTableViewCell" bundle:nil] forCellReuseIdentifier:@"orderListFootOneCell"];
     [self.waitPayTableView registerNib:[UINib nibWithNibName:@"OrderListFootTwoTableViewCell" bundle:nil] forCellReuseIdentifier:@"orderListFootTwoCell"];
     
     //进行中的TableView
+    [self.goOnTableView registerNib:[UINib nibWithNibName:@"OrderListHeadTableViewCell" bundle:nil] forCellReuseIdentifier:@"orderListHeadCell"];
     [self.goOnTableView registerNib:[UINib nibWithNibName:@"OrderListOneTableViewCell" bundle:nil] forCellReuseIdentifier:@"orderListOneCell"];
     [self.goOnTableView registerNib:[UINib nibWithNibName:@"OrderListTwoTableViewCell" bundle:nil] forCellReuseIdentifier:@"orderListTwoCell"];
     [self.goOnTableView registerNib:[UINib nibWithNibName:@"OrderListFootTwoTableViewCell" bundle:nil] forCellReuseIdentifier:@"orderListFootTwoCell"];
 
     //已完成的tableView
+    [self.finishTableView registerNib:[UINib nibWithNibName:@"OrderListHeadTableViewCell" bundle:nil] forCellReuseIdentifier:@"orderListHeadCell"];
     [self.finishTableView registerNib:[UINib nibWithNibName:@"OrderListOneTableViewCell" bundle:nil] forCellReuseIdentifier:@"orderListOneCell"];
     [self.finishTableView registerNib:[UINib nibWithNibName:@"OrderListTwoTableViewCell" bundle:nil] forCellReuseIdentifier:@"orderListTwoCell"];
     [self.finishTableView registerNib:[UINib nibWithNibName:@"OrderListFootTwoTableViewCell" bundle:nil] forCellReuseIdentifier:@"orderListFootTwoCell"];
@@ -497,14 +502,31 @@
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return 1;
+    Manager *manager = [Manager shareInstance];
+    NSMutableArray *dataArr;
+    if (tableView == self.allTableView) {
+        dataArr = [[manager.orderListDataSourceDic objectForKey:@"1"] objectForKey:@"content"];
+    }
+    if (tableView == self.waitPayTableView) {
+        dataArr = [[manager.orderListDataSourceDic objectForKey:@"2"] objectForKey:@"content"];
+    }
+    if (tableView == self.goOnTableView) {
+        dataArr = [[manager.orderListDataSourceDic objectForKey:@"3"] objectForKey:@"content"];
+    }
+    if (tableView == self.finishTableView) {
+        dataArr = [[manager.orderListDataSourceDic objectForKey:@"4"] objectForKey:@"content"];
+    }
+    SupOrderModel *supOrderModel = dataArr[section];
+    return supOrderModel.subOrderArr.count;
+    
+    
+//    return 1;
 }
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
-    return 11;
+    return 46;
 }
 - (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
     Manager *manager = [Manager shareInstance];
-
 
     NSMutableArray *dataArr;
     if (tableView == self.allTableView) {
@@ -528,11 +550,56 @@
         return 1;
     }
     
-    return 43 ;
+    return 85;
 }
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    return 168;
+    return 93;
 }
+
+
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
+    Manager *manager = [Manager shareInstance];
+    NSMutableArray *dataArr;
+    if (tableView == self.allTableView) {
+        dataArr = [[manager.orderListDataSourceDic objectForKey:@"1"] objectForKey:@"content"];
+    }
+    if (tableView == self.waitPayTableView) {
+        dataArr = [[manager.orderListDataSourceDic objectForKey:@"2"] objectForKey:@"content"];
+    }
+    if (tableView == self.goOnTableView) {
+        dataArr = [[manager.orderListDataSourceDic objectForKey:@"3"] objectForKey:@"content"];
+    }
+    if (tableView == self.finishTableView) {
+        dataArr = [[manager.orderListDataSourceDic objectForKey:@"4"] objectForKey:@"content"];
+    }
+    
+    SupOrderModel *supOrderModel = dataArr[section];
+
+    OrderListHeadTableViewCell *headCell = [tableView dequeueReusableCellWithIdentifier:@"orderListHeadCell"];
+    [headCell updateOrderListHeadCellWithModel:supOrderModel withWhichTableView:self.whichTableView withCellIndex:[NSIndexPath indexPathForRow:0 inSection:section]];
+    //选择按钮
+    headCell.selectButtonBlock = ^(IndexButton *selectButton){
+        //只有第二个TableView，才有选择按钮
+        //得到对应的模型
+        NSArray *selectOrderArr = [[[Manager shareInstance].orderListDataSourceDic objectForKey:@"2"] objectForKey:@"content"];
+        
+        SupOrderModel *selectModel = selectOrderArr[selectButton.indexForButton.section];
+        selectModel.isSelectOrder = !selectModel.isSelectOrder;
+        //改变UI
+        if (selectModel.isSelectOrder == YES) {
+            [selectButton setImage:[UIImage imageNamed:@"g_btn_select"] forState:UIControlStateNormal];
+            
+        }else {
+            [selectButton setImage:[UIImage imageNamed:@"g_btn_normal"] forState:UIControlStateNormal];
+            
+        }
+        
+        
+    };
+    return headCell;
+    
+}
+
 - (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section {
     Manager *manager = [Manager shareInstance];
     NSMutableArray *dataArr;
@@ -556,7 +623,7 @@
         OrderListFootOneTableViewCell *footOneCell = [tableView dequeueReusableCellWithIdentifier:@"orderListFootOneCell"];
         footOneCell.orderPayButton.indexForButton = [NSIndexPath indexPathForRow:0 inSection:section];
         footOneCell.orderCancelButton.indexForButton = [NSIndexPath indexPathForRow:0 inSection:section];
-        
+        [footOneCell updateOrderListFootOneCellWithModel:supOrderModel];
         //三个按钮Action的Block
         footOneCell.footOneButtonBlock = ^(NSIndexPath * buttonIndex ,NSString *buttonActionStr){
             //得到点击的模型
@@ -604,6 +671,7 @@
         
         OrderListFootTwoTableViewCell *footTwoCell = [tableView dequeueReusableCellWithIdentifier:@"orderListFootTwoCell"];
         footTwoCell.orderDetailInfoButton.indexForButton = [NSIndexPath indexPathForRow:0 inSection:section];
+        [footTwoCell updateOrderListFootTwoCellWithModel:supOrderModel];
         //查看详情按钮
         footTwoCell.footTwoButtonBlock = ^(NSIndexPath * buttonIndex){
             NSArray *modelArr = [[manager.orderListDataSourceDic objectForKey:self.whichTableView] objectForKey:@"content"];
@@ -643,10 +711,12 @@
   
 
     SupOrderModel *supOrderModel = dataArr[indexPath.section];
-        
-    if (supOrderModel.subOrderArr.count < 2) {
+    SonOrderModel *sonOrderModel = supOrderModel.subOrderArr[indexPath.row];
+    
+//    if (supOrderModel.subOrderArr.count < 2) {
         OrderListOneTableViewCell *oneCell = [tableView dequeueReusableCellWithIdentifier:@"orderListOneCell" forIndexPath:indexPath];
-        [oneCell updateOrderLIstOneCellWithModel:supOrderModel withWhichTableView:self.whichTableView withCellIndex:indexPath];
+        [oneCell updateOrderListOneCellWithModel:sonOrderModel withWhichTableView:self.whichTableView withCellIndex:indexPath];
+    /*
         //选择按钮
         oneCell.selectButtonBlock = ^(IndexButton *selectButton){
             //只有第二个TableView，才有选择按钮
@@ -666,9 +736,11 @@
             
             
         };
-        
+        */
         return oneCell;
-    }else {
+//    }
+    /*
+    else {
         OrderListTwoTableViewCell *twoCell = [tableView dequeueReusableCellWithIdentifier:@"orderListTwoCell" forIndexPath:indexPath];
         [twoCell updateOrderLIstOneCellWithModel:supOrderModel withWhichTableView:self.whichTableView withCellIndex:indexPath];
         //点击选择产品按钮
@@ -689,7 +761,7 @@
         };
         return twoCell;
     }
-
+*/
 
     
     

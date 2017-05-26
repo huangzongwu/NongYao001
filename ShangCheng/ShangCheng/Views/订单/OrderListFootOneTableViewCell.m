@@ -9,6 +9,11 @@
 #import "OrderListFootOneTableViewCell.h"
 
 @implementation OrderListFootOneTableViewCell
+- (void)updateOrderListFootOneCellWithModel:(SupOrderModel *)model {
+    self.orderCountLabel.text = [NSString stringWithFormat:@"共%ld件商品，",model.subOrderArr.count];
+    self.orderPriceLabel.text = [NSString stringWithFormat:@"￥%.2f",[model.p_o_price_total floatValue] - [model.p_discount floatValue]];
+}
+
 //去支付
 - (IBAction)orderPayAction:(IndexButton *)sender {
     
