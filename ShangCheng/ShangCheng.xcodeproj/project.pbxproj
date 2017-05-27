@@ -177,8 +177,6 @@
 		4549896A1DFAA90F00A24F56 /* PreviewOrderViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 454989691DFAA90F00A24F56 /* PreviewOrderViewController.m */; };
 		454A68771DF9446D0058CF5C /* OrderListOneTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 454A68751DF9446D0058CF5C /* OrderListOneTableViewCell.m */; };
 		454A68781DF9446D0058CF5C /* OrderListOneTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 454A68761DF9446D0058CF5C /* OrderListOneTableViewCell.xib */; };
-		454A687C1DF9447F0058CF5C /* OrderListTwoTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 454A687A1DF9447F0058CF5C /* OrderListTwoTableViewCell.m */; };
-		454A687D1DF9447F0058CF5C /* OrderListTwoTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 454A687B1DF9447F0058CF5C /* OrderListTwoTableViewCell.xib */; };
 		454A68861DF944BF0058CF5C /* OrderListFootOneTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 454A68841DF944BF0058CF5C /* OrderListFootOneTableViewCell.m */; };
 		454A68871DF944BF0058CF5C /* OrderListFootOneTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 454A68851DF944BF0058CF5C /* OrderListFootOneTableViewCell.xib */; };
 		454A688B1DF944D20058CF5C /* OrderListFootTwoTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 454A68891DF944D20058CF5C /* OrderListFootTwoTableViewCell.m */; };
@@ -465,6 +463,8 @@
 		45C2C3861E5D82E7002CE047 /* FeedBackViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 45C2C3851E5D82E7002CE047 /* FeedBackViewController.m */; };
 		45C2C3891E5D9DAD002CE047 /* w_icon_yjfk@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 45C2C3871E5D9DAD002CE047 /* w_icon_yjfk@2x.png */; };
 		45C2C38A1E5D9DAD002CE047 /* w_icon_yjfk@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 45C2C3881E5D9DAD002CE047 /* w_icon_yjfk@3x.png */; };
+		45C6C7431ED7CFC300B7ED06 /* leadBtn.png in Resources */ = {isa = PBXBuildFile; fileRef = 45C6C7411ED7CFC300B7ED06 /* leadBtn.png */; };
+		45C6C7441ED7CFC300B7ED06 /* leadBtn@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 45C6C7421ED7CFC300B7ED06 /* leadBtn@2x.png */; };
 		45C6C9901DF6643000151587 /* OrderListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 45C6C98F1DF6643000151587 /* OrderListViewController.m */; };
 		45C6C9931DF6692900151587 /* LineButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 45C6C9921DF6692900151587 /* LineButton.m */; };
 		45C6C9971DF6A7D600151587 /* SupOrderModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 45C6C9961DF6A7D600151587 /* SupOrderModel.m */; };
@@ -777,9 +777,6 @@
 		454A68741DF9446D0058CF5C /* OrderListOneTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OrderListOneTableViewCell.h; sourceTree = "<group>"; };
 		454A68751DF9446D0058CF5C /* OrderListOneTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OrderListOneTableViewCell.m; sourceTree = "<group>"; };
 		454A68761DF9446D0058CF5C /* OrderListOneTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = OrderListOneTableViewCell.xib; sourceTree = "<group>"; };
-		454A68791DF9447F0058CF5C /* OrderListTwoTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OrderListTwoTableViewCell.h; sourceTree = "<group>"; };
-		454A687A1DF9447F0058CF5C /* OrderListTwoTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OrderListTwoTableViewCell.m; sourceTree = "<group>"; };
-		454A687B1DF9447F0058CF5C /* OrderListTwoTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = OrderListTwoTableViewCell.xib; sourceTree = "<group>"; };
 		454A68831DF944BF0058CF5C /* OrderListFootOneTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OrderListFootOneTableViewCell.h; sourceTree = "<group>"; };
 		454A68841DF944BF0058CF5C /* OrderListFootOneTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OrderListFootOneTableViewCell.m; sourceTree = "<group>"; };
 		454A68851DF944BF0058CF5C /* OrderListFootOneTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = OrderListFootOneTableViewCell.xib; sourceTree = "<group>"; };
@@ -1304,6 +1301,8 @@
 		45C2C3851E5D82E7002CE047 /* FeedBackViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FeedBackViewController.m; sourceTree = "<group>"; };
 		45C2C3871E5D9DAD002CE047 /* w_icon_yjfk@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "w_icon_yjfk@2x.png"; sourceTree = "<group>"; };
 		45C2C3881E5D9DAD002CE047 /* w_icon_yjfk@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "w_icon_yjfk@3x.png"; sourceTree = "<group>"; };
+		45C6C7411ED7CFC300B7ED06 /* leadBtn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = leadBtn.png; sourceTree = "<group>"; };
+		45C6C7421ED7CFC300B7ED06 /* leadBtn@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "leadBtn@2x.png"; sourceTree = "<group>"; };
 		45C6C98E1DF6643000151587 /* OrderListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OrderListViewController.h; sourceTree = "<group>"; };
 		45C6C98F1DF6643000151587 /* OrderListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OrderListViewController.m; sourceTree = "<group>"; };
 		45C6C9911DF6692900151587 /* LineButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LineButton.h; sourceTree = "<group>"; };
@@ -1482,6 +1481,8 @@
 				4512C5721ED2E5DF00EC61B3 /* lead1.png */,
 				4512C5731ED2E5DF00EC61B3 /* lead2.png */,
 				4512C5741ED2E5DF00EC61B3 /* lead3.png */,
+				45C6C7411ED7CFC300B7ED06 /* leadBtn.png */,
+				45C6C7421ED7CFC300B7ED06 /* leadBtn@2x.png */,
 			);
 			path = leadPage;
 			sourceTree = "<group>";
@@ -2747,9 +2748,6 @@
 				454A68741DF9446D0058CF5C /* OrderListOneTableViewCell.h */,
 				454A68751DF9446D0058CF5C /* OrderListOneTableViewCell.m */,
 				454A68761DF9446D0058CF5C /* OrderListOneTableViewCell.xib */,
-				454A68791DF9447F0058CF5C /* OrderListTwoTableViewCell.h */,
-				454A687A1DF9447F0058CF5C /* OrderListTwoTableViewCell.m */,
-				454A687B1DF9447F0058CF5C /* OrderListTwoTableViewCell.xib */,
 				454A68831DF944BF0058CF5C /* OrderListFootOneTableViewCell.h */,
 				454A68841DF944BF0058CF5C /* OrderListFootOneTableViewCell.m */,
 				454A68851DF944BF0058CF5C /* OrderListFootOneTableViewCell.xib */,
@@ -3022,9 +3020,9 @@
 				45990EE71E8BBE630024F5C9 /* s_icon_shouhui@2x.png in Resources */,
 				45D47FB91E6FEDE0007CC177 /* g_btn_jrguc@2x.png in Resources */,
 				452679DF1DF4099200D5E8D1 /* RegisterAlertView.xib in Resources */,
-				454A687D1DF9447F0058CF5C /* OrderListTwoTableViewCell.xib in Resources */,
 				45F437211E88B6BD0037DAAD /* w_icon_yz@2x.png in Resources */,
 				4527E2681EA0D2BC00A3AB17 /* s_icon_lxkf@3x.png in Resources */,
+				45C6C7441ED7CFC300B7ED06 /* leadBtn@2x.png in Resources */,
 				4584C2451DFFEB3D000AC275 /* AlipaySDK.bundle in Resources */,
 				454B78121E4C6ED000B2E319 /* w_icon_gm@3x.png in Resources */,
 				45A3223B1E125A61009F239E /* g_icon_del@3x.png in Resources */,
@@ -3032,6 +3030,7 @@
 				454A688C1DF944D20058CF5C /* OrderListFootTwoTableViewCell.xib in Resources */,
 				45CF83161E695983005671BE /* s_icon_search@3x.png in Resources */,
 				45AD6EC51E18EE0A00AA43FA /* w_icon_shdz@3x.png in Resources */,
+				45C6C7431ED7CFC300B7ED06 /* leadBtn.png in Resources */,
 				456B888C1E8E3B1B002D957D /* icon_pic_lb@2x.png in Resources */,
 				45F4371D1E88B6BD0037DAAD /* w_icon_nyyh@2x.png in Resources */,
 				4530742B1E71461000620CCD /* s_icon_enterprise@2x.png in Resources */,
@@ -3352,7 +3351,6 @@
 				453E3EC21E1F854E00C0F4EC /* CommentViewController.m in Sources */,
 				45A839521DC7307C009F1DE4 /* UIImageView+HighlightedWebCache.m in Sources */,
 				453ADE931E66B03800DBE5B5 /* TodaySaleListViewController.m in Sources */,
-				454A687C1DF9447F0058CF5C /* OrderListTwoTableViewCell.m in Sources */,
 				4549896A1DFAA90F00A24F56 /* PreviewOrderViewController.m in Sources */,
 				457F34FC1DBF3E0600809062 /* main.m in Sources */,
 				453138A71DE57E6F00AC89EB /* InterfaceManager.m in Sources */,

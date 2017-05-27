@@ -147,14 +147,15 @@
     //刷新此页面购物车的角标
     //
     Manager *manager = [Manager shareInstance];
-    if ([manager isLoggedInStatus] == YES) {
+//    if ([manager isLoggedInStatus] == YES) {
         if (manager.shoppingNumberStr != nil && [manager.shoppingNumberStr integerValue]>0) {
             self.gwcNumberLabel.hidden = NO;
             self.gwcNumberLabel.text = manager.shoppingNumberStr;
         }else {
             self.gwcNumberLabel.hidden = YES;
         }
-    }
+//    }
+    
     //进入先让navigation消失
     [self scrollViewDidScroll:self.detailTableView];
 
@@ -872,18 +873,20 @@
     Manager *manager = [Manager shareInstance];
     AlertManager *alertM = [AlertManager shareIntance];
     
-    if ([manager isLoggedInStatus] == YES) {
-        NSString *tempProductCount ;
-        
-        //如果是从产品详情中加入购物车
-        for (ProductFormatModel *tempFormatModel in self.productDetailModel.productFarmatArr) {
-            if (tempFormatModel.isSelect == YES) {
-                tempProductCount = [NSString stringWithFormat:@"%ld",tempFormatModel.seletctCount];
-            }
+    NSString *tempProductCount ;
+    //如果是从产品详情中加入购物车
+    for (ProductFormatModel *tempFormatModel in self.productDetailModel.productFarmatArr) {
+        if (tempFormatModel.isSelect == YES) {
+            tempProductCount = [NSString stringWithFormat:@"%ld",tempFormatModel.seletctCount];
         }
+    }
+
+   
+    
+    if ([manager isLoggedInStatus] == YES) {
         
         if ([tempProductCount integerValue] > 0) {
-            [manager httpProductToShoppingCarWithFormatId:self.productDetailModel.productModel.productFormatID withProductCount:tempProductCount withSuccessToShoppingCarResult:^(id successResult) {
+            [manager httpProductToShoppingCarWithFormatIdAndCountDic:@[@{@"sid":self.productDetailModel.productModel.productFormatID,@"number":tempProductCount}] withSuccessToShoppingCarResult:^(id successResult) {
                 //发送通知，让购物车界面刷新
                 [[NSNotificationCenter defaultCenter] postNotificationName:@"refreshShoppingCarVC" object:self userInfo:nil];
                 //跳转到购物车界面
@@ -902,12 +905,28 @@
         
     }else {
         //未登录
-        [alertM showAlertViewWithTitle:nil withMessage:@"您未登录" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
+        if (tempProductCount > 0) {
+            //未登录,存到本地
+            BOOL saveLocationResult = [manager joinLocationShoppingCarWithProductDetailModel:self.productDetailModel withProductCountStr:tempProductCount];
+            if (saveLocationResult == YES) {
+                [alertM showAlertViewWithTitle:nil withMessage:@"加入购物车成功" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
+                    //发送通知，让购物车界面刷新
+                    [[NSNotificationCenter defaultCenter] postNotificationName:@"refreshShoppingCarVC" object:self userInfo:nil];
+                    //跳转到购物车界面
+                    [self performSegueWithIdentifier:@"productDetailToShoppingCarVC" sender:nil];
+                }];
+                
+            }else{
+                //保存本地失败
+                [alertM showAlertViewWithTitle:nil withMessage:@"加入购物车失败，请稍后再试" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
+                
+            }
             
-        }];
-        
+        }else{
+            [alertM showAlertViewWithTitle:nil withMessage:@"产品数量不能为0" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
+            
+        }
     }
-
     
 }
 

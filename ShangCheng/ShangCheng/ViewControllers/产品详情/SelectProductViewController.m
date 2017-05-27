@@ -249,18 +249,18 @@
     Manager *manager = [Manager shareInstance];
     AlertManager *alertM = [AlertManager shareIntance];
 
-    if ([manager isLoggedInStatus] == YES) {
-        NSString *tempProductCount ;
-        
-        //如果是从产品详情中加入购物车
-        for (ProductFormatModel *tempFormatModel in self.productDetailModel.productFarmatArr) {
-            if (tempFormatModel.isSelect == YES) {
-                tempProductCount = [NSString stringWithFormat:@"%ld",tempFormatModel.seletctCount];
-            }
+    //得到选择的产品个数
+    NSString *tempProductCount ;
+    for (ProductFormatModel *tempFormatModel in self.productDetailModel.productFarmatArr) {
+        if (tempFormatModel.isSelect == YES) {
+            tempProductCount = [NSString stringWithFormat:@"%ld",tempFormatModel.seletctCount];
         }
+    }
+    
+    if ([manager isLoggedInStatus] == YES) {
         
         if ([tempProductCount integerValue] > 0) {
-            [manager httpProductToShoppingCarWithFormatId:self.productDetailModel.productModel.productFormatID withProductCount:tempProductCount withSuccessToShoppingCarResult:^(id successResult) {
+            [manager httpProductToShoppingCarWithFormatIdAndCountDic:@[@{@"sid":self.productDetailModel.productModel.productFormatID,@"number":tempProductCount}] withSuccessToShoppingCarResult:^(id successResult) {
                 
                 [alertM showAlertViewWithTitle:nil withMessage:@"加入购物车成功" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
                     //消失
@@ -281,16 +281,30 @@
             
         }
         
-        
-        //block刷新详情页的UI
-//        self.refreshFormatBlock();
-
     }else {
-        //未登录
-        [alertM showAlertViewWithTitle:nil withMessage:@"您未登录" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
+        if (tempProductCount > 0) {
+            //未登录,存到本地
+            BOOL saveLocationResult = [manager joinLocationShoppingCarWithProductDetailModel:self.productDetailModel withProductCountStr:tempProductCount];
+            if (saveLocationResult == YES) {
+                [alertM showAlertViewWithTitle:nil withMessage:@"加入购物车成功" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
+                    //消失
+                    [self dismissButtonAction:nil];
+                    
+                }];
+                
+                //发送通知，让购物车界面刷新
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"refreshShoppingCarVC" object:self userInfo:nil];
+            }else{
+                //保存本地失败
+                [alertM showAlertViewWithTitle:nil withMessage:@"加入购物车失败，请稍后再试" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
 
-        }];
+            }
+            
+            
+        }else{
+            [alertM showAlertViewWithTitle:nil withMessage:@"请选择产品规格" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
 
+        }
     }
     
 }

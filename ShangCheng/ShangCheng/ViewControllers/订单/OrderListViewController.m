@@ -10,7 +10,6 @@
 #import "PayViewController.h"
 #import "OrderListHeadTableViewCell.h"
 #import "OrderListOneTableViewCell.h"
-#import "OrderListTwoTableViewCell.h"
 #import "OrderListFootOneTableViewCell.h"
 #import "OrderListFootTwoTableViewCell.h"
 #import "OrderDetailViewController.h"
@@ -235,38 +234,29 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    /*
-    OrderListOneTableViewCell---orderListOneCell
-    OrderListTwoTableViewCell---orderListTwoCell
-    OrderListFootOneTableViewCell---orderListFootOneCell
-    OrderListFootTwoTableViewCell---orderListFootTwoCell
-    */
+   
     
     //注册cell
     //全部的tableView
     [self.allTableView registerNib:[UINib nibWithNibName:@"OrderListHeadTableViewCell" bundle:nil] forCellReuseIdentifier:@"orderListHeadCell"];
     [self.allTableView registerNib:[UINib nibWithNibName:@"OrderListOneTableViewCell" bundle:nil] forCellReuseIdentifier:@"orderListOneCell"];
-    [self.allTableView registerNib:[UINib nibWithNibName:@"OrderListTwoTableViewCell" bundle:nil] forCellReuseIdentifier:@"orderListTwoCell"];
     [self.allTableView registerNib:[UINib nibWithNibName:@"OrderListFootOneTableViewCell" bundle:nil] forCellReuseIdentifier:@"orderListFootOneCell"];
     [self.allTableView registerNib:[UINib nibWithNibName:@"OrderListFootTwoTableViewCell" bundle:nil] forCellReuseIdentifier:@"orderListFootTwoCell"];
 
     //待支付的TableView
     [self.waitPayTableView registerNib:[UINib nibWithNibName:@"OrderListHeadTableViewCell" bundle:nil] forCellReuseIdentifier:@"orderListHeadCell"];
     [self.waitPayTableView registerNib:[UINib nibWithNibName:@"OrderListOneTableViewCell" bundle:nil] forCellReuseIdentifier:@"orderListOneCell"];
-    [self.waitPayTableView registerNib:[UINib nibWithNibName:@"OrderListTwoTableViewCell" bundle:nil] forCellReuseIdentifier:@"orderListTwoCell"];
     [self.waitPayTableView registerNib:[UINib nibWithNibName:@"OrderListFootOneTableViewCell" bundle:nil] forCellReuseIdentifier:@"orderListFootOneCell"];
     [self.waitPayTableView registerNib:[UINib nibWithNibName:@"OrderListFootTwoTableViewCell" bundle:nil] forCellReuseIdentifier:@"orderListFootTwoCell"];
     
     //进行中的TableView
     [self.goOnTableView registerNib:[UINib nibWithNibName:@"OrderListHeadTableViewCell" bundle:nil] forCellReuseIdentifier:@"orderListHeadCell"];
     [self.goOnTableView registerNib:[UINib nibWithNibName:@"OrderListOneTableViewCell" bundle:nil] forCellReuseIdentifier:@"orderListOneCell"];
-    [self.goOnTableView registerNib:[UINib nibWithNibName:@"OrderListTwoTableViewCell" bundle:nil] forCellReuseIdentifier:@"orderListTwoCell"];
     [self.goOnTableView registerNib:[UINib nibWithNibName:@"OrderListFootTwoTableViewCell" bundle:nil] forCellReuseIdentifier:@"orderListFootTwoCell"];
 
     //已完成的tableView
     [self.finishTableView registerNib:[UINib nibWithNibName:@"OrderListHeadTableViewCell" bundle:nil] forCellReuseIdentifier:@"orderListHeadCell"];
     [self.finishTableView registerNib:[UINib nibWithNibName:@"OrderListOneTableViewCell" bundle:nil] forCellReuseIdentifier:@"orderListOneCell"];
-    [self.finishTableView registerNib:[UINib nibWithNibName:@"OrderListTwoTableViewCell" bundle:nil] forCellReuseIdentifier:@"orderListTwoCell"];
     [self.finishTableView registerNib:[UINib nibWithNibName:@"OrderListFootTwoTableViewCell" bundle:nil] forCellReuseIdentifier:@"orderListFootTwoCell"];
     
     //加载下拉刷新
@@ -713,58 +703,11 @@
     SupOrderModel *supOrderModel = dataArr[indexPath.section];
     SonOrderModel *sonOrderModel = supOrderModel.subOrderArr[indexPath.row];
     
-//    if (supOrderModel.subOrderArr.count < 2) {
-        OrderListOneTableViewCell *oneCell = [tableView dequeueReusableCellWithIdentifier:@"orderListOneCell" forIndexPath:indexPath];
-        [oneCell updateOrderListOneCellWithModel:sonOrderModel withWhichTableView:self.whichTableView withCellIndex:indexPath];
-    /*
-        //选择按钮
-        oneCell.selectButtonBlock = ^(IndexButton *selectButton){
-            //只有第二个TableView，才有选择按钮
-            //得到对应的模型
-            NSArray *selectOrderArr = [[[Manager shareInstance].orderListDataSourceDic objectForKey:@"2"] objectForKey:@"content"];
-            
-            SupOrderModel *selectModel = selectOrderArr[selectButton.indexForButton.section];
-            selectModel.isSelectOrder = !selectModel.isSelectOrder;
-            //改变UI
-            if (selectModel.isSelectOrder == YES) {
-                [selectButton setImage:[UIImage imageNamed:@"g_btn_select"] forState:UIControlStateNormal];
-                
-            }else {
-                [selectButton setImage:[UIImage imageNamed:@"g_btn_normal"] forState:UIControlStateNormal];
-                
-            }
-            
-            
-        };
-        */
-        return oneCell;
-//    }
-    /*
-    else {
-        OrderListTwoTableViewCell *twoCell = [tableView dequeueReusableCellWithIdentifier:@"orderListTwoCell" forIndexPath:indexPath];
-        [twoCell updateOrderLIstOneCellWithModel:supOrderModel withWhichTableView:self.whichTableView withCellIndex:indexPath];
-        //点击选择产品按钮
-        twoCell.selectButtonBlock = ^(IndexButton *selectButton){
-            //只有第二个TableView，才有选择按钮
-            //得到对应的模型
-            NSArray *selectOrderArr = [[[Manager shareInstance].orderListDataSourceDic objectForKey:@"2"] objectForKey:@"content"];
-            
-            SupOrderModel *selectModel = selectOrderArr[selectButton.indexForButton.section];
-            selectModel.isSelectOrder = !selectModel.isSelectOrder;
-            //改变UI
-            if (selectModel.isSelectOrder == YES) {
-                selectButton.backgroundColor = [UIColor redColor];
-            }else {
-                selectButton.backgroundColor = [UIColor lightGrayColor];
-            }
-            
-        };
-        return twoCell;
-    }
-*/
+    OrderListOneTableViewCell *oneCell = [tableView dequeueReusableCellWithIdentifier:@"orderListOneCell" forIndexPath:indexPath];
+    [oneCell updateOrderListOneCellWithModel:sonOrderModel withWhichTableView:self.whichTableView withCellIndex:indexPath];
 
-    
-    
+    return oneCell;
+
 }
 
 

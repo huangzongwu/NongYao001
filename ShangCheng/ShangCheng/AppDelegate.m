@@ -57,6 +57,11 @@
     }
     
     
+    //获取本地购物车 和 数量
+    [manager getLocationShoppingCar];
+    [manager getLocationShoppingCarNumber];
+    
+    
     
     //从本地读取个人信息，然后尝试自动登录一下
     BOOL result = [manager readMemberInfoModelFromLocation];
@@ -76,9 +81,6 @@
             } withNumberFail:^(NSString *failResultStr) {
                 
             }];
-            
-            
-            
             
         } withLoginFailResult:^(NSString *failResultStr) {
             //烽火论消失

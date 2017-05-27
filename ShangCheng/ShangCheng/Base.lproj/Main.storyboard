@@ -10425,7 +10425,7 @@
                                         </connections>
                                     </button>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="s_icon_into.png" translatesAutoresizingMaskIntoConstraints="NO" id="TG6-ne-GgS">
-                                        <rect key="frame" x="300" y="18" width="6" height="12"/>
+                                        <rect key="frame" x="300" y="18.5" width="6" height="12"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="12" id="Yr8-mb-Q9D"/>
                                             <constraint firstAttribute="width" constant="6" id="qfh-AD-K7D"/>
@@ -10481,7 +10481,7 @@
                                 <rect key="frame" x="0.0" y="314" width="320" height="50"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dMG-Eh-VO3">
-                                        <rect key="frame" x="5" y="12" width="25" height="25"/>
+                                        <rect key="frame" x="5" y="11.5" width="25" height="25"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="25" id="Ixq-bw-X8H"/>
                                             <constraint firstAttribute="height" constant="25" id="RJr-8M-6Yn"/>
@@ -11515,7 +11515,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" pagingEnabled="YES" translatesAutoresizingMaskIntoConstraints="NO" id="2RL-fq-5qs">
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" bounces="NO" pagingEnabled="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2RL-fq-5qs">
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="etn-RK-ekX">
@@ -11557,13 +11557,13 @@
                                                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="lead3.png" translatesAutoresizingMaskIntoConstraints="NO" id="cBS-mr-1zu">
                                                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                                                     </imageView>
-                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dhk-gw-HNU">
-                                                        <rect key="frame" x="110" y="438" width="100" height="30"/>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dhk-gw-HNU">
+                                                        <rect key="frame" x="75.5" y="443" width="170" height="40"/>
                                                         <constraints>
-                                                            <constraint firstAttribute="height" constant="30" id="aMF-OG-xS0"/>
-                                                            <constraint firstAttribute="width" constant="100" id="avt-gg-5sq"/>
+                                                            <constraint firstAttribute="height" constant="40" id="aMF-OG-xS0"/>
+                                                            <constraint firstAttribute="width" constant="170" id="avt-gg-5sq"/>
                                                         </constraints>
-                                                        <state key="normal" title="点击进入"/>
+                                                        <state key="normal" image="leadBtn.png"/>
                                                         <connections>
                                                             <action selector="nextButtonAction:" destination="UTI-ZJ-g9x" eventType="touchUpInside" id="aws-f6-U3k"/>
                                                         </connections>
@@ -11575,7 +11575,7 @@
                                                     <constraint firstAttribute="trailing" secondItem="cBS-mr-1zu" secondAttribute="trailing" id="7Rh-yL-a5T"/>
                                                     <constraint firstItem="cBS-mr-1zu" firstAttribute="top" secondItem="VnW-ug-d7c" secondAttribute="top" id="DGz-QT-054"/>
                                                     <constraint firstItem="cBS-mr-1zu" firstAttribute="leading" secondItem="VnW-ug-d7c" secondAttribute="leading" id="FyM-05-QOT"/>
-                                                    <constraint firstAttribute="bottom" secondItem="dhk-gw-HNU" secondAttribute="bottom" constant="100" id="tSA-75-kP3"/>
+                                                    <constraint firstAttribute="bottom" secondItem="dhk-gw-HNU" secondAttribute="bottom" constant="85" id="tSA-75-kP3"/>
                                                     <constraint firstAttribute="bottom" secondItem="cBS-mr-1zu" secondAttribute="bottom" id="x0a-ex-41m"/>
                                                 </constraints>
                                             </view>
@@ -11605,30 +11605,17 @@
                                     <constraint firstItem="etn-RK-ekX" firstAttribute="leading" secondItem="2RL-fq-5qs" secondAttribute="leading" id="awp-Wg-HhW"/>
                                     <constraint firstItem="etn-RK-ekX" firstAttribute="width" secondItem="2RL-fq-5qs" secondAttribute="width" multiplier="3" id="kOW-Q3-mio"/>
                                 </constraints>
-                                <connections>
-                                    <outlet property="delegate" destination="UTI-ZJ-g9x" id="yNz-ON-z8X"/>
-                                </connections>
                             </scrollView>
-                            <pageControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" numberOfPages="3" translatesAutoresizingMaskIntoConstraints="NO" id="M6m-BK-hmH">
-                                <rect key="frame" x="0.0" y="531" width="320" height="37"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="37" id="lgL-yc-2f2"/>
-                                </constraints>
-                            </pageControl>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="esN-Nu-zDh" firstAttribute="top" secondItem="2RL-fq-5qs" secondAttribute="bottom" id="0Fn-No-Rih"/>
                             <constraint firstAttribute="trailing" secondItem="2RL-fq-5qs" secondAttribute="trailing" id="2NF-0A-s3b"/>
-                            <constraint firstItem="esN-Nu-zDh" firstAttribute="top" secondItem="M6m-BK-hmH" secondAttribute="bottom" id="8bC-Rv-TRE"/>
                             <constraint firstItem="2RL-fq-5qs" firstAttribute="top" secondItem="cR3-gu-qG1" secondAttribute="top" id="9Fk-YC-sEO"/>
-                            <constraint firstItem="M6m-BK-hmH" firstAttribute="leading" secondItem="cR3-gu-qG1" secondAttribute="leading" id="M1A-sb-9FB"/>
                             <constraint firstItem="2RL-fq-5qs" firstAttribute="leading" secondItem="cR3-gu-qG1" secondAttribute="leading" id="XW5-TH-CF2"/>
-                            <constraint firstAttribute="trailing" secondItem="M6m-BK-hmH" secondAttribute="trailing" id="oVP-xR-jxZ"/>
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="bottomPageView" destination="M6m-BK-hmH" id="xEW-uQ-Qlu"/>
                         <segue destination="Yqa-mC-tub" kind="show" identifier="leadToTabbarVC" animates="NO" id="Wzp-JU-Xcd"/>
                     </connections>
                 </viewController>
@@ -12832,9 +12819,10 @@
         <image name="g_icon_splb.png" width="12" height="13"/>
         <image name="g_pic_select.png" width="359" height="2"/>
         <image name="icon_pic_cp.png" width="50" height="43"/>
-        <image name="lead1.png" width="500" height="700"/>
-        <image name="lead2.png" width="554" height="682"/>
-        <image name="lead3.png" width="700" height="1050"/>
+        <image name="lead1.png" width="1080" height="1920"/>
+        <image name="lead2.png" width="1080" height="1920"/>
+        <image name="lead3.png" width="1080" height="1920"/>
+        <image name="leadBtn.png" width="169" height="40"/>
         <image name="mainIcon.png" width="60" height="60"/>
         <image name="s_btn_nor.png" width="7" height="11"/>
         <image name="s_icon_back.png" width="8" height="16"/>

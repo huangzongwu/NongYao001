@@ -519,11 +519,231 @@
 }
 
 #pragma mark - 购物车 -
-//将产品加入购物车
-- (void)httpProductToShoppingCarWithFormatId:(NSString *)sidStr withProductCount:(NSString *)countStr withSuccessToShoppingCarResult:(SuccessResult)successToShoppingCarResult withFailToShoppingCarResult:(FailResult)failToShoppingCarResult {
+//将产品加入本地购物车
+- (BOOL)joinLocationShoppingCarWithProductDetailModel:(ProductDetailModel *)productDetailModel withProductCountStr:(NSString *)productCountStr {
     
-    NSArray *itemArr = @[@{@"sid":sidStr,@"number":countStr}];
-    NSDictionary *valueDic = @{@"userid":self.memberInfoModel.u_id,@"item":itemArr};
+    BOOL isNewProduct = YES;
+    
+    //先查看本地购物车有没有这个规格的产品
+    for (ShoppingCarModel *tempShoppingModel in self.shoppingCarDataSourceArr) {
+        if ([tempShoppingModel.shoppingCarProduct.productFormatID isEqualToString:productDetailModel.productModel.productFormatID]) {
+            //找到了这个产品
+            tempShoppingModel.c_number = [NSString stringWithFormat:@"%ld",[tempShoppingModel.c_number integerValue] + [productCountStr integerValue]];
+            tempShoppingModel.totalprice = [NSString stringWithFormat:@"%.2f",[tempShoppingModel.shoppingCarProduct.productPrice floatValue] * [tempShoppingModel.c_number integerValue]];
+            
+            isNewProduct = NO;
+            
+            //将数组保存到本地
+            BOOL addResult = [self saveLocationShoppingCar];
+            if (addResult == NO) {
+                tempShoppingModel.c_number = [NSString stringWithFormat:@"%ld",[tempShoppingModel.c_number integerValue] - [productCountStr integerValue]];
+                tempShoppingModel.totalprice = [NSString stringWithFormat:@"%.2f",[tempShoppingModel.shoppingCarProduct.productPrice floatValue] * [tempShoppingModel.c_number integerValue]];
+
+                
+            }
+            return addResult;
+            
+        }
+    }
+    
+    //如果是新产品，即购物车里没有这个，就需要重新创建模型
+    if (isNewProduct == YES) {
+        //封装本地购物车模型，
+        ShoppingCarModel *locationModel = [[ShoppingCarModel alloc] init];
+        locationModel.shoppingCarProduct = productDetailModel.productModel;
+        locationModel.c_number = productCountStr;
+        locationModel.totalprice = [NSString stringWithFormat:@"%.2f",[locationModel.shoppingCarProduct.productPrice floatValue] * [productCountStr floatValue]];
+        locationModel.isSelectedShoppingCar = NO;
+        locationModel.s_min_quantity = productDetailModel.p_standard_qty;
+        //    locationModel.isActivity =
+        
+        //将模型添加到数组中
+        [self.shoppingCarDataSourceArr addObject:locationModel];
+        
+        //将数组保存到本地
+        BOOL addResult = [self saveLocationShoppingCar];
+        if (addResult == NO) {
+            [self.shoppingCarDataSourceArr removeObject:locationModel];
+            
+        }else{
+            //更新角标
+            [self getLocationShoppingCarNumber];
+        }
+        return addResult;
+
+    }else{
+        return NO;
+    }
+}
+
+
+//将本地购物车信息保存到本地
+- (BOOL)saveLocationShoppingCar {
+    
+    NSArray *_paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *_documentPath = [_paths lastObject];
+    NSLog(@"%@",_documentPath);
+    NSString *_personFilePath = [_documentPath stringByAppendingPathComponent:@"locationShoppingCar.plist"];
+    
+    //    //实例化一个可变二进制数据的对象
+    //    NSMutableData *_writingData = [NSMutableData data];
+    //    //根据_writingData创建归档器对象
+    //    NSKeyedArchiver *_archiver = [[NSKeyedArchiver alloc]initForWritingWithMutableData:_writingData];
+    //    //对指定数据做归档，并将归档数据写入到_writingData中
+    //    [_archiver encodeObject:memberInfo forKey:@"memberInfoModel"];
+    //    //完成归档
+    //    [_archiver finishEncoding];
+    
+    //将_writingData写入到指定文件路径
+    
+    if (self.shoppingCarDataSourceArr != nil) {
+        
+        BOOL result = [NSKeyedArchiver archiveRootObject:self.shoppingCarDataSourceArr toFile:_personFilePath];;
+        
+        NSLog(@"%@",result ? @"写入文件成功" : @"写入文件失败");
+        return result;
+    }else {
+        return NO;
+    }
+    
+}
+
+
+
+//获取本地购物车
+- (void)getLocationShoppingCar {
+    
+    NSArray *_paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *_documentPath = [_paths lastObject];
+    NSLog(@"%@",_documentPath);
+    NSString *_personFilePath = [_documentPath stringByAppendingPathComponent:@"locationShoppingCar.plist"];
+    
+    self.shoppingCarDataSourceArr = [NSMutableArray array];
+    
+    self.shoppingCarDataSourceArr = [NSKeyedUnarchiver unarchiveObjectWithFile:_personFilePath];
+    
+    //获取一下角标
+    [self getLocationShoppingCarNumber];
+}
+
+//增加或者本地购物车数量
+- (void)addOrLessLocationShoppingCarCountWithShoppingCarModel:(ShoppingCarModel *)shoppingCarModel withisAdd:(BOOL)isAdd WithAddOrLessSuccessFail:(SuccessResult)addOrLessSuccessResult withAddOrLessFailResult:(FailResult)addOrLessFailResult{
+    
+    BOOL saveResult ;
+    
+    NSInteger tempCount = [shoppingCarModel.c_number integerValue];
+    //如果是本地增加
+    if (isAdd == YES) {
+        
+        shoppingCarModel.c_number = [NSString stringWithFormat:@"%ld",[shoppingCarModel.c_number integerValue] + 1];
+        //总价
+        shoppingCarModel.totalprice = [NSString stringWithFormat:@"%.2f",[shoppingCarModel.shoppingCarProduct.productPrice floatValue] * [shoppingCarModel.c_number integerValue]];
+        
+        //保存到本地
+        saveResult = [self saveLocationShoppingCar];
+        
+        
+        
+    }else {
+        
+        //如果个数已经是1了，就不能再减少了
+        if (tempCount == 1) {
+            addOrLessFailResult(@"商品最少为1");
+            return;
+        }
+        
+        //减少本地数量
+        shoppingCarModel.c_number = [NSString stringWithFormat:@"%ld",[shoppingCarModel.c_number integerValue] - 1];
+        shoppingCarModel.totalprice = [NSString stringWithFormat:@"%.2f",[shoppingCarModel.shoppingCarProduct.productPrice floatValue] * [shoppingCarModel.c_number integerValue]];
+
+        //保存到本地
+        saveResult = [self saveLocationShoppingCar];
+        
+    }
+    
+    
+    if (saveResult == YES) {
+        addOrLessSuccessResult(@"成功");
+    }else{
+        if (isAdd == YES) {
+            addOrLessFailResult(@"添加产品数量失败");
+        }else{
+            addOrLessFailResult(@"减少产品数量失败");
+        }
+
+    }
+    
+}
+
+//删除本地购物车的产品
+- (BOOL)deleteLocationShoppingCarWithProductIndexSet:(NSMutableIndexSet *)productIndexSet {
+    //遍历产品集合，然后拼成字符串
+//    __block NSString *tempUrl = @"";
+//    [productIndexSet enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL * _Nonnull stop) {
+//        //从数组中得到具体的产品模型
+//        ShoppingCarModel *tempModel = self.shoppingCarDataSourceArr[idx];
+//        
+//        tempUrl = [tempUrl stringByAppendingString:tempModel.c_id];
+//        tempUrl = [tempUrl stringByAppendingString:@","];
+//    }];
+//    tempUrl = [tempUrl substringToIndex:tempUrl.length-1];
+    
+    
+    
+    [self.shoppingCarDataSourceArr removeObjectsAtIndexes:productIndexSet];
+    
+    BOOL deleteResult = [self saveLocationShoppingCar];
+    if (deleteResult == YES) {
+        //请求购物车角标
+        [self getLocationShoppingCarNumber];
+    }
+    //保存本地
+    return  deleteResult;
+    
+}
+
+
+//本地购物车数量
+- (void)getLocationShoppingCarNumber {
+//    获取本地购物车
+//    [self getLocationShoppingCar];
+    //发送通知改变角标
+    if (self.shoppingCarDataSourceArr.count == 0) {
+        self.shoppingNumberStr = nil;
+    }else{
+        self.shoppingNumberStr = [NSString stringWithFormat:@"%ld", self.shoppingCarDataSourceArr.count ];
+    }
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"refreshShoppingCarNumber" object:self userInfo:nil];
+}
+
+//清空本地购物车
+- (void)clearLocationShopping {
+    NSArray *_paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *_documentPath = [_paths lastObject];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    
+    NSString *memberInfoPath = [_documentPath stringByAppendingPathComponent:@"locationShoppingCar.plist"];
+    
+    BOOL isExists = [fileManager fileExistsAtPath:memberInfoPath];
+    
+    if (isExists) {
+        
+        NSError *err;
+        
+        [fileManager removeItemAtPath:memberInfoPath error:&err];
+        
+    }
+}
+
+
+
+
+//将产品加入购物车(网络)
+- (void)httpProductToShoppingCarWithFormatIdAndCountDic:(NSMutableArray *)formatIdAndCountArr withSuccessToShoppingCarResult:(SuccessResult)successToShoppingCarResult withFailToShoppingCarResult:(FailResult)failToShoppingCarResult {
+    
+    
+//    NSArray *itemArr = @[@{@"sid":sidStr,@"number":countStr}];
+    NSDictionary *valueDic = @{@"userid":self.memberInfoModel.u_id,@"item":formatIdAndCountArr};
     
     //给value加密
     NSString *secretStr = [self digest:[NSString stringWithFormat:@"%@Nongyao_Com001", [self dictionaryToJson:@[valueDic]]]];
@@ -555,6 +775,7 @@
     
     
 }
+
 
 //购物车数量
 - (void)httpShoppingCarNumberWithUserid:(NSString *)userId withNumberSuccess:(SuccessResult )numberSuccess withNumberFail:(FailResult)numberFail {
@@ -2659,6 +2880,38 @@
                 //如果存入本地成功
                 if (locationResult == YES) {
                     loginSuccessResult(successResult);
+                    
+                    /*登录成功，
+                     1、调用接口同步购物车
+                     2、清空本地的购物车，清空购物车数据源
+                     */
+                    //调用接口同步购物车
+                    if (self.shoppingCarDataSourceArr.count > 0) {
+                        NSMutableArray *formatAndCountArr = [NSMutableArray array];
+                        for (ShoppingCarModel *tempLocationModel in self.shoppingCarDataSourceArr) {
+                            
+                            [formatAndCountArr addObject:@{@"sid":tempLocationModel.shoppingCarProduct.productFormatID,@"number":tempLocationModel.c_number}];
+                            
+                        }
+                        [self httpProductToShoppingCarWithFormatIdAndCountDic:formatAndCountArr withSuccessToShoppingCarResult:^(id successResult) {
+                            //清空本地的购物车，清空购物车数据源
+                            self.shoppingCarDataSourceArr = [NSMutableArray array];
+                            [self clearLocationShopping];
+                            
+                            //刷新购物车界面
+                            [[NSNotificationCenter defaultCenter] postNotificationName:@"refreshShoppingCarVC" object:self userInfo:nil];
+                            
+                            
+                            
+                        } withFailToShoppingCarResult:^(NSString *failResultStr) {
+                            NSLog(@"同步购物车失败");
+                        }];
+                        
+                    }
+
+                    
+                    
+                    
 #warning 登录成功发送通知
                     [[NSNotificationCenter defaultCenter] postNotificationName:@"logedIn" object:self userInfo:nil];
                     //登录成功，就重新请求购物车数量
@@ -2667,11 +2920,7 @@
                 }else{
                     loginFailResult(@"未知错误，登录失败，请稍后再试");
                 }
-
-
             }
-            
-        
         }else{
             loginFailResult(@"未知服务器错误，请联系客服");
 
@@ -2708,11 +2957,42 @@
         //得到网络请求状态码
         NSLog(@"%ld",operation.response.statusCode);
         if (operation.response.statusCode == 200) {
+            
+            
             //登录成功，解析数据，
             BOOL locationResult = [self analyzeMemberWithJsonDic:successResult[0] withPassword:nil];
             //不需要存入本地，即写死成了YES
             if (locationResult == YES) {
                 loginSuccessResult(successResult);
+                
+                /*登录成功，
+                 1、调用接口同步购物车
+                 2、清空本地的购物车，清空购物车数据源
+                 */
+                //调用接口同步购物车
+                if (self.shoppingCarDataSourceArr.count > 0) {
+                    NSMutableArray *formatAndCountArr = [NSMutableArray array];
+                    for (ShoppingCarModel *tempLocationModel in self.shoppingCarDataSourceArr) {
+                        
+                        [formatAndCountArr addObject:@{@"sid":tempLocationModel.shoppingCarProduct.productFormatID,@"number":tempLocationModel.c_number}];
+                        
+                    }
+                    [self httpProductToShoppingCarWithFormatIdAndCountDic:formatAndCountArr withSuccessToShoppingCarResult:^(id successResult) {
+                        //清空本地的购物车，清空购物车数据源
+                        self.shoppingCarDataSourceArr = [NSMutableArray array];
+                        [self clearLocationShopping];
+                        
+                        //刷新购物车界面
+                        [[NSNotificationCenter defaultCenter] postNotificationName:@"refreshShoppingCarVC" object:self userInfo:nil];
+                        
+                        
+                        
+                    } withFailToShoppingCarResult:^(NSString *failResultStr) {
+                        NSLog(@"同步购物车失败");
+                    }];
+                    
+                }
+                
                 
 #warning 登录成功发送通知
                 //登录成功，就重新请求购物车数量

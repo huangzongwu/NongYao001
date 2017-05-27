@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "ProductModel.h"
-@interface ShoppingCarModel : NSObject
+@interface ShoppingCarModel : NSObject<NSCoding>
 //购物车商品id,主键
 @property (nonatomic,strong)NSString *c_id;
 
@@ -26,6 +26,7 @@
 @property (nonatomic,strong)NSString *s_min_quantity;
 //商品错误信息
 @property (nonatomic,strong)NSString *productErrorMsg;
+
 @property (nonatomic,assign)BOOL isActivity;
 
 - (void)setValue:(id)value forUndefinedKey:(NSString *)key ;

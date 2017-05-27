@@ -215,7 +215,8 @@
         if ([SVProgressHUD isVisible] == NO) {
             [SVProgressHUD show];
         }
-        [manager httpProductToShoppingCarWithFormatId:addProductFormatIdStr withProductCount:min_quantityStr withSuccessToShoppingCarResult:^(id successResult) {
+        
+        [manager httpProductToShoppingCarWithFormatIdAndCountDic:@[@{@"sid":addProductFormatIdStr,@"number":min_quantityStr}] withSuccessToShoppingCarResult:^(id successResult) {
             [SVProgressHUD dismiss];
             [alertM showAlertViewWithTitle:nil withMessage:@"加入购物车成功" actionTitleArr:nil withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
                 //发送通知，让购物车界面刷新

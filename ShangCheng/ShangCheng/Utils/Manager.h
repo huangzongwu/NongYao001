@@ -147,8 +147,25 @@ typedef void(^FailResult)(NSString *failResultStr);
 //是否被收藏
 - (void)httpIsFavoriteWithUserId:(NSString *)userID withFormatId:(NSString *)formatId withIsFavoriteSuccess:(SuccessResult )isFavoriteSuccess withIsFavoriteFail:(FailResult)isFavoriteFail ;
 #pragma mark - 购物车 -
+//将产品加入本地购物车
+- (BOOL)joinLocationShoppingCarWithProductDetailModel:(ProductDetailModel *)productDetailModel withProductCountStr:(NSString *)productCountStr;
+//获取本地购物车
+- (void)getLocationShoppingCar;
+
+//增加本地购物车数量
+- (void)addOrLessLocationShoppingCarCountWithShoppingCarModel:(ShoppingCarModel *)shoppingCarModel withisAdd:(BOOL)isAdd WithAddOrLessSuccessFail:(SuccessResult)addOrLessSuccessResult withAddOrLessFailResult:(FailResult)addOrLessFailResult;
+
+//删除本地购物车的产品
+- (BOOL)deleteLocationShoppingCarWithProductIndexSet:(NSMutableIndexSet *)productIndexSet ;
+
+//本地购物车数量
+- (void)getLocationShoppingCarNumber;
+
+//---------------------------------------------
 //将产品加入购物车
-- (void)httpProductToShoppingCarWithFormatId:(NSString *)sidStr withProductCount:(NSString *)countStr withSuccessToShoppingCarResult:(SuccessResult)successToShoppingCarResult withFailToShoppingCarResult:(FailResult)failToShoppingCarResult ;
+- (void)httpProductToShoppingCarWithFormatIdAndCountDic:(NSMutableArray *)formatIdAndCountArr withSuccessToShoppingCarResult:(SuccessResult)successToShoppingCarResult withFailToShoppingCarResult:(FailResult)failToShoppingCarResult;
+
+
 //购物车数量
 - (void)httpShoppingCarNumberWithUserid:(NSString *)userId withNumberSuccess:(SuccessResult )numberSuccess withNumberFail:(FailResult)numberFail;
 //判断是否全选

@@ -49,6 +49,8 @@
 - (instancetype)initWithCoder:(NSCoder *)aDecoder {
     self = [super initWithCoder:aDecoder];
     if (self) {
+        self.isRefreshVC = YES;//首次创建，一定是要刷新的
+        
         //通知，需要刷新
         [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(refreshShoppingCarNotification:) name:@"refreshShoppingCarVC" object:nil];
         [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(refreshAllNotification:) name:@"logedIn" object:nil];
@@ -123,9 +125,6 @@
     // Do any additional setup after loading the view.
     NSLog(@"%@",[self.navigationController viewControllers]);
     
-    
-    
-    
     //加载空白页
     self.kongImageView = [[[NSBundle mainBundle] loadNibNamed:@"KongImageView" owner:self options:nil] firstObject];
     [self.kongImageView.reloadAgainButton addTarget:self action:@selector(reloadAgainButtonAction:) forControlEvents:UIControlEventTouchUpInside];
@@ -140,7 +139,6 @@
         leftItem.tintColor = [UIColor whiteColor];
         self.navigationItem.leftBarButtonItem = leftItem;
     }
-    
     
     
     //下拉刷新加载
@@ -237,8 +235,32 @@
     } else {
         //未登录
         [self.shoppingCollectionView headerEndRefreshing];
+        //获取本地的购物车数据
         
-        [self isShowKongImageViewWithType:KongTypeWithNotLogin withKongMsg:@""];
+        [manager getLocationShoppingCar];
+        //刷新
+        [self.shoppingCollectionView reloadData];
+        //看看是否有空白页
+        [self isShowKongImageViewWithType:KongTypeWithKongData withKongMsg:@"购物车暂无数据"];
+        
+        //刷新了，将bool值变为No
+        self.isRefreshVC = NO;
+        
+        //刷新一下全选按钮
+        if (manager.isAllSelectForShoppingCar == YES) {
+            [self.allSelectButton setBackgroundImage:[UIImage imageNamed:@"g_btn_select"] forState:UIControlStateNormal];
+            
+        }else{
+            [self.allSelectButton setBackgroundImage:[UIImage imageNamed:@"g_btn_normal"] forState:UIControlStateNormal];
+        }
+        
+        //计算金额
+        self.priceLabel.text = [NSString stringWithFormat:@"￥%.2f",[manager selectProductTotalPrice]];
+        //计算总件数
+        self.totalCountLabel.text = [NSString stringWithFormat:@"共%ld件",[manager isSelectProductCount]];
+        
+        
+//        [self isShowKongImageViewWithType:KongTypeWithNotLogin withKongMsg:@""];
         
     }
 
@@ -333,6 +355,7 @@
             }else{
                 [self.allSelectButton setBackgroundImage:[UIImage imageNamed:@"g_btn_normal"] forState:UIControlStateNormal];
             }
+            NSLog(@"++++%.2f",[manager selectProductTotalPrice]);
             //计算金额
             self.priceLabel.text = [NSString stringWithFormat:@"￥%.2f",[manager selectProductTotalPrice]];
             //计算总件数
@@ -446,7 +469,7 @@
     Manager *manager = [Manager shareInstance];
     MyFavoriteListModel *tempFavoriteModel = manager.myFavoriteArr[sender.indexForButton.row];
     
-    [manager httpProductToShoppingCarWithFormatId:tempFavoriteModel.favoriteProductFormatID withProductCount:tempFavoriteModel.s_min_quantity withSuccessToShoppingCarResult:^(id successResult) {
+    [manager httpProductToShoppingCarWithFormatIdAndCountDic:@[@{@"sid":tempFavoriteModel.favoriteProductFormatID,@"number":tempFavoriteModel.s_min_quantity}] withSuccessToShoppingCarResult:^(id successResult) {
         [alertM showAlertViewWithTitle:nil withMessage:@"加入购物车成功" actionTitleArr:nil withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
             //重新请求购物车列表
             [self httpShoppingDataSource];
@@ -542,25 +565,52 @@
                         
                     }
                 }
-                //删除
-                [manager deleteShoppingCarWithProductIndexSet:deleteIndexSet WithSuccessResult:^(id successResult) {
-                    [self.shoppingCollectionView deleteSections:deleteIndexSet];
-                    
-                    //需要刷新全选按钮
-                    if (manager.isAllSelectForShoppingCar == YES) {
-                        [self.allSelectButton setBackgroundImage:[UIImage imageNamed:@"g_btn_select"] forState:UIControlStateNormal];
+                
+                if ([manager isLoggedInStatus] == YES) {
+                    //网络删除
+                    [manager deleteShoppingCarWithProductIndexSet:deleteIndexSet WithSuccessResult:^(id successResult) {
+                        [self.shoppingCollectionView deleteSections:deleteIndexSet];
+                        
+                        //需要刷新全选按钮
+                        if (manager.isAllSelectForShoppingCar == YES) {
+                            [self.allSelectButton setBackgroundImage:[UIImage imageNamed:@"g_btn_select"] forState:UIControlStateNormal];
+                        }else {
+                            [self.allSelectButton setBackgroundImage:[UIImage imageNamed:@"g_btn_normal"] forState:UIControlStateNormal];
+                        }
+                        //计算总金额
+                        self.priceLabel.text = [NSString stringWithFormat:@"￥%.2f",[manager selectProductTotalPrice]];
+                        //计算总件数
+                        self.totalCountLabel.text = [NSString stringWithFormat:@"共%ld件",[manager isSelectProductCount]];
+                        
+                    } withFailResult:^(NSString *failResultStr) {
+                        //删除失败
+                        [alertM showAlertViewWithTitle:nil withMessage:@"删除失败" actionTitleArr:nil withViewController:self withReturnCodeBlock:nil];
+                    }];
+                }else {
+                    //本地删除
+                    BOOL saveResult =  [manager deleteLocationShoppingCarWithProductIndexSet:deleteIndexSet];
+                    if (saveResult == YES) {
+                        
+                        [self.shoppingCollectionView deleteSections:deleteIndexSet];
+
+                        //需要刷新全选按钮
+                        if (manager.isAllSelectForShoppingCar == YES) {
+                            [self.allSelectButton setBackgroundImage:[UIImage imageNamed:@"g_btn_select"] forState:UIControlStateNormal];
+                        }else {
+                            [self.allSelectButton setBackgroundImage:[UIImage imageNamed:@"g_btn_normal"] forState:UIControlStateNormal];
+                        }
+                        //计算总金额
+                        self.priceLabel.text = [NSString stringWithFormat:@"￥%.2f",[manager selectProductTotalPrice]];
+                        //计算总件数
+                        self.totalCountLabel.text = [NSString stringWithFormat:@"共%ld件",[manager isSelectProductCount]];
+                        
                     }else {
-                        [self.allSelectButton setBackgroundImage:[UIImage imageNamed:@"g_btn_normal"] forState:UIControlStateNormal];
+                        NSLog(@"删除失败");
                     }
-                    //计算总金额
-                    self.priceLabel.text = [NSString stringWithFormat:@"￥%.2f",[manager selectProductTotalPrice]];
-                    //计算总件数
-                    self.totalCountLabel.text = [NSString stringWithFormat:@"共%ld件",[manager isSelectProductCount]];
-                    
-                } withFailResult:^(NSString *failResultStr) {
-                    //删除失败
-                    [alertM showAlertViewWithTitle:nil withMessage:@"删除失败" actionTitleArr:nil withViewController:self withReturnCodeBlock:nil];
-                }];
+
+                }
+                
+            
 
             }
         }];
@@ -578,34 +628,47 @@
     AlertManager *alertM = [AlertManager shareIntance];
     
     Manager *manager = [Manager shareInstance];
-    //如果选择了产品
-    if ([manager isSelectAnyOneProduct] == YES) {
-        [alertM showAlertViewWithTitle:nil withMessage:@"确定要收藏这些产品？" actionTitleArr:@[@"取消",@"确认"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
-            if (actionBlockNumber == 1) {
+     if ([manager isLoggedInStatus] == YES) {
+         //如果选择了产品
+         if ([manager isSelectAnyOneProduct] == YES) {
+             [alertM showAlertViewWithTitle:nil withMessage:@"确定要收藏这些产品？" actionTitleArr:@[@"取消",@"确认"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
+                 if (actionBlockNumber == 1) {
+                     
+                     NSMutableArray *formatIdArr = [NSMutableArray array];
+                     for (ShoppingCarModel *tempModel in manager.shoppingCarDataSourceArr) {
+                         if (tempModel.isSelectedShoppingCar == YES) {
+                             [formatIdArr addObject:tempModel.shoppingCarProduct.productFormatID];
+                         }
+                     }
+                     
+                     //收藏
+                     [manager httpAddFavoriteWithUserId:manager.memberInfoModel.u_id withFormatIdArr:formatIdArr withAddFavoriteSuccess:^(id successResult) {
+                         
+                         [alertM showAlertViewWithTitle:nil withMessage:@"收藏成功" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
+                         
+                     } withAddFavoriteFail:^(NSString *failResultStr) {
+                         [alertM showAlertViewWithTitle:nil withMessage:@"收藏失败，请稍后再试！" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
+                     }];
+                     
+                 }
+             }];
+             
+         }else {
+             
+             [alertM showAlertViewWithTitle:nil withMessage:@"您还没有选择产品" actionTitleArr:nil withViewController:self withReturnCodeBlock:nil];
+         }
 
-                NSMutableArray *formatIdArr = [NSMutableArray array];
-                for (ShoppingCarModel *tempModel in manager.shoppingCarDataSourceArr) {
-                    if (tempModel.isSelectedShoppingCar == YES) {
-                        [formatIdArr addObject:tempModel.shoppingCarProduct.productFormatID];
-                    }
-                }
-                
-                //收藏
-                [manager httpAddFavoriteWithUserId:manager.memberInfoModel.u_id withFormatIdArr:formatIdArr withAddFavoriteSuccess:^(id successResult) {
-                    
-                    [alertM showAlertViewWithTitle:nil withMessage:@"收藏成功" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
+     }else {
+         [alertM showAlertViewWithTitle:nil withMessage:@"请先登录后，在进行收藏" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
+             //未登录,跳转到登录界面
+             UINavigationController *loginNav = [self.storyboard instantiateViewControllerWithIdentifier:@"loginNavigationController"];
+             [self presentViewController:loginNav animated:YES completion:nil];
+         }];
+         
 
-                } withAddFavoriteFail:^(NSString *failResultStr) {
-                    [alertM showAlertViewWithTitle:nil withMessage:@"收藏失败，请稍后再试！" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
-                }];
-                
-            }
-        }];
-        
-    }else {
-        
-        [alertM showAlertViewWithTitle:nil withMessage:@"您还没有选择产品" actionTitleArr:nil withViewController:self withReturnCodeBlock:nil];
-    }
+         
+
+     }
     
     
 }
@@ -615,6 +678,7 @@
     AlertManager *alertM = [AlertManager shareIntance];
     
     Manager *manager = [Manager shareInstance];
+    
     //如果选择了产品
     if ([manager isSelectAnyOneProduct] == YES) {
         
@@ -658,7 +722,6 @@
             
         }
 
-        
     }else {
         
         [alertM showAlertViewWithTitle:nil withMessage:@"您还没有选择产品" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
@@ -673,62 +736,78 @@
 - (IBAction)payButtonAction:(UIButton *)sender {
     
     Manager *manager = [Manager shareInstance];
-    //有选择产品才可以支付
-    if ([manager isSelectAnyOneProduct] == YES) {
-        //将选择的产品下标记录一下，主要用户刷新UI
-        NSMutableIndexSet *selectIndexSet = [NSMutableIndexSet indexSet];
-        //将选择的产品id记录一下，传给接口
-        NSMutableArray *shoppingCarIdArr = [NSMutableArray array];
-        for (int i = 0; i < manager.shoppingCarDataSourceArr.count; i++) {
-            ShoppingCarModel *shoppingCarModel = manager.shoppingCarDataSourceArr[i];
-            //清空所有的问题产品信息
-            shoppingCarModel.productErrorMsg = @"";
-            
-            if (shoppingCarModel.isSelectedShoppingCar == YES) {
-                //如果选中了这个产品，那么产品下标家属indexSet中,产品id加入数组，
-                [selectIndexSet addIndex:i];
-                [shoppingCarIdArr addObject:shoppingCarModel.c_id];
-            }
-        }
-        
-        //调用订单预支付接口，看看哪些产品不能生成订单
-        [manager httpOrderPreviewWithShoppingCarIDArr:shoppingCarIdArr withPreviewSuccessResult:^(id successResult) {
-            
-            if ([[successResult objectForKey:@"code"] integerValue] == 200) {
-                //全部产品成功,即可生成订单了，跳转到下一页，在跳转下一页的时候，先清空一下上次有错误的产品UI
-                [self.shoppingCollectionView reloadData];
+    AlertManager *alert = [AlertManager shareIntance];
 
-                //跳转
-                [self performSegueWithIdentifier:@"toPreviewOrderVC" sender:sender];
+    //只有登录了才可以进行支付
+    if ([manager isLoggedInStatus] == YES) {
+        //有选择产品才可以支付
+        if ([manager isSelectAnyOneProduct] == YES) {
+            //将选择的产品下标记录一下，主要用户刷新UI
+            NSMutableIndexSet *selectIndexSet = [NSMutableIndexSet indexSet];
+            //将选择的产品id记录一下，传给接口
+            NSMutableArray *shoppingCarIdArr = [NSMutableArray array];
+            for (int i = 0; i < manager.shoppingCarDataSourceArr.count; i++) {
+                ShoppingCarModel *shoppingCarModel = manager.shoppingCarDataSourceArr[i];
+                //清空所有的问题产品信息
+                shoppingCarModel.productErrorMsg = @"";
                 
+                if (shoppingCarModel.isSelectedShoppingCar == YES) {
+                    //如果选中了这个产品，那么产品下标家属indexSet中,产品id加入数组，
+                    [selectIndexSet addIndex:i];
+                    [shoppingCarIdArr addObject:shoppingCarModel.c_id];
+                }
+            }
+            
+            //调用订单预支付接口，看看哪些产品不能生成订单
+            [manager httpOrderPreviewWithShoppingCarIDArr:shoppingCarIdArr withPreviewSuccessResult:^(id successResult) {
                 
-            }else if ([[successResult objectForKey:@"code"] integerValue] == 400) {
-                //有些产品不成功
-                NSArray *contentArr = [successResult objectForKey:@"content"];
-                for (NSDictionary *contentDic in contentArr) {
-                    //遍历返回的不成功的产品,在购物车数组中，做标记
-                    for (ShoppingCarModel *tempShoppingCarModel in manager.shoppingCarDataSourceArr) {
-                        if ([tempShoppingCarModel.c_id isEqualToString:[contentDic objectForKey:@"cartid"]]) {
-                            //找到问题产品。做标记
-                            tempShoppingCarModel.productErrorMsg = [contentDic objectForKey:@"message"];
-                            
+                if ([[successResult objectForKey:@"code"] integerValue] == 200) {
+                    //全部产品成功,即可生成订单了，跳转到下一页，在跳转下一页的时候，先清空一下上次有错误的产品UI
+                    [self.shoppingCollectionView reloadData];
+                    
+                    //跳转
+                    [self performSegueWithIdentifier:@"toPreviewOrderVC" sender:sender];
+                    
+                    
+                }else if ([[successResult objectForKey:@"code"] integerValue] == 400) {
+                    //有些产品不成功
+                    NSArray *contentArr = [successResult objectForKey:@"content"];
+                    for (NSDictionary *contentDic in contentArr) {
+                        //遍历返回的不成功的产品,在购物车数组中，做标记
+                        for (ShoppingCarModel *tempShoppingCarModel in manager.shoppingCarDataSourceArr) {
+                            if ([tempShoppingCarModel.c_id isEqualToString:[contentDic objectForKey:@"cartid"]]) {
+                                //找到问题产品。做标记
+                                tempShoppingCarModel.productErrorMsg = [contentDic objectForKey:@"message"];
+                                
+                            }
                         }
                     }
+                    //刷新UI,展示问题产品
+                    [self.shoppingCollectionView reloadSections:selectIndexSet];
+                    
                 }
-                //刷新UI,展示问题产品
-                [self.shoppingCollectionView reloadSections:selectIndexSet];
                 
-            }
+            } withPreviewFailResult:^(NSString *failResultStr) {
+
+                [alert showAlertViewWithTitle:nil withMessage:@"未知错误，请稍后再试，或者联系客服" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
+            }];
             
-        } withPreviewFailResult:^(NSString *failResultStr) {
-            AlertManager *alert = [AlertManager shareIntance];
-            [alert showAlertViewWithTitle:nil withMessage:@"未知错误，请稍后再试，或者联系客服" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
+        }else {
+
+            [alert showAlertViewWithTitle:nil withMessage:@"您还没有选择产品" actionTitleArr:nil withViewController:self withReturnCodeBlock:nil];
+        }
+
+    }else{
+        //没有登录
+        [alert showAlertViewWithTitle:nil withMessage:@"您还没有登录" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
+            //未登录,跳转到登录界面
+            UINavigationController *loginNav = [self.storyboard instantiateViewControllerWithIdentifier:@"loginNavigationController"];
+            [self presentViewController:loginNav animated:YES completion:nil];
+
         }];
         
-    }else {
-        AlertManager *alert = [AlertManager shareIntance];
-        [alert showAlertViewWithTitle:nil withMessage:@"您还没有选择产品" actionTitleArr:nil withViewController:self withReturnCodeBlock:nil];
     }
+    
     
     
     

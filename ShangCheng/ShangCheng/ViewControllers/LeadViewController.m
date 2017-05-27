@@ -16,13 +16,6 @@
 
 @implementation LeadViewController
 
-- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView{
-
-    NSInteger index = scrollView.contentOffset.x/scrollView.frame.size.width;
-    NSLog(@"当前显示的是第%ld张图片",index + 1);
-    //当scrollView滑动停止的时候，根据偏移量计算得到的图片的index，可以赋值给pageControl的currentPage属性，让scrollView和pageControl产生关联
-    self.bottomPageView.currentPage = index;
-}
 
 
 - (void)viewDidLoad {
@@ -35,7 +28,6 @@
     
     Manager *manager = [Manager shareInstance];
     [manager setFirstJoinAppWithStatus:@"NO"];
-    
     
     [self performSegueWithIdentifier:@"leadToTabbarVC" sender:nil];
 }
