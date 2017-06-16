@@ -10,6 +10,15 @@
 
 @implementation OrderListFootOneTableViewCell
 - (void)updateOrderListFootOneCellWithModel:(SupOrderModel *)model {
+    if ([model.p_status isEqualToString:@"0"]) {
+        self.orderPayButton.hidden = NO;
+        self.orderCancelButton.hidden = NO;
+
+    }else {
+        self.orderPayButton.hidden = YES;
+        self.orderCancelButton.hidden = YES;
+    }
+
     self.orderCountLabel.text = [NSString stringWithFormat:@"共%ld件商品，",model.subOrderArr.count];
     self.orderPriceLabel.text = [NSString stringWithFormat:@"￥%.2f",[model.p_o_price_total floatValue] - [model.p_discount floatValue]];
 }

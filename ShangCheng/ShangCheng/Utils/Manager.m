@@ -741,7 +741,6 @@
 //将产品加入购物车(网络)
 - (void)httpProductToShoppingCarWithFormatIdAndCountDic:(NSMutableArray *)formatIdAndCountArr withSuccessToShoppingCarResult:(SuccessResult)successToShoppingCarResult withFailToShoppingCarResult:(FailResult)failToShoppingCarResult {
     
-    
 //    NSArray *itemArr = @[@{@"sid":sidStr,@"number":countStr}];
     NSDictionary *valueDic = @{@"userid":self.memberInfoModel.u_id,@"item":formatIdAndCountArr};
     
@@ -758,7 +757,7 @@
         successToShoppingCarResult(successResult);
 
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
-        NSLog(@"请求失败 %ld--%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]);
+//        NSLog(@"请求失败 %ld--%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]);
         id messageInfo = [NSJSONSerialization JSONObjectWithData:operation.responseObject options:NSJSONReadingAllowFragments error:nil];
         NSString *messageStr ;
         if ([messageInfo isKindOfClass:[NSString class]]) {
@@ -768,7 +767,7 @@
             
             messageStr = [messageDic objectForKey:@"Message"];
         }
-
+        NSLog(@"%ld---%@",operation.response.statusCode,messageStr);
         failToShoppingCarResult([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,messageStr]);
 
     }];
@@ -916,7 +915,7 @@
             ShoppingCarModel *tempShoppingCarModel = [[ShoppingCarModel alloc] init];
             [tempShoppingCarModel setValuesForKeysWithDictionary:tempJsonDic];
             tempShoppingCarModel.shoppingCarProduct = tempProductModel;
-            tempShoppingCarModel.isSelectedShoppingCar = NO;
+            tempShoppingCarModel.isSelectedShoppingCar = YES;
             tempShoppingCarModel.productErrorMsg = @"";
             //加到数组中
             [self.shoppingCarDataSourceArr addObject:tempShoppingCarModel];
@@ -1507,7 +1506,7 @@
     //得到模型数组
     NSLog(@"%@",[self dictionaryToJson:jsonDic]);
     for (NSDictionary *contentDic in [jsonDic objectForKey:@"content"]) {
-        
+        /*
         NSMutableArray *sonOrderArr = [NSMutableArray array];
         
         NSArray *itemArr = [contentDic objectForKey:@"item"];
@@ -1520,10 +1519,14 @@
         SupOrderModel *supOrderModel = [[SupOrderModel alloc] init];
         [supOrderModel setValuesForKeysWithDictionary:contentDic];
         supOrderModel.subOrderArr = sonOrderArr;
+        */
 
         //加入数组
         
-        [self.afterMarketArr addObject:supOrderModel];
+        AfterOrderModel *afterOrderModel = [[AfterOrderModel alloc] init];
+        [afterOrderModel setValuesForKeysWithDictionary:contentDic];
+        
+        [self.afterMarketArr addObject:afterOrderModel];
     }
 
 }
@@ -3092,8 +3095,8 @@
 }
 
 #pragma mark - 发送银行卡号 -
-- (void)httpSendBankCardWithTel:(NSString *)telStr withBankType:(NSInteger)bankType withSendBankSuccess:(SuccessResult )sendBankSuccess withSendBankFail:(FailResult)sendBankFail {
-    NSDictionary *valueDic = @{@"tel":telStr,@"bankindex":[NSString stringWithFormat:@"%ld", bankType ]};
+- (void)httpSendBankCardWithTel:(NSString *)telStr withName:(NSString *)name withPayAmount:(NSString *)payAmount withBankType:(NSInteger)bankType withSendBankSuccess:(SuccessResult )sendBankSuccess withSendBankFail:(FailResult)sendBankFail {
+    NSDictionary *valueDic = @{@"tel":telStr,@"name":name,@"payamount":payAmount,@"bankindex":[NSString stringWithFormat:@"%ld", bankType ]};
     
     //给value加密
     NSString *secretStr = [self digest:[NSString stringWithFormat:@"%@Nongyao_Com001", [self dictionaryToJson:@[valueDic]]]];

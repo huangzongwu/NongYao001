@@ -13,7 +13,7 @@
 #import "KongImageView.h"
 #import "Manager.h"
 #import "MJRefresh.h"
-#import "OrderDetailViewController.h"
+#import "ProductDetailViewController.h"
 #import "SVProgressHUD.h"
 @interface AfterMarketViewController ()<UITableViewDelegate,UITableViewDataSource>
 @property (weak, nonatomic) IBOutlet UITableView *afterMarketTableView;
@@ -159,7 +159,7 @@
     return 10;
 }
 - (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
-    return 40;
+    return 43;
 }
 
 - (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section{
@@ -167,8 +167,8 @@
     AfterMarketFootTableViewCell *footViewCell = [tableView dequeueReusableCellWithIdentifier:@"afterFootCell"];
     Manager *manager = [Manager shareInstance];
     
-    SupOrderModel *tempModel = manager.afterMarketArr[section];
-    footViewCell.totalPriceLabel.text = [NSString stringWithFormat:@"￥%@",tempModel.p_o_price_total];
+    AfterOrderModel *tempModel = manager.afterMarketArr[section];
+    footViewCell.totalPriceLabel.text = [NSString stringWithFormat:@"￥%@",tempModel.o_price_total];
     footViewCell.buttonOne.indexForButton = [NSIndexPath indexPathForRow:0 inSection:section];
     
     return footViewCell;
@@ -177,37 +177,36 @@
 - (IBAction)footButtonAction:(IndexButton *)sender {
     Manager *manager = [Manager shareInstance];
 
-    SupOrderModel *tempModel = manager.afterMarketArr[sender.indexForButton.section];
-    [self performSegueWithIdentifier:@"afterToDetailOrderVC" sender:tempModel];
-
+    AfterOrderModel *tempModel = manager.afterMarketArr[sender.indexForButton.section];
+    [self performSegueWithIdentifier:@"afterToProductDetailVC" sender:tempModel];
     
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     Manager *manager = [Manager shareInstance];
     
-    SupOrderModel *tempModel = manager.afterMarketArr[indexPath.section];
-    if (tempModel.subOrderArr.count == 1) {
+    AfterOrderModel *tempModel = manager.afterMarketArr[indexPath.section];
+//    if (tempModel.subOrderArr.count == 1) {
         AfterMarketTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"afterMarketCell" forIndexPath:indexPath];
         
         [cell updateAfterMarketCellWithOrderModel:tempModel];
         return cell;
 
-    }else {
-        AfterMarketTwoTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"afterTwoCell" forIndexPath:indexPath];
-        [cell updateAfterMarketTwoCellWithModel:tempModel];
-        return cell;
-
-    }
+//    }else {
+//        AfterMarketTwoTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"afterTwoCell" forIndexPath:indexPath];
+//        [cell updateAfterMarketTwoCellWithModel:tempModel];
+//        return cell;
+//
+//    }
     
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     Manager *manager = [Manager shareInstance];
     
-    SupOrderModel *tempModel = manager.afterMarketArr[indexPath.section];
+    AfterOrderModel *tempModel = manager.afterMarketArr[indexPath.section];
     
-    [self performSegueWithIdentifier:@"afterToDetailOrderVC" sender:tempModel];
+    [self performSegueWithIdentifier:@"afterToProductDetailVC" sender:tempModel];
     
 }
 
@@ -237,9 +236,15 @@
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
-    if ([segue.identifier isEqualToString:@"afterToDetailOrderVC"]) {
-        OrderDetailViewController *orderDetailVC = [segue destinationViewController];
-        orderDetailVC.tempSupOrderModel = sender;
+    if ([segue.identifier isEqualToString:@"afterToProductDetailVC"]) {
+        AfterOrderModel *tempModel = sender;
+        ProductDetailViewController *productDetailVC = [segue destinationViewController];
+        
+        productDetailVC.productID = tempModel.o_product_id;
+        productDetailVC.type = @"pid";
+        
+       
+        
     }
 }
 

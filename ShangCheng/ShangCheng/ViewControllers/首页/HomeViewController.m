@@ -434,8 +434,8 @@
         case 0:
         {
 
-            //1-分类 3-我的收藏 7-我的钱包，需要登录了才可以进入
-            if (indexPath.row == 1 || indexPath.row == 3 || indexPath.row == 7 ) {
+            // 3-我的收藏 7-我的钱包，需要登录了才可以进入
+            if (indexPath.row == 3 || indexPath.row == 7 ) {
                 Manager *manager = [Manager shareInstance];
                 if ([manager isLoggedInStatus] == YES) {
                     NSString *pushId = [self.categoryDataSource[indexPath.row] objectForKey:@"pushId"];

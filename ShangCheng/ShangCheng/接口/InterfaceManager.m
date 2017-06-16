@@ -103,7 +103,6 @@
     return [NSString stringWithFormat:@"%@/ProductCategory?col=p_type",self.baseUrl];
 }
 
-
 //产品的交易记录
 - (NSString *)productTradeRecordBase {
     return [NSString stringWithFormat:@"%@/TransactionRecord",self.baseUrl];

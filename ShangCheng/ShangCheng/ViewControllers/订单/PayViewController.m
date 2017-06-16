@@ -668,6 +668,8 @@
         downLinePayVC.memberBalanceFloat = self.memberBalanceFloat;
         downLinePayVC.orderTotalAmountFloat = self.totalAmountFloat;
         downLinePayVC.orderIDArr = self.orderIDArr;
+        downLinePayVC.receiverName = self.receiverName;
+        downLinePayVC.receiverPhone = self.receiverPhone;
         downLinePayVC.selectBalanceBlock = ^{
             //默认选择余额
             self.isSelectBalance = YES;

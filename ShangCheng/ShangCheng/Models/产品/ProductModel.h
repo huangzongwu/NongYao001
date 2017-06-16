@@ -26,6 +26,11 @@
 //是否是活动产品
 @property (nonatomic,assign)BOOL isSaleProduct;
 
+//单瓶子价格
+@property (nonatomic,strong)NSString *s_price_per;
+//单位，是瓶还是袋
+@property (nonatomic,strong)NSString *s_unit_child;
+
 - (void)setValue:(id)value forUndefinedKey:(NSString *)key ;
 
 @end

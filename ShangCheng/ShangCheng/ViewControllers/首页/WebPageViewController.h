@@ -12,5 +12,5 @@
 @property (nonatomic,strong)NSString *webUrl;
 @property (nonatomic,strong)NSString *tempTitleStr;
 
-
+@property (nonatomic,assign)BOOL isUTF8Code;
 @end

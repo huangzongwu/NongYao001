@@ -506,6 +506,8 @@
         PayViewController *payVC = [segue destinationViewController];
         payVC.orderIDArr = payVCIdArr;
         payVC.totalAmountFloat = [self.tempSupOrderModel.p_o_price_total floatValue] - [self.tempSupOrderModel.p_discount floatValue];
+        payVC.receiverName = self.tempSupOrderModel.p_truename;
+        payVC.receiverPhone = self.tempSupOrderModel.p_mobile;
 
     }
     

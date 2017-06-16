@@ -19,4 +19,8 @@ typedef void(^SelectBalanceBlock)();
 //选择余额
 @property (nonatomic,copy)SelectBalanceBlock selectBalanceBlock;
 
+//收货人电话和姓名
+@property(nonatomic,strong)NSString *receiverName;
+@property(nonatomic,strong)NSString *receiverPhone;
+
 @end

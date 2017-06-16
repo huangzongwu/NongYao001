@@ -20,8 +20,8 @@
 @property (weak, nonatomic) IBOutlet UILabel *productFormatLabel;
 //产品公司
 @property (weak, nonatomic) IBOutlet UILabel *productCompany;
-////内容为： 共几件商品，实付款
-//@property (weak, nonatomic) IBOutlet UILabel *productCountLabel;
+///内容为： 共几件商品，实付款
+@property (weak, nonatomic) IBOutlet UILabel *unitPriceLabel;
 
 - (void)updateOrderListOneCellWithModel:(SonOrderModel *)model withWhichTableView:(NSString *)whichTableView withCellIndex:(NSIndexPath *)cellIndex;
 

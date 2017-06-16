@@ -535,9 +535,9 @@
     
     SupOrderModel *supOrderModel = dataArr[section];
     
-    //待付款，（这里不包含1A--待确认）
+    //待付款，
     if ([supOrderModel.p_status isEqualToString:@"1A"] || [supOrderModel.p_status isEqualToString:@"1B"]){
-        return 1;
+        return 35;//1A和1B是待确认，所以下面没有按钮
     }
     
     return 85;
@@ -608,8 +608,8 @@
    
     SupOrderModel *supOrderModel = dataArr[section];
         
-    //待付款，（这里不包含1A 和1B --待确认）
-    if ([supOrderModel.p_status isEqualToString:@"0"]  ) {
+    //待付款，
+    if ([supOrderModel.p_status isEqualToString:@"0"]  || [supOrderModel.p_status isEqualToString:@"1A"] || [supOrderModel.p_status isEqualToString:@"1B"]) {
         OrderListFootOneTableViewCell *footOneCell = [tableView dequeueReusableCellWithIdentifier:@"orderListFootOneCell"];
         footOneCell.orderPayButton.indexForButton = [NSIndexPath indexPathForRow:0 inSection:section];
         footOneCell.orderCancelButton.indexForButton = [NSIndexPath indexPathForRow:0 inSection:section];
@@ -673,7 +673,8 @@
         };
         return footTwoCell;
     }else {
-        //1A 1B,下面没有按钮
+        
+        //没有这个情况，只是为了补全return
         UIView *kongView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, kScreenW, 0)];
         return kongView;
     }
@@ -834,6 +835,7 @@
     if ([segue.identifier isEqualToString:@"orderListToPayVC"]) {
         NSMutableArray *payVCIdArr = [NSMutableArray array];
         float payVCTotalAmount = 0;
+        
         for (SupOrderModel *tempOrderModel in (NSArray *)sender) {
             [payVCIdArr addObject: tempOrderModel.p_id ];
             payVCTotalAmount += [tempOrderModel.p_o_price_total floatValue];
@@ -842,6 +844,10 @@
         PayViewController *payVC = [segue destinationViewController];
         payVC.orderIDArr = payVCIdArr;
         payVC.totalAmountFloat = payVCTotalAmount;
+        SupOrderModel *oneTempModel = ((NSArray *)sender)[0];//由于合并付款，就默认选择第一个模型中的收货人和电话当做参数用户发送银行卡号
+        payVC.receiverName = oneTempModel.p_truename;
+        payVC.receiverPhone = oneTempModel.p_mobile;
+        
     }
     
     if ([segue.identifier isEqualToString:@"OrderListToOrderDetailVC"]) {

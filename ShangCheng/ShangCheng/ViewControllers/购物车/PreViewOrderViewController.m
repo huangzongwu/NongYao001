@@ -360,6 +360,10 @@
         PayViewController *payVC = [segue destinationViewController];
         payVC.orderIDArr = @[self.creatOrderId];
         payVC.totalAmountFloat = [self computeProductTotalPrice] - [[self.saleMoneyDic objectForKey:@"saleMoney"] floatValue];
+        ReceiveAddressModel *selectReceiveModel = [manager selectedReceiveAddressModel];
+        payVC.receiverName = selectReceiveModel.receiverName;
+        payVC.receiverPhone = selectReceiveModel.receiveMobile;
+
     }
     
     //跳转到cc客服

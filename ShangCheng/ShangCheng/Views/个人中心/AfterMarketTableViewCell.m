@@ -10,17 +10,17 @@
 #import "SonOrderModel.h"
 #import "UIImageView+ImageViewCategory.h"
 @implementation AfterMarketTableViewCell
-- (void)updateAfterMarketCellWithOrderModel:(SupOrderModel *)tempModel {
+- (void)updateAfterMarketCellWithOrderModel:(AfterOrderModel *)tempModel {
     
-    self.orderIdLabel.text = tempModel.p_code;
+    self.orderIdLabel.text = tempModel.o_code;
     self.orderStatusLabel.text = tempModel.statusvalue;
     
-    SonOrderModel *sonOrderModel = tempModel.subOrderArr[0];
-    [self.orderProductImageView setWebImageURLWithImageUrlStr:sonOrderModel.p_icon withErrorImage:[UIImage imageNamed:@"icon_pic_cp"] withIsCenter:YES];
-    self.orderProductNameLabel.text = sonOrderModel.p_name;
-//    self.orderProductCompanyLabel.text =;
-    self.orderProductFormatLabel.text = sonOrderModel.productst;
-    self.orderProductPriceLabel.text = [NSString stringWithFormat:@"共%ld件商品，￥%.2f",tempModel.subOrderArr.count,[tempModel.p_o_price_total floatValue] - [tempModel.p_discount floatValue]];
+
+    [self.orderProductImageView setWebImageURLWithImageUrlStr:tempModel.p_icon withErrorImage:[UIImage imageNamed:@"icon_pic_cp"] withIsCenter:YES];
+    self.orderProductNameLabel.text = tempModel.p_name;
+    self.orderProductCompanyLabel.text = tempModel.f_name;
+    self.orderProductFormatLabel.text = [NSString stringWithFormat:@"%@ 数量：%@", tempModel.productst,tempModel.o_num];
+    self.orderProductPriceLabel.text = [NSString stringWithFormat:@"￥%@",tempModel.o_price];
 }
 
 - (void)awakeFromNib {

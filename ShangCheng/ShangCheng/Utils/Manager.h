@@ -35,6 +35,7 @@
 #import "BannerModel.h"
 #import "MessageNotificationModel.h"
 #import "PestsDetailModel.h"
+#import "AfterOrderModel.h"
 typedef void(^SuccessResult)(id successResult);
 typedef void(^FailResult)(NSString *failResultStr);
 
@@ -367,7 +368,7 @@ typedef void(^FailResult)(NSString *failResultStr);
 - (void)httpForgetPasswordWithMobile:(NSString *)mobile withPassword:(NSString *)password withForgetSuccess:(SuccessResult)forgetSuccess withForgetFail:(FailResult)forgetFail;
 
 #pragma mark - 发送银行卡号 -
-- (void)httpSendBankCardWithTel:(NSString *)telStr withBankType:(NSInteger)bankType withSendBankSuccess:(SuccessResult )sendBankSuccess withSendBankFail:(FailResult)sendBankFail ;
+- (void)httpSendBankCardWithTel:(NSString *)telStr withName:(NSString *)name withPayAmount:(NSString *)payAmount withBankType:(NSInteger)bankType withSendBankSuccess:(SuccessResult )sendBankSuccess withSendBankFail:(FailResult)sendBankFail ;
 
 #pragma mark - 消息通知 -
 - (void)httpMessageNotificationWithType:(NSString *)type withTitle:(NSString *)title withKeyword:(NSString *)keyword withIntroduce:(NSString *)introduce withPageindex:(NSInteger )pageIndex withMessageSuccess:(SuccessResult)messageSuccess withMessageFail:(FailResult)messageFail;

@@ -39,6 +39,8 @@
 @property (weak, nonatomic) IBOutlet UILabel *selectFormatLabel;
 
 @property (weak, nonatomic) IBOutlet UITableView *detailTableView;
+//每瓶的价格
+@property (weak, nonatomic) IBOutlet UILabel *productPricePerLabel;
 
 @property (nonatomic,strong)ProductDetailModel *productDetailModel;
 
@@ -241,7 +243,7 @@
     
     
     //头部高度计算
-    self.headerView.frame = CGRectMake(0, 0, kScreenW, kScreenW + 2 + 115 + 13 + 46 + 13 - 27 );
+    self.headerView.frame = CGRectMake(0, 0, kScreenW, kScreenW + 2 + 148 + 13 + 46 + 13 - 27 );
     
     self.productDetailModel = [[ProductDetailModel alloc] init];
     
@@ -406,6 +408,9 @@
             }
             //是否活动
             self.productDetailModel.productModel.isSaleProduct = tempFormatModel.isActivity;
+            //一瓶或者一袋的价格
+            self.productDetailModel.productModel.s_price_per = tempFormatModel.s_price_per;
+            self.productDetailModel.productModel.s_unit_child = tempFormatModel.s_unit_child;
         }
 
     }
@@ -432,6 +437,7 @@
     self.productPriceLabel.text = [NSString stringWithFormat:@"￥%@", tempDetailModel.productModel.productPrice];
     //刷新 选择规格 地方的UI
     self.selectFormatLabel.text = [NSString stringWithFormat:@"已选 \"%@\"",tempDetailModel.productModel.productFormatStr];
+    self.productPricePerLabel.text = [NSString stringWithFormat:@"￥%@ / %@",tempDetailModel.productModel.s_price_per,tempDetailModel.productModel.s_unit_child];
     
 }
 
@@ -852,17 +858,17 @@
     Manager *manager = [Manager shareInstance];
     AlertManager *alertM = [AlertManager shareIntance];
     //
-    if ([manager isLoggedInStatus] == YES) {
+//    if ([manager isLoggedInStatus] == YES) {
         [self performSegueWithIdentifier:@"productDetailToShoppingCarVC" sender:nil];
 
-    }else {
-        
+//    }else {
+    
         //未登录
-        [alertM showAlertViewWithTitle:nil withMessage:@"您未登录" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
-            
-        }];
-        
-    }
+//        [alertM showAlertViewWithTitle:nil withMessage:@"您未登录" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
+    
+//        }];
+    
+//    }
     
     
 }

@@ -56,15 +56,31 @@
             self.webUrl = [NSString stringWithFormat:@"http://%@", self.webUrl];
         }
         
-        NSURL *url = [NSURL URLWithString: self.webUrl];
-        
-        [self.tempWebView loadRequest:[NSURLRequest requestWithURL:url]];
 
+        if (self.isUTF8Code == YES) {
+            NSString * strUrl = [[NSString alloc]initWithContentsOfURL:[NSURL URLWithString:self.webUrl] encoding:NSUTF8StringEncoding error:nil];
+            
+            [self.tempWebView loadHTMLString:strUrl baseURL:nil];
+        }else {
+            NSURL *url = [NSURL URLWithString: self.webUrl];
+            
+            [self.tempWebView loadRequest:[NSURLRequest requestWithURL:url]];
+        }
+        
+        
+
+        
+        
+        
+        
     }else {
     
         [self.kongImageView showKongViewWithKongMsg:@"此链接暂不存在" withKongType:KongTypeWithKongData];
 
     }
+
+    
+
 }
 
 

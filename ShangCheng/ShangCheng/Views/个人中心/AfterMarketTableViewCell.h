@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "SupOrderModel.h"
+#import "AfterOrderModel.h"
 @interface AfterMarketTableViewCell : UITableViewCell
 @property (weak, nonatomic) IBOutlet UILabel *orderIdLabel;
 @property (weak, nonatomic) IBOutlet UILabel *orderStatusLabel;
@@ -18,6 +18,6 @@
 @property (weak, nonatomic) IBOutlet UILabel *orderProductPriceLabel;
 
 
-- (void)updateAfterMarketCellWithOrderModel:(SupOrderModel *)tempModel ;
+- (void)updateAfterMarketCellWithOrderModel:(AfterOrderModel *)tempModel ;
 
 @end

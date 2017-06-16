@@ -18,6 +18,10 @@
 @property (nonatomic,strong)NSString *s_price;
 //最小起订数量
 @property (nonatomic,strong)NSString *s_min_quantity;
+//单瓶子价格
+@property (nonatomic,strong)NSString *s_price_per;
+//单位，是瓶还是袋
+@property (nonatomic,strong)NSString *s_unit_child;
 //图片
 @property (nonatomic,strong)NSMutableArray *imageArr;
 //是否被选择

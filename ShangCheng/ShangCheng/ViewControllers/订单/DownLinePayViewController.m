@@ -86,6 +86,7 @@
 
 //选择余额按钮
 - (IBAction)selectBalanceButtonAction:(UIButton *)sender {
+    
     AlertManager *alertM = [AlertManager shareIntance];
     //反转状态
     self.isSelectBalance = !self.isSelectBalance;
@@ -154,6 +155,8 @@
 //发送卡号到手机
 - (IBAction)sendCardNumberToPhoneButtonAction:(UIButton *)sender {
     //找到点击的是哪个
+    
+    
 
     NSInteger selectInt = -1;
     for (int i = 0; i < self.bankArr.count; i++) {
@@ -168,7 +171,7 @@
     AlertManager *alertM = [AlertManager shareIntance];
     NSLog(@"%@ -- %ld",manager.memberInfoModel.u_mobile,selectInt);
     if (manager.memberInfoModel.u_mobile.length == 11 && selectInt >= 0) {
-        [alertM showAlertViewWithTitle:nil withMessage:[NSString stringWithFormat:@"是否给%@发送银行卡号",manager.memberInfoModel.u_mobile] actionTitleArr:@[@"取消",@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
+        [alertM showAlertViewWithTitle:nil withMessage:[NSString stringWithFormat:@"是否给%@发送银行卡号",self.receiverPhone] actionTitleArr:@[@"取消",@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
             if (actionBlockNumber == 1) {
                 //发送手机号
                 /*
@@ -178,8 +181,9 @@
                  3（中国工商银行）,
                  4（中国农村信用合作社）
                  */
+                NSLog(@"%@",self.payAmountLabel.text);
                 
-                [manager httpSendBankCardWithTel:manager.memberInfoModel.u_mobile withBankType:selectInt withSendBankSuccess:^(id successResult) {
+                [manager httpSendBankCardWithTel:self.receiverPhone withName:self.receiverName withPayAmount:self.payAmountLabel.text withBankType:selectInt withSendBankSuccess:^(id successResult) {
                     [alertM showAlertViewWithTitle:nil withMessage:@"发送成功，请注意查收" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
                     
                 } withSendBankFail:^(NSString *failResultStr) {

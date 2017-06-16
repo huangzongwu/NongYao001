@@ -91,6 +91,7 @@
     WebPageViewController *webPageVC = [segue destinationViewController];
     webPageVC.webUrl = sender[1];
     webPageVC.tempTitleStr = sender[0];
+    webPageVC.isUTF8Code = YES;
     
 }
 

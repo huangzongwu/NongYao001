@@ -14,4 +14,8 @@
 //商品总价
 @property (nonatomic,assign)float totalAmountFloat;
 
+//收货人信息
+@property (nonatomic,strong)NSString *receiverName;
+@property (nonatomic,strong)NSString *receiverPhone;
+
 @end
