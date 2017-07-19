@@ -40,6 +40,7 @@
     
     NSLog(@"%f -- %f",kScreenW,kScreenH);
     //状态栏白色
+    
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent animated:NO];
     
     Manager *manager = [Manager shareInstance];
