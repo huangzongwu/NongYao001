@@ -215,7 +215,7 @@
     NSArray *rightArr = [manager.productClassTreeArr[self.selectLeftInt] subItemArr];
     NSArray *rightDetailArr = [rightArr[indexPath.section] subItemArr];
     ClassModel *rightDetailModel = rightDetailArr[indexPath.row];
-    [rightCell updateRightCellWithTitle:rightDetailModel.d_desc];
+    [rightCell updateRightCellWithTitle:rightDetailModel.d_value];
     
     return rightCell;
     

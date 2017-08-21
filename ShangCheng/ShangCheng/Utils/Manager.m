@@ -459,6 +459,12 @@
 //        }
 //        
 //        classTreeSuccess(self.productClassTreeArr);
+        
+        
+        
+        NSLog(@"%@",[self dictionaryToJson:successResult]);
+        
+        
         for (NSDictionary *tempDic in (NSArray *)successResult) {
             ClassModel *classModel = [[ClassModel alloc] init];
             [classModel setValuesForKeysWithDictionary:tempDic];
