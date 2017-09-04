@@ -32,8 +32,6 @@
 		451409C01E5591160092D3F1 /* w_icon_jxz@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 451409B41E5591160092D3F1 /* w_icon_jxz@3x.png */; };
 		451409C11E5591160092D3F1 /* w_icon_th@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 451409B51E5591160092D3F1 /* w_icon_th@2x.png */; };
 		451409C21E5591160092D3F1 /* w_icon_th@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 451409B61E5591160092D3F1 /* w_icon_th@3x.png */; };
-		451409C31E5591160092D3F1 /* w_icon_txjl@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 451409B71E5591160092D3F1 /* w_icon_txjl@2x.png */; };
-		451409C41E5591160092D3F1 /* w_icon_txjl@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 451409B81E5591160092D3F1 /* w_icon_txjl@3x.png */; };
 		451409C51E5591160092D3F1 /* w_icon_ywc@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 451409B91E5591160092D3F1 /* w_icon_ywc@2x.png */; };
 		451409C61E5591160092D3F1 /* w_icon_ywc@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 451409BA1E5591160092D3F1 /* w_icon_ywc@3x.png */; };
 		451409C91E5593C50092D3F1 /* w_icon_wdpj@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 451409C71E5593C50092D3F1 /* w_icon_wdpj@2x.png */; };
@@ -590,8 +588,6 @@
 		451409B41E5591160092D3F1 /* w_icon_jxz@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "w_icon_jxz@3x.png"; sourceTree = "<group>"; };
 		451409B51E5591160092D3F1 /* w_icon_th@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "w_icon_th@2x.png"; sourceTree = "<group>"; };
 		451409B61E5591160092D3F1 /* w_icon_th@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "w_icon_th@3x.png"; sourceTree = "<group>"; };
-		451409B71E5591160092D3F1 /* w_icon_txjl@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "w_icon_txjl@2x.png"; sourceTree = "<group>"; };
-		451409B81E5591160092D3F1 /* w_icon_txjl@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "w_icon_txjl@3x.png"; sourceTree = "<group>"; };
 		451409B91E5591160092D3F1 /* w_icon_ywc@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "w_icon_ywc@2x.png"; sourceTree = "<group>"; };
 		451409BA1E5591160092D3F1 /* w_icon_ywc@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "w_icon_ywc@3x.png"; sourceTree = "<group>"; };
 		451409C71E5593C50092D3F1 /* w_icon_wdpj@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "w_icon_wdpj@2x.png"; sourceTree = "<group>"; };
@@ -1888,8 +1884,6 @@
 				451409B41E5591160092D3F1 /* w_icon_jxz@3x.png */,
 				451409B51E5591160092D3F1 /* w_icon_th@2x.png */,
 				451409B61E5591160092D3F1 /* w_icon_th@3x.png */,
-				451409B71E5591160092D3F1 /* w_icon_txjl@2x.png */,
-				451409B81E5591160092D3F1 /* w_icon_txjl@3x.png */,
 				451409B91E5591160092D3F1 /* w_icon_ywc@2x.png */,
 				451409BA1E5591160092D3F1 /* w_icon_ywc@3x.png */,
 				451409C71E5593C50092D3F1 /* w_icon_wdpj@2x.png */,
@@ -3061,13 +3055,11 @@
 				45AD6EC81E18F7F300AA43FA /* g_icon_splb@2x.png in Resources */,
 				45C2C3891E5D9DAD002CE047 /* w_icon_yjfk@2x.png in Resources */,
 				454B780F1E4C6ED000B2E319 /* w_icon_cz@2x.png in Resources */,
-				451409C31E5591160092D3F1 /* w_icon_txjl@2x.png in Resources */,
 				45990ED81E8B4B480024F5C9 /* s_icon_gwc_normal@3x.png in Resources */,
 				45A3222D1E1240C8009F239E /* s_icon_into@2x.png in Resources */,
 				45A839571DC7307C009F1DE4 /* SVProgressHUD.bundle in Resources */,
 				4596B4E51E598E1900086623 /* w_icon_wh@2x.png in Resources */,
 				4530740B1E70F93600620CCD /* s_font_tmf@3x.png in Resources */,
-				451409C41E5591160092D3F1 /* w_icon_txjl@3x.png in Resources */,
 				4527E2661EA0D2BC00A3AB17 /* s_icon_jrsc@3x.png in Resources */,
 				4536D3F01E5A96FC00B92CB3 /* s_bch@3x.png in Resources */,
 				456F6EAE1E763678005A442B /* s_pic_sswk@2x.png in Resources */,
@@ -3630,7 +3622,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_ENTITLEMENTS = ShangCheng/ShangCheng.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Developer: Mingzhu Jiang (6P73W6477C)";
+				CODE_SIGN_IDENTITY = "iPhone Distribution: Zhengzhou Agricultural Science and Technology Co., Ltd (JRH48P873J)";
 				DEVELOPMENT_TEAM = JRH48P873J;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -3660,7 +3652,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.zhennong.nongyaoShangcheng;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = ShangChengDevelopment;
+				PROVISIONING_PROFILE_SPECIFIER = nongyaoProfile;
 				TARGETED_DEVICE_FAMILY = 1;
 				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/ShangCheng/第三方/极光推送/Lib";
 			};
@@ -3672,7 +3664,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_ENTITLEMENTS = ShangCheng/ShangCheng.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Developer: Mingzhu Jiang (6P73W6477C)";
+				CODE_SIGN_IDENTITY = "iPhone Distribution: Zhengzhou Agricultural Science and Technology Co., Ltd (JRH48P873J)";
 				DEVELOPMENT_TEAM = JRH48P873J;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -3702,7 +3694,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.zhennong.nongyaoShangcheng;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = ShangChengDevelopment;
+				PROVISIONING_PROFILE_SPECIFIER = nongyaoProfile;
 				TARGETED_DEVICE_FAMILY = 1;
 				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/ShangCheng/第三方/极光推送/Lib";
 			};

@@ -3176,7 +3176,7 @@
 
 - (void)httpMessageDetailInfoWithPestsId:(NSString *)pestsid withDetailInfoSuccess:(SuccessResult)detailInfoSuccess withDetailInfoFail:(FailResult)detailInfoFail {
     NSString *url = [NSString stringWithFormat:@"%@?id=%@&type=id&isfo=1", [[InterfaceManager shareInstance] messageNotificationBase],pestsid ];
-    [[NetManager shareInstance] getRequestWithURL:url withParameters:nil withContentTypes:nil withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+    [[NetManager shareInstance] getRequestWithURL:url withParameters:nil withContentTypes:nil withHeaderArr:nil withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
         if (operation.response.statusCode == 200) {
             
             PestsDetailModel *pestsDetailModel = [[PestsDetailModel alloc] init];

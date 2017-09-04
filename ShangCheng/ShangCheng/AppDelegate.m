@@ -190,7 +190,7 @@
     // 如需继续使用pushConfig.plist文件声明appKey等配置内容，请依旧使用[JPUSHService setupWithOption:launchOptions]方式初始化。
     [JPUSHService setupWithOption:launchOptions appKey:@"0e7ffb64c4a20b8f8b9cecda"
                           channel:nil
-                 apsForProduction:NO
+                 apsForProduction:YES
             advertisingIdentifier:nil];
 }
 
