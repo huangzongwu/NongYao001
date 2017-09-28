@@ -10,6 +10,7 @@
 #import "Manager.h"
 #import "MessageOneTableViewCell.h"
 #import "MessageTwoTableViewCell.h"
+#import "WebPageTwoViewController.h"
 #import "MessageDetailViewController.h"
 #import "KongImageView.h"
 #import "MJRefresh.h"
@@ -100,7 +101,6 @@
         [SVProgressHUD show];
         
     }
-    
 
     
     [manager httpMessageNotificationWithType:@"99" withTitle:@"" withKeyword:@"" withIntroduce:@"" withPageindex:1 withMessageSuccess:^(id successResult) {
@@ -181,7 +181,7 @@
     
     Manager *manager = [Manager shareInstance];
     MessageNotificationModel *messageModel = manager.messageArr[indexPath.row];
-    [self performSegueWithIdentifier:@"messageListToDetailVC" sender:messageModel];
+    [self performSegueWithIdentifier:@"messageListToWebViewTwoVC" sender:messageModel];
 
 }
 
@@ -209,10 +209,17 @@
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
-    MessageDetailViewController *messageDetailVC = [segue destinationViewController];
+    
+    
+//    MessageDetailViewController *messageDetailVC = [segue destinationViewController];
+    //    messageDetailVC.messageModel = tempModel;
+
+    
     MessageNotificationModel *tempModel = sender;
 
-    messageDetailVC.messageModel = tempModel;
+    WebPageTwoViewController *webPageTwoVC = [segue destinationViewController];
+    webPageTwoVC.tempTitleStr = tempModel.i_time_create;
+    webPageTwoVC.tempId = tempModel.i_id;
     
     
 }

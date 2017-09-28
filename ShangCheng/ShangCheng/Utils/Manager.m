@@ -3142,7 +3142,7 @@
 //消息通知
 - (void)httpMessageNotificationWithType:(NSString *)type withTitle:(NSString *)title withKeyword:(NSString *)keyword withIntroduce:(NSString *)introduce withPageindex:(NSInteger )pageIndex withMessageSuccess:(SuccessResult)messageSuccess withMessageFail:(FailResult)messageFail {
     
-    NSString *url = [NSString stringWithFormat:@"%@?type=%@&title=%@&keyword=%@&introduce=%@&pageindex=%ld&pagesize=10",[[InterfaceManager shareInstance] messageNotificationBase],type,title,keyword,introduce,pageIndex];
+    NSString *url = [NSString stringWithFormat:@"%@?type=%@&title=%@&keyword=%@&introduce=%@&pageindex=%ld&pagesize=10&sdt=&edt=",[[InterfaceManager shareInstance] messageNotificationBase],type,title,keyword,introduce,pageIndex];
     [[NetManager shareInstance] getRequestWithURL:url withParameters:nil withContentTypes:nil withHeaderArr:nil withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
         NSLog(@"%ld",operation.response.statusCode);
         NSLog(@"%@",[self dictionaryToJson:successResult]);

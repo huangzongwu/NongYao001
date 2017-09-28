@@ -150,15 +150,26 @@
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    Manager *manager = [Manager shareInstance];
+    AlertManager *alertM = [AlertManager shareIntance];
     //当手指离开某行时，就让某行的选中状态消失
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     
+    if (indexPath.section == 0 && indexPath.row == 0) {
+        //提现需要判断
+        if (![manager.memberInfoModel.u_type isEqualToString:@"1"] && ![manager.memberInfoModel.u_type isEqualToString:@"2"]) {
+            //不可提现
+            [alertM showAlertViewWithTitle:@"不可提现" withMessage:@"您的身份不可提现" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
+                return ;
+            }];
+        }
+    }
 
     NSDictionary *tempDic = [self.dataSource[indexPath.section] objectAtIndex:indexPath.row];
 
-    
     NSString *pushId = [tempDic objectForKey:@"pushId"];
     if (pushId.length > 0) {
+        
         
         [self performSegueWithIdentifier:pushId sender:indexPath];
     }

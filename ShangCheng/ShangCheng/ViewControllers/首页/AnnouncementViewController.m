@@ -25,6 +25,11 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    
+    
+    
+    
+    
     self.titleLabel.text = self.announcementInfoArr[0];
     self.timeLabel.text = self.announcementInfoArr[1];
     self.contentLabel.text = self.announcementInfoArr[2];

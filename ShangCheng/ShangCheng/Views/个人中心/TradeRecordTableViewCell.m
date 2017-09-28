@@ -64,7 +64,7 @@
     self.timeLabel.text = [NSString stringWithFormat:@"%@\n%@",cashRecordModel.week,timeStr];
     //图标右边的信息
     self.tradeMoneyLabel.text = cashRecordModel.w_accout;
-    self.tradeDetailLabel.text = [NSString stringWithFormat:@"提现-%@",cashRecordModel.status ];
+    self.tradeDetailLabel.text = [NSString stringWithFormat:@"提现-%@",cashRecordModel.w_status_operation ];
 }
 
 

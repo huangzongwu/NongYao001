@@ -38,5 +38,7 @@
 @property(nonatomic,strong)NSString *w_note;//备注
 @property(nonatomic,strong)NSString *w_note_check;//审核备注
 
+@property(nonatomic,strong)NSString *w_status_operation;//申请状态
+
 - (void)setValue:(id)value forUndefinedKey:(NSString *)key ;
 @end

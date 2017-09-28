@@ -198,6 +198,8 @@
 //确认提现功能
 - (IBAction)enterAgentCashButtonAction:(UIButton *)sender {
     [self keyboardDismissAction];
+    Manager *manager = [Manager shareInstance];
+    AlertManager *alertM = [AlertManager shareIntance];
 
     NSString *bankNameStr = @"";
     NSString *nameStr;
@@ -208,16 +210,14 @@
     NSString *notCommitStr = @"提现信息填写不完整";
     
     
-    Manager *manager = [Manager shareInstance];
-    AlertManager *alertM = [AlertManager shareIntance];
 
     if ([manager.memberInfoModel.u_type isEqualToString:@"1"]) {
         //代理商
         nameStr = manager.memberInfoModel.u_truename;
         bankNameStr = manager.memberInfoModel.a_bank_name;
         codeStr = manager.memberInfoModel.a_bank_code;
-    }else {
-        //其他用户
+    }else if([manager.memberInfoModel.u_type isEqualToString:@"2"]){
+        //普通用户
         nameStr = self.nameTextField.text;
         codeStr = self.codeTextField.text;
     }

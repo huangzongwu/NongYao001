@@ -23,6 +23,7 @@
 #import "ClassViewController.h"
 #import "ShoppingCarViewController.h"
 #import "MJRefresh.h"
+#import "WebPageTwoViewController.h"
 #import "AnnouncementViewController.h"
 @interface HomeViewController ()<UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout,SDCycleScrollViewDelegate>
 @property (weak, nonatomic) IBOutlet UICollectionView *collectionView;
@@ -511,7 +512,7 @@
     if (cycleScrollView.tag == 501) {
         PestsListModel *model = self.adScrollViewDataSourceArr[index];
         NSLog(@"%@", model.i_source_url);
-        [self performSegueWithIdentifier:@"homeToAnnouncementVC" sender:@[model.i_title,model.i_time_create,model.i_introduce]];
+        [self performSegueWithIdentifier:@"homeToWebTwoViewVC" sender:@[model.i_title,model.i_id]];
     }
     
 }
@@ -591,9 +592,14 @@
     }
     
     //公告
-    if ([segue.identifier isEqualToString:@"homeToAnnouncementVC"]) {
-        AnnouncementViewController *announcementVC = [segue destinationViewController];
-        announcementVC.announcementInfoArr = sender;
+    if ([segue.identifier isEqualToString:@"homeToWebTwoViewVC"]) {
+//        AnnouncementViewController *announcementVC = [segue destinationViewController];
+//        announcementVC.announcementInfoArr = sender;
+
+        
+        WebPageTwoViewController *webTwoPageVC = [segue destinationViewController];
+        webTwoPageVC.tempTitleStr = ((NSMutableArray *)sender)[0];
+        webTwoPageVC.tempId = ((NSMutableArray *)sender)[1];
         
     }
     

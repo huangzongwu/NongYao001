@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="12120" systemVersion="16E195" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="Yqa-mC-tub">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="12121" systemVersion="16G29" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="Yqa-mC-tub">
     <device id="retina4_0" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12088"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12089"/>
         <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
         <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
         <capability name="Navigation items with more than one left or right bar item" minToolsVersion="7.0"/>
@@ -127,6 +127,7 @@
                                                         </label>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="￥---" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HBK-W3-Sk5">
                                                             <rect key="frame" x="82" y="137" width="34" height="17"/>
+                                                            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                             <constraints>
                                                                 <constraint firstAttribute="height" constant="17" id="KGb-Jz-8jF"/>
                                                             </constraints>
@@ -506,7 +507,6 @@
                         <segue destination="Yg0-8z-coB" kind="show" identifier="homeToTodaySaleVC" id="SrK-i1-FOv"/>
                         <segue destination="H6I-aT-mjj" kind="show" identifier="homeToMyCollectionVC" id="3aH-pD-Jfc"/>
                         <segue destination="JAO-IQ-abx" kind="show" identifier="homeToPestsTreeVC" id="fZs-jz-Zvj"/>
-                        <segue destination="siw-P3-wgs" kind="show" id="q3L-Xq-cO2"/>
                         <segue destination="8Sz-g3-Lqr" kind="show" identifier="homeToWebViewVC" id="jt4-Z4-5t5"/>
                         <segue destination="oeL-Jf-WMd" kind="show" identifier="homeToTrueCheckVC" id="VhN-Jf-aah"/>
                         <segue destination="Si5-q0-Ec9" kind="show" identifier="homeToMyWalletVC" id="fPY-0h-Xlx"/>
@@ -514,6 +514,7 @@
                         <segue destination="ogi-Ir-2rT" kind="show" identifier="homeToClassVC" id="gcx-xG-Qb0"/>
                         <segue destination="0tF-5a-Y3X" kind="show" identifier="homeToShoppingCarVC" id="zUA-Xk-lTb"/>
                         <segue destination="C5s-hc-gBF" kind="show" identifier="homeToAnnouncementVC" id="bqW-HQ-ris"/>
+                        <segue destination="MB3-Js-WIV" kind="show" identifier="homeToWebTwoViewVC" id="WMi-BV-aaG"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
@@ -791,7 +792,7 @@
         <!--咨询详情-->
         <scene sceneID="sIN-q9-Lwn">
             <objects>
-                <viewController automaticallyAdjustsScrollViewInsets="NO" id="MB3-Js-WIV" customClass="WebPageTwoViewController" sceneMemberID="viewController">
+                <viewController automaticallyAdjustsScrollViewInsets="NO" hidesBottomBarWhenPushed="YES" id="MB3-Js-WIV" customClass="WebPageTwoViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="nGt-wY-0Ku"/>
                         <viewControllerLayoutGuide type="bottom" id="JKj-Eb-14X"/>
@@ -813,7 +814,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <webView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="83y-2e-RrM">
-                                <rect key="frame" x="0.0" y="160" width="320" height="408"/>
+                                <rect key="frame" x="0.0" y="160" width="320" height="359"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             </webView>
                         </subviews>
@@ -847,7 +848,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Tow-sW-WFG" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-2688.75" y="3364.4366197183099"/>
+            <point key="canvasLocation" x="-2756" y="3400"/>
         </scene>
         <!--产品详情-->
         <scene sceneID="8Kd-79-gkJ">
@@ -4945,7 +4946,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="h3a-dY-Oc1" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="5094" y="1929"/>
+            <point key="canvasLocation" x="5094" y="1964"/>
         </scene>
         <!--我的代理-->
         <scene sceneID="BDl-6P-FUp">
@@ -7168,7 +7169,7 @@
                     </navigationItem>
                     <connections>
                         <outlet property="messageTableView" destination="opw-XK-oNR" id="4Jg-8s-cmm"/>
-                        <segue destination="NXa-3P-MZI" kind="show" identifier="messageListToDetailVC" id="Int-hU-d1l"/>
+                        <segue destination="MB3-Js-WIV" kind="show" identifier="messageListToWebViewTwoVC" id="jFd-4j-h4N"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="1Y4-5k-r3j" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -7188,7 +7189,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="UNE-ZC-y3Z">
-                                <rect key="frame" x="0.0" y="64" width="320" height="504"/>
+                                <rect key="frame" x="0.0" y="20" width="320" height="548"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="KuC-vj-YBt">
                                         <rect key="frame" x="0.0" y="0.0" width="320" height="500"/>
@@ -8306,24 +8307,6 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="pi9-Kv-5Dm" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-3958" y="636"/>
-        </scene>
-        <!--View Controller-->
-        <scene sceneID="VMg-Xs-oRH">
-            <objects>
-                <viewController hidesBottomBarWhenPushed="YES" id="siw-P3-wgs" sceneMemberID="viewController">
-                    <layoutGuides>
-                        <viewControllerLayoutGuide type="top" id="UM9-ar-1Eu"/>
-                        <viewControllerLayoutGuide type="bottom" id="W0l-xQ-MLr"/>
-                    </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" id="492-Vg-Fex">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                    </view>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="Ca3-UU-yP0" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="-3654" y="-287"/>
         </scene>
         <!--首页-->
         <scene sceneID="P6S-wq-xqo">
@@ -9920,7 +9903,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="186" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="Kzy-jS-wre">
-                                <rect key="frame" x="0.0" y="20" width="320" height="548"/>
+                                <rect key="frame" x="0.0" y="64" width="320" height="455"/>
                                 <color key="backgroundColor" red="0.93333333333333335" green="0.93333333333333335" blue="0.93333333333333335" alpha="1" colorSpace="calibratedRGB"/>
                                 <view key="tableFooterView" contentMode="scaleToFill" id="XPX-aQ-yGY">
                                     <rect key="frame" x="0.0" y="254" width="320" height="98"/>
@@ -10445,7 +10428,7 @@
                                         </connections>
                                     </button>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="s_icon_into.png" translatesAutoresizingMaskIntoConstraints="NO" id="TG6-ne-GgS">
-                                        <rect key="frame" x="300" y="18.5" width="6" height="12"/>
+                                        <rect key="frame" x="300" y="18" width="6" height="12"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="12" id="Yr8-mb-Q9D"/>
                                             <constraint firstAttribute="width" constant="6" id="qfh-AD-K7D"/>
@@ -10501,7 +10484,7 @@
                                 <rect key="frame" x="0.0" y="314" width="320" height="50"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dMG-Eh-VO3">
-                                        <rect key="frame" x="5" y="11.5" width="25" height="25"/>
+                                        <rect key="frame" x="5" y="12" width="25" height="25"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="25" id="Ixq-bw-X8H"/>
                                             <constraint firstAttribute="height" constant="25" id="RJr-8M-6Yn"/>
@@ -11521,7 +11504,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="NxO-pr-kpS" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="3533" y="1894"/>
+            <point key="canvasLocation" x="3414" y="1894"/>
         </scene>
         <!--Lead View Controller-->
         <scene sceneID="UwE-dn-Bjl">
@@ -12873,17 +12856,18 @@
         <image name="w_icon_xxtz.png" width="20" height="20"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="zDF-ka-0uz"/>
-        <segue reference="eKW-Fp-1nW"/>
-        <segue reference="djp-Q5-A1G"/>
-        <segue reference="VHl-VG-FRC"/>
-        <segue reference="SgR-71-iBK"/>
-        <segue reference="ubE-AQ-CIg"/>
-        <segue reference="gcx-xG-Qb0"/>
-        <segue reference="D5F-eu-I3c"/>
-        <segue reference="3aH-pD-Jfc"/>
+        <segue reference="Lft-Eq-p6q"/>
+        <segue reference="zUA-Xk-lTb"/>
+        <segue reference="jt4-Z4-5t5"/>
         <segue reference="fPY-0h-Xlx"/>
-        <segue reference="9xg-fb-4Mb"/>
+        <segue reference="gcx-xG-Qb0"/>
+        <segue reference="VHl-VG-FRC"/>
+        <segue reference="ubE-AQ-CIg"/>
+        <segue reference="Ggv-fq-frb"/>
+        <segue reference="Sj8-K7-1I8"/>
+        <segue reference="zDF-ka-0uz"/>
+        <segue reference="PQ3-ve-fBE"/>
+        <segue reference="jFd-4j-h4N"/>
         <segue reference="Ilr-uc-5bo"/>
     </inferredMetricsTieBreakers>
 </document>
