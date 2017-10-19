@@ -688,10 +688,10 @@
         if (imageArray) {
             
             NSMutableDictionary *shareParams = [NSMutableDictionary dictionary];
-            [shareParams SSDKSetupShareParamsByText:@"中国农药第一网中国最大最专业的农药网上交易平台"
+            [shareParams SSDKSetupShareParamsByText:@"世纪农药网中国最大最专业的农药网上交易平台"
                                              images:imageArray
                                                 url:[NSURL URLWithString:@"https://itunes.apple.com/cn/app/id1234823386?mt=8"]
-                                              title:@"中国农药第一网"
+                                              title:@"世纪农药网"
                                                type:SSDKContentTypeAuto];
             //有的平台要客户端分享需要加此方法，例如微博
             [shareParams SSDKEnableUseClientShare];

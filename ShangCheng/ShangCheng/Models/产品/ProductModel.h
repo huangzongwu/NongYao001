@@ -19,6 +19,9 @@
 @property (nonatomic,strong)NSString *productCompany;
 //农药的规格id
 @property (nonatomic,strong)NSString *productFormatID;
+
+//@property (nonatomic,strong)NSString *productCode;//scode
+
 //农药的规格
 @property (nonatomic,strong)NSString *productFormatStr;
 //农药的价格

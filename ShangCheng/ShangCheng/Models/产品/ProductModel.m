@@ -38,6 +38,9 @@
             self.isSaleProduct = YES;
         }
     }
+//    if ([key isEqualToString:@"p_pid"]) {
+//        self.productCode = value;
+//    }
 
     //---------------------------------------------------
     //产品详情
@@ -62,7 +65,9 @@
     if ([key isEqualToString:@"p_price"]) {
         self.productPrice = value;
     }
-
+//    if ([key isEqualToString:@"p_pid"]) {
+//        self.productCode = value;
+//    }
     
     
     //-----------------------------------------------
@@ -88,6 +93,9 @@
     if ([key isEqualToString:@"p_icon"]) {
         self.productImageUrlstr = value;
     }
+//    if ([key isEqualToString:@"p_code"]) {
+//        self.productCode = value;
+//    }
     
     //----------------------------------------------
   

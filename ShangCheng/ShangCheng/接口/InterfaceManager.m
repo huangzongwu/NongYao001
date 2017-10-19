@@ -12,10 +12,10 @@
 @property (nonatomic,strong)NSString *mainUrl;
 @property (nonatomic,strong)NSString *baseUrl;
 
-
 @end
 
 @implementation InterfaceManager
+
 + (InterfaceManager *)shareInstance {
     static InterfaceManager *interfaceManager = nil;
     static dispatch_once_t onceToken;
@@ -23,14 +23,14 @@
         interfaceManager = [[InterfaceManager alloc] init];
     });
     return interfaceManager;
-
+    
 }
 
 - (NSString *)mainUrl {
     //托管服务器
-    return @"http://api.ertj.cn:8001/";
+    return @"https://api.nongyao001.com:7001/";
     //本地
-//    return @"http://192.168.0.233:5260/";
+//    return @"http://192.168.0.211:5260/";
 
 }
 
@@ -43,17 +43,16 @@
 - (NSString *)linkManageBase {
     return [NSString stringWithFormat:@"%@/LinkManage",self.baseUrl];
 }
+
 //今日特价
 - (NSString *)todayActivityBase {
     return [NSString stringWithFormat:@"%@/TodayActivity",self.baseUrl];
-    
 }
 
 //病虫害知识
 - (NSString *)informationPestsBase {
     return  [NSString stringWithFormat:@"%@/PestsType",self.baseUrl];
 }
-
 
 //资讯
 - (NSString *)informationIndexBase {
@@ -74,7 +73,6 @@
 //首页产品 cnum是热销产品的个数，
 - (NSString *)homeHotProductWithCnum:(NSString *)cnum {
     return [NSString stringWithFormat:@"%@/SellingProducts?pageindex=1&pagesize=%@",self.baseUrl,cnum];
-
 }
 
 //首页产品

@@ -9,10 +9,14 @@
 #import "SearchViewController.h"
 #import "ProductListViewController.h"
 #import "PestsListViewController.h"
-#import "SearchBarTextField.h"
+//#import "SearchBarTextField.h"
 
 @interface SearchViewController ()<UITextFieldDelegate>
-@property (nonatomic,strong)SearchBarTextField *searchBarTextField;
+//@property (nonatomic,strong)SearchBarTextField *searchBarTextField;
+@property (weak, nonatomic) IBOutlet UITextField *searchTextField;
+
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *searchTextFieldWidthLayout;
+
 @end
 
 @implementation SearchViewController
@@ -29,11 +33,19 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     //加载 搜索框
-    self.searchBarTextField = [[[NSBundle mainBundle] loadNibNamed:@"SearchBarTextField" owner:self options:nil] firstObject];
-    self.searchBarTextField.searchTextField.delegate = self;
-    self.navigationItem.titleView = self.searchBarTextField;
+//    self.searchBarTextField = [[[NSBundle mainBundle] loadNibNamed:@"SearchBarTextField" owner:self options:nil] firstObject];
+//    self.searchBarTextField.searchTextField.delegate = self;
+
+//        self.navigationItem.titleView.backgroundColor = [UIColor yellowColor];
+//    self.navigationItem.titleView = self.searchBarTextField;
+//    [self.navigationController.navigationBar addSubview:self.searchBarTextField]
 }
 
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear: animated];
+    
+    self.searchTextFieldWidthLayout.constant = kScreenW/2;
+}
 
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
@@ -59,7 +71,7 @@
 
 
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
-    [self.searchBarTextField.searchTextField resignFirstResponder];
+    [self.searchTextField resignFirstResponder];
     
 }
 

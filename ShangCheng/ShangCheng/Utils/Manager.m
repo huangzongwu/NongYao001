@@ -21,7 +21,7 @@
 
 #pragma mark - 首页 -
 - (void)httpBannerScrollViewDataSourceWithBannerSuccess:(SuccessResult)bannerSuccess withBannerFail:(FailResult)bannerFail {
-    NSString *url = [NSString stringWithFormat:@"%@?id=&type=0",[[InterfaceManager shareInstance]linkManageBase]];
+    NSString *url = [NSString stringWithFormat:@"%@?id=&type=3",[[InterfaceManager shareInstance]linkManageBase]];
     [[NetManager shareInstance] getRequestWithURL:url withParameters:nil withContentTypes:nil withHeaderArr:nil withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
         NSLog(@"%ld",operation.response.statusCode);
         NSLog(@"%@",[self dictionaryToJson:successResult]);
@@ -365,7 +365,7 @@
 
 //获取产品详情
 - (void)httpProductDetailInfoWithProductID:(NSString *)productId withType:(NSString *)type withProductDetailModel:(ProductDetailModel *)productDetailModel withSuccessDetailResult:(SuccessResult)successDetailResult withFailDetailResult:(FailResult)failDetailResult {
-    
+    NSLog(@"%@",[[InterfaceManager shareInstance] productDetailURLWithProductID:productId withType:type withIsst:@"1"]);
     [[NetManager shareInstance] getRequestWithURL:[[InterfaceManager shareInstance] productDetailURLWithProductID:productId withType:type withIsst:@"1"] withParameters:nil withContentTypes:nil withHeaderArr:nil withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
         NSLog(@"%@",[self dictionaryToJson:successResult]);
         
@@ -888,7 +888,7 @@
         //清空原有数据
         self.shoppingCarDataSourceArr = nil;
         
-        NSLog(@"--%ld",operation.response.statusCode);
+        NSLog(@"%@",[self dictionaryToJson:successResult]);
         if (operation.response.statusCode == 200) {
             //请求成功，封装模型
             [self analyzeShoppingCarDataWithJsonData:successResult WithSuccessResult:shoppingCarSuccessResult];
@@ -2504,7 +2504,8 @@
     NSString *secretStr = [self digest:[NSString stringWithFormat:@"%@Nongyao_Com001", [self dictionaryToJson:@[valueDic]]]];
     
     NSDictionary *parametersDic = @{@"m":secretStr,@"value":@[valueDic]};
-
+    
+    /*
     [[NetManager shareInstance] postRequestWithURL:[[InterfaceManager shareInstance] AgentCashBase] withParameters:parametersDic withContentTypes:@"string" withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
         
         NSLog(@"%ld -- %@",operation.response.statusCode,successResult);
@@ -2527,6 +2528,7 @@
 
         agentCashFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,messageStr]);
     }];
+     */
     
 }
 
@@ -3532,10 +3534,10 @@
 
 #pragma mark - 图片连接处理 -
 - (NSURL *)webImageURlWith:(NSString *)imageUrlStr {
-    if ([imageUrlStr containsString:@"http://"]) {
+    if ([imageUrlStr containsString:@"https://"]) {
         return [NSURL URLWithString:imageUrlStr];
     }else{
-        return [NSURL URLWithString:[NSString stringWithFormat:@"http://ima.ertj.cn:8002/%@",imageUrlStr]];
+        return [NSURL URLWithString:[NSString stringWithFormat:@"https://ima.nongyao001.com:7002/%@",imageUrlStr]];
 
     }
 }

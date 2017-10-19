@@ -10,7 +10,7 @@
 
 @implementation RightHeaderCollectionReusableView
 - (void)updateRightHeaderViewWithModel:(ClassModel *)tempClassModel {
-    self.rightHeaderLabel.text = tempClassModel.d_value;
+    self.rightHeaderLabel.text = tempClassModel.d_desc;
     
     if (tempClassModel.subItemArr.count > 6) {
         self.rightHeaderButton.hidden = NO;

@@ -36,6 +36,9 @@
 //选择的方式0-支付宝，1-微信，2-银行卡
 @property (nonatomic,assign)NSInteger selectTypeInt;
 
+
+//
+
 @end
 
 @implementation AgentCashApplicationViewController
@@ -103,6 +106,12 @@
     return YES;
 }
 
+- (void)textFieldDidEndEditing:(UITextField *)textField {
+    NSInteger availInt = [textField.text integerValue];
+    textField.text = [NSString stringWithFormat:@"%ld", availInt/50 * 50];
+    
+}
+
 
 - (IBAction)leftBarButtonAction:(UIBarButtonItem *)sender {
     [self.navigationController popViewControllerAnimated:YES];
@@ -116,9 +125,11 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    Manager *manager = [Manager shareInstance];
+    Manager *manager = [Manager shareInstance];    
+    
     //可提现金额的展示
-    self.userBalanceLabel.text = [NSString stringWithFormat:@"可提现金额：%.2f元",manager.memberInfoModel.u_amount_avail];
+    NSInteger u_amount_avail_Int = manager.memberInfoModel.u_amount_avail;
+    self.userBalanceLabel.text = [NSString stringWithFormat:@"余额:%.2f，可提现金额：%ld元",manager.memberInfoModel.u_amount_avail,u_amount_avail_Int/50 * 50];
     
     if ([manager.memberInfoModel.u_type isEqualToString:@"1"]) {
         //代理商
@@ -204,13 +215,12 @@
     NSString *bankNameStr = @"";
     NSString *nameStr;
     NSString *codeStr;
+    
     float amount = [self.agentCashAmountTextField.text floatValue];
     
     BOOL isCommit = NO;
     NSString *notCommitStr = @"提现信息填写不完整";
     
-    
-
     if ([manager.memberInfoModel.u_type isEqualToString:@"1"]) {
         //代理商
         nameStr = manager.memberInfoModel.u_truename;
@@ -227,7 +237,7 @@
         isCommit = YES;
     }else {
         if (amount <= 0) {
-            notCommitStr = @"提现金额至少为0.01元";
+            notCommitStr = @"提现金额至少为50元";
         }
         if (amount > manager.memberInfoModel.u_amount_avail) {
             notCommitStr = @"提现金额不能大于可提现金额";

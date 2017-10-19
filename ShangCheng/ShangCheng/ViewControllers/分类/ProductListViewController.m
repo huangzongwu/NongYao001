@@ -7,7 +7,7 @@
 //
 
 #import "ProductListViewController.h"
-#import "SearchBarButton.h"
+//#import "SearchBarButton.h"
 #import "Manager.h"
 #import "MJRefresh.h"
 #import "ProductListCollectionViewCell.h"
@@ -33,10 +33,12 @@
 - (IBAction)rightBarButtonAction:(UIBarButtonItem *)sender {
 
 }
-
-- (void)tapSearchAction:(UITapGestureRecognizer *)sender {
+- (IBAction)tapSearchButtonAction:(UIButton *)sender {
     [self.navigationController popViewControllerAnimated:YES];
+
 }
+
+
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
     [SVProgressHUD dismiss];
@@ -59,9 +61,9 @@
     Manager *manager = [Manager shareInstance];
     manager.searchProductListDataSourceArr = nil;
     
-    SearchBarButton *searchBarButton = [[[NSBundle mainBundle] loadNibNamed:@"SearchBarButton" owner:self options:nil] firstObject];
-    [searchBarButton.tapSearchBarButton addTarget:self action:@selector(tapSearchAction:)];
-    self.navigationItem.titleView = searchBarButton;
+//    SearchBarButton *searchBarButton = [[[NSBundle mainBundle] loadNibNamed:@"SearchBarButton" owner:self options:nil] firstObject];
+//    [searchBarButton.tapSearchBarButton addTarget:self action:@selector(tapSearchAction:)];
+//    self.navigationItem.titleView = searchBarButton;
     
     //排序为默认排序
     self.sortType = DefaultType;

@@ -125,9 +125,9 @@
     LeftProductClassTableViewCell *leftCell = [tableView dequeueReusableCellWithIdentifier:@"leftProductClassCell" forIndexPath:indexPath];
     ClassModel *tempLeftModel = manager.productClassTreeArr[indexPath.row];
     if (indexPath.row == self.selectLeftInt) {
-        [leftCell updateLeftCellWithTitle:tempLeftModel.d_value withIsSelectItem:YES];//选中的cell
+        [leftCell updateLeftCellWithTitle:tempLeftModel.d_desc withIsSelectItem:YES];//选中的cell
     }else{
-        [leftCell updateLeftCellWithTitle:tempLeftModel.d_value withIsSelectItem:NO];//未选中的cell
+        [leftCell updateLeftCellWithTitle:tempLeftModel.d_desc withIsSelectItem:NO];//未选中的cell
     }
     
     return leftCell;

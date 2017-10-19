@@ -561,10 +561,11 @@
         //人气热卖
         if (selectIndex.section == 2) {
             ProductModel *hotProductModel = [[[Manager shareInstance].homeDataSourceDic objectForKey:@"热销"] objectAtIndex:selectIndex.row];
+//            productDetailVC.productID = hotProductModel.productID;
             productDetailVC.productID = hotProductModel.productID;
             productDetailVC.type = @"pid";
-//            productDetailVC.productModel = hotProductModel;
 
+            
         }
         //推荐产品
         if (selectIndex.section > 2) {

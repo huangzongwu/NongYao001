@@ -51,6 +51,7 @@
 //加载数据
 - (void)reloadAgainButtonAction:(IndexButton *)sender {
     //加载网页的方式
+    NSLog(@"++%@",self.webUrl);
     if (self.webUrl != nil && ![self.webUrl isEqualToString:@""]) {
         if (![self.webUrl containsString:@"http://"]) {
             self.webUrl = [NSString stringWithFormat:@"http://%@", self.webUrl];

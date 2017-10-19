@@ -18,7 +18,7 @@
     self.totalMoneyLabel.text = tempCouponModel.c_amount;
     self.saleMoneyLabel.text = [NSString stringWithFormat:@"%.2f",[tempCouponModel.c_amount floatValue] - [tempCouponModel.c_balance floatValue]];
     self.overMoneyLabel.text = tempCouponModel.c_balance;
-    self.timeValidLabel.text = [NSString stringWithFormat:@"绑定时间：%@", tempCouponModel.c_time_valid ];
+    self.timeValidLabel.text = [NSString stringWithFormat:@"绑定时间：%@", tempCouponModel.c_time_binding];
 }
 
 - (void)awakeFromNib {
