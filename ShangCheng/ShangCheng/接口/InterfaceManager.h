@@ -106,7 +106,6 @@
 
 
 #pragma mark - 个人信息 -
-
 //查询个人余额
 - (NSString *)searchUserAmountWithUserID:(NSString *)userID;
 //收货地址列表
@@ -119,6 +118,7 @@
 
 //收藏base
 - (NSString *)favoriteBase;
+
 //获取收藏列表
 - (NSString *)myFavoriteListWithUserId:(NSString *)userid;
 
@@ -132,7 +132,6 @@
 
 //个人中心 我的钱包数据
 - (NSString *)userDataBase;
-
 
 //修改头像
 - (NSString *)userIconBase;
