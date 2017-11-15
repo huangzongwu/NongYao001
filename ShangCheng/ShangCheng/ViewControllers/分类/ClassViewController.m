@@ -166,17 +166,27 @@
         return tempModel.subItemArr.count;
     }
     
-    
-    
-   
-    
 }
 
-////分区头高度
-//- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout referenceSizeForHeaderInSection:(NSInteger)section {
-//   
-//    
-//}
+
+
+
+
+
+//分区头高度
+- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout referenceSizeForHeaderInSection:(NSInteger)section {
+    Manager *manager = [Manager shareInstance];
+    NSArray *rightArr = [manager.productClassTreeArr[self.selectLeftInt] subItemArr];
+    
+    ClassModel *tempModel = rightArr[section];
+    if (tempModel.subItemArr.count > 0) {
+        return CGSizeMake(kScreenW, 28);
+    }else {
+        return CGSizeMake(kScreenW, 0);
+    }
+    
+
+}
 
 
 //分区头设置

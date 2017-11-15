@@ -62,51 +62,70 @@
                 self.contentLabel.text = productDetailModel.productModel.productCompany;
             }
             break;
-        case 6:
-            self.titleLabel.text = @"PD证：";
-            if ([productDetailModel.p_registration isEqualToString:@""]) {
-                self.contentLabel.text = @"暂无";
-            }else{
-                self.contentLabel.text = productDetailModel.p_registration;
-            }
-            break;
-        case 7:
-            self.titleLabel.text = @"产品标准证：";
-            if ([productDetailModel.p_certificate isEqualToString:@""]) {
-                self.contentLabel.text = @"暂无";
-            }else{
-                self.contentLabel.text = productDetailModel.p_certificate;
-            }
-            break;
-        case 8:
-            self.titleLabel.text = @"生产许可证：";
-            if ([productDetailModel.p_license isEqualToString:@""]) {
-                self.contentLabel.text = @"暂无";
-            }else{
-                self.contentLabel.text = productDetailModel.p_license;
-            }
-            break;
-        case 9:
-            self.titleLabel.text = @"发布时间：";
-            if ([productDetailModel.p_time_create isEqualToString:@""]) {
-                self.contentLabel.text = @"暂无";
-            }else{
-                self.contentLabel.text = productDetailModel.p_time_create;
-            }
-            break;
-        case 10:
-            self.titleLabel.text = @"防治对象：";
-            if ([productDetailModel.p_treatment_str isEqualToString:@""]) {
-                self.contentLabel.text = @"暂无";
-            }else{
-                self.contentLabel.text = productDetailModel.p_treatment_str;
-
-            }
-            break;
             
         default:
             break;
     }
+    
+    
+    
+    //后两项
+    if (indexPath.row == 8 + productDetailModel.p_cerArr.count - 2) {
+        self.titleLabel.text = @"发布时间：";
+        if ([productDetailModel.p_time_create isEqualToString:@""]) {
+            self.contentLabel.text = @"暂无";
+        }else{
+            self.contentLabel.text = productDetailModel.p_time_create;
+        }
+    }
+    if (indexPath.row == 8 + productDetailModel.p_cerArr.count - 1) {
+        self.titleLabel.text = @"防治对象：";
+        if ([productDetailModel.p_treatment_str isEqualToString:@""]) {
+            self.contentLabel.text = @"暂无";
+        }else{
+            self.contentLabel.text = productDetailModel.p_treatment_str;
+            
+        }
+    }
+    
+    //中间可变化的三项
+    if (productDetailModel.p_cerArr.count == 1) {
+        if (indexPath.row == 6) {
+            self.titleLabel.text = [[productDetailModel.p_cerArr[0] allKeys]objectAtIndex:0];
+            self.contentLabel.text = [[productDetailModel.p_cerArr[0] allValues]objectAtIndex:0];
+        }
+        
+    }else if (productDetailModel.p_cerArr.count == 2) {
+        if (indexPath.row == 6) {
+            self.titleLabel.text = [[productDetailModel.p_cerArr[0] allKeys]objectAtIndex:0];
+            self.contentLabel.text = [[productDetailModel.p_cerArr[0] allValues]objectAtIndex:0];
+        }
+        if (indexPath.row == 7) {
+            self.titleLabel.text = [[productDetailModel.p_cerArr[1] allKeys]objectAtIndex:0];
+            self.contentLabel.text = [[productDetailModel.p_cerArr[1] allValues]objectAtIndex:0];
+        }
+        
+        
+    }else if(productDetailModel.p_cerArr.count == 3){
+        if (indexPath.row == 6) {
+            self.titleLabel.text = [[productDetailModel.p_cerArr[0] allKeys]objectAtIndex:0];
+            self.contentLabel.text = [[productDetailModel.p_cerArr[0] allValues]objectAtIndex:0];
+        }
+        if (indexPath.row == 7) {
+            self.titleLabel.text = [[productDetailModel.p_cerArr[1] allKeys]objectAtIndex:0];
+            self.contentLabel.text = [[productDetailModel.p_cerArr[1] allValues]objectAtIndex:0];
+        }
+        if (indexPath.row == 8) {
+            self.titleLabel.text = [[productDetailModel.p_cerArr[2] allKeys]objectAtIndex:0];
+            self.contentLabel.text = [[productDetailModel.p_cerArr[2] allValues]objectAtIndex:0];
+        }
+    }
+    
+    
+    
+    
+    
+    
 }
 
 - (void)updateProductDetailOneCellWithUseInfoDic:(ProductDetailModel *)productDetailModel withIndex:(NSIndexPath *)indexPath {

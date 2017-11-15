@@ -19,12 +19,16 @@
 @property (nonatomic,strong)NSString *p_ingredient;
 //起订数量
 @property (nonatomic,strong)NSString *p_standard_qty;
-//PD证
-@property (nonatomic,strong)NSString *p_registration;
-//产品标准证
-@property (nonatomic,strong)NSString *p_certificate;
-//生产许可证
-@property (nonatomic,strong)NSString *p_license;
+
+//产品证书数组 有PD证 产品标准证 生产许可证
+@property (nonatomic,strong)NSMutableArray *p_cerArr;
+
+////PD证
+//@property (nonatomic,strong)NSString *p_registration;
+////产品标准证
+//@property (nonatomic,strong)NSString *p_certificate;
+////生产许可证
+//@property (nonatomic,strong)NSString *p_license;
 //时间
 @property (nonatomic,strong)NSString *p_time_create;
 //防治对象字符串

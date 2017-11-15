@@ -102,9 +102,14 @@
 
 //产品的交易记录
 - (NSString *)productTradeRecordBase {
-    return [NSString stringWithFormat:@"%@/TransactionRecord",self.baseUrl];
+    return [NSString stringWithFormat:@"%@/TransactionRecordPD",self.baseUrl];
 }
 
+#pragma mark - banner活动产品 -
+//活动产品列表
+- (NSString *)activityProductListBase {
+    return [NSString stringWithFormat:@"%@/ActivityDo",self.baseUrl];
+}
 
 #pragma mark - 购物车 -
 - (NSString *)shoppingCarBaseURL {
@@ -146,7 +151,7 @@
 }
 
 
-//订单列表 -1全部、0,1B,1A待付款、1,进行中、9已完成
+//订单列表 -1全部、0,1B,1A待付款、1,待收货、9已完成
 - (NSString *)orderListWithUserID:(NSString *)userID withType:(NSString *)type withCode:(NSString *)code withOrderStatus:(NSString *)orderStatus withPageIndex:(NSInteger)pageIndex withPageSize:(NSInteger )pageSize {
 
     return [NSString stringWithFormat:@"%@/OrderGenerated?id=%@&type=%@&code=%@&status=%@&pageindex=%ld&pagesize=%ld",self.baseUrl,userID,type,code,orderStatus,pageIndex,pageSize];

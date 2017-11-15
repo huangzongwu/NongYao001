@@ -13,8 +13,11 @@
 - (void)updateProductDetailTwoCell:(NSString *)webIntroduce {
     
     self.heightLayout.constant = self.documentHeight;
+    
+    NSString* str= [webIntroduce stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
 
-    [self.detailWebView loadHTMLString:webIntroduce baseURL:nil];
+    
+    [self.detailWebView loadHTMLString:str baseURL:nil];
     self.detailWebView.scrollView.scrollEnabled = NO;
 }
 

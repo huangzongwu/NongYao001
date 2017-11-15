@@ -9,10 +9,12 @@
 #import "SearchViewController.h"
 #import "ProductListViewController.h"
 #import "PestsListViewController.h"
+#import "SearchCollectionViewCell.h"
+#import "Manager.h"
 //#import "SearchBarTextField.h"
 
-@interface SearchViewController ()<UITextFieldDelegate>
-//@property (nonatomic,strong)SearchBarTextField *searchBarTextField;
+@interface SearchViewController ()<UITextFieldDelegate,UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout>
+@property (weak, nonatomic) IBOutlet UICollectionView *hotSearchCollectionView;
 @property (weak, nonatomic) IBOutlet UITextField *searchTextField;
 
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *searchTextFieldWidthLayout;
@@ -39,6 +41,28 @@
 //        self.navigationItem.titleView.backgroundColor = [UIColor yellowColor];
 //    self.navigationItem.titleView = self.searchBarTextField;
 //    [self.navigationController.navigationBar addSubview:self.searchBarTextField]
+    
+    //只有产品 才显示收藏，如果是病虫害就不显示
+    if (self.productOrPests == Product) {
+        //如果登陆了 并且没有收藏记录，就请求一下
+        Manager *manager = [Manager shareInstance];
+        if ([manager isLoggedInStatus] == YES) {
+            if (manager.myFavoriteArr == nil || manager.myFavoriteArr.count == 0) {
+                [manager httpMyFavoriteListWithUserId:manager.memberInfoModel.u_id withMyFavoriteSuccess:^(id successResult) {
+                    
+                    [self.hotSearchCollectionView reloadData];
+                } withMyFavoriteFail:^(NSString *failResultStr) {
+                    NSLog(@"我的收藏数据请求失败");
+                    
+                }];
+            }
+        }
+    }
+    
+   
+    
+    
+    
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -62,11 +86,53 @@
 
         }
         
-
-        
     }
 
     return YES;
+}
+
+#pragma mark - collectionView Delegate -
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
+    if (self.productOrPests == Product) {
+        Manager *manager = [Manager shareInstance];
+        return manager.myFavoriteArr.count;
+    }else {
+        //病虫害搜索
+        return 0;
+    }
+}
+
+- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
+    return CGSizeMake(130, 40);
+}
+
+- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout referenceSizeForHeaderInSection:(NSInteger)section {
+    return CGSizeMake(kScreenW, 37);
+}
+
+- (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(nonnull NSString *)kind atIndexPath:(nonnull NSIndexPath *)indexPath {
+    UICollectionReusableView *headerCell = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"hotSearchHead" forIndexPath:indexPath];
+    return headerCell;
+    
+}
+
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+    Manager *manager = [Manager shareInstance];
+    MyFavoriteListModel *tempModel = manager.myFavoriteArr[indexPath.row];
+    
+    SearchCollectionViewCell *searchCell = [collectionView dequeueReusableCellWithReuseIdentifier:@"searchCell" forIndexPath:indexPath];
+    
+    searchCell.nameLabel.text = tempModel.favoriteProductNameStr;
+    return searchCell;
+}
+
+
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+    Manager *manager = [Manager shareInstance];
+    MyFavoriteListModel *tempModel = manager.myFavoriteArr[indexPath.row];
+    
+    [self performSegueWithIdentifier:@"searchToListVC" sender:@[@"SearchProduct",tempModel.favoriteProductNameStr]];
+    
 }
 
 

@@ -8,11 +8,12 @@
 
 #import "MineCollectionViewCellOne.h"
 #import "Manager.h"
-#import "UIImageView+ImageViewCategory.h"
+#import "UIButton+WebCache.h"
 @implementation MineCollectionViewCellOne
 - (void)updateMineCollectionViewCellOne {
     Manager *manager = [Manager shareInstance];
-    self.userHeaderImageView.image = [UIImage imageNamed:@"w_icon_mrtx"];
+    [self.userHeadButton setImage:[UIImage imageNamed:@"w_icon_mrtx"] forState:UIControlStateNormal];
+
     self.myNameLabel.text = @"未登录";
     self.myAreaAndPhoneLabel.hidden = YES;
     self.myTypeImageView.hidden = YES;
@@ -21,7 +22,12 @@
     if ([manager isLoggedInStatus] == YES) {
         //已经登录了。
         //图片
-        [self.userHeaderImageView setWebImageURLWithImageUrlStr:manager.memberInfoModel.u_icon withErrorImage:[UIImage imageNamed:@"w_icon_mrtx"] withIsCenter:NO];
+        [self.userHeadButton sd_setImageWithURL:[NSURL URLWithString:manager.memberInfoModel.u_icon] forState:UIControlStateNormal completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
+            if (error != nil) {
+                [self.userHeadButton setImage:[UIImage imageNamed:@"w_icon_mrtx"] forState:UIControlStateNormal];
+            }
+        }];
+
         //姓名
         self.myNameLabel.text = manager.memberInfoModel.u_truename;
         //地址手机号

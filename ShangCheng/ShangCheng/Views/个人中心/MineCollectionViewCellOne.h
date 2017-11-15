@@ -10,7 +10,8 @@
 
 @interface MineCollectionViewCellOne : UICollectionViewCell
 //用户头像
-@property (weak, nonatomic) IBOutlet UIImageView *userHeaderImageView;
+@property (weak, nonatomic) IBOutlet UIButton *userHeadButton;
+
 //我的用户名
 @property (weak, nonatomic) IBOutlet UILabel *myNameLabel;
 //地区和手机号

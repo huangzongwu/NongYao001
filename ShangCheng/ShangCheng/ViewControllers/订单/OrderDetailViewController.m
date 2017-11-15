@@ -306,9 +306,10 @@
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+
     if (indexPath.section < self.tempSupOrderModel.subOrderArr.count) {
         SonOrderModel *tempSonOrderModel = self.tempSupOrderModel.subOrderArr[indexPath.section];
-        [self performSegueWithIdentifier:@"orderToDetailVC" sender:tempSonOrderModel.o_product_id];
+        [self performSegueWithIdentifier:@"orderToDetailVC" sender:tempSonOrderModel.o_specification_id];
         
         
     }
@@ -416,7 +417,7 @@
         case 5:
             NSLog(@"再次购买");
 
-            [self performSegueWithIdentifier:@"orderToDetailVC" sender:tempSonOrder.o_product_id];
+            [self performSegueWithIdentifier:@"orderToDetailVC" sender:tempSonOrder.o_specification_id];
             break;
             
         default:
@@ -477,7 +478,7 @@
     if ([segue.identifier isEqualToString:@"orderToDetailVC"]) {
         ProductDetailViewController *productDetailVC = [segue destinationViewController];
         productDetailVC.productID = sender;
-        productDetailVC.type = @"pid";
+        productDetailVC.type = @"sid";
 
     }
     //物流

@@ -281,6 +281,7 @@
     
     CGFloat yOffset  = scrollView.contentOffset.y;
     NSLog(@"++%f",yOffset);
+    yOffset = yOffset + 64;
     
     [self.navigationController setNavigationBarHidden:NO animated:NO];
     CGFloat alpha=yOffset/80.0f>1.0f?1:yOffset/80.0f;
@@ -328,8 +329,7 @@
 
 #pragma mark - 头部的一些事件 -
 //点击头像，如果没有登录，就登录，如果登录了就切换头像
-- (IBAction)headerImageTap:(UITapGestureRecognizer *)sender {
-    
+- (IBAction)headerButtonAction:(UIButton *)sender {
     Manager *manager = [Manager shareInstance];
     if ([manager isLoggedInStatus] == YES) {
         //已经登录
@@ -338,8 +338,6 @@
         UINavigationController *loginNav = [self.storyboard instantiateViewControllerWithIdentifier:@"loginNavigationController"];
         [self presentViewController:loginNav animated:YES completion:nil];
     }
-    
-    
 }
 
 
@@ -635,7 +633,7 @@
 - (void)switchToOrderTabbarWithOrderType:(NSInteger )orderType {
     /*
      orderType 订单的类型
-     1-全部  2-待付款  3-进行中  4-已完成
+     1-全部  2-待付款  3-待收货  4-已完成
      */
     //发送通知到订单界面，切换订单类型
     [[NSNotificationCenter defaultCenter] postNotificationName:@"mineToOrderListVC" object:self userInfo:@{@"orderType":[NSString stringWithFormat:@"%ld",orderType]}];

@@ -15,6 +15,7 @@
 #define kButtonH 38
 
 @interface SelectProductViewController ()
+
 @property (weak, nonatomic) IBOutlet UIImageView *backImageView;
 
 //主要view，
@@ -49,6 +50,9 @@
     
     //选择规格的view在下面隐藏着，
     self.bottomLayout.constant = -kScreenH*2/3-30;
+    
+    //先要对模型进行修改，因为有可能有的规格下架了
+    
     
     //修改约束
     NSInteger buttonNum = self.productDetailModel.productFarmatArr.count;

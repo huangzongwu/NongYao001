@@ -47,22 +47,24 @@
     if ([key isEqualToString:@"p_id"]) {
         self.productID = value;
     }
-    if ([key isEqualToString:@"p_icon"]) {
-        self.productImageUrlstr = value;
-    }
+    
     if ([key isEqualToString:@"p_title"]) {
         self.productTitle = value;
     }
     if ([key isEqualToString:@"suppliername"]) {
         self.productCompany = value;
     }
-    if ([key isEqualToString:@"p_s_id"]) {
+    
+    if ([key isEqualToString:@"p_icon"] ) {
+        self.productImageUrlstr = value;
+    }
+    if ([key isEqualToString:@"p_s_id"] ) {
         self.productFormatID = value;
     }
-    if ([key isEqualToString:@"p_standard"]) {
+    if ([key isEqualToString:@"p_standard"] ) {
         self.productFormatStr = value;
     }
-    if ([key isEqualToString:@"p_price"]) {
+    if ([key isEqualToString:@"p_price"] ) {
         self.productPrice = value;
     }
 //    if ([key isEqualToString:@"p_pid"]) {
@@ -99,6 +101,19 @@
     
     //----------------------------------------------
   
+}
+
+
+//更改默认规格
+- (void)setFormatInfoWithSImg:(NSString *)sImg withSId:(NSString *)sId withSStr:(NSString *)sStr withSFrice:(NSString *)sPrice {
+    
+    self.productImageUrlstr = sImg;
+    
+    self.productFormatID = sId;
+    
+    self.productFormatStr = sStr;
+    
+    self.productPrice = sPrice;
 }
 
 

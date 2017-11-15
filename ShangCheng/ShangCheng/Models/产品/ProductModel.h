@@ -35,5 +35,7 @@
 @property (nonatomic,strong)NSString *s_unit_child;
 
 - (void)setValue:(id)value forUndefinedKey:(NSString *)key ;
+//更改默认规格
+- (void)setFormatInfoWithSImg:(NSString *)sImg withSId:(NSString *)sId withSStr:(NSString *)sStr withSFrice:(NSString *)sPrice ;
 
 @end

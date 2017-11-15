@@ -25,6 +25,7 @@
 #import "MJRefresh.h"
 #import "WebPageTwoViewController.h"
 #import "AnnouncementViewController.h"
+#import "BannerShopViewController.h"
 @interface HomeViewController ()<UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout,SDCycleScrollViewDelegate>
 @property (weak, nonatomic) IBOutlet UICollectionView *collectionView;
 
@@ -506,7 +507,10 @@
     NSLog(@"%ld",index);
     if (cycleScrollView.tag == 500) {
         BannerModel *tempModel = self.bannerDataSource[index];
-        [self performSegueWithIdentifier:@"homeToWebViewVC" sender:@[tempModel.l_title,tempModel.l_link_path]];
+        
+//        [self performSegueWithIdentifier:@"homeToWebViewVC" sender:@[tempModel.l_title,tempModel.l_link_path]];
+        
+        [self performSegueWithIdentifier:@"homeToBannerShopVC" sender:tempModel];
 
     }
     if (cycleScrollView.tag == 501) {
@@ -614,6 +618,12 @@
     if ([segue.identifier isEqualToString:@"homeToShoppingCarVC"]) {
         ShoppingCarViewController *shoppingcarVC = [segue destinationViewController];
         shoppingcarVC.hidesBottomBarWhenPushed = YES;
+        
+    }
+    
+    //进入bannerShop页面
+    if ([segue.identifier isEqualToString:@"homeToBannerShopVC"]) {
+        BannerShopViewController *bannerShopVC = [segue destinationViewController];
         
     }
 }

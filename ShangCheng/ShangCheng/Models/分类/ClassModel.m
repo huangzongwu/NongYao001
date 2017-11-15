@@ -14,6 +14,7 @@
         NSArray *itemArr = value;
         self.subItemArr = [NSMutableArray array];
         for (NSDictionary *itemDic in itemArr) {
+            
             ClassModel *model = [[ClassModel alloc] init];
             [model setValuesForKeysWithDictionary:itemDic];
             [self.subItemArr addObject:model];

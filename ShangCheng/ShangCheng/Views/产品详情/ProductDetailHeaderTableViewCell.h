@@ -21,5 +21,7 @@ typedef NS_ENUM(NSInteger , SelectType) {
 @property (weak, nonatomic) IBOutlet LineButton *buttonThree;
 @property (weak, nonatomic) IBOutlet LineButton *buttonFour;
 
-- (void)updateButtonUIWithType:(SelectType)selectType;
+- (void)updateButtonUIWithType:(SelectType)selectType withCommentCount:(NSInteger)commentCount withTradeCount:(NSInteger)tradeCount;
+
+
 @end

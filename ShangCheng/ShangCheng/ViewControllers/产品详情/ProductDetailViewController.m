@@ -42,6 +42,7 @@
 //每瓶的价格
 @property (weak, nonatomic) IBOutlet UILabel *productPricePerLabel;
 
+
 @property (nonatomic,strong)ProductDetailModel *productDetailModel;
 
 //下面选择的头部
@@ -250,6 +251,12 @@
     //获取产品详细信息
     [manager httpProductDetailInfoWithProductID:self.productID withType:self.type withProductDetailModel:self.productDetailModel withSuccessDetailResult:^(id successResult) {
         [self.kongImageView hiddenKongView];
+        //有错误 可能是产品下架了
+        if (![[successResult objectForKey:@"error"] isEqualToString:@""]) {
+            AlertManager *alertM = [AlertManager shareIntance];
+            [alertM showAlertViewWithTitle:[successResult objectForKey:@"error"] withMessage:nil actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
+        }
+        
         
         [self updateAllViewWithDetailModel:self.productDetailModel];
 
@@ -538,6 +545,7 @@
     [manager productCommentListWithProductId:self.productID withPageIndex:pageIndex withPageSize:10 withCommentListSuccess:^(id successResult) {
         //得到总页数
         self.userCommentTotalPage = [[successResult objectForKey:@"totalpages"] integerValue];
+
         //如果是pageIndex为1，就是刷新了
         if (pageIndex == 1) {
             //清空原有数据
@@ -597,11 +605,23 @@
 #pragma mark - 请求交易记录 -
 - (void)httpProductTradeListWithPageIndex:(NSInteger)pageIndex {
     
+    NSString *PDStr;
+    
+    for (NSDictionary *tempCerDic in self.productDetailModel.p_cerArr) {
+        if ([tempCerDic.allKeys[0] isEqualToString:@"p_registration"]) {
+            PDStr = tempCerDic.allValues[0];
+        }
+    }
+    
     Manager *manager = [Manager shareInstance];
-    [manager httpProductTradeRecordWithProductId:self.productID withPageIndex:pageIndex withPageSize:10 withTradeRecordSuccess:^(id successResult) {
+    [manager httpProductTradeRecordWithType:@"new" withProductPD:PDStr withPageIndex:pageIndex withPageSize:10 withTradeRecordSuccess:^(id successResult) {
         
+
         //得到总页数
         self.tradeRecordTotalPage = [[successResult objectForKey:@"totalpages"] integerValue];
+
+        
+        
         //如果是pageIndex为1，就是刷新了
         if (pageIndex == 1) {
             //清空原有数据
@@ -625,23 +645,15 @@
             [self.tradeRecordListArr addObject:productTradeModel];
         }
         
-//        //假数据
-//        ProductTradeRecordModel *model = [[ProductTradeRecordModel alloc] init];
-//        model.o_num = @"10";
-//        model.mobile = @"18538075702";
-//        model.p_time_pay = @"2017-10-10";
-//        model.truename = @"十万个冷笑话";
-        
-//        [self.tradeRecordListArr addObject:model];
-        
         //刷新UI
         [self.detailTableView reloadData];
-
-        
     } withTradeRecordFail:^(NSString *failResultStr) {
         [self.detailTableView headerEndRefreshing];
         [self.detailTableView footerEndRefreshing];
     }];
+    
+   
+    
     
 }
 
@@ -664,7 +676,8 @@
 }
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     if (self.selectType == SelectTypeProductDetail) {
-        return 11 + 1;
+        
+        return 8 + self.productDetailModel.p_cerArr.count + 1;
     }
     
     if (self.selectType == SelectTypeUseInfo) {
@@ -698,7 +711,7 @@
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
 
     ProductDetailHeaderTableViewCell *headerCell = [tableView dequeueReusableCellWithIdentifier:@"detailHeadView"];
-    [headerCell updateButtonUIWithType:self.selectType];
+    [headerCell updateButtonUIWithType:self.selectType withCommentCount:self.userCommentTotalPage withTradeCount:self.tradeRecordTotalPage];
     return headerCell;
 
 }
@@ -754,7 +767,7 @@
     switch (self.selectType) {
         case SelectTypeProductDetail:
         {
-            if (indexPath.row < 11) {
+            if (indexPath.row < 8+self.productDetailModel.p_cerArr.count) {
                 //前面的表格信息
                 ProductDetailOneTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"productDetailOneCell" forIndexPath:indexPath];
                 

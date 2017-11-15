@@ -26,18 +26,18 @@
 @property (weak, nonatomic) IBOutlet LineButton *allButton;
 //待付款
 @property (weak, nonatomic) IBOutlet LineButton *waitPayButton;
-//进行中
+//待收货
 @property (weak, nonatomic) IBOutlet LineButton *goOnButton;
 //已完成
 @property (weak, nonatomic) IBOutlet LineButton *finishButton;
 
-//哪个TabelView 1-全部  2-待付款  3-进行中  4-已完成
+//哪个TabelView 1-全部  2-待付款  3-待收货  4-已完成
 @property (nonatomic,strong)NSString *whichTableView;
 //全部TableView
 @property (weak, nonatomic) IBOutlet UITableView *allTableView;
 //待付款TableView
 @property (weak, nonatomic) IBOutlet UITableView *waitPayTableView;
-//进行中TableView
+//待收货TableView
 @property (weak, nonatomic) IBOutlet UITableView *goOnTableView;
 //已完成TableView
 @property (weak, nonatomic) IBOutlet UITableView *finishTableView;
@@ -157,7 +157,7 @@
             [self httpOrderListWithType:@"uid" withCode:@"" withPageIndex:1 withTableView:self.waitPayTableView];
         }];
         [self.goOnTableView addHeaderWithCallback:^{
-            NSLog(@"进行中tableView刷新");
+            NSLog(@"待收货tableView刷新");
             [self httpOrderListWithType:@"uid" withCode:@"" withPageIndex:1  withTableView:self.goOnTableView];
         }];
         [self.finishTableView addHeaderWithCallback:^{
@@ -199,7 +199,7 @@
         }
     }];
     [self.goOnTableView addFooterWithCallback:^{
-        NSLog(@"进行中tableView加载");
+        NSLog(@"待收货tableView加载");
         NSInteger tempCurrentPage = [self.currentPageArr[2] integerValue] ;
         //总共有几页
         NSInteger totalPage = [[[[Manager shareInstance].orderListDataSourceDic objectForKey:self.whichTableView] objectForKey:@"totalpages"] integerValue];
@@ -249,7 +249,7 @@
     [self.waitPayTableView registerNib:[UINib nibWithNibName:@"OrderListFootOneTableViewCell" bundle:nil] forCellReuseIdentifier:@"orderListFootOneCell"];
     [self.waitPayTableView registerNib:[UINib nibWithNibName:@"OrderListFootTwoTableViewCell" bundle:nil] forCellReuseIdentifier:@"orderListFootTwoCell"];
     
-    //进行中的TableView
+    //待收货的TableView
     [self.goOnTableView registerNib:[UINib nibWithNibName:@"OrderListHeadTableViewCell" bundle:nil] forCellReuseIdentifier:@"orderListHeadCell"];
     [self.goOnTableView registerNib:[UINib nibWithNibName:@"OrderListOneTableViewCell" bundle:nil] forCellReuseIdentifier:@"orderListOneCell"];
     [self.goOnTableView registerNib:[UINib nibWithNibName:@"OrderListFootTwoTableViewCell" bundle:nil] forCellReuseIdentifier:@"orderListFootTwoCell"];
@@ -357,6 +357,7 @@
         }
         
         [manager getOrderListDataWithUserID:manager.memberInfoModel.u_id withType:type withCode:code withWhichTableView:self.whichTableView withPageIndex:pageIndex withPageSize:10 withOrderListSuccessResult:^(id successResult) {
+           
             
             if (pageIndex == 1) {
                 [SVProgressHUD dismiss];
@@ -430,7 +431,7 @@
 
 
 }
-//进行中
+//待收货
 - (IBAction)goOnButtonAction:(LineButton *)sender {
     self.whichTableView = @"3";
     //刷新UI

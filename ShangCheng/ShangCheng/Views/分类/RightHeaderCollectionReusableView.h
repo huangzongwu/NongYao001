@@ -15,7 +15,7 @@ typedef void(^MoreButtonIndex)(NSIndexPath *moreButtonIndex);
 @property (weak, nonatomic) IBOutlet UILabel *rightHeaderLabel;
 @property (weak, nonatomic) IBOutlet IndexButton *rightHeaderButton;
 @property (nonatomic,copy) MoreButtonIndex moreButtonIndex;
-@property (weak, nonatomic) IBOutlet UIImageView *jiantouImageView;
+
 
 - (void)updateRightHeaderViewWithModel:(ClassModel *)tempClassModel;
 

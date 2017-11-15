@@ -9,7 +9,8 @@
 #import "ProductDetailHeaderTableViewCell.h"
 
 @implementation ProductDetailHeaderTableViewCell
-- (void)updateButtonUIWithType:(SelectType)selectType {
+- (void)updateButtonUIWithType:(SelectType)selectType withCommentCount:(NSInteger)commentCount withTradeCount:(NSInteger)tradeCount {
+
     [self.buttonOne setTitleColor:k333333Color forState:UIControlStateNormal];
     [self.buttonOne setLineColor:[UIColor whiteColor]];
     [self.buttonTwo setTitleColor:k333333Color forState:UIControlStateNormal];
@@ -19,6 +20,16 @@
     [self.buttonFour setTitleColor:k333333Color forState:UIControlStateNormal];
     [self.buttonFour setLineColor:[UIColor whiteColor]];
 
+    if (commentCount > 0) {
+        [self.buttonThree setTitle:[NSString stringWithFormat:@"用户评价(%ld)",commentCount] forState:UIControlStateNormal];
+    }
+    if (tradeCount > 0) {
+        [self.buttonFour setTitle:[NSString stringWithFormat:@"交易记录(%ld)",tradeCount] forState:UIControlStateNormal];
+
+    }
+    
+    
+    
     switch (selectType) {
         case SelectTypeProductDetail:
             [self.buttonOne setTitleColor:kMainColor forState:UIControlStateNormal];

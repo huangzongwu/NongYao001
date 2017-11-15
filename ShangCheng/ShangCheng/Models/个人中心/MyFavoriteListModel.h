@@ -12,8 +12,10 @@
 //产品的基本信息
 @property (nonatomic,strong)NSString *myFavoriteId;
 @property (nonatomic,strong)NSString *productImageUrl;
+@property (nonatomic,strong)NSString *favoriteProductCode;
 
 @property (nonatomic,strong)NSString *favoriteProductTitleStr;
+@property (nonatomic,strong)NSString *favoriteProductNameStr;
 @property (nonatomic,strong)NSString *favoriteProductCompanyStr;
 @property (nonatomic,strong)NSString *favoriteProductFormatID;
 @property (nonatomic,strong)NSString *favoriteProductFormatStr;

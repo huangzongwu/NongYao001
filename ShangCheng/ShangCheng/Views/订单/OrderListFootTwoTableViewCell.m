@@ -11,6 +11,8 @@
 @implementation OrderListFootTwoTableViewCell
 
 - (void)updateOrderListFootTwoCellWithModel:(SupOrderModel *)model {
+    self.orderTimeLabel.text = [NSString stringWithFormat:@"%@",model.p_time_create];
+    
     self.orderCountLabel.text = [NSString stringWithFormat:@"共%ld件商品，",model.subOrderArr.count];
     self.orderPriceLabel.text = [NSString stringWithFormat:@"￥%.2f",[model.p_o_price_total floatValue] - [model.p_discount floatValue]];
 }

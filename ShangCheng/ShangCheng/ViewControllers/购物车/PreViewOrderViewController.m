@@ -161,19 +161,35 @@
     [self.tempTimer invalidate];
     [SVProgressHUD dismiss];
 }
-//总金额
+
+//计算总金额
 - (float)computeProductTotalPrice {
     float totalPrice = 0;
     for (ShoppingCarModel *tempModel in self.selectedProductArr) {
         
-        if (tempModel.isActivity == NO) {
-            // 一个产品的总价格 = 单价*数量
+//        if (tempModel.isActivity == NO) {
+            
             totalPrice += [tempModel.totalprice floatValue];
-        }
+//        }
        
     }
     return totalPrice;
 
+}
+
+//非动产品总金额 为了计算是否可用优惠券
+- (float)computeNoSaleProductTotalPrice {
+    float noSaleTotalPrice = 0;
+    for (ShoppingCarModel *tempModel in self.selectedProductArr) {
+        
+        if (tempModel.isActivity == NO) {
+        
+            noSaleTotalPrice += [tempModel.totalprice floatValue];
+        }
+        
+    }
+    return noSaleTotalPrice;
+    
 }
 
 //刷新FootView
@@ -332,7 +348,7 @@
     //选择优惠劵
     if ([segue.identifier isEqualToString:@"toSelectCouponVC"]) {
         //大于等于1000才能进入优惠券界面
-        if ([self computeProductTotalPrice] >= 1000) {
+        if ([self computeNoSaleProductTotalPrice] >= 1000) {
             //将产品模型传值到选择优惠券界面
             SelectCouponViewController *selectCouponVC = [segue destinationViewController];
             selectCouponVC.isSelectCoupon = YES;

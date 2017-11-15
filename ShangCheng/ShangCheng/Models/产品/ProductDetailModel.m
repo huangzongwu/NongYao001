@@ -13,11 +13,15 @@
     if ([key isEqualToString:@"item"]) {
         self.productFarmatArr = [NSMutableArray array];
         for (NSDictionary *itemDic in value) {
-            ProductFormatModel *formatModel = [[ProductFormatModel alloc] init];
-            [formatModel setValuesForKeysWithDictionary:itemDic];
-            formatModel.seletctCount = [formatModel.s_min_quantity integerValue];
+            //当s_valid等于0 才是正常的产品
+            if ([[itemDic objectForKey:@"s_valid"] isEqualToString:@"0"]) {
+                ProductFormatModel *formatModel = [[ProductFormatModel alloc] init];
+                [formatModel setValuesForKeysWithDictionary:itemDic];
+                formatModel.seletctCount = [formatModel.s_min_quantity integerValue];
+                
+                [self.productFarmatArr addObject:formatModel];
+            }
             
-            [self.productFarmatArr addObject:formatModel];
         }
     }
     
@@ -39,10 +43,28 @@
     if ([key isEqualToString:@"p_method"]) {
         self.p_method_Arr = [value componentsSeparatedByString:@","];
     }
-
-
     
     
+    if ([key isEqualToString:@"p_registration"] && [value length]>0) {
+        //PD证
+        [self.p_cerArr addObject:@{@"PD证":value}];
+    }
+    if ([key isEqualToString:@"p_certificate"] && [value length]>0) {
+        //产品标准证
+        [self.p_cerArr addObject:@{@"产品标准证":value}];
+    }
+    if ([key isEqualToString:@"p_license"] && [value length]>0) {
+        //生产许可证
+        [self.p_cerArr addObject:@{@"生产许可证":value}];
+    }
+    
+}
+
+- (NSMutableArray *)p_cerArr {
+    if (_p_cerArr == nil) {
+        self.p_cerArr = [NSMutableArray array];
+    }
+    return _p_cerArr;
 }
 
 
@@ -55,9 +77,6 @@
     [aCoder encodeObject:self.p_pid forKey:@"p_pid"];
     [aCoder encodeObject:self.p_ingredient forKey:@"p_ingredient"];
     [aCoder encodeObject:self.p_standard_qty forKey:@"p_standard_qty"];
-    [aCoder encodeObject:self.p_registration forKey:@"p_registration"];
-    [aCoder encodeObject:self.p_certificate forKey:@"p_certificate"];
-    [aCoder encodeObject:self.p_license forKey:@"p_license"];
     [aCoder encodeObject:self.p_time_create forKey:@"p_time_create"];
     [aCoder encodeObject:self.p_treatment_str forKey:@"p_treatment_str"];
     [aCoder encodeObject:self.p_status forKey:@"p_status"];
@@ -77,9 +96,6 @@
         self.p_pid = [aDecoder decodeObjectForKey:@"p_pid"];
         self.p_ingredient = [aDecoder decodeObjectForKey:@"p_ingredient"];
         self.p_standard_qty = [aDecoder decodeObjectForKey:@"p_standard_qty"];
-        self.p_registration = [aDecoder decodeObjectForKey:@"p_registration"];
-        self.p_certificate = [aDecoder decodeObjectForKey:@"p_certificate"];
-        self.p_license = [aDecoder decodeObjectForKey:@"p_license"];
         self.p_time_create = [aDecoder decodeObjectForKey:@"p_time_create"];
         self.p_treatment_str = [aDecoder decodeObjectForKey:@"p_treatment_str"];
         self.p_status = [aDecoder decodeObjectForKey:@"p_status"];

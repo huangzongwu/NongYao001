@@ -5,7 +5,7 @@
                  
                  [
                   {"icon1":"w_icon_dfk","info":"待付款","pushId":""},
-                  {"icon1":"w_icon_jxz","info":"进行中","pushId":""},
+                  {"icon1":"w_icon_jxz","info":"待收货","pushId":""},
                   {"icon1":"w_icon_ywc","info":"已完成","pushId":""},
                   {"icon1":"w_icon_th","info":"售后/退货","pushId":"toAfterMarketVC"}
                  ],
@@ -41,7 +41,7 @@
                     
                     [
                      {"icon1":"w_icon_dfk","info":"待付款","pushId":""},
-                     {"icon1":"w_icon_jxz","info":"进行中","pushId":""},
+                     {"icon1":"w_icon_jxz","info":"待收货","pushId":""},
                      {"icon1":"w_icon_ywc","info":"已完成","pushId":""},
                      {"icon1":"w_icon_th","info":"售后/退货","pushId":"toAfterMarketVC"}
                      ],

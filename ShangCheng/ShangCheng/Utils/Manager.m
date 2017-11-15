@@ -371,7 +371,12 @@
         
         if (operation.response.statusCode == 200) {
             //网络成功，解析数据
-            [self analyzeProductDetailInfoWithJsonArr:successResult withProductDetailModel:productDetailModel withSuccessDetailResult:successDetailResult withFailDetailResult:failDetailResult];
+            NSString *sid = nil;
+            if ([type isEqualToString:@"sid"]) {
+                sid = productId;
+            }
+            
+            [self analyzeProductDetailInfoWithJsonArr:successResult withProductDetailModel:productDetailModel withSid:sid withSuccessDetailResult:successDetailResult withFailDetailResult:failDetailResult];
         }
         
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
@@ -382,16 +387,45 @@
 }
 
 //解析产品详情
-- (void)analyzeProductDetailInfoWithJsonArr:(NSArray *)jsonArr withProductDetailModel:(ProductDetailModel *)productDetailModel withSuccessDetailResult:(SuccessResult)successDetailResult withFailDetailResult:(FailResult)failDetailResult {
+- (void)analyzeProductDetailInfoWithJsonArr:(NSArray *)jsonArr withProductDetailModel:(ProductDetailModel *)productDetailModel withSid:(NSString *)sid withSuccessDetailResult:(SuccessResult)successDetailResult withFailDetailResult:(FailResult)failDetailResult {
+    NSString *errorStr = @"";
+    
     if (jsonArr.count > 0) {
-
         ProductModel *tempModel = [[ProductModel alloc] init];
+        //默认是第一个
         [tempModel setValuesForKeysWithDictionary:jsonArr[0]];
+        
+        //有规格的话
+        if (sid != nil) {
+            //循环规格数组，
+            for (NSDictionary *formatJson in [jsonArr[0] objectForKey:@"item"]) {
+                //如果有符合的就重新赋值
+                if ([[formatJson objectForKey:@"s_id"] isEqualToString:sid]) {
+                    //当s_valid等于0，说明这个产品正常
+                    if ([[formatJson objectForKey:@"s_valid"] isEqualToString:@"0"]) {
+
+                        [tempModel setFormatInfoWithSImg:[formatJson objectForKey:@"s_image_fir"] withSId:[formatJson objectForKey:@"s_id"] withSStr:[formatJson objectForKey:@"productst"] withSFrice:[formatJson objectForKey:@"s_price"]];
+                        
+                        //找到了就直接跳出循环
+                        break;
+                        
+                    }else{
+                        //如果s_valid不等于0，说明这个产品下架了
+                        errorStr = [NSString stringWithFormat:@"该产品规格为%@暂时下架，请选择其他规格",[formatJson objectForKey:@"productst"]];
+                    }
+                    
+                }
+            }
+        }
+        
+        
         
         productDetailModel.productModel = tempModel;
         [productDetailModel setValuesForKeysWithDictionary:jsonArr[0]];
+        
 
-        successDetailResult(productDetailModel);
+        successDetailResult(@{@"detailModel":productDetailModel,@"error":errorStr});
+        
         
     }else {
         failDetailResult(@"暂时没有数据哦亲");
@@ -482,8 +516,16 @@
 }
 
 //产品的交易记录
-- (void)httpProductTradeRecordWithProductId:(NSString *)productId withPageIndex:(NSInteger)pageIndex withPageSize:(NSInteger)pageSize withTradeRecordSuccess:(SuccessResult )tradeRecordSuccess withTradeRecordFail:(FailResult)tradeRecordFail {
-    NSString *url = [NSString stringWithFormat:@"%@?pid=%@&pageindex=%ld&pagesize=%ld",[[InterfaceManager shareInstance] productTradeRecordBase],productId,pageIndex,pageSize];
+- (void)httpProductTradeRecordWithType:(NSString *)type withProductPD:(NSString *)productPD withPageIndex:(NSInteger)pageIndex withPageSize:(NSInteger)pageSize withTradeRecordSuccess:(SuccessResult )tradeRecordSuccess withTradeRecordFail:(FailResult)tradeRecordFail {
+    
+    NSString *url ;
+    if ([type isEqualToString:@"old"]) {
+        url = [NSString stringWithFormat:@"%@?type=pd&pd=%@&pageindex=%ld&pagesize=%ld",[[InterfaceManager shareInstance] productTradeRecordBase],productPD,pageIndex,pageSize];
+    }else {
+        url = [NSString stringWithFormat:@"%@?pd=%@&pageindex=%ld&pagesize=%ld",[[InterfaceManager shareInstance] productTradeRecordBase],productPD,pageIndex,pageSize];
+    }
+    
+    url = [url stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
     
     [[NetManager shareInstance] getRequestWithURL:url withParameters:nil withContentTypes:nil withHeaderArr:nil withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
         NSLog(@"%ld",operation.response.statusCode);
@@ -523,6 +565,39 @@
         isFavoriteFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,messageStr]);
     }];
 }
+
+#pragma mark - banner活动产品列表 -
+//type=&keyword=&pageindex=&pagesize=
+- (void)httpActivityProductListWithType:(NSString *)type withKeyword:(NSString *)keyword withPageIndex:(NSInteger)pageIndex withPageSize:(NSString *)pageSize withActivityListSuccess:(SuccessResult)activitySuccess withActivityFail:(FailResult)activityFail {
+    
+    NSString *url = [NSString stringWithFormat:@"%@?type=%@&keyword=%@&pageindex=%ld&pagesize=%@",[[InterfaceManager shareInstance] activityProductListBase],type,keyword,pageIndex,pageSize];
+    
+    [[NetManager shareInstance] getRequestWithURL:url withParameters:nil withContentTypes:nil withHeaderArr:nil withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+        NSLog(@"%@",[self dictionaryToJson:successResult]);
+
+        NSMutableArray *returnArr = [self analyzeActivityProductListWithJsonArr:[successResult objectForKey:@"content"]];
+        activitySuccess(returnArr);
+
+    } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
+        NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
+        activityFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]]);
+
+    }];
+    
+    
+}
+
+- (NSMutableArray *)analyzeActivityProductListWithJsonArr:(NSDictionary *)jsonArr {
+    NSMutableArray *returnArr = [NSMutableArray array];
+    for (NSDictionary *tempJson in jsonArr) {
+        ActivityProductModel *activityModel = [[ActivityProductModel alloc] init];
+        [activityModel setValuesForKeysWithDictionary:tempJson];
+        [returnArr addObject:activityModel];
+        
+    }
+    return returnArr;
+}
+
 
 #pragma mark - 购物车 -
 //将产品加入本地购物车
@@ -1216,7 +1291,7 @@
     if ([whichTableView isEqualToString:@"2"]) {
         orderStatusStr = @"0,1B,1A";
     }
-    //进行中
+    //待收货
     if ([whichTableView isEqualToString:@"3"]) {
         orderStatusStr = @"1";
     }

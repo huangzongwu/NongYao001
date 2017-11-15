@@ -450,7 +450,7 @@
             
             ProductModel *tempProductModel = tempShoppingCarModel.shoppingCarProduct;
             //跳转到详情页
-        [self performSegueWithIdentifier:@"shoppingCarToDetailVC" sender:@[tempProductModel.productID,@"pid"]];
+        [self performSegueWithIdentifier:@"shoppingCarToDetailVC" sender:@[tempProductModel.productFormatID,@"sid"]];
         
     }else {
         Manager *manager = [Manager shareInstance];

@@ -36,6 +36,7 @@
 #import "MessageNotificationModel.h"
 #import "PestsDetailModel.h"
 #import "AfterOrderModel.h"
+#import "ActivityProductModel.h"
 typedef void(^SuccessResult)(id successResult);
 typedef void(^FailResult)(NSString *failResultStr);
 
@@ -60,7 +61,7 @@ typedef void(^FailResult)(NSString *failResultStr);
 //购物车是否全选
 @property (nonatomic,assign)BOOL isAllSelectForShoppingCar;
 
-//订单列表的数据源 : 1-全部、2-待付款、3-进行中、4-已完成
+//订单列表的数据源 : 1-全部、2-待付款、3-待收货、4-已完成
 @property (nonatomic,strong)NSMutableDictionary *orderListDataSourceDic;
 
 //收货地址数组
@@ -143,10 +144,16 @@ typedef void(^FailResult)(NSString *failResultStr);
 
 
 //产品的交易记录
-- (void)httpProductTradeRecordWithProductId:(NSString *)productId withPageIndex:(NSInteger)pageIndex withPageSize:(NSInteger)pageSize withTradeRecordSuccess:(SuccessResult )tradeRecordSuccess withTradeRecordFail:(FailResult)tradeRecordFail;
+- (void)httpProductTradeRecordWithType:(NSString *)type withProductPD:(NSString *)productPD withPageIndex:(NSInteger)pageIndex withPageSize:(NSInteger)pageSize withTradeRecordSuccess:(SuccessResult )tradeRecordSuccess withTradeRecordFail:(FailResult)tradeRecordFail ;
 
 //是否被收藏
 - (void)httpIsFavoriteWithUserId:(NSString *)userID withFormatId:(NSString *)formatId withIsFavoriteSuccess:(SuccessResult )isFavoriteSuccess withIsFavoriteFail:(FailResult)isFavoriteFail ;
+
+#pragma mark - banner活动产品列表 -
+//type=&keyword=&pageindex=&pagesize=
+- (void)httpActivityProductListWithType:(NSString *)type withKeyword:(NSString *)keyword withPageIndex:(NSInteger)pageIndex withPageSize:(NSString *)pageSize withActivityListSuccess:(SuccessResult)activitySuccess withActivityFail:(FailResult)activityFail;
+
+
 #pragma mark - 购物车 -
 //将产品加入本地购物车
 - (BOOL)joinLocationShoppingCarWithProductDetailModel:(ProductDetailModel *)productDetailModel withProductCountStr:(NSString *)productCountStr;

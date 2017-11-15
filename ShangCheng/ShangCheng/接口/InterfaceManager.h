@@ -26,8 +26,9 @@
 - (NSString *)siteSearchBase;
 #pragma mark - 分类 -
 - (NSString *)productsBySortTypeBase;
+
 #pragma mark - 产品 -
-//- (NSString *)productBaseURL;
+
 //首页产品 cnum是热销产品的个数，
 - (NSString *)homeHotProductWithCnum:(NSString *)cnum ;
 //首页产品 rnum是推荐产品的个数
@@ -42,6 +43,11 @@
 
 //产品的交易记录
 - (NSString *)productTradeRecordBase;
+
+#pragma mark - banner活动产品 -
+//活动产品列表
+- (NSString *)activityProductListBase;
+
 
 
 #pragma mark - 购物车 -
@@ -63,18 +69,18 @@
 //计算优惠卷的金额
 - (NSString *)computeCouponMoneyPOST;
 
-//订单列表 -1全部、0,1B,1A待付款、1,进行中、9已完成
+//订单列表 -1全部、0,1B,1A待付款、1,待收货、9已完成
 - (NSString *)orderListWithUserID:(NSString *)userID withType:(NSString *)type withCode:(NSString *)code withOrderStatus:(NSString *)orderStatus withPageIndex:(NSInteger)pageIndex withPageSize:(NSInteger )pageSize ;
 
 //用户退货订单查询
 - (NSString *)orderReturnListUserId:(NSString *)userId withCode:(NSString *)code withPageIndex:(NSInteger)pageIndex withPageSize:(NSInteger)pageSize;
 
-
-
 //生成订单
 - (NSString *)creatOrderPOSTUrl;
+
 //取消父订单
 - (NSString *)cancelOrderWithOrderID:(NSString *)orderId;
+
 //取消子订单
 - (NSString *)cancelSonOrderPOST;
 

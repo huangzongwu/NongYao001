@@ -17,6 +17,7 @@
     self.productListCompanyLabel.text = tempModel.f_name;
     self.productListFormatLabel.text = tempModel.p_standard;
     self.productListPriceLabel.text = [NSString stringWithFormat:@"￥%@", tempModel.p_price ];
+    self.productListSalesvolLabel.text = [NSString stringWithFormat:@"销量：%@",tempModel.salesvol];
 }
 
 @end

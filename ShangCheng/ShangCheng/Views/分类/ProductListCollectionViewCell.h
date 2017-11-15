@@ -14,6 +14,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *productListCompanyLabel;
 @property (weak, nonatomic) IBOutlet UILabel *productListFormatLabel;
 @property (weak, nonatomic) IBOutlet UILabel *productListPriceLabel;
+@property (weak, nonatomic) IBOutlet UILabel *productListSalesvolLabel;
 
 - (void)updateProductListCellWithProductModel:(SearchListModel *)tempModel;
 

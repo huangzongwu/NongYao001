@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="12120" systemVersion="16E195" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="13529" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12088"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13527"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -46,7 +46,7 @@
                             <constraint firstAttribute="height" constant="15" id="g7w-QY-VIx"/>
                         </constraints>
                         <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                        <nil key="textColor"/>
+                        <color key="textColor" red="0.20000000000000001" green="0.20000000000000001" blue="0.20000000000000001" alpha="1" colorSpace="calibratedRGB"/>
                         <nil key="highlightedColor"/>
                     </label>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="￥---" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="75k-n9-MLO">
@@ -65,11 +65,22 @@
                             <constraint firstAttribute="height" constant="1" id="bhw-bg-geb"/>
                         </constraints>
                     </view>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="---" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ubp-ox-mfs">
+                        <rect key="frame" x="10" y="11" width="18.5" height="15"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="15" id="V0d-Eg-GcU"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                        <color key="textColor" red="0.20000000000000001" green="0.20000000000000001" blue="0.20000000000000001" alpha="1" colorSpace="calibratedRGB"/>
+                        <nil key="highlightedColor"/>
+                    </label>
                 </subviews>
                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                 <constraints>
                     <constraint firstItem="75k-n9-MLO" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="10" id="5Er-bc-BbU"/>
                     <constraint firstAttribute="trailing" secondItem="j76-Qr-0uA" secondAttribute="trailing" id="8oW-Jt-o5x"/>
+                    <constraint firstItem="Ubp-ox-mfs" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="10" id="8w5-Lw-fba"/>
+                    <constraint firstItem="Ubp-ox-mfs" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="11" id="9ld-TY-vSs"/>
                     <constraint firstItem="jR4-Ye-vQo" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="10" id="9vi-8F-ojE"/>
                     <constraint firstAttribute="trailing" secondItem="ZXR-Wm-Zo2" secondAttribute="trailing" constant="11" id="GTf-rg-6ck"/>
                     <constraint firstItem="ZXR-Wm-Zo2" firstAttribute="top" secondItem="j76-Qr-0uA" secondAttribute="bottom" constant="10" id="Gw9-ep-4rj"/>
@@ -84,6 +95,7 @@
                 <outlet property="orderCountLabel" destination="jR4-Ye-vQo" id="q5O-sy-w1B"/>
                 <outlet property="orderDetailInfoButton" destination="ZXR-Wm-Zo2" id="zrJ-v0-NQj"/>
                 <outlet property="orderPriceLabel" destination="75k-n9-MLO" id="ivw-WO-Lo4"/>
+                <outlet property="orderTimeLabel" destination="Ubp-ox-mfs" id="FTS-8A-asX"/>
             </connections>
             <point key="canvasLocation" x="41" y="58.5"/>
         </tableViewCell>
