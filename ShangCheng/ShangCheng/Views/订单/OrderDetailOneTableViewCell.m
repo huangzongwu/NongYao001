@@ -26,6 +26,13 @@
     self.orderCompanyLabel.text = tempSonOrderModel.f_name;
     self.orderFormatAndCountLabel.text = [NSString stringWithFormat:@"规格:%@  数量:%@",tempSonOrderModel.productst,tempSonOrderModel.o_num];
     self.orderUnitPriceLabel.text = [NSString stringWithFormat:@"￥%@", tempSonOrderModel.o_price];
+    
+    if ([tempSonOrderModel.o_activity_id isEqualToString:@"0"]) {
+        self.activityImageView.hidden = YES;
+    }else {
+        self.activityImageView.hidden = NO;
+
+    }
 }
 
 

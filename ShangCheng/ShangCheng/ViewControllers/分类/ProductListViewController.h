@@ -10,11 +10,13 @@
 //枚举判断是搜索或者分类
 typedef NS_ENUM(NSInteger , ProductSearchOrType) {
     SearchProduct,
-    TypeProduct
+    TypeProduct,
 };
 
 @interface ProductListViewController : UIViewController
 @property (nonatomic,assign)ProductSearchOrType productSearchOrType;
 @property (nonatomic,strong)NSString *tempKeyword;
 @property (nonatomic,strong)NSString *tempCode;
+
+
 @end

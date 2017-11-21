@@ -37,6 +37,7 @@
 #import "PestsDetailModel.h"
 #import "AfterOrderModel.h"
 #import "ActivityProductModel.h"
+#import "BannerTradeModel.h"
 typedef void(^SuccessResult)(id successResult);
 typedef void(^FailResult)(NSString *failResultStr);
 
@@ -150,9 +151,13 @@ typedef void(^FailResult)(NSString *failResultStr);
 - (void)httpIsFavoriteWithUserId:(NSString *)userID withFormatId:(NSString *)formatId withIsFavoriteSuccess:(SuccessResult )isFavoriteSuccess withIsFavoriteFail:(FailResult)isFavoriteFail ;
 
 #pragma mark - banner活动产品列表 -
-//type=&keyword=&pageindex=&pagesize=
+//活动产品列表
 - (void)httpActivityProductListWithType:(NSString *)type withKeyword:(NSString *)keyword withPageIndex:(NSInteger)pageIndex withPageSize:(NSString *)pageSize withActivityListSuccess:(SuccessResult)activitySuccess withActivityFail:(FailResult)activityFail;
+//活动厂家列表
+- (void)httpActivityFactoryListWithPageIndex:(NSInteger)pageIndex withPageSize:(NSString *)pageSize withFactoryListSuccess:(SuccessResult)factoryListSuccess withFactoryListFail:(FailResult)factoryListFail;
 
+//活动交易记录
+- (void)httpActivityTradeListWithPageIndex:(NSInteger)pageIndex withPageSize:(NSString *)pageSize withTradeListSuccess:(SuccessResult)tradeListSuccess withTradeListFail:(FailResult)tradeListFail;
 
 #pragma mark - 购物车 -
 //将产品加入本地购物车
@@ -313,8 +318,9 @@ typedef void(^FailResult)(NSString *failResultStr);
 //提现记录
 - (void)httpSearchUserAgentCashListWithUserId:(NSString *)userId withUserType:(NSString *)userType withPageIndex:(NSInteger )pageIndex withPageSize:(NSInteger)pageSize withSearchSuccess:(SuccessResult )searchSuccess withSearchFail:(FailResult)searchFail ;
 
+//cashType 提现类型，是用户余额提现 还是代理商收益提现
 //提现申请  type提现方式 0支付宝 1微信 2银联；bankname银行名称；name开户姓名；code卡号；amount提现金额；note备注
-- (void)httpUserAgentCashApplicationWithUserId:(NSString *)userId withType:(NSString *)type withBankName:(NSString *)bankName withName:(NSString *)name withCode:(NSString *)code withAmount:(NSString *)amount withNote:(NSString *)note withAgentCashSuccess:(SuccessResult )agentCashSuccess withAgentCashFail:(FailResult)agentCashFail;
+- (void)httpUserAgentCashApplicationWithCashType:(NSString *)cashType withUserId:(NSString *)userId withType:(NSString *)type withBankName:(NSString *)bankName withName:(NSString *)name withCode:(NSString *)code withAmount:(NSString *)amount withNote:(NSString *)note withAgentCashSuccess:(SuccessResult )agentCashSuccess withAgentCashFail:(FailResult)agentCashFail ;
 
 #pragma mark - 修改个人资料 -
 //修改个人头像
@@ -392,6 +398,16 @@ typedef void(^FailResult)(NSString *failResultStr);
 #pragma mark - 判断是否首次进入这个app -
 - (BOOL)isFirstJoinApp;
 - (void)setFirstJoinAppWithStatus:(NSString *)isFristStatus ;
+
+#pragma mark - 隐藏navigationBar -
+//隐藏navigationBar下面的那条线
+- (void)isClearNavigationBarLine:(BOOL )hideLine withNavigationController:(UINavigationController *)navi;
+
+/**
+ *  根据透明度去绘制一个图片，也可以省略此处用一个透明的图片，没这个效果好
+ */
+-(UIImage *)getImageWithAlpha:(CGFloat)alpha;
+
 
 #pragma mark - 其他 -
 //上传图片附件

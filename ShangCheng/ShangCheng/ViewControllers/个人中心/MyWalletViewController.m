@@ -9,6 +9,7 @@
 #import "MyWalletViewController.h"
 #import "MyWalletTableViewCell.h"
 #import "Manager.h"
+#import "AgentCashApplicationViewController.h"
 #import "MyTradeRecordViewController.h"
 #import "SVProgressHUD.h"
 @interface MyWalletViewController ()<UITableViewDataSource,UITableViewDelegate>
@@ -205,6 +206,12 @@
     if ([segue.identifier isEqualToString:@"walletToRechargeVC"]) {
         
         
+    }
+    
+    //提现
+    if ([segue.identifier isEqualToString:@"walletToAgentCashVC"]) {
+        AgentCashApplicationViewController *agentCashVC = [segue destinationViewController];
+        agentCashVC.cashType = @"userCash";
     }
     
 }

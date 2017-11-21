@@ -570,34 +570,79 @@
 //type=&keyword=&pageindex=&pagesize=
 - (void)httpActivityProductListWithType:(NSString *)type withKeyword:(NSString *)keyword withPageIndex:(NSInteger)pageIndex withPageSize:(NSString *)pageSize withActivityListSuccess:(SuccessResult)activitySuccess withActivityFail:(FailResult)activityFail {
     
-    NSString *url = [NSString stringWithFormat:@"%@?type=%@&keyword=%@&pageindex=%ld&pagesize=%@",[[InterfaceManager shareInstance] activityProductListBase],type,keyword,pageIndex,pageSize];
+    NSString *url = [[NSString stringWithFormat:@"%@?type=%@&keyword=%@&pageindex=%ld&pagesize=%@",[[InterfaceManager shareInstance] activityProductListBase],type,keyword,pageIndex,pageSize] stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
     
     [[NetManager shareInstance] getRequestWithURL:url withParameters:nil withContentTypes:nil withHeaderArr:nil withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
         NSLog(@"%@",[self dictionaryToJson:successResult]);
 
         NSMutableArray *returnArr = [self analyzeActivityProductListWithJsonArr:[successResult objectForKey:@"content"]];
-        activitySuccess(returnArr);
+        
+        activitySuccess(@{@"content":returnArr,@"totalpages":[successResult objectForKey:@"totalpages"]});
 
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
         activityFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]]);
-
     }];
-    
     
 }
 
-- (NSMutableArray *)analyzeActivityProductListWithJsonArr:(NSDictionary *)jsonArr {
+- (NSMutableArray *)analyzeActivityProductListWithJsonArr:(NSArray *)jsonArr {
     NSMutableArray *returnArr = [NSMutableArray array];
     for (NSDictionary *tempJson in jsonArr) {
         ActivityProductModel *activityModel = [[ActivityProductModel alloc] init];
         [activityModel setValuesForKeysWithDictionary:tempJson];
         [returnArr addObject:activityModel];
-        
     }
     return returnArr;
 }
 
+
+//活动厂家列表
+- (void)httpActivityFactoryListWithPageIndex:(NSInteger)pageIndex withPageSize:(NSString *)pageSize withFactoryListSuccess:(SuccessResult)factoryListSuccess withFactoryListFail:(FailResult)factoryListFail {
+    
+    NSString *url = [NSString stringWithFormat:@"%@?pageindex=%ld&pagesize=%@",[[InterfaceManager shareInstance] activityFactoryListBase],pageIndex,pageSize];
+
+    [[NetManager shareInstance] getRequestWithURL:url withParameters:nil withContentTypes:nil withHeaderArr:nil withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+        NSLog(@"%@",[self dictionaryToJson:successResult]);
+        //
+        factoryListSuccess(successResult);
+        
+        
+    } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
+        NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
+        factoryListFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]]);
+    }];
+}
+
+
+
+//活动交易记录
+- (void)httpActivityTradeListWithPageIndex:(NSInteger)pageIndex withPageSize:(NSString *)pageSize withTradeListSuccess:(SuccessResult)tradeListSuccess withTradeListFail:(FailResult)tradeListFail {
+    
+    NSString *url = [NSString stringWithFormat:@"%@?pageindex=%ld&pagesize=%@",[[InterfaceManager shareInstance] activityTradeListBase],pageIndex,pageSize];
+    
+    [[NetManager shareInstance] getRequestWithURL:url withParameters:nil withContentTypes:nil withHeaderArr:nil withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+        NSLog(@"%@",[self dictionaryToJson:successResult]);
+        
+        NSMutableArray *returnArr = [self analyzeActivityTradeListWithJsonArr:[successResult objectForKey:@"content"]];
+        
+        tradeListSuccess(@{@"content":returnArr,@"totalpages":[successResult objectForKey:@"totalpages"]});
+        
+    } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
+        NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
+        tradeListFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]]);
+    }];
+}
+
+- (NSMutableArray *)analyzeActivityTradeListWithJsonArr:(NSArray *)jsonArr {
+    NSMutableArray *returnArr = [NSMutableArray array];
+    for (NSDictionary *tempJson in jsonArr) {
+        BannerTradeModel *tradeModel = [[BannerTradeModel alloc] init];
+        [tradeModel setValuesForKeysWithDictionary:tempJson];
+        [returnArr addObject:tradeModel];
+    }
+    return returnArr;
+}
 
 #pragma mark - 购物车 -
 //将产品加入本地购物车
@@ -2571,17 +2616,22 @@
 }
 
 //提现申请
-- (void)httpUserAgentCashApplicationWithUserId:(NSString *)userId withType:(NSString *)type withBankName:(NSString *)bankName withName:(NSString *)name withCode:(NSString *)code withAmount:(NSString *)amount withNote:(NSString *)note withAgentCashSuccess:(SuccessResult )agentCashSuccess withAgentCashFail:(FailResult)agentCashFail {
-    
+- (void)httpUserAgentCashApplicationWithCashType:(NSString *)cashType withUserId:(NSString *)userId withType:(NSString *)type withBankName:(NSString *)bankName withName:(NSString *)name withCode:(NSString *)code withAmount:(NSString *)amount withNote:(NSString *)note withAgentCashSuccess:(SuccessResult )agentCashSuccess withAgentCashFail:(FailResult)agentCashFail {
+        
     NSDictionary *valueDic = @{@"userid":userId,@"type":type,@"bankname":bankName,@"name":name,@"code":code,@"amount":amount,@"note":note};
     
     //给value加密
     NSString *secretStr = [self digest:[NSString stringWithFormat:@"%@Nongyao_Com001", [self dictionaryToJson:@[valueDic]]]];
     
     NSDictionary *parametersDic = @{@"m":secretStr,@"value":@[valueDic]};
+    NSString *url;
+    if ([cashType isEqualToString:@"userCash"]) {
+        url = [[InterfaceManager shareInstance] AgentCashBase];
+    }else{
+        url = [[InterfaceManager shareInstance] AgentCashNewBase];
+    }
     
-    /*
-    [[NetManager shareInstance] postRequestWithURL:[[InterfaceManager shareInstance] AgentCashBase] withParameters:parametersDic withContentTypes:@"string" withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+    [[NetManager shareInstance] postRequestWithURL:url withParameters:parametersDic withContentTypes:@"string" withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
         
         NSLog(@"%ld -- %@",operation.response.statusCode,successResult);
         if (operation.response.statusCode == 200) {
@@ -2603,7 +2653,7 @@
 
         agentCashFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,messageStr]);
     }];
-     */
+    
     
 }
 
@@ -2742,7 +2792,7 @@
         NSLog(@"%ld ",operation.response.statusCode);
         if (operation.response.statusCode == 200) {
             //收益
-            [self.myAgentDic setValue:[successResult objectForKey:@"u_amount_avail"] forKey:@"u_amount_avail"];
+            [self.myAgentDic setValue:[successResult objectForKey:@"a_commission"] forKey:@"a_commission"];
             //订单
             [self.myAgentDic setValue:[successResult objectForKey:@"ordernum"] forKey:@"ordernum"];
             //人数
@@ -3709,6 +3759,64 @@
     NSDictionary * dic = @{@"isFirstJoinApp":isFristStatus};
     [dic writeToFile:filename atomically:YES];
     
+}
+
+
+#pragma mark - 隐藏navigationBar -
+//隐藏navigationBar下面的那条线
+- (void)isClearNavigationBarLine:(BOOL )hideLine withNavigationController:(UINavigationController *)navi {
+    /*
+     navigationBar上有两个视图：1、_UINavigationBarBackground；2、_UINavigationBarBackIndicatorView
+     其中_UINavigationBarBackground中又有两个视图：1、_UIBackdropView；2、UIImageView，这个imageView就是那一条线
+     而_UINavigationBarBackIndicatorView上面没有视图了
+     */
+    
+    //获取navigationBar上面的上面的视图
+    NSArray *list = navi.navigationBar.subviews;
+    for (UIView *navigationBarBackgroud in list) {
+        
+        //找到_UINavigationBarBackground
+        if ([navigationBarBackgroud isKindOfClass:NSClassFromString(@"_UIBarBackground")]) {
+            //在获取_UINavigationBarBackground上面的视图
+            for (UIView *lineImageView in navigationBarBackgroud.subviews) {
+                
+                //如果上面是的高度小于2的话，就是那条线
+                if (lineImageView.frame.size.height < 2 ) {
+                    if (hideLine == YES) {
+                        //将这个线隐藏
+                        lineImageView.hidden = YES;
+                    }else {
+                        //不隐藏这个线
+                        lineImageView.hidden = NO;
+                    }
+                    
+                }
+            }
+        }
+    }
+    
+}
+
+/**
+ *  根据透明度去绘制一个图片，也可以省略此处用一个透明的图片，没这个效果好
+ */
+-(UIImage *)getImageWithAlpha:(CGFloat)alpha{
+    
+    UIColor *color = kColor(221, 76, 64, alpha);
+    CGSize colorSize=CGSizeMake(1, 1);
+    
+    UIGraphicsBeginImageContext(colorSize);
+    
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    
+    CGContextSetFillColorWithColor(context, color.CGColor);
+    
+    CGContextFillRect(context, CGRectMake(0, 0, 1, 1));
+    
+    UIImage *img=UIGraphicsGetImageFromCurrentImageContext();
+    
+    UIGraphicsEndImageContext();
+    return img;
 }
 
 

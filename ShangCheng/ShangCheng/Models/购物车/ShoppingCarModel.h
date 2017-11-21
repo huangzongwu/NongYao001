@@ -30,7 +30,6 @@
 //规格id
 @property (nonatomic,strong)NSString *s_code;
 
-
 @property (nonatomic,assign)BOOL isActivity;
 
 - (void)setValue:(id)value forUndefinedKey:(NSString *)key ;

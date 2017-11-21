@@ -8,6 +8,13 @@
 
 #import <UIKit/UIKit.h>
 
+typedef void(^SearchBlock)(NSString *searchStr);
+
 @interface BannerCellOneCollectionViewCell : UICollectionViewCell
+@property (weak, nonatomic) IBOutlet UITextField *searchTextField;
+@property (weak, nonatomic) IBOutlet UIButton *searchButton;
+@property (nonatomic,copy)SearchBlock searchBlock;
+
+//- (void)searchBlockAction:(SearchBlock)searchBlockaaa;
 
 @end

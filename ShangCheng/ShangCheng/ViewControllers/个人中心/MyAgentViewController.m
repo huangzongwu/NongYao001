@@ -11,6 +11,7 @@
 #import "MyAgentPeopleTableViewCell.h"
 #import "MyAgentOrderTableViewCell.h"
 #import "SVProgressHUD.h"
+#import "AgentCashApplicationViewController.h"
 @interface MyAgentViewController ()<UITableViewDataSource,UITableViewDelegate>
 //头部收益金额
 @property (weak, nonatomic) IBOutlet UILabel *incomeAmountLabel;
@@ -34,6 +35,23 @@
 @end
 
 @implementation MyAgentViewController
+- (instancetype)initWithCoder:(NSCoder *)aDecoder {
+    self = [super initWithCoder:aDecoder];
+    if (self) {
+        //通知，刷新代理商信息
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshMoneyNew:) name:@"refreshMoneyNew" object:nil];
+        
+    }
+    return self;
+}
+
+//刷新代理商金额
+- (void)refreshMoneyNew:(NSNotification *)sender {
+    Manager *manager = [Manager shareInstance];
+    [self httpMyAgentDataWithUserType:manager.memberInfoModel.u_type];
+}
+
+
 - (IBAction)leftBarButtonAction:(UIBarButtonItem *)sender {
     //清空一下订单数据，以便下次进来请求最新数据
     Manager *manager = [Manager shareInstance];
@@ -80,12 +98,35 @@
     [self upHeaderView];
     
 }
+
+#pragma mark - 请求代理信息 -
+//网络请求代理数据
+- (void)httpMyAgentDataWithUserType:(NSString *)userType {
+    Manager *manager = [Manager shareInstance];
+    //如果是代理。请求代理数据
+    if ([userType integerValue] == 1) {
+        [manager httpMyAgentBaseDataWithUserId:manager.memberInfoModel.u_id withMyAgentSuccess:^(id successResult) {
+            
+            if (manager.myAgentDic != nil) {
+                [self upHeaderView];
+
+            }
+            
+        } withMyagentFail:^(NSString *failResultStr) {
+            
+        }];
+        
+    }
+    
+}
+
+
 //更新头部View
 - (void)upHeaderView {
     
     Manager *manager = [Manager shareInstance];
     
-    self.incomeAmountLabel.text = [manager.myAgentDic objectForKey:@"u_amount_avail"];
+    self.incomeAmountLabel.text = [manager.myAgentDic objectForKey:@"a_commission"];
     [self.orderNumberButton setTitle:[NSString stringWithFormat:@"订单(%@)",[manager.myAgentDic objectForKey:@"ordernum"] ] forState:UIControlStateNormal];
     [self.peopleNumberButton setTitle:[NSString stringWithFormat:@"人员(%@)", [manager.myAgentDic objectForKey:@"peonum"] ] forState:UIControlStateNormal];
 
@@ -228,19 +269,40 @@
     
 }
 
+#pragma mark - 代理商提现 -
+- (IBAction)AgentCashBtnAction:(UIButton *)sender {
+    Manager *manager = [Manager shareInstance];
+    AlertManager *alertM = [AlertManager shareIntance];
+    
+    if ([[manager.myAgentDic objectForKey:@"a_commission"] floatValue] > 0) {
+        //跳转到提现界面
+        [self performSegueWithIdentifier:@"myAgentToCashVC" sender:nil];
+        
+        
+    }else {
+        [alertM showAlertViewWithTitle:@"暂时不能提现" withMessage:@"您还没有收益" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
+    }
+    
+}
+
+
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
 
-/*
+
 #pragma mark - Navigation
 
 // In a storyboard-based application, you will often want to do a little preparation before navigation
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
+    if ([segue.identifier isEqualToString:@""]) {
+        AgentCashApplicationViewController *agentCashVC = [segue destinationViewController];
+        agentCashVC.cashType = @"agentCash";
+    }
 }
-*/
+
 
 @end

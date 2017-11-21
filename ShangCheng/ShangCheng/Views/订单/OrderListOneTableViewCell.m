@@ -21,6 +21,12 @@
     self.productCompany.text = model.f_name;
     self.unitPriceLabel.text = [NSString stringWithFormat:@"￥%@",model.o_price];
     
+    if ([model.o_activity_id isEqualToString:@"0"]) {
+        self.activityImageView.hidden = YES;
+    }else {
+        self.activityImageView.hidden = NO;
+
+    }
 }
 
 

@@ -126,12 +126,28 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     Manager *manager = [Manager shareInstance];    
+    //用户余额提现
+    if ([self.cashType isEqualToString:@"userCash"]) {
+        
+        //可提现金额的展示
+        NSInteger u_amount_avail_Int = manager.memberInfoModel.u_amount_avail;
+        self.userBalanceLabel.text = [NSString stringWithFormat:@"余额:%.2f，可提现金额：%ld元",manager.memberInfoModel.u_amount_avail,u_amount_avail_Int/50 * 50];
+    }else {
+        //代理商收益提现
+        NSInteger u_amount_avail_Int = [[manager.myAgentDic objectForKey:@"a_commission"] integerValue];
+        self.userBalanceLabel.text = [NSString stringWithFormat:@"余额:%.2f，可提现金额：%ld元",[[manager.myAgentDic objectForKey:@"a_commission"] floatValue],u_amount_avail_Int/50 * 50];
+
+    }
     
-    //可提现金额的展示
-    NSInteger u_amount_avail_Int = manager.memberInfoModel.u_amount_avail;
-    self.userBalanceLabel.text = [NSString stringWithFormat:@"余额:%.2f，可提现金额：%ld元",manager.memberInfoModel.u_amount_avail,u_amount_avail_Int/50 * 50];
+    [self updateInfoViewWithUType:manager.memberInfoModel.u_type];
+
     
-    if ([manager.memberInfoModel.u_type isEqualToString:@"1"]) {
+}
+
+//刷新View
+- (void)updateInfoViewWithUType:(NSString *)u_type {
+    Manager *manager = [Manager shareInstance];
+    if ([u_type isEqualToString:@"1"]) {
         //代理商
         //不用提现类型
         self.selectAgentTypeView.userInteractionEnabled = NO;
@@ -143,14 +159,14 @@
         self.selectAgentTypeIntoIcon.hidden = YES;
         
         //给提现的银行开始赋值
-     
+        
         if (manager.memberInfoModel.a_bank_code!= nil && manager.memberInfoModel.a_bank_code.length > 0) {
             self.selectTypeInt = 2;
             self.selectTypeImageView.image = [UIImage imageNamed:@"d_icon_yh"];
             
             NSString *tailBankCode = [manager.memberInfoModel.a_bank_code substringFromIndex:manager.memberInfoModel.a_bank_code.length-4];
             self.selectTypeNameLabel.text = [NSString stringWithFormat:@"提现到尾号为**%@的银行卡",tailBankCode];
-
+            
         }else {
             self.selectTypeInt = -1;
             self.selectTypeImageView.image = [UIImage imageNamed:@"d_icon_yh"];
@@ -167,16 +183,13 @@
         self.codeView.hidden = NO;
         self.codeViewHeightLayout.constant = 50;
         self.selectAgentTypeIntoIcon.hidden = YES;
-
+        
         //默认是第一个支付方式
         self.selectTypeInt = 0;
         self.selectTypeImageView.image = [UIImage imageNamed:@"d_icon_zfb"];
         
     }
-    
-    
 }
-
 
 
 //点击切换提现方式
@@ -232,18 +245,38 @@
         codeStr = self.codeTextField.text;
     }
     
-    //只有姓名、账号、金额都是有效的才可以提交
-    if (nameStr.length > 0 && codeStr.length > 0 && amount > 0 && amount <= manager.memberInfoModel.u_amount_avail) {
-        isCommit = YES;
-    }else {
-        if (amount <= 0) {
-            notCommitStr = @"提现金额至少为50元";
-        }
-        if (amount > manager.memberInfoModel.u_amount_avail) {
-            notCommitStr = @"提现金额不能大于可提现金额";
+    //用户余额提现
+    if ([self.cashType isEqualToString:@"userCash"]) {
+        //只有姓名、账号、金额都是有效的才可以提交
+        if (nameStr.length > 0 && codeStr.length > 0 && amount > 0 && amount <= manager.memberInfoModel.u_amount_avail) {
+            isCommit = YES;
+        }else{
+            if (amount <= 0) {
+                notCommitStr = @"提现金额至少为50元";
+            }
+            if (amount > manager.memberInfoModel.u_amount_avail) {
+                notCommitStr = @"提现金额不能大于可提现金额";
+            }
+            
         }
         
+    }else {
+        //代理商收益提现
+        //只有姓名、账号、金额都是有效的才可以提交
+        if (nameStr.length > 0 && codeStr.length > 0 && amount > 0 && amount <= [[manager.myAgentDic objectForKey:@"a_commission"] floatValue]) {
+            isCommit = YES;
+        }else{
+            if (amount <= 0) {
+                notCommitStr = @"提现金额至少为50元";
+            }
+            if (amount > [[manager.myAgentDic objectForKey:@"a_commission"] floatValue]) {
+                notCommitStr = @"提现金额不能大于可提现金额";
+            }
+            
+        }
     }
+    
+    
     
     
     //如果支付宝或者微信，bankNameStr可以为空,其余的不能为空
@@ -258,13 +291,19 @@
             [SVProgressHUD show];
         }
 
-        [manager httpUserAgentCashApplicationWithUserId:manager.memberInfoModel.u_id withType:[NSString stringWithFormat:@"%ld",self.selectTypeInt] withBankName:bankNameStr withName:nameStr withCode:codeStr withAmount:self.agentCashAmountTextField.text withNote:@"" withAgentCashSuccess:^(id successResult) {
+        [manager httpUserAgentCashApplicationWithCashType:self.cashType withUserId:manager.memberInfoModel.u_id withType:[NSString stringWithFormat:@"%ld",self.selectTypeInt] withBankName:bankNameStr withName:nameStr withCode:codeStr withAmount:self.agentCashAmountTextField.text withNote:@"" withAgentCashSuccess:^(id successResult) {
             [SVProgressHUD dismiss];
             
             [alertM showAlertViewWithTitle:nil withMessage:@"申请成功" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
+                if ([self.cashType isEqualToString:@"userCash"]) {
+                    //发送通知，刷新界面 用户余额提现
+                    [[NSNotificationCenter defaultCenter] postNotificationName:@"refreshMoney" object:self userInfo:nil];
+                }else {
+                    //发送通知，刷新界面 代理商收益提现
+                    [[NSNotificationCenter defaultCenter] postNotificationName:@"refreshMoneyNew" object:self userInfo:nil];
+
+                }
                 
-                //发送通知，刷新界面
-                [[NSNotificationCenter defaultCenter] postNotificationName:@"refreshMoney" object:self userInfo:nil];
                 
                 [self.navigationController popViewControllerAnimated:YES];
             }];

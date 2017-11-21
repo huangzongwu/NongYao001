@@ -10,6 +10,13 @@
 
 @implementation BannerCellOneCollectionViewCell
 
+- (IBAction)searchButtonAction:(UIButton *)sender {
+    if (self.searchTextField != nil && self.searchTextField.text.length > 0) {
+        self.searchBlock(self.searchTextField.text);
+
+    }
+}
+
 - (void)awakeFromNib {
     [super awakeFromNib];
     // Initialization code

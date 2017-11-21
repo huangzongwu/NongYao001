@@ -23,6 +23,9 @@
 //tag 500是首页头部的轮播图
 //tag 501是首页的文字性公告
 
+//tag 510 banner进入活动产品后，参与厂家的tableview
+//tag 511 banner进入活动产品后，交易记录的tableview
+
 #define kScreenW [UIScreen mainScreen].bounds.size.width
 #define kScreenH [UIScreen mainScreen].bounds.size.height
 

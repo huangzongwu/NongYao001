@@ -166,20 +166,14 @@
 
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
+    Manager *manager = [Manager shareInstance];
     //显示navigationbar
-    [self.navigationController.navigationBar setBackgroundImage:[self getImageWithAlpha:1] forBarMetrics:UIBarMetricsDefault];
+    [self.navigationController.navigationBar setBackgroundImage:[manager getImageWithAlpha:1] forBarMetrics:UIBarMetricsDefault];
     //显示navigation 那条线
-    [self isClearNavigationBarLine:NO];
+    [manager isClearNavigationBarLine:NO withNavigationController:self.navigationController];
 }
 
-- (void)viewDidDisappear:(BOOL)animated {
-    [super viewDidDisappear:animated];
-    //显示navigationbar
-    [self.navigationController.navigationBar setBackgroundImage:[self getImageWithAlpha:1] forBarMetrics:UIBarMetricsDefault];
-    //显示navigation 那条线
-    [self isClearNavigationBarLine:NO];
 
-}
 
 
 //修改barbuttonItem,参数：是否显示navigationBar
@@ -227,6 +221,15 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    if (@available(iOS 11.0, *)) {
+        NSLog(@"iOS11以上");
+        self.detailTableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+        
+    }else {
+        NSLog(@"iOS11以下");
+        self.automaticallyAdjustsScrollViewInsets = NO;
+    }
+    
     [self modifyBarButtonItemWithIsShowNavigationBar:NO];
     
     Manager *manager = [Manager shareInstance];
@@ -450,43 +453,8 @@
 
 
 #pragma mark - 头部隐藏 -
-//隐藏navigationBar下面的那条线
-- (void)isClearNavigationBarLine:(BOOL )hideLine {
-    /*
-     navigationBar上有两个视图：1、_UINavigationBarBackground；2、_UINavigationBarBackIndicatorView
-     其中_UINavigationBarBackground中又有两个视图：1、_UIBackdropView；2、UIImageView，这个imageView就是那一条线
-     而_UINavigationBarBackIndicatorView上面没有视图了
-     */
-    
-    //获取navigationBar上面的上面的视图
-    NSArray *list = self.navigationController.navigationBar.subviews;
-    for (UIView *navigationBarBackgroud in list) {
-        
-        //找到_UINavigationBarBackground
-        if ([navigationBarBackgroud isKindOfClass:NSClassFromString(@"_UIBarBackground")]) {
-            //在获取_UINavigationBarBackground上面的视图
-            for (UIView *lineImageView in navigationBarBackgroud.subviews) {
-                
-                //如果上面是imageView的话，就是那条线
-                if ([lineImageView isKindOfClass:[UIImageView class]]) {
-                    if (hideLine == YES) {
-                        //将这个线隐藏
-                        lineImageView.hidden = YES;
-                    }else {
-                        //不隐藏这个线
-                        lineImageView.hidden = NO;
-                    }
-                    
-                }
-            }
-        }
-    }
-    
-}
-
-//--------------------------------------
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-    
+    Manager *manager = [Manager shareInstance];
     CGFloat yOffset  = scrollView.contentOffset.y;
     NSLog(@"++%f",yOffset);
     
@@ -494,12 +462,12 @@
     CGFloat alpha = yOffset/80.0f>1.0f?1:yOffset/80.0f;
     NSLog(@"%f",alpha);
     //改变navigation的背景色
-    [self.navigationController.navigationBar setBackgroundImage:[self getImageWithAlpha:alpha] forBarMetrics:UIBarMetricsDefault];
+    [self.navigationController.navigationBar setBackgroundImage:[manager getImageWithAlpha:alpha] forBarMetrics:UIBarMetricsDefault];
     //改变通知按钮的颜色
     if (alpha>0.6) {
         NSLog(@"1111");
         //出现了navigationbar
-        [self isClearNavigationBarLine:NO];
+        [manager isClearNavigationBarLine:NO withNavigationController:self.navigationController];
         
         //更换navigationItem样式
         [self modifyBarButtonItemWithIsShowNavigationBar:YES];
@@ -507,7 +475,7 @@
     }else{
         NSLog(@"2222");
         //消失了navigationbar
-        [self isClearNavigationBarLine:YES];
+        [manager isClearNavigationBarLine:YES withNavigationController:self.navigationController];
         //更换navigationItem样式
 
         [self modifyBarButtonItemWithIsShowNavigationBar:NO];
@@ -516,27 +484,6 @@
 }
 
 
-/**
- *  根据透明度去绘制一个图片，也可以省略此处用一个透明的图片，没这个效果好
- */
--(UIImage *)getImageWithAlpha:(CGFloat)alpha{
-    
-    UIColor *color = kColor(221, 76, 64, alpha);
-    CGSize colorSize=CGSizeMake(1, 1);
-    
-    UIGraphicsBeginImageContext(colorSize);
-    
-    CGContextRef context = UIGraphicsGetCurrentContext();
-    
-    CGContextSetFillColorWithColor(context, color.CGColor);
-    
-    CGContextFillRect(context, CGRectMake(0, 0, 1, 1));
-    
-    UIImage *img=UIGraphicsGetImageFromCurrentImageContext();
-    
-    UIGraphicsEndImageContext();
-    return img;
-}
 
 
 #pragma mark - 请求评价列表 -

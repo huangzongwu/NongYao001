@@ -47,7 +47,10 @@
 #pragma mark - banner活动产品 -
 //活动产品列表
 - (NSString *)activityProductListBase;
-
+//参与厂家
+- (NSString *)activityFactoryListBase;
+//交易记录
+- (NSString *)activityTradeListBase;
 
 
 #pragma mark - 购物车 -
@@ -130,8 +133,10 @@
 
 //流水账查询
 - (NSString *)userAccountBase;
-//提现和提现记录
+//用户余额提现和提现记录
 - (NSString *)AgentCashBase;
+//代理商收益提现
+- (NSString *)AgentCashNewBase;
 
 //修改密码
 - (NSString *)motifyPasswordBase;

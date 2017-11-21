@@ -51,6 +51,9 @@
     NSLog(@"%@",self.tempCode);
     NSLog(@"%@",self.tempKeyword);
     
+    //注册cell
+    [self.productListCollectionView registerNib:[UINib nibWithNibName:@"ProductListCollectionViewCell" bundle:nil] forCellWithReuseIdentifier:@"productListCell"];
+    
     //加载空白页
     self.kongImageView = [[[NSBundle mainBundle] loadNibNamed:@"KongImageView" owner:self options:nil] firstObject];
     [self.kongImageView.reloadAgainButton addTarget:self action:@selector(reloadAgainButtonAction:) forControlEvents:UIControlEventTouchUpInside];

@@ -28,6 +28,7 @@
 @property (nonatomic,strong)NSString *o_p_id;//父订单id
 @property (nonatomic,strong)NSString *o_specification_id;//规格id
 @property (nonatomic,strong)NSString *isreply;//是否评价
+
 - (void)setValue:(id)value forUndefinedKey:(NSString *)key ;
 
 @end

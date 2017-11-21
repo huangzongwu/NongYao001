@@ -27,8 +27,11 @@
 }
 
 - (NSString *)mainUrl {
-    //托管服务器
-    return @"https://api.nongyao001.com:7001/";
+    //线上
+//    return @"https://api.nongyao001.com:7001/";
+    //99
+    return @"http://192.168.0.99:5260/";
+
     //本地
 //    return @"http://192.168.0.211:5260/";
 
@@ -109,6 +112,15 @@
 //活动产品列表
 - (NSString *)activityProductListBase {
     return [NSString stringWithFormat:@"%@/ActivityDo",self.baseUrl];
+}
+
+//参与厂家
+- (NSString *)activityFactoryListBase {
+    return [NSString stringWithFormat:@"%@/ActivityDoFactory",self.baseUrl];
+}
+//交易记录
+- (NSString *)activityTradeListBase {
+    return [NSString stringWithFormat:@"%@/AllDynamic",self.baseUrl];
 }
 
 #pragma mark - 购物车 -
@@ -254,9 +266,14 @@
     return [NSString stringWithFormat:@"%@/UserAccount",self.baseUrl];
 }
 
-//提现和提现记录
+//用户余额提现和提现记录
 - (NSString *)AgentCashBase {
     return [NSString stringWithFormat:@"%@/AgentCash",self.baseUrl];
+}
+//代理商收益提现
+- (NSString *)AgentCashNewBase {
+    return [NSString stringWithFormat:@"%@/AgentCashNew",self.baseUrl];
+
 }
 
 

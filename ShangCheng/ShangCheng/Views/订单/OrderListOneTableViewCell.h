@@ -22,6 +22,8 @@
 @property (weak, nonatomic) IBOutlet UILabel *productCompany;
 ///内容为： 共几件商品，实付款
 @property (weak, nonatomic) IBOutlet UILabel *unitPriceLabel;
+//活动角标
+@property (weak, nonatomic) IBOutlet UIImageView *activityImageView;
 
 - (void)updateOrderListOneCellWithModel:(SonOrderModel *)model withWhichTableView:(NSString *)whichTableView withCellIndex:(NSIndexPath *)cellIndex;
 

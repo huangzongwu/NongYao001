@@ -28,6 +28,12 @@
     
     self.countLabel.text = [NSString stringWithFormat:@"%@", tempShoppingCarModel.c_number];
     
+    
+    if (tempShoppingCarModel.isActivity == YES) {
+        self.activityImageView.hidden = NO;
+    }else {
+        self.activityImageView.hidden = YES;
+    }
 }
 
 //增加商品个数

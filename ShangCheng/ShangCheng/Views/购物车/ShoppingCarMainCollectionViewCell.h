@@ -16,6 +16,8 @@ typedef void(^TotalPriceBlock)();
 
 
 @property (weak, nonatomic) IBOutlet UIButton *selectButton;
+//活动图标
+@property (weak, nonatomic) IBOutlet UIImageView *activityImageView;
 @property (weak, nonatomic) IBOutlet UIImageView *headerImageView;
 @property (weak, nonatomic) IBOutlet UILabel *titleLabel;
 @property (weak, nonatomic) IBOutlet UILabel *companyLabel;

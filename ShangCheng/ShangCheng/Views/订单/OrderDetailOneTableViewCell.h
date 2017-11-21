@@ -24,6 +24,10 @@
 //单价
 @property (weak, nonatomic) IBOutlet UILabel *orderUnitPriceLabel;
 
+//活动图片
+@property (weak, nonatomic) IBOutlet UIImageView *activityImageView;
+
+
 - (void)updateOrderDetailOneCellWithSonOrder:(SonOrderModel *)tempSonOrderModel;
 
 @end
