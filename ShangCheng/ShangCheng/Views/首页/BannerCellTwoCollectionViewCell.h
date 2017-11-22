@@ -16,5 +16,10 @@
 @property (weak, nonatomic) IBOutlet UILabel *salePriceLabel; //活动价
 @property (weak, nonatomic) IBOutlet UILabel *backPriceLabel; //原价
 
+@property (weak, nonatomic) IBOutlet UILabel *volumeLabel;//销量
+
+
+@property (weak, nonatomic) IBOutlet UIImageView *activityImageView;
+
 - (void)updateBannerShopTwoCellWithActivityModel:(ActivityProductModel *)activityModel;
 @end

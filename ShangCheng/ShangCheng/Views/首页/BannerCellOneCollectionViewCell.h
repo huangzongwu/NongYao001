@@ -10,7 +10,7 @@
 
 typedef void(^SearchBlock)(NSString *searchStr);
 
-@interface BannerCellOneCollectionViewCell : UICollectionViewCell
+@interface BannerCellOneCollectionViewCell : UICollectionViewCell<UITextFieldDelegate>
 @property (weak, nonatomic) IBOutlet UITextField *searchTextField;
 @property (weak, nonatomic) IBOutlet UIButton *searchButton;
 @property (nonatomic,copy)SearchBlock searchBlock;

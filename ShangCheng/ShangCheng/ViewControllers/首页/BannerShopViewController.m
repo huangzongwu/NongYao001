@@ -308,7 +308,7 @@
         return CGSizeMake(kScreenW, 210);
 
     }else{
-        return CGSizeMake((kScreenW-30)/2, (kScreenW-30)/2*205/128);
+        return CGSizeMake((kScreenW-30)/2, (kScreenW-30)/2+117);
         
     }
 }
@@ -364,6 +364,10 @@
         
         NSMutableArray *dataSorceArr = [self.dataSourceDic objectForKey:self.keyArr[indexPath.section-1]];
         ActivityProductModel *tempModel = dataSorceArr[indexPath.row];
+        
+//        if (indexPath.row == 0) {
+//            tempModel.s_activity_id = @"0";
+//        }
         
         [bannerTwoCell updateBannerShopTwoCellWithActivityModel:tempModel];
         
@@ -557,7 +561,16 @@
             [manager isClearNavigationBarLine:YES withNavigationController:self.navigationController];
             
         }
+        
+        
     }
+    
+    //隐藏键盘
+    if ([[self.bannerCollectionView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:0]] isKindOfClass:[BannerCellOneCollectionViewCell class]]) {
+        BannerCellOneCollectionViewCell *tempCell = (BannerCellOneCollectionViewCell *)[self.bannerCollectionView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:0]];
+        [tempCell.searchTextField resignFirstResponder];
+    }
+
     
 }
 

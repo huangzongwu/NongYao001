@@ -38,9 +38,9 @@
             self.isSaleProduct = YES;
         }
     }
-//    if ([key isEqualToString:@"p_pid"]) {
-//        self.productCode = value;
-//    }
+    if ([key isEqualToString:@"salesvol"]) {
+        self.productVolume = value;
+    }
 
     //---------------------------------------------------
     //产品详情

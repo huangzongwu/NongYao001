@@ -17,6 +17,15 @@
     }
 }
 
+- (BOOL)textFieldShouldReturn:(UITextField *)textField {
+    
+    if (self.searchTextField != nil && self.searchTextField.text.length > 0) {
+        self.searchBlock(self.searchTextField.text);
+        
+    }
+    return YES;
+}
+
 - (void)awakeFromNib {
     [super awakeFromNib];
     // Initialization code

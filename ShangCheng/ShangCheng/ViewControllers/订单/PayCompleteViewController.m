@@ -75,8 +75,10 @@
 
 //查看订单
 - (IBAction)lookOrderButtonAction:(UIButton *)sender {
-    [self.tabBarController setSelectedIndex:3];
-    [self.navigationController popToRootViewControllerAnimated:YES];
+    [self.tabBarController setSelectedIndex:0];
+    [self.navigationController popToRootViewControllerAnimated:NO];
+    //发送通知进入订单
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"toOrderListNoti" object:self userInfo:nil];
 }
 
 

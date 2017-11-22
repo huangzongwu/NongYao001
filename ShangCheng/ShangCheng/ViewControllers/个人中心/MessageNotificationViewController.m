@@ -11,7 +11,6 @@
 #import "MessageOneTableViewCell.h"
 #import "MessageTwoTableViewCell.h"
 #import "WebPageTwoViewController.h"
-#import "MessageDetailViewController.h"
 #import "KongImageView.h"
 #import "MJRefresh.h"
 #import "SVProgressHUD.h"

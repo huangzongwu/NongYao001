@@ -18,9 +18,24 @@
     self.productFactoryLabel.text = activityModel.p_factory_name;
     self.productStandardLabel.text = activityModel.s_standard;
     
+    self.volumeLabel.text = [NSString stringWithFormat:@"销量:%@",activityModel.p_sales_volume];
+
     
-    self.salePriceLabel.text = [NSString stringWithFormat:@"活动价:%@", activityModel.s_price];
-    self.backPriceLabel.text = [NSString stringWithFormat:@"￥%@",activityModel.s_price_backup];
+    if ([activityModel.s_activity_id isEqualToString:@"0"]) {
+        //没有活动
+        self.activityImageView.hidden = YES;//活动图片隐藏
+        self.backPriceLabel.hidden = YES;//原价Label隐藏
+        self.salePriceLabel.text = [NSString stringWithFormat:@"￥%@", activityModel.s_price_backup];//活动价格为原价
+
+        
+    }else {
+        self.activityImageView.hidden = NO;
+        self.backPriceLabel.hidden = NO;//原价Label显示
+        self.backPriceLabel.text = [NSString stringWithFormat:@"￥%@",activityModel.s_price_backup];
+        self.salePriceLabel.text = [NSString stringWithFormat:@"活动价:%@", activityModel.s_price];
+
+
+    }
     
 }
 - (void)awakeFromNib {

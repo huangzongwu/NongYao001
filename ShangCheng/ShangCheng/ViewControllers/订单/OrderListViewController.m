@@ -31,8 +31,7 @@
 //已完成
 @property (weak, nonatomic) IBOutlet LineButton *finishButton;
 
-//哪个TabelView 1-全部  2-待付款  3-待收货  4-已完成
-@property (nonatomic,strong)NSString *whichTableView;
+
 //全部TableView
 @property (weak, nonatomic) IBOutlet UITableView *allTableView;
 //待付款TableView
@@ -54,20 +53,23 @@
 @property (nonatomic,strong)KongImageView *kongImageView3;
 @property (nonatomic,strong)KongImageView *kongImageView4;
 
+
+
 @end
 
 @implementation OrderListViewController
 - (instancetype)initWithCoder:(NSCoder *)aDecoder {
     self = [super initWithCoder:aDecoder];
     if (self) {
-        //默认的是1
-        self.whichTableView = @"1";
 
+        
         //通知，需要刷新
         [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(refreshOrderListNotification:) name:@"refreshOrderList" object:nil];
+        /*
         [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(refreshOrderListNotification:) name:@"logedIn" object:nil];
         [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(refreshOrderListNotification:) name:@"logOff" object:nil];
         [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(switchOrderType:) name:@"mineToOrderListVC" object:nil];
+         */
 
     }
     return self;
@@ -100,7 +102,7 @@
 
     
 }
-
+/*
 //跳转到对应的订单类型
 - (void)switchOrderType:(NSNotification *)sender {
 
@@ -109,40 +111,12 @@
   
 }
 
-- (void)viewDidAppear:(BOOL)animated {
-    
-    [super viewDidAppear:animated];
-    //登录了，才可以请求数据。默认请求全部数据
-    
-    //请求数据
-    switch ([self.whichTableView integerValue]) {
-        case 1:
-            //检查是否需要更新
-            if ([self.isHttpArr[0] isEqualToString:@"1"]) {
-                [self.allTableView headerBeginRefreshing];
-            }
-            break;
-        case 2:
-            if ([self.isHttpArr[1] isEqualToString:@"1"]) {
-                [self.waitPayTableView headerBeginRefreshing];
-            }
-            break;
-        case 3:
-            if ([self.isHttpArr[2] isEqualToString:@"1"]) {
-                [self.goOnTableView headerBeginRefreshing];
-            }
-            break;
-        case 4:
-            if ([self.isHttpArr[3] isEqualToString:@"1"]) {
-                [self.finishTableView headerBeginRefreshing];
-            }
-            break;
-        default:
-            break;
-    }
-        
-    
+*/
+
+- (IBAction)leftBarButtonAction:(UIBarButtonItem *)sender {
+    [self.navigationController popViewControllerAnimated:YES];
 }
+
 
 //下拉刷新
 - (void)downPushRefresh {
@@ -227,14 +201,53 @@
     
 }
 
+- (void)viewDidAppear:(BOOL)animated {
+    
+    [super viewDidAppear:animated];
+    //登录了，才可以请求数据。默认请求全部数据
+    
+    //请求数据
+    switch ([self.whichTableView integerValue]) {
+        case 1:
+            //检查是否需要更新
+            if ([self.isHttpArr[0] isEqualToString:@"1"]) {
+                [self allButtonAction:self.allButton];
+            }
+            break;
+        case 2:
+            if ([self.isHttpArr[1] isEqualToString:@"1"]) {
+                [self waitPayButtonAction:self.waitPayButton];
+            }
+
+            break;
+        case 3:
+            if ([self.isHttpArr[2] isEqualToString:@"1"]) {
+                [self goOnButtonAction:self.goOnButton];
+            }
+            break;
+        case 4:
+            if ([self.isHttpArr[3] isEqualToString:@"1"]) {
+                [self finishButtonAction:self.finishButton];
+            }
+            break;
+        default:
+            break;
+    }
+    
+    
+}
+
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear: animated];
     [SVProgressHUD dismiss];
 }
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-   
+   //清空数据
+    Manager *manager = [Manager shareInstance];
+    manager.orderListDataSourceDic = nil;
     
     //注册cell
     //全部的tableView
@@ -292,6 +305,7 @@
     [self.kongImageView4.reloadAgainButton addTarget:self action:@selector(reloadAgainButtonAction4:) forControlEvents:UIControlEventTouchUpInside];
     self.kongImageView4.frame = self.finishTableView.bounds;
     [self.finishTableView addSubview:self.kongImageView4];
+    
 
 }
 
@@ -358,7 +372,6 @@
         
         [manager getOrderListDataWithUserID:manager.memberInfoModel.u_id withType:type withCode:code withWhichTableView:self.whichTableView withPageIndex:pageIndex withPageSize:10 withOrderListSuccessResult:^(id successResult) {
            
-            
             if (pageIndex == 1) {
                 [SVProgressHUD dismiss];
                 //刷新

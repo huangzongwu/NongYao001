@@ -25,8 +25,17 @@
          self.productCompanyLabel.text = tempProductModel.productCompany;
     self.productFormatLabel.text = tempProductModel.productFormatStr;
     self.productPriceLabel.text = [NSString stringWithFormat:@"￥%@", tempProductModel.productPrice ];
-//    [self.productPriceLabel setPriceLabelWithPriceStr:tempProductModel.productPrice withFormatStr:tempProductModel.productFormatStr];
+
+    self.volumeLabel.text = [NSString stringWithFormat:@"销量:%@", tempProductModel.productVolume];
     
+    //如果没销量，就让这个Label高度为0
+    if (tempProductModel.productVolume == nil) {
+        self.volumeHeightLayout.constant = 0;
+        self.volumeBottomLayout.constant = 0;
+    }else {
+        self.volumeHeightLayout.constant = 13;
+        self.volumeBottomLayout.constant = 9;
+    }
     
     if (tempIndex.row % 2 == 0) {
         //左边的item

@@ -24,8 +24,7 @@
 #import "ShoppingCarViewController.h"
 #import "MJRefresh.h"
 #import "WebPageTwoViewController.h"
-#import "AnnouncementViewController.h"
-#import "BannerShopViewController.h"
+#import "OrderListViewController.h"
 @interface HomeViewController ()<UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout,SDCycleScrollViewDelegate>
 @property (weak, nonatomic) IBOutlet UICollectionView *collectionView;
 
@@ -40,6 +39,20 @@
 @end
 
 @implementation HomeViewController
+- (instancetype)initWithCoder:(NSCoder *)aDecoder {
+    self = [super initWithCoder:aDecoder];
+    if (self) {
+        //通知，登陆成功
+        [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(toOrderListNotiAction:) name:@"toOrderListNoti" object:nil];
+    }
+    return self;
+}
+
+- (void)toOrderListNotiAction:(NSNotification *) sender {
+    [self performSegueWithIdentifier:@"homeToOrderListVC" sender:nil];
+
+}
+
 - (IBAction)leftBarButtonAction:(UIBarButtonItem *)sender {
 
     [self performSegueWithIdentifier:@"homeToClassVC" sender:nil];
@@ -71,7 +84,6 @@
 
     [self.collectionView registerNib:[UINib nibWithNibName:@"MainCollectionReusableView" bundle:nil] forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"mainHeader"];
     
-
     //加载八大分类数据源
     [self upDateHomeEightCategory];
     //请求热销产品
@@ -87,7 +99,6 @@
     
     //下拉刷新
     [self downRefreshAction];
-    
     
 }
 
@@ -142,7 +153,7 @@
 - (void)httpHomeHotProduct {
     Manager *manager = [Manager shareInstance];
     //网络请求热销产品
-    [manager httpHomeHotProductWithCnum:@"3" withHotSuccess:^(id successResult) {
+    [manager httpHomeHotProductWithCnum:@"4" withHotSuccess:^(id successResult) {
         [self.collectionView reloadData];
     } withHotFail:^(NSString *failResultStr) {
         NSLog(@"%@",failResultStr);
@@ -209,11 +220,7 @@
             break;
         case 2:
         {
-            if ([[[Manager shareInstance].homeDataSourceDic objectForKey:@"热销"] count] > 2) {
-                return 1;
-            }else {
-                return 0;
-            }
+            return [[[Manager shareInstance].homeDataSourceDic objectForKey:@"热销"] count];
         }
             break;
         default:
@@ -282,11 +289,12 @@
             break;
         case 2:
             //人气热卖
-            return CGSizeMake(kScreenW, kScreenW*2/5+71);
-            
+//            return CGSizeMake(kScreenW, kScreenW*2/5+71);
+            return CGSizeMake(kScreenW/2, kScreenW/2+85+22);
+
             break;
         default:
-            return CGSizeMake(kScreenW/2, kScreenW/2+87.5);
+            return CGSizeMake(kScreenW/2, kScreenW/2+85);
 
             break;
     }
@@ -400,6 +408,17 @@
             
         case 2:
         {
+            
+            DetailVerticalCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"cellIdentifier4" forIndexPath:indexPath];
+            
+            //得到分类
+            ProductModel *tempModel = [[manager.homeDataSourceDic objectForKey:@"热销"] objectAtIndex:indexPath.row];
+
+            [cell updateDetailVerticalCollectionViewCell:tempModel withIndexPath:indexPath];
+            
+            return cell;
+            
+            /*
             //两个横向
             DetailHorizontalCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"cellIdentifier3" forIndexPath:indexPath];
             ProductModel *tempModel1 = [[manager.homeDataSourceDic objectForKey:@"热销"] objectAtIndex:0];
@@ -407,6 +426,7 @@
             ProductModel *tempModel3 = [[manager.homeDataSourceDic objectForKey:@"热销"] objectAtIndex:2];
             [cell updateDetailHorizontalCollectionViewCellWithLeftModel:tempModel1 UpModel:tempModel2 withDownModel:tempModel3];
             return cell;
+             */
 
         }
             break;
@@ -436,8 +456,8 @@
         case 0:
         {
 
-            // 3-我的收藏 7-我的钱包，需要登录了才可以进入
-            if (indexPath.row == 3 || indexPath.row == 7 ) {
+            // 3-我的收藏 6-我的订单 7-我的钱包，需要登录了才可以进入
+            if (indexPath.row == 3 || indexPath.row == 6 || indexPath.row == 7) {
                 Manager *manager = [Manager shareInstance];
                 if ([manager isLoggedInStatus] == YES) {
                     NSString *pushId = [self.categoryDataSource[indexPath.row] objectForKey:@"pushId"];
@@ -586,21 +606,14 @@
     //webView
     if ([segue.identifier isEqualToString:@"homeToWebViewVC"]) {
         WebPageViewController *webPageVC = [segue destinationViewController];
-        if ([sender isKindOfClass:[NSArray class]]) {
-            webPageVC.tempTitleStr = sender[0];
-            webPageVC.webUrl = sender[1];
-        }else {
-            webPageVC.tempTitleStr = @"在线客服";
-            webPageVC.webUrl = @"http://kefu.qycn.com/vclient/chat/?m=m&websiteid=99706";
-        }
+        webPageVC.tempTitleStr = sender[0];
+        webPageVC.webUrl = sender[1];
+        
        
     }
     
     //公告
     if ([segue.identifier isEqualToString:@"homeToWebTwoViewVC"]) {
-//        AnnouncementViewController *announcementVC = [segue destinationViewController];
-//        announcementVC.announcementInfoArr = sender;
-
         
         WebPageTwoViewController *webTwoPageVC = [segue destinationViewController];
         webTwoPageVC.tempTitleStr = ((NSMutableArray *)sender)[0];
@@ -621,11 +634,14 @@
         
     }
     
-    //进入bannerShop页面
-    if ([segue.identifier isEqualToString:@"homeToBannerShopVC"]) {
-        BannerShopViewController *bannerShopVC = [segue destinationViewController];
-        
+    
+    //我的订单
+    if ([segue.identifier isEqualToString:@"homeToOrderListVC"]) {
+        OrderListViewController *orderListVC = [segue destinationViewController];
+        orderListVC.whichTableView = @"1";
     }
+    
+    
 }
 
 

@@ -30,9 +30,10 @@
 		"pushId" : "homeToTrueCheckVC"
 	},
 	{
-		"img" : "s_btn_zxkf",
-		"categoryName" : "在线客服",
-		"pushId" : "homeToWebViewVC"
+		"img" : "s_btn_wddd",
+		"categoryName" : "我的订单",
+		"pushId" : "homeToOrderListVC"
+ 
 	},
 	{
 		"img" : "s_ntcx",

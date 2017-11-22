@@ -20,7 +20,10 @@
 
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *leftLayout;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *rightLayout;
-
+//销量
+@property (weak, nonatomic) IBOutlet UILabel *volumeLabel;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *volumeHeightLayout;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *volumeBottomLayout;
 
 - (void)updateDetailVerticalCollectionViewCell:(ProductModel *)tempProductModel withIndexPath:(NSIndexPath *)tempIndex;
 @end

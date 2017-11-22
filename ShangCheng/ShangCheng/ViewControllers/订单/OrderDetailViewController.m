@@ -55,6 +55,7 @@
 - (IBAction)leftBarButtonAction:(UIBarButtonItem *)sender {
     
     [self.navigationController popViewControllerAnimated:YES];
+    
 }
 
 - (void)viewDidLoad {

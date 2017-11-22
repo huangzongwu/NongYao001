@@ -16,6 +16,7 @@
 #import "WXApi.h"
 #import "AppDelegate.h"
 #import "SVProgressHUD.h"
+#import "ShoppingCarViewController.h"
 @interface PayViewController ()<UITableViewDataSource,UITableViewDelegate,WXApiDelegate>
 
 @property (weak, nonatomic) IBOutlet UITableView *payTableView;
@@ -66,7 +67,13 @@
 
 //返回按钮
 - (IBAction)backBarButtonAction:(UIBarButtonItem *)sender {
-    [self.navigationController popToRootViewControllerAnimated:YES];
+    NSLog(@"%@",self.navigationController.viewControllers);
+    if ([self.navigationController.viewControllers[0] isKindOfClass:[ShoppingCarViewController class]]) {
+        [self.navigationController popToRootViewControllerAnimated:YES];
+
+    }else {
+        [self.navigationController popViewControllerAnimated:YES];
+    }
 }
 
 

@@ -16,6 +16,7 @@
 #import "MyTradeRecordViewController.h"
 #import "MemberManagerViewController.h"
 #import "MyFavoriteListViewController.h"
+#import "OrderListViewController.h"
 #import "SVProgressHUD.h"
 #import "MJRefresh.h"
 @interface MineViewController ()<UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout>
@@ -404,9 +405,9 @@
         switch (sender.indexForButton.section) {
             case 1:
             {
-                //查看全部订单
-                [self switchToOrderTabbarWithOrderType:1];
-                
+                //跳转到全部订单
+                [self performSegueWithIdentifier:@"mineToOrderListVC" sender:nil];
+
             }
                 break;
             case 2:
@@ -548,17 +549,20 @@
     }else {
         //其余的都要登陆了才可以进行跳转
         if ([manager isLoggedInStatus] == YES) {
-            //也有几个特殊的，需要切换tabbar不是跳转。我的订单中的前三个
+            if (pushID.length > 0) {
+                [self performSegueWithIdentifier:pushID sender:indexPath];
+                
+            }
+            /*
             if (indexPath.section == 1 && indexPath.row < 3) {
                 //直接跳转到订单
+                
                 [self switchToOrderTabbarWithOrderType:indexPath.row+2];
             }else {
                 //跳转
-                if (pushID.length > 0) {
-                    [self performSegueWithIdentifier:pushID sender:indexPath];
-                    
-                }
+                
             }
+            */
 
         }else {
             AlertManager *alertM = [AlertManager shareIntance];
@@ -635,6 +639,41 @@
             myFavoriteListVC.isFavoriteOrBrowse = IsBrowse;
         }
     }
+    
+    //订单
+    if ([segue.identifier isEqualToString:@"mineToOrderListVC"]) {
+        OrderListViewController *orderListVC = [segue destinationViewController];
+        if (sender == nil) {
+            //全部
+            orderListVC.whichTableView = @"1";
+
+        }else {
+            NSIndexPath *tempIndex = (NSIndexPath *)sender;
+            
+            if (tempIndex.section == 1 && tempIndex.row == 0) {
+                //待付款
+                orderListVC.whichTableView = @"2";
+            }
+            if (tempIndex.section == 1 && tempIndex.row == 1) {
+                //待收货
+                orderListVC.whichTableView = @"3";
+                
+            }
+            if (tempIndex.section == 1 && tempIndex.row == 2) {
+                //已完成
+                orderListVC.whichTableView = @"4";
+                
+            }
+        }
+        
+        
+        
+        
+
+        
+        
+    }
+    
     
 }
 

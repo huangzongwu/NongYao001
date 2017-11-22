@@ -34,7 +34,11 @@
 //单位，是瓶还是袋
 @property (nonatomic,strong)NSString *s_unit_child;
 
+//销量
+@property(nonatomic,strong)NSString *productVolume;
+
 - (void)setValue:(id)value forUndefinedKey:(NSString *)key ;
+
 //更改默认规格
 - (void)setFormatInfoWithSImg:(NSString *)sImg withSId:(NSString *)sId withSStr:(NSString *)sStr withSFrice:(NSString *)sPrice ;
 
