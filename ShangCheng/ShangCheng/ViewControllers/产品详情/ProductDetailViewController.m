@@ -54,6 +54,8 @@
 @property (nonatomic,assign)NSInteger userCommentCurrentPage;
 //用户评价总共的页数
 @property (nonatomic,assign)NSInteger userCommentTotalPage;
+//用户评价总条数
+@property (nonatomic,assign)NSInteger userCommentTotalCount;
 
 //交易记录
 @property (nonatomic,strong)NSMutableArray *tradeRecordListArr;
@@ -61,6 +63,8 @@
 @property (nonatomic,assign)NSInteger tradeRecordCurrentPage;
 //交易记录总共的页数
 @property (nonatomic,assign)NSInteger tradeRecordTotalPage;
+//交易记录总条数
+@property (nonatomic,assign)NSInteger tradeRecordTotalCount;
 
 
 //是否收藏了
@@ -492,7 +496,8 @@
     [manager productCommentListWithProductId:self.productID withPageIndex:pageIndex withPageSize:10 withCommentListSuccess:^(id successResult) {
         //得到总页数
         self.userCommentTotalPage = [[successResult objectForKey:@"totalpages"] integerValue];
-
+        //得到总个数
+        self.userCommentTotalCount = [[successResult objectForKey:@"totalcount"] integerValue];
         //如果是pageIndex为1，就是刷新了
         if (pageIndex == 1) {
             //清空原有数据
@@ -512,7 +517,6 @@
         
         for (NSDictionary *tempDic in [successResult objectForKey:@"content"]) {
            
-            
             ProductCommentModel *productCommentModel = [[ProductCommentModel alloc] init];
             [productCommentModel setValuesForKeysWithDictionary:tempDic];
             if ([productCommentModel.r_status isEqualToString:@"1"]) {
@@ -566,8 +570,9 @@
 
         //得到总页数
         self.tradeRecordTotalPage = [[successResult objectForKey:@"totalpages"] integerValue];
+        //得到总个数
+        self.tradeRecordTotalCount = [[successResult objectForKey:@"totalcount"] integerValue];
 
-        
         
         //如果是pageIndex为1，就是刷新了
         if (pageIndex == 1) {
@@ -658,7 +663,7 @@
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
 
     ProductDetailHeaderTableViewCell *headerCell = [tableView dequeueReusableCellWithIdentifier:@"detailHeadView"];
-    [headerCell updateButtonUIWithType:self.selectType withCommentCount:self.userCommentTotalPage withTradeCount:self.tradeRecordTotalPage];
+    [headerCell updateButtonUIWithType:self.selectType withCommentCount:self.userCommentTotalCount withTradeCount:self.tradeRecordTotalCount];
     return headerCell;
 
 }

@@ -17,16 +17,18 @@
 @property (weak, nonatomic) IBOutlet UILabel *orderAgentMoneyLabel;//收益
 
 
-@property (weak, nonatomic) IBOutlet UIImageView *orderOneImageView;
-@property (weak, nonatomic) IBOutlet UIImageView *orderTwoImageView;
-@property (weak, nonatomic) IBOutlet UIImageView *orderThreeImageView;
-@property (weak, nonatomic) IBOutlet UIImageView *orderFourImageView;
-@property (weak, nonatomic) IBOutlet UIImageView *orderFiveImageView;
-
+@property (weak, nonatomic) IBOutlet UIImageView *orderImageView;
+@property (weak, nonatomic) IBOutlet UILabel *orderProductLabel;
+@property (weak, nonatomic) IBOutlet UILabel *orderFormatLabel;
+@property (weak, nonatomic) IBOutlet UILabel *orderFactoryLabel;
 
 @property (weak, nonatomic) IBOutlet UILabel *orderTimeLabel;
 @property (weak, nonatomic) IBOutlet UILabel *orderTotalMoneyLabel;//总价
 
-- (void)updateMyAgentOrderCellWithAgentModel:(MyAgentOrderModel *)tempModel ;
-
+//更新订单
+- (void)updateMyAgentOrderCellWithOrderModel:(MyAgentOrderModel *)tempModel ;
+//更新收藏
+- (void)updateMyAgentFavoriteCellWithFavoriteModel:(MyAgentFavoriteModel *)tempModel ;
+//更新购物车
+- (void)updateMyAgentShopCarCellWithShopCarModel:(MyAgentShopCarModel *)tempModel ;
 @end

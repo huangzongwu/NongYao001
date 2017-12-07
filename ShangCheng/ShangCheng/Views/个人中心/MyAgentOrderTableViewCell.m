@@ -7,68 +7,82 @@
 //
 
 #import "MyAgentOrderTableViewCell.h"
-
+#import "UIImageView+ImageViewCategory.h"
 @implementation MyAgentOrderTableViewCell
-- (void)updateMyAgentOrderCellWithAgentModel:(MyAgentOrderModel *)tempModel {
-    
+- (void)updateMyAgentOrderCellWithOrderModel:(MyAgentOrderModel *)tempModel {
 
+//    self.orderHeaderImageView
     self.orderNameLabel.text = tempModel.u_truename;
     NSString *currentPhoneStr = [tempModel.mobile stringByReplacingCharactersInRange:NSMakeRange(3, 4) withString:@"****"];
     self.orderPhoneLabel.text = currentPhoneStr;
-    self.orderAddressLabel.text = @"未知";
-    self.orderAgentMoneyLabel.text = tempModel.p_money_agent;
-    
-    self.orderOneImageView.hidden = YES;
-    self.orderTwoImageView.hidden = YES;
-    self.orderThreeImageView.hidden = YES;
-    self.orderFourImageView.hidden = YES;
-    self.orderFiveImageView.hidden = YES;
-    switch ([tempModel.p_count integerValue]) {
-        case 1:
-        {
-            self.orderOneImageView.hidden = NO;
-            
-        }
-            break;
-        case 2:
-        {
-            self.orderOneImageView.hidden = NO;
-            self.orderTwoImageView.hidden = NO;
-        }
-            break;
-        case 3:
-        {
-            self.orderOneImageView.hidden = NO;
-            self.orderTwoImageView.hidden = NO;
-            self.orderThreeImageView.hidden = NO;
-        }
-            break;
-        case 4:
-        {
-            self.orderOneImageView.hidden = NO;
-            self.orderTwoImageView.hidden = NO;
-            self.orderThreeImageView.hidden = NO;
-            self.orderFourImageView.hidden = NO;
-        }
-            break;
-        case 5:
-        {
-            self.orderOneImageView.hidden = NO;
-            self.orderTwoImageView.hidden = NO;
-            self.orderThreeImageView.hidden = NO;
-            self.orderFourImageView.hidden = NO;
-            self.orderFiveImageView.hidden = NO;
-        }
-            break;
-     
-        default:
-            break;
+    if (tempModel.o_buyer_address != nil) {
+        self.orderAddressLabel.text = tempModel.o_buyer_address;
+    }else {
+        self.orderAddressLabel.text = [NSString stringWithFormat:@"%@ %@ %@",tempModel.capitalname,tempModel.cityname,tempModel.countyname];
     }
+    
+    //收益
+    if (tempModel.p_money_agent == nil) {
+        self.orderAgentMoneyLabel.hidden = YES;
+    }else {
+        self.orderAgentMoneyLabel.hidden = NO;
+        self.orderAgentMoneyLabel.text = [NSString stringWithFormat:@"￥%@", tempModel.p_money_agent];
+
+    }
+    
+    //产品
+    [self.orderImageView setWebImageURLWithImageUrlStr:tempModel.product_icon  withErrorImage:[UIImage imageNamed:@"icon_pic_cp.png"] withIsCenter:YES];
+    self.orderProductLabel.text = tempModel.product_name;
+    self.orderFormatLabel.text = tempModel.product_format;
+    self.orderFactoryLabel.text = tempModel.product_factory;
     
     
     self.orderTimeLabel.text = tempModel.p_time_create;
     self.orderTotalMoneyLabel.text = [NSString stringWithFormat:@"共%@件商品,总金额:￥%@",tempModel.p_num,tempModel.p_o_price_total];
 }
+
+//更新收藏
+- (void)updateMyAgentFavoriteCellWithFavoriteModel:(MyAgentFavoriteModel *)tempModel {
+    
+    self.orderNameLabel.text = tempModel.u_truename;
+    self.orderPhoneLabel.text = @"";
+    self.orderAddressLabel.text = @"";
+    
+    //收益隐藏
+    self.orderAgentMoneyLabel.hidden = YES;
+    
+    //产品
+    [self.orderImageView setWebImageURLWithImageUrlStr:tempModel.p_icon  withErrorImage:[UIImage imageNamed:@"icon_pic_cp.png"] withIsCenter:YES];
+    self.orderProductLabel.text = tempModel.productname;
+    self.orderFormatLabel.text = tempModel.s_standard;
+    self.orderFactoryLabel.text = tempModel.f_name;
+    
+    
+    self.orderTimeLabel.text = tempModel.f_time_create;
+    self.orderTotalMoneyLabel.text = @"";
+}
+
+
+- (void)updateMyAgentShopCarCellWithShopCarModel:(MyAgentShopCarModel *)tempModel {
+    self.orderNameLabel.text = tempModel.u_truename;
+    self.orderPhoneLabel.text = tempModel.u_mobile;
+    self.orderAddressLabel.text = @"";
+    
+    //收益隐藏
+    self.orderAgentMoneyLabel.hidden = YES;
+    
+    //产品
+    [self.orderImageView setWebImageURLWithImageUrlStr:tempModel.s_image_fir  withErrorImage:[UIImage imageNamed:@"icon_pic_cp.png"] withIsCenter:YES];
+    self.orderProductLabel.text = tempModel.productname;
+    self.orderFormatLabel.text = tempModel.s_standard;
+    self.orderFactoryLabel.text = tempModel.f_name;
+    
+    
+    self.orderTimeLabel.text = tempModel.c_time_create;
+    self.orderTotalMoneyLabel.text = [NSString stringWithFormat:@"共%@件商品，总金额%@元",tempModel.c_number,tempModel.amount];
+    
+}
+
 
 - (void)awakeFromNib {
     [super awakeFromNib];

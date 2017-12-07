@@ -134,8 +134,8 @@
         self.userBalanceLabel.text = [NSString stringWithFormat:@"余额:%.2f，可提现金额：%ld元",manager.memberInfoModel.u_amount_avail,u_amount_avail_Int/50 * 50];
     }else {
         //代理商收益提现
-        NSInteger u_amount_avail_Int = [[manager.myAgentDic objectForKey:@"a_commission"] integerValue];
-        self.userBalanceLabel.text = [NSString stringWithFormat:@"余额:%.2f，可提现金额：%ld元",[[manager.myAgentDic objectForKey:@"a_commission"] floatValue],u_amount_avail_Int/50 * 50];
+        NSInteger u_amount_avail_Int = [self.agentCashCommission integerValue];
+        self.userBalanceLabel.text = [NSString stringWithFormat:@"余额:%.2f，可提现金额：%ld元",[self.agentCashCommission floatValue],u_amount_avail_Int/50 * 50];
 
     }
     
@@ -263,13 +263,13 @@
     }else {
         //代理商收益提现
         //只有姓名、账号、金额都是有效的才可以提交
-        if (nameStr.length > 0 && codeStr.length > 0 && amount > 0 && amount <= [[manager.myAgentDic objectForKey:@"a_commission"] floatValue]) {
+        if (nameStr.length > 0 && codeStr.length > 0 && amount > 0 && amount <= [self.agentCashCommission floatValue]) {
             isCommit = YES;
         }else{
             if (amount <= 0) {
                 notCommitStr = @"提现金额至少为50元";
             }
-            if (amount > [[manager.myAgentDic objectForKey:@"a_commission"] floatValue]) {
+            if (amount > [self.agentCashCommission floatValue]) {
                 notCommitStr = @"提现金额不能大于可提现金额";
             }
             

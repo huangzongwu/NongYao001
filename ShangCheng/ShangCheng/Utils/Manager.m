@@ -194,9 +194,15 @@
 
 //请求搜索数据
 - (void)searchActionWithKeyword:(NSString *)keyword withType:(NSString *)type withSort:(NSString *)sortStr withDesc:(NSString *)desc withPageindex:(NSInteger )pageindex withSearchSuccess:(SuccessResult)searchSuccess withSearchFail:(FailResult)searchFail {
-    //sort="" 综合查询； sales 销量； hits 关注度； date 发布时间； price 金额；
+    //sort="" 综合查询； sales 销量； hits 关注度； date 发布时间； price 金额
+    NSString *url;
+    //如果是病虫害，url就有type参数.如果是产品库，url就没有type参数
+    if ([type isEqualToString:@"病虫害"]) {
+        url = [[NSString stringWithFormat:@"%@?keyword=%@&type=%@&sort=%@&desc=%@&pageindex=%ld&pagesize=20", [[InterfaceManager shareInstance] siteSearchBase] ,keyword,type,sortStr,desc,pageindex] stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+    }else {
+        url = [[NSString stringWithFormat:@"%@?keyword=%@&sort=%@&desc=%@&pageindex=%ld&pagesize=20", [[InterfaceManager shareInstance] siteSearchBase] ,keyword,sortStr,desc,pageindex] stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+    }
     
-    NSString *url = [[NSString stringWithFormat:@"%@?keyword=%@&type=%@&sort=%@&desc=%@&pageindex=%ld&pagesize=20", [[InterfaceManager shareInstance] siteSearchBase] ,keyword,type,sortStr,desc,pageindex] stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
     [[NetManager shareInstance] getRequestWithURL:url withParameters:nil withContentTypes:nil withHeaderArr:nil withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
         NSLog(@"%ld",operation.response.statusCode);
         NSLog(@"%@",[self dictionaryToJson:successResult]);
@@ -1760,6 +1766,7 @@
 #pragma mark - 评价 -
 - (void)productCommentListWithProductId:(NSString *)productId withPageIndex:(NSInteger )pageIndex withPageSize:(NSInteger )pageSize withCommentListSuccess:(SuccessResult )commentListSuccess withCommentListFail:(FailResult)commentListFail {
     NSString *url = [NSString stringWithFormat:@"%@?id=%@&pageindex=%ld&pagesize=%ld",[[InterfaceManager shareInstance] userOrderReviewBase],productId,pageIndex,pageSize];
+    NSLog(@"%@",url);
     [[NetManager shareInstance] getRequestWithURL:url withParameters:nil withContentTypes:nil withHeaderArr:nil withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
         NSLog(@"%ld",operation.response.statusCode);
         NSLog(@"%@",[self dictionaryToJson:successResult]);
@@ -2777,13 +2784,6 @@
 }
 
 #pragma mark - 我的代理 -
-- (NSMutableDictionary *)myAgentDic {
-    if (_myAgentDic == nil) {
-        self.myAgentDic = [NSMutableDictionary dictionary];
-    }
-    return _myAgentDic;
-}
-
 //我的代理基本数据
 - (void)httpMyAgentBaseDataWithUserId:(NSString *)userId withMyAgentSuccess:(SuccessResult )myAgentSuccess withMyagentFail:(FailResult )myAgentFail {
     NSString *url = [NSString stringWithFormat:@"%@?id=%@",[[InterfaceManager shareInstance] myAgentDataBase],userId];
@@ -2791,14 +2791,8 @@
     [[NetManager shareInstance] getRequestWithURL:url withParameters:nil withContentTypes:nil withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
         NSLog(@"%ld ",operation.response.statusCode);
         if (operation.response.statusCode == 200) {
-            //收益
-            [self.myAgentDic setValue:[successResult objectForKey:@"a_commission"] forKey:@"a_commission"];
-            //订单
-            [self.myAgentDic setValue:[successResult objectForKey:@"ordernum"] forKey:@"ordernum"];
-            //人数
-            [self.myAgentDic setValue:[successResult objectForKey:@"peonum"] forKey:@"peonum"];
             
-            myAgentSuccess(@"成功");
+            myAgentSuccess(successResult);
 
         }
       
@@ -2817,13 +2811,9 @@
         NSLog(@"%ld",operation.response.statusCode);
         NSLog(@"%@",[self dictionaryToJson:successResult]);
         
-        if (pageIndex == 1 ) {
-            //重新刷新数据，即需要清除原有数据
-            [[self.myAgentDic objectForKey:@"people"] removeAllObjects];
-        }
         //解析模型
-        [self analyzeMyAgentPeopleListDataWithJsonArr:[successResult objectForKey:@"content"]];
-        myAgentSuccess([successResult objectForKey:@"totalpages"]);
+        NSMutableArray *peopleArr =  [self analyzeMyAgentPeopleListDataWithJsonArr:[successResult objectForKey:@"content"]];
+        myAgentSuccess(@{@"content":peopleArr,@"totalpages":[successResult objectForKey:@"totalpages"]});
         
         
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
@@ -2834,38 +2824,35 @@
     
 }
 
-- (void)analyzeMyAgentPeopleListDataWithJsonArr:(NSArray *)jsonArr {
-    NSMutableArray *peopleArr = nil;
-    if ([self.myAgentDic objectForKey:@"people"] == nil) {
-        peopleArr = [NSMutableArray array];
-        [self.myAgentDic setObject:peopleArr forKey:@"people"];
-    }else {
-        peopleArr = [self.myAgentDic objectForKey:@"people"];
-    }
+- (NSMutableArray *)analyzeMyAgentPeopleListDataWithJsonArr:(NSArray *)jsonArr {
+    NSMutableArray *peopleArr = [NSMutableArray array];
     
     for (NSDictionary *jsonDic in jsonArr) {
         MyAgentPeopleModel *agentPeopleModel = [[MyAgentPeopleModel alloc] init];
         [agentPeopleModel setValuesForKeysWithDictionary:jsonDic];
         [peopleArr addObject:agentPeopleModel];
     }
+    return peopleArr;
 }
 
 //我的代理 订单数据
-- (void)httpMyAgentOrderListDataWithUserId:(NSString *)userId withPageindex:(NSInteger )pageIndex withMyAgentSuccess:(SuccessResult)myAgentSuccess withMyagentFail:(FailResult)myAgentFail {
+- (void)httpMyAgentOrderListDataWithIsNew:(BOOL)isNew withUserId:(NSString *)userId withPageindex:(NSInteger )pageIndex withMyAgentSuccess:(SuccessResult)myAgentSuccess withMyagentFail:(FailResult)myAgentFail {
+    NSString *url ;
+    if (isNew == YES) {
+        url = [NSString stringWithFormat:@"%@?id=%@&pageindex=%ld&pagesize=10",[[InterfaceManager shareInstance] myAgentOrderListBase],userId,pageIndex];
+
+    }else {
+        url = [NSString stringWithFormat:@"%@?type=&id=%@&pageindex=%ld&pagesize=10",[[InterfaceManager shareInstance] myAgentOrderListBase],userId,pageIndex];
+    }
     
-    NSString *url = [NSString stringWithFormat:@"%@?id=%@&pageindex=%ld&pagesize=10",[[InterfaceManager shareInstance] myAgentOrderListBase],userId,pageIndex];
     [[NetManager shareInstance] getRequestWithURL:url withParameters:nil withContentTypes:nil withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
         NSLog(@"%ld",operation.response.statusCode);
         NSLog(@"%@",[self dictionaryToJson:successResult]);
 
-        if (pageIndex == 1 ) {
-            //重新刷新数据，即需要清除原有数据
-            [[self.myAgentDic objectForKey:@"order"] removeAllObjects];
-        }
         //解析模型
-        [self analyzeMyAgentOrderListDataWithJsonArr:[successResult objectForKey:@"content"]];
+        NSMutableArray *orderList = [self analyzeMyAgentOrderListDataWithJsonArr:[successResult objectForKey:@"content"]];
 
-        myAgentSuccess([successResult objectForKey:@"totalpages"]);
+        myAgentSuccess(@{@"content":orderList,@"totalpages":[successResult objectForKey:@"totalpages"]} );
 
     } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
         NSLog(@"%ld -- %@",operation.response.statusCode,errorResult);
@@ -2874,22 +2861,132 @@
     }];
 
 }
-
-- (void)analyzeMyAgentOrderListDataWithJsonArr:(NSArray *)jsonArr {
-    NSMutableArray *orderArr = nil;
-    if ([self.myAgentDic objectForKey:@"order"] == nil) {
-        orderArr = [NSMutableArray array];
-        [self.myAgentDic setObject:orderArr forKey:@"order"];
-    }else {
-        orderArr = [self.myAgentDic objectForKey:@"order"];
-    }
+//解析新数据库订单列表
+- (NSMutableArray *)analyzeMyAgentOrderListDataWithJsonArr:(NSArray *)jsonArr {
+    NSMutableArray *orderArr = [NSMutableArray array];
     
     for (NSDictionary *jsonDic in jsonArr) {
         MyAgentOrderModel *agentOrderModel = [[MyAgentOrderModel alloc] init];
         [agentOrderModel setValuesForKeysWithDictionary:jsonDic];
         [orderArr addObject:agentOrderModel];
     }
+    
+    return orderArr;
 }
+
+//我的代理-客户收藏
+- (void)httpMyAgentPeopleFavoriteWithUserId:(NSString *)userId withPageIndex:(NSInteger)pageIndex withPeopleFavoriteSuccess:(SuccessResult)peopleFavoriteSuccess withPeopleFavoriteFail:(FailResult)peopleFaviriteFail {
+    
+    NSString *url = [NSString stringWithFormat:@"%@?id=%@&pageindex=%ld&pagesize=10",[[InterfaceManager shareInstance] myAgentFavoriteBase],userId,pageIndex];
+    
+    [[NetManager shareInstance] getRequestWithURL:url withParameters:nil withContentTypes:nil withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+        NSLog(@"%ld",operation.response.statusCode);
+        NSLog(@"%@",[self dictionaryToJson:successResult]);
+        
+        //解析模型
+        NSMutableArray *faviriteArr =  [self analyzeMyAgentPeopleFavoriteDataWithJsonArr:[successResult objectForKey:@"content"]];
+        peopleFavoriteSuccess(@{@"content":faviriteArr,@"totalpages":[successResult objectForKey:@"totalpages"]});
+        
+        
+    } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
+        NSLog(@"%ld -- %@",operation.response.statusCode,errorResult);
+        peopleFaviriteFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]]);
+        
+    }];
+    
+}
+
+- (NSMutableArray *)analyzeMyAgentPeopleFavoriteDataWithJsonArr:(NSArray *)jsonArr {
+    NSMutableArray *favoriteArr = [NSMutableArray array];
+    
+    for (NSDictionary *jsonDic in jsonArr) {
+        MyAgentFavoriteModel *myAgentFavoriteModel = [[MyAgentFavoriteModel alloc] init];
+        [myAgentFavoriteModel setValuesForKeysWithDictionary:jsonDic];
+        [favoriteArr addObject:myAgentFavoriteModel];
+    }
+    
+    return favoriteArr;
+    
+}
+
+//我的代理-客户购物车
+- (void)httpMyAgentPeopleShopCarWithUserId:(NSString *)userId withPageIndex:(NSInteger)pageIndex withPeopleShopCarSuccess:(SuccessResult)peopleShopCarSuccess withPeopleShopCarFail:(FailResult)peopleShopCarFail {
+    
+    NSString *url = [NSString stringWithFormat:@"%@?id=%@&pageindex=%ld&pagesize=10",[[InterfaceManager shareInstance] myAgentShopCarBase],userId,pageIndex];
+    
+    [[NetManager shareInstance] getRequestWithURL:url withParameters:nil withContentTypes:nil withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+        NSLog(@"%ld",operation.response.statusCode);
+        NSLog(@"%@",[self dictionaryToJson:successResult]);
+        
+        //解析模型
+        NSMutableArray *shopCarArr =  [self analyzeMyAgentPeopleShopCarDataWithJsonArr:[successResult objectForKey:@"content"]];
+        peopleShopCarSuccess(@{@"content":shopCarArr,@"totalpages":[successResult objectForKey:@"totalpages"]});
+        
+        
+    } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
+        NSLog(@"%ld -- %@",operation.response.statusCode,errorResult);
+        peopleShopCarFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]]);
+        
+    }];
+}
+
+- (NSMutableArray *)analyzeMyAgentPeopleShopCarDataWithJsonArr:(NSArray *)jsonArr {
+    NSMutableArray *shopCarArr = [NSMutableArray array];
+    
+    for (NSDictionary *jsonDic in jsonArr) {
+        MyAgentShopCarModel *myAgentShopCarModel = [[MyAgentShopCarModel alloc] init];
+        [myAgentShopCarModel setValuesForKeysWithDictionary:jsonDic];
+        [shopCarArr addObject:myAgentShopCarModel];
+    }
+    
+    return shopCarArr;
+    
+}
+
+
+
+//我的代理-提成流水（新数据库）
+- (void)httpMyAgentCommissionWithIsNew:(BOOL)isNew withUserId:(NSString *)userId withPageIndex:(NSInteger)pageIndex withCommissionSuccess:(SuccessResult)commissionSuccess withCommissionFail:(FailResult)commissionFail {
+    
+    NSString *url ;
+    if (isNew == YES) {
+        url = [NSString stringWithFormat:@"%@?id=%@&pageindex=%ld&pagesize=10",[[InterfaceManager shareInstance] myAgentCommissionNewBase],userId,pageIndex];
+        
+    }else {
+        url = [NSString stringWithFormat:@"%@?type=&id=%@&pageindex=%ld&pagesize=10",[[InterfaceManager shareInstance] myAgentCommissionOldBase],userId,pageIndex];
+    }
+    
+    [[NetManager shareInstance] getRequestWithURL:url withParameters:nil withContentTypes:nil withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+        NSLog(@"%ld",operation.response.statusCode);
+        NSLog(@"%@",[self dictionaryToJson:successResult]);
+        
+        //解析模型
+        NSMutableArray *orderList = [self analyzeMyAgentCommissionDataWithJsonArr:[successResult objectForKey:@"content"]];
+        
+        commissionSuccess(@{@"content":orderList,@"totalpages":[successResult objectForKey:@"totalpages"]} );
+        
+    } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
+        NSLog(@"%ld -- %@",operation.response.statusCode,errorResult);
+        commissionFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]]);
+        
+    }];
+
+}
+
+//解析提成流水
+- (NSMutableArray *)analyzeMyAgentCommissionDataWithJsonArr:(NSArray *)jsonArr {
+    NSMutableArray *commissionArr = [NSMutableArray array];
+    
+    for (NSDictionary *jsonDic in jsonArr) {
+        MyAgentCommissionModel *commissionModel = [[MyAgentCommissionModel alloc] init];
+        [commissionModel setValuesForKeysWithDictionary:jsonDic];
+        [commissionArr addObject:commissionModel];
+    }
+    
+    return commissionArr;
+    
+}
+
 
 #pragma mark - 浏览记录 -
 - (NSMutableArray *)mybrowseListArr {
@@ -3270,7 +3367,7 @@
 - (void)httpMessageNotificationWithType:(NSString *)type withTitle:(NSString *)title withKeyword:(NSString *)keyword withIntroduce:(NSString *)introduce withPageindex:(NSInteger )pageIndex withMessageSuccess:(SuccessResult)messageSuccess withMessageFail:(FailResult)messageFail {
     
     NSString *url = [NSString stringWithFormat:@"%@?type=%@&title=%@&keyword=%@&introduce=%@&pageindex=%ld&pagesize=10&sdt=&edt=",[[InterfaceManager shareInstance] messageNotificationBase],type,title,keyword,introduce,pageIndex];
-    [[NetManager shareInstance] getRequestWithURL:url withParameters:nil withContentTypes:nil withHeaderArr:nil withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+    [[NetManager shareInstance] getRequestWithURL:url withParameters:nil withContentTypes:nil withHeaderArr:nil  withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
         NSLog(@"%ld",operation.response.statusCode);
         NSLog(@"%@",[self dictionaryToJson:successResult]);
 
@@ -3418,7 +3515,6 @@
     self.cashDetailDic = nil;
     self.tradeDateKeyArr = nil;
     self.tradeDetailDic = nil;
-    self.myAgentDic = nil;
     self.myWalletDic = nil;
     self.mybrowseListArr = nil;
     self.afterMarketArr = nil;

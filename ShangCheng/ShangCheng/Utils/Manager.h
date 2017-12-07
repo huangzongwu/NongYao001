@@ -38,6 +38,9 @@
 #import "AfterOrderModel.h"
 #import "ActivityProductModel.h"
 #import "BannerTradeModel.h"
+#import "MyAgentFavoriteModel.h"
+#import "MyAgentShopCarModel.h"
+#import "MyAgentCommissionModel.h"
 typedef void(^SuccessResult)(id successResult);
 typedef void(^FailResult)(NSString *failResultStr);
 
@@ -85,9 +88,6 @@ typedef void(^FailResult)(NSString *failResultStr);
 @property (nonatomic,strong)NSMutableArray *tradeDateKeyArr;
 //我的交易记录--详情字典
 @property (nonatomic,strong)NSMutableDictionary *tradeDetailDic;
-
-//我的代理数据 1收益 2订单 3代理商人数 4订单详情 5代理商详情
-@property (nonatomic,strong)NSMutableDictionary *myAgentDic;
 
 //个人中心 我的钱包数据
 @property (nonatomic,strong)NSMutableDictionary *myWalletDic;
@@ -335,7 +335,16 @@ typedef void(^FailResult)(NSString *failResultStr);
 //我的代理 人员数据
 - (void)httpMyAgentPeopleListDataWithUserId:(NSString *)userId withPageindex:(NSInteger )pageIndex withMyAgentSuccess:(SuccessResult)myAgentSuccess withMyagentFail:(FailResult)myAgentFail ;
 //我的代理 订单数据
-- (void)httpMyAgentOrderListDataWithUserId:(NSString *)userId withPageindex:(NSInteger )pageIndex withMyAgentSuccess:(SuccessResult)myAgentSuccess withMyagentFail:(FailResult)myAgentFail ;
+- (void)httpMyAgentOrderListDataWithIsNew:(BOOL)isNew withUserId:(NSString *)userId withPageindex:(NSInteger )pageIndex withMyAgentSuccess:(SuccessResult)myAgentSuccess withMyagentFail:(FailResult)myAgentFail ;
+//我的代理-客户收藏
+- (void)httpMyAgentPeopleFavoriteWithUserId:(NSString *)userId withPageIndex:(NSInteger)pageIndex withPeopleFavoriteSuccess:(SuccessResult)peopleFavoriteSuccess withPeopleFavoriteFail:(FailResult)peopleFaviriteFail;
+//我的代理-客户购物车
+- (void)httpMyAgentPeopleShopCarWithUserId:(NSString *)userId withPageIndex:(NSInteger)pageIndex withPeopleShopCarSuccess:(SuccessResult)peopleShopCarSuccess withPeopleShopCarFail:(FailResult)peopleShopCarFail;
+
+//我的代理-提成流水
+- (void)httpMyAgentCommissionWithIsNew:(BOOL)isNew withUserId:(NSString *)userId withPageIndex:(NSInteger)pageIndex withCommissionSuccess:(SuccessResult)commissionSuccess withCommissionFail:(FailResult)commissionFail;
+
+
 
 #pragma mark - 浏览记录 -
 //从本地获取浏览记录

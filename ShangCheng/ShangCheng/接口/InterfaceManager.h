@@ -53,6 +53,7 @@
 - (NSString *)activityTradeListBase;
 
 
+
 #pragma mark - 购物车 -
 //购物车基本url
 - (NSString *)shoppingCarBaseURL;
@@ -150,11 +151,19 @@
 #pragma mark - 我的代理 -
 //基本代理数据
 - (NSString *)myAgentDataBase;
-
 //人员列表数据
 - (NSString *)myAgentPeopleListBase;
 //订单列表数据
 - (NSString *)myAgentOrderListBase;
+//代理客户收藏
+- (NSString *)myAgentFavoriteBase;
+//代理客户购物车
+- (NSString *)myAgentShopCarBase;
+//提成流水（新数据库）
+- (NSString *)myAgentCommissionNewBase;
+//提成流水（老数据库）
+- (NSString *)myAgentCommissionOldBase;
+
 
 #pragma mark - 登录注册 -
 //登录接口

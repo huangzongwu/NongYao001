@@ -301,12 +301,30 @@
 - (NSString *)myAgentPeopleListBase {
     return [NSString stringWithFormat:@"%@/AgentUser",self.baseUrl];
 }
+
 //订单列表数据
 - (NSString *)myAgentOrderListBase {
     return [NSString stringWithFormat:@"%@/AgentOrder",self.baseUrl];
-
 }
 
+//代理客户收藏
+- (NSString *)myAgentFavoriteBase {
+    return [NSString stringWithFormat:@"%@/Agentfavorite",self.baseUrl];
+}
+
+//代理客户购物车
+- (NSString *)myAgentShopCarBase {
+    return [NSString stringWithFormat:@"%@/AgentShoppingCart",self.baseUrl];
+}
+
+//提成流水（新数据库）
+- (NSString *)myAgentCommissionNewBase {
+    return [NSString stringWithFormat:@"%@/AgentSalesCommission",self.baseUrl];
+}
+//提成流水（老数据库）
+- (NSString *)myAgentCommissionOldBase {
+    return [NSString stringWithFormat:@"%@/UserAccountOld",self.baseUrl];
+}
 
 #pragma mark - 登录注册 -
 //登录接口

@@ -17,7 +17,7 @@
     //电话号码隐藏中间四位
     NSString *currentPhoneStr = [tempModel.u_mobile stringByReplacingCharactersInRange:NSMakeRange(3, 4) withString:@"****"];
     self.peoplePhoneLabel.text = currentPhoneStr;
-    self.peopleAddressLabel.text = [NSString stringWithFormat:@"%@ %@ %@",tempModel.capitalname,tempModel.cityname,tempModel.countyname];
+    self.peopleAddressLabel.text = [NSString stringWithFormat:@"%@%@%@",tempModel.capitalname,tempModel.cityname,tempModel.countyname];
     self.peopleTimeLabel.text = tempModel.u_time_create;
     
     

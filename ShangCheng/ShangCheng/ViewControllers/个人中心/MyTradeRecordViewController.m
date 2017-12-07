@@ -38,6 +38,10 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    //注册cell
+    [self.tradeRecordtableView registerNib:[UINib nibWithNibName:@"TradeRecordTableViewCell" bundle:nil] forCellReuseIdentifier:@"tradeRecordCell"];
+    
+    
     //加载空白页
     self.kongImageView = [[[NSBundle mainBundle] loadNibNamed:@"KongImageView" owner:self options:nil] firstObject];
     [self.kongImageView.reloadAgainButton addTarget:self action:@selector(reloadAgainButtonAction:) forControlEvents:UIControlEventTouchUpInside];

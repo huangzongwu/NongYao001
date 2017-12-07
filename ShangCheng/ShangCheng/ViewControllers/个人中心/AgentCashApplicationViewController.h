@@ -14,5 +14,6 @@
  agentCash代理商收益提现。即代理商的收益金额提现
  */
 @property(nonatomic,strong)NSString *cashType;
-
+//代理商收益提现 -- 可提现金额
+@property(nonatomic,strong)NSString *agentCashCommission;
 @end

@@ -53,10 +53,9 @@
     //加载网页的方式
     NSLog(@"++%@",self.webUrl);
     if (self.webUrl != nil && ![self.webUrl isEqualToString:@""]) {
-        if (![self.webUrl containsString:@"http://"]) {
-            self.webUrl = [NSString stringWithFormat:@"http://%@", self.webUrl];
+        if (![self.webUrl containsString:@"https://"]) {
+            self.webUrl = [NSString stringWithFormat:@"https://%@", self.webUrl];
         }
-        
 
         if (self.isUTF8Code == YES) {
             NSString * strUrl = [[NSString alloc]initWithContentsOfURL:[NSURL URLWithString:self.webUrl] encoding:NSUTF8StringEncoding error:nil];

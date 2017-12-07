@@ -528,11 +528,19 @@
     if (cycleScrollView.tag == 500) {
         BannerModel *tempModel = self.bannerDataSource[index];
         
-//        [self performSegueWithIdentifier:@"homeToWebViewVC" sender:@[tempModel.l_title,tempModel.l_link_path]];
-        
-        [self performSegueWithIdentifier:@"homeToBannerShopVC" sender:tempModel];
+        if ([tempModel.l_remark isEqualToString:@"activity"]) {
+            //原生活动
+            [self performSegueWithIdentifier:@"homeToBannerShopVC" sender:tempModel];
 
+        }else{
+            //普通公告，就跳转到webView
+            [self performSegueWithIdentifier:@"homeToWebViewVC" sender:@[tempModel.l_title,tempModel.l_link_path]];
+
+        }
+        
     }
+    
+    
     if (cycleScrollView.tag == 501) {
         PestsListModel *model = self.adScrollViewDataSourceArr[index];
         NSLog(@"%@", model.i_source_url);

@@ -25,6 +25,7 @@
 
 @property (nonatomic,strong)NSMutableArray *mineDataSource;
 
+@property (nonatomic,strong)NSDictionary *myAgentDic;
 
 @end
 
@@ -131,10 +132,9 @@
     if ([userType integerValue] == 1) {
         [manager httpMyAgentBaseDataWithUserId:manager.memberInfoModel.u_id withMyAgentSuccess:^(id successResult) {
             
-            if (manager.myAgentDic != nil) {
-                
-                [self.mineCollectionView reloadSections:[NSIndexSet indexSetWithIndex:3]];
-            }
+            self.myAgentDic = successResult;
+            
+            [self.mineCollectionView reloadSections:[NSIndexSet indexSetWithIndex:3]];
             
             
         } withMyagentFail:^(NSString *failResultStr) {
@@ -502,13 +502,13 @@
             NSString *detailInfo = @"--";
             switch (indexPath.row) {
                 case 0:
-                    detailInfo = [manager.myAgentDic objectForKey:@"a_commission"];
+                    detailInfo = [self.myAgentDic objectForKey:@"a_commission"];
                     break;
                 case 1:
-                    detailInfo = [manager.myAgentDic objectForKey:@"ordernum"];
+                    detailInfo = [self.myAgentDic objectForKey:@"ordernum"];
                     break;
                 case 2:
-                    detailInfo = [manager.myAgentDic objectForKey:@"peonum"];
+                    detailInfo = [self.myAgentDic objectForKey:@"peonum"];
                     break;
      
                 default:

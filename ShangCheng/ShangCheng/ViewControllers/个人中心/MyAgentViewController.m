@@ -8,33 +8,28 @@
 
 #import "MyAgentViewController.h"
 #import "Manager.h"
-#import "MyAgentPeopleTableViewCell.h"
-#import "MyAgentOrderTableViewCell.h"
+#import "MyAgentCollectionViewCell.h"
 #import "SVProgressHUD.h"
 #import "AgentCashApplicationViewController.h"
-@interface MyAgentViewController ()<UITableViewDataSource,UITableViewDelegate>
-//头部收益金额
+#import "MyAgentDetailViewController.h"
+#import "MyTradeRecordViewController.h"
+@interface MyAgentViewController ()<UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout>
+//头部收益金额Label
 @property (weak, nonatomic) IBOutlet UILabel *incomeAmountLabel;
-//人员button
-@property (weak, nonatomic) IBOutlet UIButton *peopleNumberButton;
-@property (weak, nonatomic) IBOutlet UIView *peopleNumberLine;
-//订单button
-@property (weak, nonatomic) IBOutlet UIButton *orderNumberButton;
-@property (weak, nonatomic) IBOutlet UIView *orderNumberLine;
 
+//收益金额
+@property (nonatomic,strong)NSString *incomeAmountStr;
 
-@property (weak, nonatomic) IBOutlet UITableView *myAgentTableView;
-//类型，是人员或者订单 peopleType orderType
-@property (nonatomic,strong)NSString *currentTypeStr;
-//人员页数
-@property (nonatomic,assign)NSInteger peoplePageIndex;
-//订单页数
-@property (nonatomic,assign)NSInteger orderPageIndex;
+//数据源
+@property (nonatomic,strong)NSMutableArray *dataSourceArr;
+
+@property (weak, nonatomic) IBOutlet UICollectionView *myAgentcCollectionView;
 
 
 @end
 
 @implementation MyAgentViewController
+
 - (instancetype)initWithCoder:(NSCoder *)aDecoder {
     self = [super initWithCoder:aDecoder];
     if (self) {
@@ -53,9 +48,7 @@
 
 
 - (IBAction)leftBarButtonAction:(UIBarButtonItem *)sender {
-    //清空一下订单数据，以便下次进来请求最新数据
-    Manager *manager = [Manager shareInstance];
-    [manager.myAgentDic setValue:nil forKey:@"order"];
+    
     [self.navigationController popViewControllerAnimated:YES];
 }
 
@@ -67,37 +60,30 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     Manager *manager = [Manager shareInstance];
-
-    // 让cell自适应高度
-    self.myAgentTableView.rowHeight = UITableViewAutomaticDimension;
-    //设置估算高度
-    self.myAgentTableView.estimatedRowHeight = 44;
     
-    //默认为第一页
-    self.peoplePageIndex = 1;
-    self.orderPageIndex = 1;
-    //默认为人员类型
-    self.currentTypeStr = @"peopleType";
-    
-    
-    //网络请求人员数据
     if ([SVProgressHUD isVisible] == NO) {
         [SVProgressHUD show];
     }
+    
+    self.incomeAmountStr = @"0";
+    
+    
+    NSMutableDictionary *oneDic = [NSMutableDictionary dictionaryWithObjectsAndKeys:@"icon_wdkh",@"img",@"我的客户",@"title",@"0",@"detail", nil];
+    NSMutableDictionary *twoDic = [NSMutableDictionary dictionaryWithObjectsAndKeys:@"icon_khdd",@"img",@"客户订单",@"title",@"0",@"detail", nil];
+    NSMutableDictionary *threeDic = [NSMutableDictionary dictionaryWithObjectsAndKeys:@"icon_txjl",@"img",@"提现记录",@"title",@"0",@"detail", nil];
+    NSMutableDictionary *fourDic = [NSMutableDictionary dictionaryWithObjectsAndKeys:@"icon_khsc",@"img",@"客户收藏",@"title",@"0",@"detail", nil];
+    NSMutableDictionary *fiveDic = [NSMutableDictionary dictionaryWithObjectsAndKeys:@"icon_khgwc",@"img",@"客户购物车",@"title",@"0",@"detail", nil];
+    NSMutableDictionary *sixDic = [NSMutableDictionary dictionaryWithObjectsAndKeys:@"icon_tcls",@"img",@"提成流水",@"title",@"0",@"detail", nil];
 
-    [manager httpMyAgentPeopleListDataWithUserId:manager.memberInfoModel.u_id withPageindex:1 withMyAgentSuccess:^(id successResult) {
-        [SVProgressHUD dismiss];
-        [self.myAgentTableView reloadData];
-        
-    } withMyagentFail:^(NSString *failResultStr) {
-        [SVProgressHUD dismiss];
-    }];
+    self.dataSourceArr = [NSMutableArray arrayWithObjects:oneDic,twoDic,threeDic,fourDic,fiveDic,sixDic, nil];
     
     
-    //更新头部view
-    [self upHeaderView];
+    [self httpMyAgentDataWithUserType:manager.memberInfoModel.u_type];
     
 }
+
+
+
 
 #pragma mark - 请求代理信息 -
 //网络请求代理数据
@@ -106,11 +92,20 @@
     //如果是代理。请求代理数据
     if ([userType integerValue] == 1) {
         [manager httpMyAgentBaseDataWithUserId:manager.memberInfoModel.u_id withMyAgentSuccess:^(id successResult) {
+            //客户个数
+            NSMutableDictionary *oneDic = self.dataSourceArr[0];
+            [oneDic setValue:[successResult objectForKey:@"peonum"] forKey:@"detail"];
+            //订单个数
+            NSMutableDictionary *twoDic = self.dataSourceArr[1];
+            [twoDic setValue:[successResult objectForKey:@"ordernum"] forKey:@"detail"];
+            [self.myAgentcCollectionView reloadData];
+        
             
-            if (manager.myAgentDic != nil) {
-                [self upHeaderView];
+            self.incomeAmountStr = [successResult objectForKey:@"a_commission"];
+            
+            [self upHeaderView];
 
-            }
+            
             
         } withMyagentFail:^(NSString *failResultStr) {
             
@@ -123,158 +118,43 @@
 
 //更新头部View
 - (void)upHeaderView {
-    
-    Manager *manager = [Manager shareInstance];
-    
-    self.incomeAmountLabel.text = [manager.myAgentDic objectForKey:@"a_commission"];
-    [self.orderNumberButton setTitle:[NSString stringWithFormat:@"订单(%@)",[manager.myAgentDic objectForKey:@"ordernum"] ] forState:UIControlStateNormal];
-    [self.peopleNumberButton setTitle:[NSString stringWithFormat:@"人员(%@)", [manager.myAgentDic objectForKey:@"peonum"] ] forState:UIControlStateNormal];
-
+    self.incomeAmountLabel.text = self.incomeAmountStr;
 }
 
-//人员
-- (IBAction)peopleButtonAction:(UIButton *)sender {
-    //只有当前为订单类型，点击人员按钮才有效果
-    if ([self.currentTypeStr isEqualToString:@"orderType"]) {
-        //更改类型
-        self.currentTypeStr = @"peopleType";
-        //变换颜色
-        [self.peopleNumberButton setTitleColor:kMainColor forState:UIControlStateNormal];
-        self.peopleNumberLine.backgroundColor = kMainColor;
-        [self.orderNumberButton setTitleColor:k333333Color forState:UIControlStateNormal];
-        self.orderNumberLine.backgroundColor = [UIColor whiteColor];
-        
-        
-        
-        Manager *manager = [Manager shareInstance];
-        
-        if ([manager.myAgentDic objectForKey:@"people"] != nil && [[manager.myAgentDic objectForKey:@"people"] isKindOfClass:[NSMutableArray class]]) {
-            //不用请求，刷新cell
-            NSLog(@"不用请求，只做刷新cell");
-            [self.myAgentTableView reloadData];
 
-            
-        }else {
-            //需要请求
-            //网络请求人员数据
-            if ([SVProgressHUD isVisible] == NO) {
-                [SVProgressHUD show];
-            }
 
-            [manager httpMyAgentPeopleListDataWithUserId:manager.memberInfoModel.u_id withPageindex:1 withMyAgentSuccess:^(id successResult) {
-                [SVProgressHUD dismiss];
-                
-                [self.myAgentTableView reloadData];
-                
-            } withMyagentFail:^(NSString *failResultStr) {
-                [SVProgressHUD dismiss];
-            }];
-            
-        }
 
-        
-        
-    }
-    
+#pragma mark - Collection Delegate -
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
+    return self.dataSourceArr.count;
 }
-//订单
-- (IBAction)orderButtonAction:(UIButton *)sender {
-    //只有当前为人员类型，点击订单按钮才有效果
-    if ([self.currentTypeStr isEqualToString:@"peopleType"]) {
-        //更改类型
-        self.currentTypeStr = @"orderType";
-        //变换颜色
-        [self.orderNumberButton setTitleColor:kMainColor forState:UIControlStateNormal];
-        self.orderNumberLine.backgroundColor = kMainColor;
-        [self.peopleNumberButton setTitleColor:k333333Color forState:UIControlStateNormal];
-        self.peopleNumberLine.backgroundColor = [UIColor whiteColor];
 
-        
-        
-        Manager *manager = [Manager shareInstance];
-        if ([manager.myAgentDic objectForKey:@"order"] != nil && [[manager.myAgentDic objectForKey:@"order"] isKindOfClass:[NSMutableArray class]]) {
-            //不用请求，刷新cell
-            NSLog(@"不用请求，只做刷新cell");
-            [self.myAgentTableView reloadData];
-            
-        }else {
-            //需要请求
-            //网络请求订单数据
-            if ([SVProgressHUD isVisible] == NO) {
-                [SVProgressHUD show];
-            }
+- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
+    return CGSizeMake((kScreenW - 44)/3, (kScreenW - 44)/3);
+}
 
-            [manager httpMyAgentOrderListDataWithUserId:manager.memberInfoModel.u_id withPageindex:1 withMyAgentSuccess:^(id successResult) {
-                [SVProgressHUD dismiss];
-                
-                [self.myAgentTableView reloadData];
-                
-            } withMyagentFail:^(NSString *failResultStr) {
-                [SVProgressHUD dismiss];
-            }];
-            
-            
-        }
-
-    }
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+    MyAgentCollectionViewCell *myAgentCell = [collectionView dequeueReusableCellWithReuseIdentifier:@"myAgentCollectionCell" forIndexPath:indexPath];
+    [myAgentCell updateMyAgentCollectionCellWithDataDic:self.dataSourceArr[indexPath.row]];
+    return myAgentCell;
     
 }
 
 
-#pragma mark - TableView Delegate -
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    
-    return 1;
-}
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+    if (indexPath.row == 2) {
+        [self performSegueWithIdentifier:@"myAgentToTradeRecordVC" sender:indexPath];
 
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    Manager *manager = [Manager shareInstance];
-    if ([self.currentTypeStr isEqualToString:@"peopleType"]) {
-        if ([manager.myAgentDic objectForKey:@"people"] != nil && [[manager.myAgentDic objectForKey:@"people"] isKindOfClass:[NSMutableArray class]]) {
-            return [[manager.myAgentDic objectForKey:@"people"] count];
-        }
-        
+    }else {
+        [self performSegueWithIdentifier:@"myAgentToDetailVC" sender:indexPath];
     }
-    
-    if ([self.currentTypeStr isEqualToString:@"orderType"]) {
-        if ([manager.myAgentDic objectForKey:@"order"] != nil && [[manager.myAgentDic objectForKey:@"order"] isKindOfClass:[NSMutableArray class]]) {
-            return [[manager.myAgentDic objectForKey:@"order"] count];
-        }
-        
-    }
-    return 0;
-}
-
-
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    Manager *manager = [Manager shareInstance];
-    
-    if ([self.currentTypeStr isEqualToString:@"peopleType"]) {
-        MyAgentPeopleTableViewCell *peopleCell = [tableView dequeueReusableCellWithIdentifier:@"agentPeopleCell" forIndexPath:indexPath];
-        MyAgentPeopleModel *peopleModel = [[manager.myAgentDic objectForKey:@"people"] objectAtIndex:indexPath.row];
-        [peopleCell updateMyAgentPeopleCellWithAgentModel:peopleModel];
-        return peopleCell;
-    }
-    
-    if ([self.currentTypeStr isEqualToString:@"orderType"]) {
-        MyAgentOrderTableViewCell *orderCell = [tableView dequeueReusableCellWithIdentifier:@"agentOrderCell" forIndexPath:indexPath];
-        MyAgentOrderModel *orderModel = [[manager.myAgentDic objectForKey:@"order"] objectAtIndex:indexPath.row];
-
-        [orderCell updateMyAgentOrderCellWithAgentModel:orderModel];
-
-        return orderCell;
-    }
-    return 0;
-    
     
 }
 
 #pragma mark - 代理商提现 -
 - (IBAction)AgentCashBtnAction:(UIButton *)sender {
-    Manager *manager = [Manager shareInstance];
     AlertManager *alertM = [AlertManager shareIntance];
-    
-    if ([[manager.myAgentDic objectForKey:@"a_commission"] floatValue] > 0) {
+    if ([self.incomeAmountStr floatValue] > 0) {
         //跳转到提现界面
         [self performSegueWithIdentifier:@"myAgentToCashVC" sender:nil];
         
@@ -298,10 +178,24 @@
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
-    if ([segue.identifier isEqualToString:@""]) {
+    if ([segue.identifier isEqualToString:@"myAgentToCashVC"]) {
         AgentCashApplicationViewController *agentCashVC = [segue destinationViewController];
         agentCashVC.cashType = @"agentCash";
+        agentCashVC.agentCashCommission = self.incomeAmountStr;
     }
+    
+    if ([segue.identifier isEqualToString:@"myAgentToDetailVC"]) {
+        MyAgentDetailViewController *myAgentDetailVC = [segue destinationViewController];
+        myAgentDetailVC.myAgentType = ((NSIndexPath *)sender).row;
+    }
+    
+    
+    if ([segue.identifier isEqualToString:@"myAgentToTradeRecordVC"]) {
+        //提现记录
+        MyTradeRecordViewController *myRecordVC = [segue destinationViewController];
+        myRecordVC.isCash = YES;
+    }
+    
 }
 
 
