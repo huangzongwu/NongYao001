@@ -12,7 +12,7 @@
 - (void)updateTodaySaleCellWithModel:(TodaySaleModel *)tempModel {
     
     self.todayTitleLabel.text = tempModel.type;
-    [self.todayImageView setWebImageURLWithImageUrlStr:tempModel.a_image1 withErrorImage:[UIImage imageNamed:@"icon_pic_cp.png"] withIsCenter:YES];
+    [self.todayImageView setWebImageURLWithImageUrlStr:tempModel.a_image2 withErrorImage:[UIImage imageNamed:@"icon_pic_cp.png"] withIsCenter:YES];
 }
 
 - (void)awakeFromNib {

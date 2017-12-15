@@ -31,6 +31,8 @@
 
 @property (weak, nonatomic) IBOutlet UILabel *userBalanceLabel;//可用金额Label
 
+@property (weak, nonatomic) IBOutlet UILabel *cashRemindLabel;//提醒Label
+
 @property (weak, nonatomic) IBOutlet UIButton *enterAgentCashButton;//确认提现button
 
 //选择的方式0-支付宝，1-微信，2-银行卡
@@ -107,8 +109,12 @@
 }
 
 - (void)textFieldDidEndEditing:(UITextField *)textField {
-    NSInteger availInt = [textField.text integerValue];
-    textField.text = [NSString stringWithFormat:@"%ld", availInt/50 * 50];
+    if ([self.cashType isEqualToString:@"agentCash"]) {
+        //代理商收益提现
+        NSInteger availInt = [textField.text integerValue];
+        textField.text = [NSString stringWithFormat:@"%ld", availInt/50 * 50];
+    }
+    
     
 }
 
@@ -128,10 +134,11 @@
     Manager *manager = [Manager shareInstance];    
     //用户余额提现
     if ([self.cashType isEqualToString:@"userCash"]) {
+        self.cashRemindLabel.text = @"";
         
         //可提现金额的展示
-        NSInteger u_amount_avail_Int = manager.memberInfoModel.u_amount_avail;
-        self.userBalanceLabel.text = [NSString stringWithFormat:@"余额:%.2f，可提现金额：%ld元",manager.memberInfoModel.u_amount_avail,u_amount_avail_Int/50 * 50];
+//        NSInteger u_amount_avail_Int = manager.memberInfoModel.u_amount_avail;
+        self.userBalanceLabel.text = [NSString stringWithFormat:@"可提现金额：%.2f元",manager.memberInfoModel.u_amount_avail];
     }else {
         //代理商收益提现
         NSInteger u_amount_avail_Int = [self.agentCashCommission integerValue];
@@ -252,7 +259,7 @@
             isCommit = YES;
         }else{
             if (amount <= 0) {
-                notCommitStr = @"提现金额至少为50元";
+                notCommitStr = @"提现金额不能小于0元";
             }
             if (amount > manager.memberInfoModel.u_amount_avail) {
                 notCommitStr = @"提现金额不能大于可提现金额";
@@ -290,6 +297,8 @@
         if ([SVProgressHUD isVisible] == NO) {
             [SVProgressHUD show];
         }
+        
+        NSLog(@"可以提现%@",self.agentCashAmountTextField.text);
 
         [manager httpUserAgentCashApplicationWithCashType:self.cashType withUserId:manager.memberInfoModel.u_id withType:[NSString stringWithFormat:@"%ld",self.selectTypeInt] withBankName:bankNameStr withName:nameStr withCode:codeStr withAmount:self.agentCashAmountTextField.text withNote:@"" withAgentCashSuccess:^(id successResult) {
             [SVProgressHUD dismiss];
@@ -307,6 +316,7 @@
                 
                 [self.navigationController popViewControllerAnimated:YES];
             }];
+ 
             
             
         } withAgentCashFail:^(NSString *failResultStr) {
@@ -314,6 +324,7 @@
             [alertM showAlertViewWithTitle:nil withMessage:@"申请提现失败，请联系客服" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
 
         }];
+
 
     }else {
         [alertM showAlertViewWithTitle:nil withMessage:notCommitStr actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];

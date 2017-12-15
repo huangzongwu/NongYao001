@@ -15,6 +15,7 @@
     switch (indexPath.row) {
         case 0:
             self.titleLabel.text = @"产品分类：";
+//            self.titleLabel.textAlignment = NSTextAlignmentCenter
             if ([productDetailModel.p_typevalue1 isEqualToString:@""]) {
                 self.contentLabel.text = @"暂无";
             }else {

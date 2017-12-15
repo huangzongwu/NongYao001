@@ -79,10 +79,6 @@
 }
 
 //首页产品
-//- (NSString *)homeProductURLWithRnum:(NSString *)rnum {
-//    return [NSString stringWithFormat:@"%@/ProductHomePage?rnum=%@",self.baseUrl,rnum];
-//}
-
 - (NSString *)homeProductURLWithRnum:(NSString *)rnum {
     return [NSString stringWithFormat:@"%@/ProductHomePage?rnum=%@",self.baseUrl,rnum];
 }

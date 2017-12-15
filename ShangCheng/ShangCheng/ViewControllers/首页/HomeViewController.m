@@ -172,7 +172,7 @@
         [SVProgressHUD show];
     }
     //网络请求首页数据
-    [manager httpHomeProductWithRnum:@"4" withSuccessHomeResult:^(id successResult) {
+    [manager httpHomeProductWithRnum:@"8" withSuccessHomeResult:^(id successResult) {
         [self.collectionView headerEndRefreshing];
 
         if (successResult != nil) {
@@ -358,7 +358,7 @@
         {
 
             MainCollectionReusableView *mainHeader = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"mainHeader" forIndexPath:indexPath];
-            //            mainHeader.backgroundColor = [UIColor blueColor];
+
             
             //得到分类
             ProductClassModel *tempClassModel = [[[Manager shareInstance].homeDataSourceDic objectForKey:@"推荐"] objectAtIndex:indexPath.section-3];
@@ -400,7 +400,7 @@
         {
             TodaySaleImageCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"cellIdentifier2" forIndexPath:indexPath];
 
-            //            cell.backgroundView.backgroundColor = [UIColor redColor];
+
             return cell;
 
         }

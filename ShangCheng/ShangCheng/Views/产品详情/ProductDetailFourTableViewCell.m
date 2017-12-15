@@ -15,7 +15,7 @@
     self.nameLabel.text = model.truename;
     self.mobileLabel.text = model.mobile;
     self.buyCountLabel.text = [NSString stringWithFormat:@"购买数量：%@", model.o_num ];
-    self.timeLabel.text = model.p_time_pay;
+    self.timeLabel.text = model.o_time_create;
     
     
 }

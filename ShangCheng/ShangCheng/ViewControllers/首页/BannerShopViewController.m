@@ -16,7 +16,13 @@
 #import "Manager.h"
 #import "BannerTradeModel.h"
 #import "SaleProductListViewController.h"
-@interface BannerShopViewController ()<UICollectionViewDataSource,UICollectionViewDelegate,UICollectionViewDelegateFlowLayout,UITableViewDataSource,UITableViewDelegate>
+#import "ProductDetailViewController.h"
+
+@interface BannerShopViewController ()<UICollectionViewDataSource,UICollectionViewDelegate,UICollectionViewDelegateFlowLayout,UITableViewDataSource,UITableViewDelegate,UISearchBarDelegate>
+
+@property(nonatomic,strong)UIView *searchView;
+@property(nonatomic,strong)UISearchBar *searchBar;
+
 
 @property (weak, nonatomic) IBOutlet UICollectionView *bannerCollectionView;
 
@@ -39,7 +45,6 @@
 @property(nonatomic,assign)NSInteger tradePageInt;
 //一共有几页
 @property(nonatomic,assign)NSInteger tradeTotalPageInt;
-
 
 
 //定时器
@@ -86,6 +91,9 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    //创建导航栏中的搜索框
+    [self addSearchBarOnNavigation];
+    
     if (@available(iOS 11.0, *)) {
         NSLog(@"iOS11以上");
         self.bannerCollectionView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
@@ -129,21 +137,35 @@
     self.tempFactoryIndex = 9;
     self.tempTradeIndex = 4;
     
+
+}
+
+
+//添加搜索框到导航栏
+- (void)addSearchBarOnNavigation {
+    //创建一个UIView当做titleView
+    self.searchView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, NSIntegerMax, 44)];
+//    self.searchView.backgroundColor = [UIColor blueColor];
+    self.navigationItem.titleView = self.searchView;
     
-#warning 假数据
-//    for (int i = 0; i < 20; i++) {
-//        BannerTradeModel *tradeModel = [[BannerTradeModel alloc] init];
-//        tradeModel.tradeName = @"测试名字";
-//        tradeModel.tradePhone = @"135XXXX5084";
-//        tradeModel.tradeProduct = @"阿维菌素";
-//        tradeModel.tradeNumber = @"12";
-//        [self.tradeDataArr addObject:tradeModel];
-//
-//    }
-//
-//    for (int i = 0 ; i < 30; i++) {
-//        [self.factoryDataArr addObject:@"山东农药公司"];
-//    }
+    //导航条的搜索条
+    self.searchBar = [[UISearchBar alloc]init];
+    [self.searchBar setTintColor:k333333Color];
+    [self.searchBar setPlaceholder:@"请输入产品名称或成分"];
+    UITextField *searchField = [self.searchBar valueForKey:@"_searchField"];
+    self.searchBar.delegate = self;
+//    searchField.returnKeyType = UIReturnKeySearch;
+    searchField.font = [UIFont systemFontOfSize:13];
+    [self.searchView addSubview:_searchBar];
+}
+
+#pragma mark - searchBar代理 -
+- (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar {
+
+    UITextField *searchField = [searchBar valueForKey:@"_searchField"];
+
+    //进行搜索
+    [self performSegueWithIdentifier:@"bannerShopToSaleList" sender:@[@"search",searchField.text]];
 }
 
 #pragma mark - 网络请求 -
@@ -299,7 +321,7 @@
     
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
     if (indexPath.section == 0) {
-        return CGSizeMake(kScreenW, kScreenW/36*29 + 46); //60是搜索栏
+        return CGSizeMake(kScreenW, kScreenW/36*29 + 46); //46是搜索栏
     }else if (indexPath.section == self.keyArr.count + 1){
         //参与厂家
         return CGSizeMake(kScreenW, 300);
@@ -376,6 +398,19 @@
     
 }
 
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+    
+    if (indexPath.section != 0 && indexPath.section != self.keyArr.count + 1 && indexPath.section != self.keyArr.count + 2) {
+        //产品的
+        NSMutableArray *dataSorceArr = [self.dataSourceDic objectForKey:self.keyArr[indexPath.section-1]];
+        ActivityProductModel *tempModel = dataSorceArr[indexPath.row];
+        
+        [self performSegueWithIdentifier:@"saleShopToDetailVC" sender:tempModel];
+        
+    }
+    
+}
+
 
 #pragma mark - TableView Delegate -
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
@@ -425,7 +460,7 @@
     if (tableView.tag == 510) {
         //参与厂家
         UITableViewCell *fCell = [tableView dequeueReusableCellWithIdentifier:@"factoryTableCell" forIndexPath:indexPath];
-        fCell.textLabel.text = [NSString stringWithFormat:@"%@ -- %@", [self.factoryDataArr[indexPath.row] objectForKey:@"p_factory_name"],[self.factoryDataArr[indexPath.row] objectForKey:@"rn"]];
+        fCell.textLabel.text = [NSString stringWithFormat:@"%@", [self.factoryDataArr[indexPath.row] objectForKey:@"p_factory_name"]];
         return fCell;
     }else {
         //交易记录
@@ -436,6 +471,8 @@
         return tCell;
     }
 }
+
+
 
 
 
@@ -527,7 +564,7 @@
 
 - (void)collectionScrollToSection:(NSInteger)sectionInt{
     // scroll to selected index
-    NSIndexPath* cellIndexPath = [NSIndexPath indexPathForItem:0 inSection:sectionInt];
+    NSIndexPath *cellIndexPath = [NSIndexPath indexPathForItem:0 inSection:sectionInt];
     UICollectionViewLayoutAttributes* attr = [self.bannerCollectionView.collectionViewLayout layoutAttributesForSupplementaryViewOfKind:UICollectionElementKindSectionHeader atIndexPath:cellIndexPath];
     
     CGRect rect = CGRectMake(attr.frame.origin.x, attr.frame.origin.y-64, self.bannerCollectionView.frame.size.width, self.bannerCollectionView.frame.size.height);
@@ -543,9 +580,6 @@
         
         CGFloat yOffset  = scrollView.contentOffset.y;
 
-        yOffset = yOffset ;
-//        NSLog(@"++%f",yOffset);
-
         [self.navigationController setNavigationBarHidden:NO animated:NO];
         CGFloat alpha=yOffset/80.0f>1.0f?1:yOffset/80.0f;
 //        NSLog(@"%f",alpha);
@@ -556,21 +590,38 @@
             self.navigationItem.rightBarButtonItem.tintColor = kColor(57, 209, 103, 1);
             [manager isClearNavigationBarLine:NO withNavigationController:self.navigationController];
             
+           
+
+            
         }else{
             self.navigationItem.rightBarButtonItem.tintColor = [UIColor whiteColor];
             [manager isClearNavigationBarLine:YES withNavigationController:self.navigationController];
             
+           
+            
+        }
+        NSLog(@"+++++%f",yOffset);
+        //显示或者隐藏导航栏上的输入框
+        if (yOffset > kScreenW/36*29 + 20 - 64) {
+            //导航栏上的搜索框显示
+            self.navigationItem.titleView = self.searchView;
+            self.searchBar.frame = CGRectMake(0, 0, self.searchView.bounds.size.width, 44);
+        }else {
+            //导航栏上的搜索框隐藏
+            self.navigationItem.titleView = nil;
+
+        }
+        
+        
+        //隐藏键盘
+        if ([[self.bannerCollectionView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:0]] isKindOfClass:[BannerCellOneCollectionViewCell class]]) {
+            BannerCellOneCollectionViewCell *tempCell = (BannerCellOneCollectionViewCell *)[self.bannerCollectionView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:0]];
+            [tempCell.searchTextField resignFirstResponder];
         }
         
         
     }
     
-    //隐藏键盘
-    if ([[self.bannerCollectionView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:0]] isKindOfClass:[BannerCellOneCollectionViewCell class]]) {
-        BannerCellOneCollectionViewCell *tempCell = (BannerCellOneCollectionViewCell *)[self.bannerCollectionView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:0]];
-        [tempCell.searchTextField resignFirstResponder];
-    }
-
     
 }
 
@@ -599,6 +650,16 @@
             
 //        }
         
+        
+    }
+    
+    if ([segue.identifier isEqualToString:@"saleShopToDetailVC"]) {
+        ProductDetailViewController *productDetailVC = [segue destinationViewController];
+        
+        ActivityProductModel *saleListModel = (ActivityProductModel *)sender;
+
+        productDetailVC.productID = saleListModel.d_p_id;
+        productDetailVC.type = @"pid";
         
     }
 }

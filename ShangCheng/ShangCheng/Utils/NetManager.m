@@ -25,9 +25,19 @@
     AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
     
     if (headerArr.count > 0) {
-        NSDictionary *headerDic = headerArr[0];
-        [manager.requestSerializer setValue:[NSString stringWithFormat:@"Basic %@", [[headerDic allValues] objectAtIndex:0] ] forHTTPHeaderField:[[headerDic allKeys] objectAtIndex:0]];
+        
+        for (NSDictionary *headerDic in headerArr) {
+            if ([headerDic.allKeys.firstObject isEqualToString:@"Authorization"]) {
+                [manager.requestSerializer setValue:[NSString stringWithFormat:@"Basic %@", [[headerDic allValues] objectAtIndex:0] ] forHTTPHeaderField:[[headerDic allKeys] objectAtIndex:0]];
+                
+            }else{
+                [manager.requestSerializer setValue: [[headerDic allValues] objectAtIndex:0]  forHTTPHeaderField:[[headerDic allKeys] objectAtIndex:0]];
+                
+            }
+        }
+        
     }
+    
     
     //设置请求格式和返回格式(默认分别为http和json)
 //    manager.requestSerializer = [AFHTTPRequestSerializer serializer];
@@ -48,8 +58,8 @@
         parameterStr = [self dictionaryToJson:parametersDic];
     }
     // 加上这行代码，https ssl 验证。
-    [manager setSecurityPolicy:[self customSecurityPolicy]];
-    
+    [manager setSecurityPolicy:[self customSecurityPolicyWithUrlStr:requestURL]];
+
     //开始get请求
     [manager GET:requestURL parameters:parameterStr success:^(AFHTTPRequestOperation *operation, id responseObject) {
         //请求成功
@@ -77,8 +87,17 @@
     AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
     
     if (headerArr.count > 0) {
-        NSDictionary *headerDic = headerArr[0];
-        [manager.requestSerializer setValue:[NSString stringWithFormat:@"Basic %@", [[headerDic allValues] objectAtIndex:0] ] forHTTPHeaderField:[[headerDic allKeys] objectAtIndex:0]];
+        
+        for (NSDictionary *headerDic in headerArr) {
+            if ([headerDic.allKeys.firstObject isEqualToString:@"Authorization"]) {
+                [manager.requestSerializer setValue:[NSString stringWithFormat:@"Basic %@", [[headerDic allValues] objectAtIndex:0] ] forHTTPHeaderField:[[headerDic allKeys] objectAtIndex:0]];
+                
+            }else{
+                [manager.requestSerializer setValue: [[headerDic allValues] objectAtIndex:0]  forHTTPHeaderField:[[headerDic allKeys] objectAtIndex:0]];
+                
+            }
+        }
+        
     }
     
     //设置返回值类型为二进制
@@ -99,7 +118,7 @@
     }
     
     // 加上这行代码，https ssl 验证。
-    [manager setSecurityPolicy:[self customSecurityPolicy]];
+    [manager setSecurityPolicy:[self customSecurityPolicyWithUrlStr:requestURL]];
     [manager POST:requestURL parameters:parameterStr success:^(AFHTTPRequestOperation *operation, id responseObject) {
         //如果返回的是字符串，就消除双引号。因为返回如果是字符串，就会带双引号
         if ([contentType isEqualToString:@"string"]) {
@@ -128,8 +147,17 @@
     AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
     
     if (headerArr.count > 0) {
-        NSDictionary *headerDic = headerArr[0];
-        [manager.requestSerializer setValue:[NSString stringWithFormat:@"Basic %@", [[headerDic allValues] objectAtIndex:0] ] forHTTPHeaderField:[[headerDic allKeys] objectAtIndex:0]];
+        
+        for (NSDictionary *headerDic in headerArr) {
+            if ([headerDic.allKeys.firstObject isEqualToString:@"Authorization"]) {
+                [manager.requestSerializer setValue:[NSString stringWithFormat:@"Basic %@", [[headerDic allValues] objectAtIndex:0] ] forHTTPHeaderField:[[headerDic allKeys] objectAtIndex:0]];
+                
+            }else{
+                [manager.requestSerializer setValue: [[headerDic allValues] objectAtIndex:0]  forHTTPHeaderField:[[headerDic allKeys] objectAtIndex:0]];
+                
+            }
+        }
+        
     }
 
     //设置返回值类型为二进制
@@ -144,7 +172,7 @@
         parameterStr = [self dictionaryToJson:parametersDic];
     }
     // 加上这行代码，https ssl 验证。
-    [manager setSecurityPolicy:[self customSecurityPolicy]];
+    [manager setSecurityPolicy:[self customSecurityPolicyWithUrlStr:requestURL]];
     
     [manager DELETE:requestURL parameters:parameterStr success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
         //请求成功
@@ -173,8 +201,17 @@
     AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
     
     if (headerArr.count > 0) {
-        NSDictionary *headerDic = headerArr[0];
-        [manager.requestSerializer setValue:[NSString stringWithFormat:@"Basic %@", [[headerDic allValues] objectAtIndex:0] ] forHTTPHeaderField:[[headerDic allKeys] objectAtIndex:0]];
+        
+        for (NSDictionary *headerDic in headerArr) {
+            if ([headerDic.allKeys.firstObject isEqualToString:@"Authorization"]) {
+                [manager.requestSerializer setValue:[NSString stringWithFormat:@"Basic %@", [[headerDic allValues] objectAtIndex:0] ] forHTTPHeaderField:[[headerDic allKeys] objectAtIndex:0]];
+                
+            }else{
+                [manager.requestSerializer setValue: [[headerDic allValues] objectAtIndex:0]  forHTTPHeaderField:[[headerDic allKeys] objectAtIndex:0]];
+                
+            }
+        }
+        
     }
 
     NSString *parameterStr = nil;
@@ -192,7 +229,7 @@
     }
     
     // 加上这行代码，https ssl 验证。
-    [manager setSecurityPolicy:[self customSecurityPolicy]];
+    [manager setSecurityPolicy:[self customSecurityPolicyWithUrlStr:requestURL]];
     
     [manager PUT:requestURL parameters:parameterStr success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
         //成功结果
@@ -253,11 +290,19 @@
 
 
 #pragma mark - https验证 -
-- (AFSecurityPolicy*)customSecurityPolicy {
+- (AFSecurityPolicy*)customSecurityPolicyWithUrlStr:(NSString *)urlStr {
+    NSString *cerPath ;
     
     // /先导入证书
-    NSString *cerPath = [[NSBundle mainBundle]pathForResource:@"server" ofType:@"cer"];//证书的路径
+    if ([urlStr containsString:@"wap.nongyao001.com"]) {
+        cerPath = [[NSBundle mainBundle]pathForResource:@"wapnongyao001" ofType:@"cer"];//证书的路径
+
+    }else{
+        // /先导入证书
+        cerPath = [[NSBundle mainBundle]pathForResource:@"server" ofType:@"cer"];//证书的路径
+    }
     
+
     if (cerPath!= nil) {
         NSData *certData = [NSData dataWithContentsOfFile:cerPath];
         

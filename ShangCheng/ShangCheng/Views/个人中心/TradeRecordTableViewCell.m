@@ -16,7 +16,6 @@
             self.tradeTypeImageView.image = [UIImage imageNamed:@"w_icon_cz"];
             break;
         case 1:
-        case 6:
             self.tradeTypeImageView.image = [UIImage imageNamed:@"w_icon_yfk"];
             
             break;
@@ -37,6 +36,8 @@
             
             break;
         default:
+            self.tradeTypeImageView.image = [UIImage imageNamed:@"w_icon_yfk"];
+
             break;
     }
     
@@ -65,26 +66,8 @@
     self.timeLabel.text = [NSString stringWithFormat:@"%@\n%@",cashRecordModel.week,timeStr];
     //图标右边的信息
     self.tradeMoneyLabel.text = cashRecordModel.w_accout;
-    NSString *statusStr ;
-    switch ([cashRecordModel.w_status_operation integerValue]) {
-        case 0:
-            statusStr = @"申请";
-            break;
-        case 1:
-            statusStr = @"招商审核通过";
-            break;
-        case 2:
-            statusStr = @"总经理审核通过";
-            break;
-        case 9:
-            statusStr = @"取消申请";
-            break;
-            
-        default:
-            break;
-    }
-    
-    self.tradeDetailLabel.text = [NSString stringWithFormat:@"提现-%@",statusStr];
+   
+    self.tradeDetailLabel.text = [NSString stringWithFormat:@"提现-%@",cashRecordModel.status];
 }
 - (void)awakeFromNib {
     [super awakeFromNib];

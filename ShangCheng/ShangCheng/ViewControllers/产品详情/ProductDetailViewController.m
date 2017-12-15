@@ -22,8 +22,6 @@
 #import "WebPageViewController.h"
 @interface ProductDetailViewController ()<UITableViewDelegate,UITableViewDataSource>
 
-@property (weak, nonatomic) IBOutlet UIView *headerView;
-
 @property (nonatomic,strong)KongImageView *kongImageView;
 
 @property (weak, nonatomic) IBOutlet UIImageView *productImageView;
@@ -41,7 +39,6 @@
 @property (weak, nonatomic) IBOutlet UITableView *detailTableView;
 //每瓶的价格
 @property (weak, nonatomic) IBOutlet UILabel *productPricePerLabel;
-
 
 @property (nonatomic,strong)ProductDetailModel *productDetailModel;
 
@@ -63,6 +60,7 @@
 @property (nonatomic,assign)NSInteger tradeRecordCurrentPage;
 //交易记录总共的页数
 @property (nonatomic,assign)NSInteger tradeRecordTotalPage;
+
 //交易记录总条数
 @property (nonatomic,assign)NSInteger tradeRecordTotalCount;
 
@@ -75,8 +73,6 @@
 @property (weak, nonatomic) IBOutlet UILabel *gwcNumberLabel;
 //webView通过cellHeight修改cell的高度
 @property(nonatomic,assign)float cellHeight;
-
-
 
 @end
 
@@ -113,7 +109,6 @@
                 //改变收藏按钮
                 self.isFavorite = YES;
                 [self scrollViewDidScroll:self.detailTableView];
-//                sender.image = [[UIImage imageNamed:@"s_icon_jrsc_select_2@2x.png"]imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
                 
             } withAddFavoriteFail:^(NSString *failResultStr) {
                 [alertM showAlertViewWithTitle:nil withMessage:[NSString stringWithFormat:@"收藏失败，%@",failResultStr] actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:nil];
@@ -137,14 +132,6 @@
 - (IBAction)telToPeopleServiceAction:(UIBarButtonItem *)sender {
     //联系客服
     [self performSegueWithIdentifier:@"productDetailToWebViewVC" sender:nil];
-    
-//    AlertManager *alertM = [AlertManager shareIntance];
-//    [alertM showAlertViewWithTitle:@"拨打客服电话" withMessage:@"是否要拨打客服电话400-6076-152" actionTitleArr:@[@"取消",@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
-//        if (actionBlockNumber == 1) {
-//            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"tel:4006076152"]];
-//            
-//        }
-//    }];
     
 }
 
@@ -216,15 +203,12 @@
 
     }
     
-    
-    
-    
-
-    
 }
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    
     if (@available(iOS 11.0, *)) {
         NSLog(@"iOS11以上");
         self.detailTableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
@@ -250,8 +234,6 @@
     [self.view addSubview:self.kongImageView];
     
     
-    //头部高度计算
-    self.headerView.frame = CGRectMake(0, 0, kScreenW, kScreenW + 2 + 148 + 13 + 46 + 13 - 27 );
     
     self.productDetailModel = [[ProductDetailModel alloc] init];
     
@@ -275,20 +257,7 @@
         
         //将这个产品加入浏览记录里面
         [manager addBrowseListActionWithBrowseProduct:self.productDetailModel];
-        
-        
-//        //获取所有的规格数据
-//        [[Manager shareInstance] httpProductAllFarmatInfoWithProductID:self.productID withProductDetailModel:self.productDetailModel withSuccessFarmatResult:^(id successResult) {
-//            //        self.productDetailModel = successResult;
-//            //通过id找到是那个规格
-//            //将第一个规格变成默认的规格
-//            [self selectOneFormatWithFormatID:self.productDetailModel.productModel.productFormatID];
-//            
-//        } withFailFarmatResult:^(NSString *failResultStr) {
-//            NSLog(@"%@",failResultStr);
-//            
-//        }];
-        
+
     } withFailDetailResult:^(NSString *failResultStr) {
         NSLog(@"%@",failResultStr);
         [self.kongImageView showKongViewWithKongMsg:@"网络错误" withKongType:KongTypeWithNetError];
@@ -296,15 +265,11 @@
     }];
     
     
-//    //下拉刷新
-//    [self downPushRefresh];
-//    
-//    //上啦加载
-//    [self upPushReload];
-//    
-
-    
-    
+    //设置交易记录的默认值
+    self.tradeRecordCurrentPage = 1;
+    self.tradeRecordTotalPage = NSIntegerMax;
+    self.userCommentCurrentPage = 1;
+    self.userCommentTotalPage = NSIntegerMax;
     
 }
 
@@ -334,13 +299,16 @@
             }
 
         }else if (self.selectType == SelectTypeTradeList) {
-            //当前页小于总页数，可以进行加载
-            if (self.tradeRecordCurrentPage < self.tradeRecordTotalPage) {
-                [self httpProductTradeListWithPageIndex:self.tradeRecordCurrentPage+1];
+            
+                //如果是老接口
+                if (self.tradeRecordCurrentPage < self.tradeRecordTotalPage) {
+                    [self httpProductTradeListWithPageIndex:self.tradeRecordCurrentPage+1];
+                    
+                }else {
+                    [self.detailTableView footerEndRefreshing];
 
-            }else {
-                [self.detailTableView footerEndRefreshing];
-            }
+                }
+            
 
         }else {
 
@@ -492,8 +460,16 @@
 
 #pragma mark - 请求评价列表 -
 - (void)httpProductCommentListWithPageIndex:(NSInteger )pageIndex {
+    NSString *PDStr;
+    for (NSDictionary *tempCerDic in self.productDetailModel.p_cerArr) {
+        if ([tempCerDic.allKeys[0] isEqualToString:@"PD证"]) {
+            PDStr = tempCerDic.allValues[0];
+        }
+    }
+
+    
     Manager *manager = [Manager shareInstance];
-    [manager productCommentListWithProductId:self.productID withPageIndex:pageIndex withPageSize:10 withCommentListSuccess:^(id successResult) {
+    [manager productCommentListWithProductPD:PDStr withPageIndex:pageIndex withCommentListSuccess:^(id successResult) {
         //得到总页数
         self.userCommentTotalPage = [[successResult objectForKey:@"totalpages"] integerValue];
         //得到总个数
@@ -526,23 +502,6 @@
             }
         }
         
-//        //假数据
-//        ProductCommentModel *model = [[ProductCommentModel alloc] init];
-//        model.mobile = @"118538075702";
-//        model.r_content = @"非常好非常好非常好非常好非常好非常好非常好非常好非常好非常好非常好非常好非常好非常好非常好非常好非常好非常好非常好非常好非常好非常好非常好非常好非常好非常好非常好";
-//        model.r_content_reply = @"回复内容回复内容回复内容回复内容回复内容回复内容回复内容回复内容回复内容回复内容回复内容回复内容回复内容回复内容回复内容回复内容回复内容回复内容回复内容";
-//        model.r_time_create = @"2017-10-11";
-//        [self.userCommentListArr addObject:model];
-//        
-//        
-//        ProductCommentModel *model2 = [[ProductCommentModel alloc] init];
-//        model2.mobile = @"118538075702";
-//        model2.r_content = @"非常好非";
-//        model2.r_content_reply = @"回复内容";
-//        model2.r_time_create = @"2017-10-11";
-//        [self.userCommentListArr addObject:model2];
-
-        
         //刷新UI
         [self.detailTableView reloadData];
         
@@ -559,22 +518,22 @@
     NSString *PDStr;
     
     for (NSDictionary *tempCerDic in self.productDetailModel.p_cerArr) {
-        if ([tempCerDic.allKeys[0] isEqualToString:@"p_registration"]) {
+        if ([tempCerDic.allKeys[0] isEqualToString:@"PD证"]) {
             PDStr = tempCerDic.allValues[0];
         }
     }
     
     Manager *manager = [Manager shareInstance];
-    [manager httpProductTradeRecordWithType:@"new" withProductPD:PDStr withPageIndex:pageIndex withPageSize:10 withTradeRecordSuccess:^(id successResult) {
+    
+    [manager httpProductTradeRecordWithProductPD:PDStr withPageIndex:pageIndex withTradeRecordSuccess:^(id successResult) {
         
-
         //得到总页数
         self.tradeRecordTotalPage = [[successResult objectForKey:@"totalpages"] integerValue];
         //得到总个数
         self.tradeRecordTotalCount = [[successResult objectForKey:@"totalcount"] integerValue];
 
         
-        //如果是pageIndex为1，就是刷新了
+        //如果是新交易记录是pageIndex为1，就是刷新了
         if (pageIndex == 1) {
             //清空原有数据
             self.tradeRecordListArr = [NSMutableArray array];
@@ -603,10 +562,6 @@
         [self.detailTableView headerEndRefreshing];
         [self.detailTableView footerEndRefreshing];
     }];
-    
-   
-    
-    
 }
 
 
@@ -820,21 +775,8 @@
 
 //进入购物车界面
 - (IBAction)pushShoppingCarButtonAction:(UIButton *)sender {
-    Manager *manager = [Manager shareInstance];
-    AlertManager *alertM = [AlertManager shareIntance];
-    //
-//    if ([manager isLoggedInStatus] == YES) {
-        [self performSegueWithIdentifier:@"productDetailToShoppingCarVC" sender:nil];
 
-//    }else {
-    
-        //未登录
-//        [alertM showAlertViewWithTitle:nil withMessage:@"您未登录" actionTitleArr:@[@"确定"] withViewController:self withReturnCodeBlock:^(NSInteger actionBlockNumber) {
-    
-//        }];
-    
-//    }
-    
+    [self performSegueWithIdentifier:@"productDetailToShoppingCarVC" sender:nil];
     
 }
 

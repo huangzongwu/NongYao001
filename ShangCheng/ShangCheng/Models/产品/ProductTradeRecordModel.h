@@ -17,10 +17,11 @@
 @property (nonatomic,strong)NSString *o_p_id;
 @property (nonatomic,strong)NSString *o_valid;
 @property (nonatomic,strong)NSString *o_num;
-@property (nonatomic,strong)NSString *p_time_pay;
+//@property (nonatomic,strong)NSString *p_time_pay;
 @property (nonatomic,strong)NSString *truename;
 @property (nonatomic,strong)NSString *u_icon;
 @property (nonatomic,strong)NSString *mobile;
+@property (nonatomic,strong)NSString *o_time_create;
 
 - (void)setValue:(id)value forUndefinedKey:(NSString *)key;
 

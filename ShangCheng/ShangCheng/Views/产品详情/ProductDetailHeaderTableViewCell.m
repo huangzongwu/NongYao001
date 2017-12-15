@@ -21,9 +21,11 @@
     [self.buttonFour setLineColor:[UIColor whiteColor]];
 
     if (commentCount > 0) {
+        self.buttonThree.titleLabel.text = [NSString stringWithFormat:@"用户评价(%ld)",commentCount];
         [self.buttonThree setTitle:[NSString stringWithFormat:@"用户评价(%ld)",commentCount] forState:UIControlStateNormal];
     }
     if (tradeCount > 0) {
+        self.buttonFour.titleLabel.text = [NSString stringWithFormat:@"交易记录(%ld)",tradeCount];
         [self.buttonFour setTitle:[NSString stringWithFormat:@"交易记录(%ld)",tradeCount] forState:UIControlStateNormal];
 
     }

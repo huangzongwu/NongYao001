@@ -262,7 +262,7 @@
     Manager *manager = [Manager shareInstance];
     CGFloat yOffset  = scrollView.contentOffset.y;
     NSLog(@"++%f",yOffset);
-    yOffset = yOffset ;
+
     
     [self.navigationController setNavigationBarHidden:NO animated:NO];
     CGFloat alpha=yOffset/80.0f>1.0f?1:yOffset/80.0f;

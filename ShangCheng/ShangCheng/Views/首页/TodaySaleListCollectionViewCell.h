@@ -13,9 +13,11 @@
 @property (weak, nonatomic) IBOutlet UIImageView *saleImageView;
 
 @property (weak, nonatomic) IBOutlet UILabel *todaySaleListTitleLabel;
-@property (weak, nonatomic) IBOutlet UILabel *todaySaleListCompanyLabel;
 @property (weak, nonatomic) IBOutlet UILabel *todaySaleListFormatLabel;
+@property (weak, nonatomic) IBOutlet UILabel *todaySaleListSaleVolLabel;
+
 @property (weak, nonatomic) IBOutlet UILabel *todaySaleListPriceLabel;
+@property (weak, nonatomic) IBOutlet UILabel *todaySaleListOldPriceLabel;
 
 - (void)updateTodaySaleListCellWithModel:(TodaySaleListModel *)tempModel;
 

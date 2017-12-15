@@ -31,13 +31,31 @@
     }else {
         self.activityImageView.hidden = NO;
         self.backPriceLabel.hidden = NO;//原价Label显示
-        self.backPriceLabel.text = [NSString stringWithFormat:@"￥%@",activityModel.s_price_backup];
-        self.salePriceLabel.text = [NSString stringWithFormat:@"活动价:%@", activityModel.s_price];
+        //原价添加删除线
+        self.backPriceLabel.attributedText = [self addDeleteLineWithStr:[NSString stringWithFormat:@"￥%@",activityModel.s_price_backup]];
+//        self.backPriceLabel.text = [NSString stringWithFormat:@"￥%@",activityModel.s_price_backup];
+        
+        self.salePriceLabel.text = [NSString stringWithFormat:@"活动价:￥%@", activityModel.s_price];
 
 
     }
     
 }
+
+
+//添加删除线
+- (NSAttributedString *)addDeleteLineWithStr:(NSString *)deleteStr {
+    NSAttributedString *attrStr = [[NSAttributedString alloc]initWithString:deleteStr
+                                   attributes:
+     @{
+       //删除线的样式和颜色
+       NSStrikethroughStyleAttributeName:@(NSUnderlineStyleSingle|NSUnderlinePatternSolid),
+       NSStrikethroughColorAttributeName: k999999Color}];
+    
+    return attrStr;
+    
+}
+
 - (void)awakeFromNib {
     [super awakeFromNib];
     // Initialization code

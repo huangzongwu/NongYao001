@@ -486,22 +486,6 @@
         NSLog(@"%@",[self dictionaryToJson:successResult]);
         
         self.productClassTreeArr = nil;
-//        self.productClassTreeArr = [NSMutableArray arrayWithArray:successResult];
-//        
-//        for (NSDictionary *tempDic in self.productClassTreeArr) {
-//            
-//            NSArray *tempArr = [tempDic objectForKey:@"item"];
-//            for (NSDictionary *tempDic2 in tempArr) {
-////                [tempDic2 mutableCopy];
-//                [[tempDic2 mutableCopy] setValue:@"0" forKey:@"isMore"];
-////                tempDic2 = tempMutableDic2;
-//            }
-//        }
-//        
-//        classTreeSuccess(self.productClassTreeArr);
-        
-        
-        
         NSLog(@"%@",[self dictionaryToJson:successResult]);
         
         
@@ -522,18 +506,13 @@
 }
 
 //产品的交易记录
-- (void)httpProductTradeRecordWithType:(NSString *)type withProductPD:(NSString *)productPD withPageIndex:(NSInteger)pageIndex withPageSize:(NSInteger)pageSize withTradeRecordSuccess:(SuccessResult )tradeRecordSuccess withTradeRecordFail:(FailResult)tradeRecordFail {
-    
-    NSString *url ;
-    if ([type isEqualToString:@"old"]) {
-        url = [NSString stringWithFormat:@"%@?type=pd&pd=%@&pageindex=%ld&pagesize=%ld",[[InterfaceManager shareInstance] productTradeRecordBase],productPD,pageIndex,pageSize];
-    }else {
-        url = [NSString stringWithFormat:@"%@?pd=%@&pageindex=%ld&pagesize=%ld",[[InterfaceManager shareInstance] productTradeRecordBase],productPD,pageIndex,pageSize];
-    }
-    
+- (void)httpProductTradeRecordWithProductPD:(NSString *)productPD withPageIndex:(NSInteger)pageIndex withTradeRecordSuccess:(SuccessResult )tradeRecordSuccess withTradeRecordFail:(FailResult)tradeRecordFail {
+
+    NSString *url = [NSString stringWithFormat:@"https://wap.nongyao001.com/mall/mall/ajax-trade-record.html?pd=%@&page=%ld&pagesize=20",productPD,pageIndex];
+
     url = [url stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
     
-    [[NetManager shareInstance] getRequestWithURL:url withParameters:nil withContentTypes:nil withHeaderArr:nil withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+    [[NetManager shareInstance] getRequestWithURL:url withParameters:nil withContentTypes:nil withHeaderArr:@[@{@"X-Requested-With":@"XMLHttpRequest"}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
         NSLog(@"%ld",operation.response.statusCode);
         NSLog(@"%@",[self dictionaryToJson:successResult]);
         
@@ -810,18 +789,6 @@
 //删除本地购物车的产品
 - (BOOL)deleteLocationShoppingCarWithProductIndexSet:(NSMutableIndexSet *)productIndexSet {
     //遍历产品集合，然后拼成字符串
-//    __block NSString *tempUrl = @"";
-//    [productIndexSet enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL * _Nonnull stop) {
-//        //从数组中得到具体的产品模型
-//        ShoppingCarModel *tempModel = self.shoppingCarDataSourceArr[idx];
-//        
-//        tempUrl = [tempUrl stringByAppendingString:tempModel.c_id];
-//        tempUrl = [tempUrl stringByAppendingString:@","];
-//    }];
-//    tempUrl = [tempUrl substringToIndex:tempUrl.length-1];
-    
-    
-    
     [self.shoppingCarDataSourceArr removeObjectsAtIndexes:productIndexSet];
     
     BOOL deleteResult = [self saveLocationShoppingCar];
@@ -1427,10 +1394,6 @@
         
         NSLog(@"%ld",operation.response.statusCode);
 
-//        NSString *successStr = [[NSString alloc]initWithData:successResult encoding:NSUTF8StringEncoding];
-//        successStr = [successStr stringByReplacingOccurrencesOfString:@"\"" withString:@""];
-//        NSLog(@"%@",successStr);
-
         if (operation.response.statusCode == 200) {
             orderSuccessResult(successResult);
             // 发送通知到购物车界面，刷新
@@ -1764,10 +1727,13 @@
 }
 
 #pragma mark - 评价 -
-- (void)productCommentListWithProductId:(NSString *)productId withPageIndex:(NSInteger )pageIndex withPageSize:(NSInteger )pageSize withCommentListSuccess:(SuccessResult )commentListSuccess withCommentListFail:(FailResult)commentListFail {
-    NSString *url = [NSString stringWithFormat:@"%@?id=%@&pageindex=%ld&pagesize=%ld",[[InterfaceManager shareInstance] userOrderReviewBase],productId,pageIndex,pageSize];
+- (void)productCommentListWithProductPD:(NSString *)productPD withPageIndex:(NSInteger )pageIndex  withCommentListSuccess:(SuccessResult )commentListSuccess withCommentListFail:(FailResult)commentListFail {
+//    NSString *url = [NSString stringWithFormat:@"%@?type=&pd=%@&pageindex=%ld&pagesize=%ld",[[InterfaceManager shareInstance] userOrderReviewBase],productPD,pageIndex,pageSize];
+    NSString *url = [NSString stringWithFormat:@"https://wap.nongyao001.com/mall/mall/ajax-review-info.html?pd=%@&page=%ld&pagesize=20",productPD,pageIndex];
+    url = [url stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
     NSLog(@"%@",url);
-    [[NetManager shareInstance] getRequestWithURL:url withParameters:nil withContentTypes:nil withHeaderArr:nil withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+
+    [[NetManager shareInstance] getRequestWithURL:url withParameters:nil withContentTypes:nil withHeaderArr:@[@{@"X-Requested-With":@"XMLHttpRequest"}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
         NSLog(@"%ld",operation.response.statusCode);
         NSLog(@"%@",[self dictionaryToJson:successResult]);
         
@@ -1845,8 +1811,7 @@
     [[NetManager shareInstance] postRequestWithURL:[[InterfaceManager shareInstance] paybeforeVerifyPOST] withParameters:parametersDic withContentTypes:nil withHeaderArr:@[@{@"Authorization":self.memberInfoModel.token}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
         NSLog(@"%ld",operation.response.statusCode);
         if (operation.response.statusCode == 200) {
-//            NSString *payID = [[NSString alloc] initWithData:successResult encoding:NSUTF8StringEncoding];
-//            payID = [payID stringByReplacingOccurrencesOfString:@"\"" withString:@""];
+
             
             //将支付id返回
             verifySuccessBlock(successResult);

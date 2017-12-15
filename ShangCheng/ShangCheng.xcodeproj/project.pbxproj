@@ -12,6 +12,7 @@
 		450102061FBEE9DA00A397C8 /* btn_ss@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 450102041FBEE9D900A397C8 /* btn_ss@3x.png */; };
 		450102071FBEE9DA00A397C8 /* btn_ss@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 450102051FBEE9DA00A397C8 /* btn_ss@2x.png */; };
 		4501D77F1FB9A34200193A73 /* SearchCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 4501D77E1FB9A34200193A73 /* SearchCollectionViewCell.m */; };
+		450211341FDFDA6E0023E4F0 /* wapnongyao001.cer in Resources */ = {isa = PBXBuildFile; fileRef = 450211331FDFDA6D0023E4F0 /* wapnongyao001.cer */; };
 		45030AF71E7D318500759CAD /* AboutUsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 45030AF61E7D318500759CAD /* AboutUsViewController.m */; };
 		45030AFA1E7D353A00759CAD /* w_icon_gywm@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 45030AF81E7D353A00759CAD /* w_icon_gywm@2x.png */; };
 		45030AFB1E7D353A00759CAD /* w_icon_gywm@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 45030AF91E7D353A00759CAD /* w_icon_gywm@3x.png */; };
@@ -619,6 +620,7 @@
 		450102051FBEE9DA00A397C8 /* btn_ss@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "btn_ss@2x.png"; sourceTree = "<group>"; };
 		4501D77D1FB9A34200193A73 /* SearchCollectionViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SearchCollectionViewCell.h; sourceTree = "<group>"; };
 		4501D77E1FB9A34200193A73 /* SearchCollectionViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SearchCollectionViewCell.m; sourceTree = "<group>"; };
+		450211331FDFDA6D0023E4F0 /* wapnongyao001.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = wapnongyao001.cer; sourceTree = "<group>"; };
 		45030AF51E7D318500759CAD /* AboutUsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AboutUsViewController.h; sourceTree = "<group>"; };
 		45030AF61E7D318500759CAD /* AboutUsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AboutUsViewController.m; sourceTree = "<group>"; };
 		45030AF81E7D353A00759CAD /* w_icon_gywm@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "w_icon_gywm@2x.png"; sourceTree = "<group>"; };
@@ -2123,6 +2125,7 @@
 		457F34F91DBF3E0600809062 /* ShangCheng */ = {
 			isa = PBXGroup;
 			children = (
+				450211331FDFDA6D0023E4F0 /* wapnongyao001.cer */,
 				45CD8B781F933E0600DE947A /* server.cer */,
 				45CD8B7A1F933ECF00DE947A /* ima.cer */,
 				4546053A1E73E7AA00DDCDFA /* ShangCheng.entitlements */,
@@ -3201,6 +3204,7 @@
 				456E4C291F94496200E2D801 /* mainIcon@2x.png in Resources */,
 				456E4C2A1F94496200E2D801 /* mainIcon@3x.png in Resources */,
 				454FCF291F93736C0073FA96 /* lead1.png in Resources */,
+				450211341FDFDA6E0023E4F0 /* wapnongyao001.cer in Resources */,
 				453809361FBC415F00C0CC76 /* s_font_tmf_2@2x.png in Resources */,
 				45CD8B7B1F933EDD00DE947A /* ima.cer in Resources */,
 				45CD8B791F933E2500DE947A /* server.cer in Resources */,

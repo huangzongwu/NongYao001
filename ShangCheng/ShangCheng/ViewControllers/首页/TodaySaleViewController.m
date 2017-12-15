@@ -127,6 +127,8 @@
 
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    
     TodaySaleModel *tempModel = self.todaySaleDataSourceArr[indexPath.section];
 
     NSString *tempTitle ;
@@ -153,7 +155,7 @@
     if ([segue.identifier isEqualToString:@"todaySaleVCToTodaySaleListVC"]) {
         TodaySaleListViewController *todaySaleListVC = [segue destinationViewController];
         TodaySaleModel *tempModel = sender[0];
-        todaySaleListVC.headerImageUrl = tempModel.a_image1;
+        todaySaleListVC.headerImageUrl = tempModel.a_image2;
         todaySaleListVC.temp_a_id = tempModel.a_id;
         todaySaleListVC.tempTitle = sender[1];
     }

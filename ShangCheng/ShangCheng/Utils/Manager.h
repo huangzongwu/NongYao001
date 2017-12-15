@@ -123,11 +123,9 @@ typedef void(^FailResult)(NSString *failResultStr);
 
 
 #pragma mark - 搜索 -
-//keyword=xiaomai&type=产品库&tab=&col=&sort=&desc=1&pageindex=1&pagesize=10
 - (void)searchActionWithKeyword:(NSString *)keyword withType:(NSString *)type withSort:(NSString *)sortStr withDesc:(NSString *)desc withPageindex:(NSInteger )pageindex withSearchSuccess:(SuccessResult)searchSuccess withSearchFail:(FailResult)searchFail;
 
 #pragma mark - 分类 -
-//type=type&code=&sort=&desc=&pageindex=1&pagesize=10
 - (void)httpProductTypeWithCode:(NSString *)code withSort:(NSString *)sort withDesc:(NSString *)desc withPageIndex:(NSInteger)pageIndex withTypeSuccess:(SuccessResult )typeSuccess withTypeFail:(FailResult)typeFail;
 
 #pragma mark - 产品 -
@@ -145,7 +143,7 @@ typedef void(^FailResult)(NSString *failResultStr);
 
 
 //产品的交易记录
-- (void)httpProductTradeRecordWithType:(NSString *)type withProductPD:(NSString *)productPD withPageIndex:(NSInteger)pageIndex withPageSize:(NSInteger)pageSize withTradeRecordSuccess:(SuccessResult )tradeRecordSuccess withTradeRecordFail:(FailResult)tradeRecordFail ;
+- (void)httpProductTradeRecordWithProductPD:(NSString *)productPD withPageIndex:(NSInteger)pageIndex withTradeRecordSuccess:(SuccessResult )tradeRecordSuccess withTradeRecordFail:(FailResult)tradeRecordFail ;
 
 //是否被收藏
 - (void)httpIsFavoriteWithUserId:(NSString *)userID withFormatId:(NSString *)formatId withIsFavoriteSuccess:(SuccessResult )isFavoriteSuccess withIsFavoriteFail:(FailResult)isFavoriteFail ;
@@ -292,7 +290,7 @@ typedef void(^FailResult)(NSString *failResultStr);
 
 #pragma mark - 评价 -
 //产品的评价列表
-- (void)productCommentListWithProductId:(NSString *)productId withPageIndex:(NSInteger )pageIndex withPageSize:(NSInteger )pageSize withCommentListSuccess:(SuccessResult )commentListSuccess withCommentListFail:(FailResult)commentListFail ;
+- (void)productCommentListWithProductPD:(NSString *)productPD withPageIndex:(NSInteger )pageIndex  withCommentListSuccess:(SuccessResult )commentListSuccess withCommentListFail:(FailResult)commentListFail ;
 
 //订单评论
 - (void)orderCommentWithUserid:(NSString *)userId withOrderId:(NSString *)orderId withStarLevel:(NSString *)starLevel withContent:(NSString *)content withCommentSuccessBlock:(SuccessResult)commentSuccessBock withCommentFailBlock:(FailResult)commentFailBlock;
