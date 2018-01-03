@@ -121,6 +121,7 @@
 		4531AC811DE0450C00FC7C37 /* ShoppingCarTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 4531AC801DE0450C00FC7C37 /* ShoppingCarTableViewCell.m */; };
 		4531AC851DE0455A00FC7C37 /* ShoppingCarViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4531AC841DE0455A00FC7C37 /* ShoppingCarViewController.m */; };
 		4534146A1DE297C5005B7FF1 /* ShoppingCarModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 453414691DE297C5005B7FF1 /* ShoppingCarModel.m */; };
+		453565C51FE8B57D0048E78B /* UIButton+ButtonCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 453565C41FE8B57D0048E78B /* UIButton+ButtonCategory.m */; };
 		4536D3DD1E5A8BE900B92CB3 /* HomeCategory.json in Resources */ = {isa = PBXBuildFile; fileRef = 4536D3DC1E5A8BE900B92CB3 /* HomeCategory.json */; };
 		4536D3EF1E5A96FC00B92CB3 /* s_bch@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4536D3DF1E5A96FC00B92CB3 /* s_bch@2x.png */; };
 		4536D3F01E5A96FC00B92CB3 /* s_bch@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4536D3E01E5A96FC00B92CB3 /* s_bch@3x.png */; };
@@ -758,6 +759,8 @@
 		4531AC841DE0455A00FC7C37 /* ShoppingCarViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShoppingCarViewController.m; sourceTree = "<group>"; };
 		453414681DE297C5005B7FF1 /* ShoppingCarModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShoppingCarModel.h; sourceTree = "<group>"; };
 		453414691DE297C5005B7FF1 /* ShoppingCarModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShoppingCarModel.m; sourceTree = "<group>"; };
+		453565C31FE8B57D0048E78B /* UIButton+ButtonCategory.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIButton+ButtonCategory.h"; sourceTree = "<group>"; };
+		453565C41FE8B57D0048E78B /* UIButton+ButtonCategory.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIButton+ButtonCategory.m"; sourceTree = "<group>"; };
 		4536D3DC1E5A8BE900B92CB3 /* HomeCategory.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = HomeCategory.json; sourceTree = "<group>"; };
 		4536D3DF1E5A96FC00B92CB3 /* s_bch@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "s_bch@2x.png"; sourceTree = "<group>"; };
 		4536D3E01E5A96FC00B92CB3 /* s_bch@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "s_bch@3x.png"; sourceTree = "<group>"; };
@@ -1675,6 +1678,8 @@
 				4536D3DC1E5A8BE900B92CB3 /* HomeCategory.json */,
 				4536D4031E5AD0A700B92CB3 /* UIImageView+ImageViewCategory.h */,
 				4536D4041E5AD0A700B92CB3 /* UIImageView+ImageViewCategory.m */,
+				453565C31FE8B57D0048E78B /* UIButton+ButtonCategory.h */,
+				453565C41FE8B57D0048E78B /* UIButton+ButtonCategory.m */,
 				45AD45441ED6BB7F00689B50 /* UILabel+LabelCategory.h */,
 				45AD45451ED6BB7F00689B50 /* UILabel+LabelCategory.m */,
 			);
@@ -3690,6 +3695,7 @@
 				457F35371DBF410C00809062 /* HomeViewController.m in Sources */,
 				4513E71E1DC32C8100734AF6 /* TodaySaleImageCollectionViewCell.m in Sources */,
 				4537F3A01E7FC87800B5B0E0 /* ForgetPasswordViewController.m in Sources */,
+				453565C51FE8B57D0048E78B /* UIButton+ButtonCategory.m in Sources */,
 				45C2C3861E5D82E7002CE047 /* FeedBackViewController.m in Sources */,
 				4512C5701ED2D92D00EC61B3 /* LeadViewController.m in Sources */,
 				45FE9F8E1ED52BCA00DE591C /* OrderListHeadTableViewCell.m in Sources */,

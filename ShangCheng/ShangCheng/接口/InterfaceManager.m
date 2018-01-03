@@ -28,9 +28,9 @@
 
 - (NSString *)mainUrl {
     //线上
-//    return @"https://api.nongyao001.com:7001/";
+    return @"https://api.nongyao001.com:7001/";
     //99
-    return @"http://192.168.0.99:5260/";
+//    return @"http://192.168.0.99:5260/";
 
     //本地
 //    return @"http://192.168.0.211:5260/";

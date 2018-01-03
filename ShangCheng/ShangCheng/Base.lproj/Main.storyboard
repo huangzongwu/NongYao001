@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13529" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="Yqa-mC-tub">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13771" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="Yqa-mC-tub">
     <device id="retina4_0" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13527"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13772"/>
         <capability name="Alignment constraints with different attributes" minToolsVersion="5.1"/>
         <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
         <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
@@ -494,7 +494,7 @@
                             </connections>
                         </barButtonItem>
                         <button key="titleView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="tD1-nM-aL0">
-                            <rect key="frame" x="52" y="5.5" width="216" height="33"/>
+                            <rect key="frame" x="51" y="5.5" width="216" height="33"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             <fontDescription key="fontDescription" type="system" pointSize="13"/>
@@ -644,7 +644,7 @@
                     <navigationItem key="navigationItem" id="Qke-Lx-HxU">
                         <nil key="title"/>
                         <view key="titleView" contentMode="scaleToFill" ambiguous="YES" id="QOx-GZ-x1j">
-                            <rect key="frame" x="49" y="0.0" width="220" height="44"/>
+                            <rect key="frame" x="43" y="0.0" width="220" height="44"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             <subviews>
                                 <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="s_icon_search.png" translatesAutoresizingMaskIntoConstraints="NO" id="lQK-An-g6i">
@@ -1112,7 +1112,7 @@
                                                     </constraints>
                                                 </imageView>
                                             </subviews>
-                                            <color key="backgroundColor" red="0.0" green="1" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <gestureRecognizers/>
                                             <constraints>
                                                 <constraint firstAttribute="trailing" secondItem="enz-6y-aTX" secondAttribute="trailing" constant="17" id="1SN-R2-yhm"/>
@@ -3721,6 +3721,12 @@
                                                         <constraint firstAttribute="height" constant="70" id="PWx-na-Ezb"/>
                                                     </constraints>
                                                     <state key="normal" title="Button" image="w_icon_mrtx.png"/>
+                                                    <userDefinedRuntimeAttributes>
+                                                        <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
+                                                        <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                                            <integer key="value" value="35"/>
+                                                        </userDefinedRuntimeAttribute>
+                                                    </userDefinedRuntimeAttributes>
                                                     <connections>
                                                         <action selector="headerButtonAction:" destination="lp1-1x-F5K" eventType="touchUpInside" id="7GM-lw-EQ5"/>
                                                     </connections>
@@ -7238,7 +7244,7 @@
                                             <color key="textColor" red="0.20000000000000001" green="0.20000000000000001" blue="0.20000000000000001" alpha="1" colorSpace="calibratedRGB"/>
                                             <nil key="highlightedColor"/>
                                         </label>
-                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="版本：2.5" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uyt-EJ-d59">
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="版本：2.8" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uyt-EJ-d59">
                                             <rect key="frame" x="50" y="161" width="220" height="14"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" constant="14" id="cRv-h8-vUr"/>
@@ -7665,8 +7671,8 @@
                                                     <outletCollection property="gestureRecognizers" destination="c9S-ns-wC6" appends="YES" id="Qed-jj-Ieo"/>
                                                 </connections>
                                             </view>
-                                            <view contentMode="scaleToFill" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="U3A-HE-HLd">
-                                                <rect key="frame" x="0.0" y="0.0" width="640" height="504"/>
+                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="U3A-HE-HLd">
+                                                <rect key="frame" x="320" y="0.0" width="320" height="504"/>
                                                 <subviews>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="手机号：" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="RMl-Fv-tgi">
                                                         <rect key="frame" x="16" y="30" width="75" height="30"/>
@@ -11000,7 +11006,7 @@
                                         </connections>
                                     </button>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="s_icon_into.png" translatesAutoresizingMaskIntoConstraints="NO" id="TG6-ne-GgS">
-                                        <rect key="frame" x="300" y="18" width="6" height="12"/>
+                                        <rect key="frame" x="300" y="18.5" width="6" height="12"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="12" id="Yr8-mb-Q9D"/>
                                             <constraint firstAttribute="width" constant="6" id="qfh-AD-K7D"/>
@@ -11056,7 +11062,7 @@
                                 <rect key="frame" x="0.0" y="314" width="320" height="50"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dMG-Eh-VO3">
-                                        <rect key="frame" x="5" y="12" width="25" height="25"/>
+                                        <rect key="frame" x="5" y="11.5" width="25" height="25"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="25" id="Ixq-bw-X8H"/>
                                             <constraint firstAttribute="height" constant="25" id="RJr-8M-6Yn"/>
@@ -13473,15 +13479,15 @@
     </resources>
     <inferredMetricsTieBreakers>
         <segue reference="Ilr-uc-5bo"/>
-        <segue reference="9xg-fb-4Mb"/>
+        <segue reference="Sj8-K7-1I8"/>
         <segue reference="djp-Q5-A1G"/>
         <segue reference="gcx-xG-Qb0"/>
-        <segue reference="D5F-eu-I3c"/>
+        <segue reference="Lft-Eq-p6q"/>
         <segue reference="yDR-3a-nO0"/>
-        <segue reference="fPY-0h-Xlx"/>
-        <segue reference="jiu-DX-MaB"/>
-        <segue reference="3aH-pD-Jfc"/>
-        <segue reference="WdT-ql-H7r"/>
+        <segue reference="ffz-bh-V0F"/>
+        <segue reference="zDF-ka-0uz"/>
+        <segue reference="Ggv-fq-frb"/>
+        <segue reference="nsM-Wa-prR"/>
         <segue reference="FVT-Pn-fmT"/>
         <segue reference="bpA-T3-isE"/>
         <segue reference="D59-Jz-a4h"/>

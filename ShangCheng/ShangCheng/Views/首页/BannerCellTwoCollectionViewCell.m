@@ -45,6 +45,7 @@
 
 //添加删除线
 - (NSAttributedString *)addDeleteLineWithStr:(NSString *)deleteStr {
+    
     NSAttributedString *attrStr = [[NSAttributedString alloc]initWithString:deleteStr
                                    attributes:
      @{

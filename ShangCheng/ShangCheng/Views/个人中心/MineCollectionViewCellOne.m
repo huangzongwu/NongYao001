@@ -8,7 +8,7 @@
 
 #import "MineCollectionViewCellOne.h"
 #import "Manager.h"
-#import "UIButton+WebCache.h"
+#import "UIButton+ButtonCategory.h"
 @implementation MineCollectionViewCellOne
 - (void)updateMineCollectionViewCellOne {
     Manager *manager = [Manager shareInstance];
@@ -22,11 +22,9 @@
     if ([manager isLoggedInStatus] == YES) {
         //已经登录了。
         //图片
-        [self.userHeadButton sd_setImageWithURL:[NSURL URLWithString:manager.memberInfoModel.u_icon] forState:UIControlStateNormal completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
-            if (error != nil) {
-                [self.userHeadButton setImage:[UIImage imageNamed:@"w_icon_mrtx"] forState:UIControlStateNormal];
-            }
-        }];
+        [self.userHeadButton setWebImageURLWithImageUrlStr:manager.memberInfoModel.u_icon withErrorImage:[UIImage imageNamed:@"w_icon_mrtx"] ];
+        
+        
 
         //姓名
         self.myNameLabel.text = manager.memberInfoModel.u_truename;

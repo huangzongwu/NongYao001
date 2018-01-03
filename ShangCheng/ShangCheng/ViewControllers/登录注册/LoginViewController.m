@@ -138,11 +138,16 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     //注册按钮点击后出现的注册类型视图
-    [self showRegisterAlertView];
+//    [self showRegisterAlertView];
     
     //设置倒计时初始值
     self.countDownTime = 60;
 
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    [self showRegisterAlertView];
 }
 
 - (void)showRegisterAlertView {
@@ -163,6 +168,7 @@
             [weakVC presentViewController:registerNav animated:YES completion:nil];
             
         }
+        
         if ([toRegisterVCStr isEqualToString:@"supplierVC"]) {
             //跳转到供应商注册
             UINavigationController *registerNav = [weakVC.storyboard instantiateViewControllerWithIdentifier:@"registerDelegateNavigationController"];
@@ -370,8 +376,6 @@
     //弹出注册alert视图
     self.registerAlertView.hidden = NO;
 }
-
-
 
 
 
