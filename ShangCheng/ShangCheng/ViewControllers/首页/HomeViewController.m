@@ -34,6 +34,8 @@
 @property (nonatomic,strong)NSArray *categoryDataSource;
 //最惠热点数据源（广告条）
 @property (nonatomic,strong)NSMutableArray *adScrollViewDataSourceArr;
+//今日特价banner图
+@property (nonatomic,strong)NSString *todayBannerImgStr;
 
 
 @end
@@ -96,6 +98,8 @@
     [self httpAdScrollView];
     //网络请求banner图
     [self httpBanner];
+    //网络请求今日特价banner图
+    [self httpTodaySale];
     
     //下拉刷新
     [self downRefreshAction];
@@ -115,15 +119,15 @@
         [self httpAdScrollView];
         //网络请求banner图
         [self httpBanner];
-
-        
+        //网络请求今日特价图
+        [self httpTodaySale];
     }];
 }
 
 - (void)httpBanner {
     Manager *manager = [Manager shareInstance];
     //头部banner图数据源
-    [manager httpBannerScrollViewDataSourceWithBannerSuccess:^(id successResult) {
+    [manager httpBannerScrollViewDataSourceWithBannerType:@"3" withBannerSuccess:^(id successResult) {
         self.bannerDataSource = [NSMutableArray array];
 
         self.bannerDataSource = successResult;
@@ -134,6 +138,24 @@
         
     }];
 
+}
+
+- (void)httpTodaySale {
+    Manager *manager = [Manager shareInstance];
+    //头部banner图数据源
+    [manager httpBannerScrollViewDataSourceWithBannerType:@"5" withBannerSuccess:^(id successResult) {
+        if ([successResult count] > 0) {
+            BannerModel *tempTodayModel = successResult[0];
+            self.todayBannerImgStr = tempTodayModel.l_image_path;
+            [self.collectionView reloadSections:[NSIndexSet indexSetWithIndex:1]];
+
+        }
+        
+        
+    } withBannerFail:^(NSString *failResultStr) {
+        NSLog(@"%@",failResultStr);
+        
+    }];
 }
 
 - (void)httpAdScrollView {
@@ -399,6 +421,7 @@
         case 1:
         {
             TodaySaleImageCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"cellIdentifier2" forIndexPath:indexPath];
+            [cell updateTodayBannerImg:self.todayBannerImgStr];
 
 
             return cell;

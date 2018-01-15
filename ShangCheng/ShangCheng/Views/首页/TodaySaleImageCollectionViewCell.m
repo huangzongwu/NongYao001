@@ -7,7 +7,10 @@
 //
 
 #import "TodaySaleImageCollectionViewCell.h"
-
+#import "UIImageView+ImageViewCategory.h"
 @implementation TodaySaleImageCollectionViewCell
+- (void)updateTodayBannerImg:(NSString *)imgStr {
+    [self.todayBannerSaleImgView setWebImageURLWithImageUrlStr:imgStr withErrorImage:[UIImage imageNamed:@"todaySale.png"] withIsCenter:NO];
+}
 
 @end

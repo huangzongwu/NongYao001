@@ -105,7 +105,7 @@ typedef void(^FailResult)(NSString *failResultStr);
 
 #pragma mark - 首页 -
 //头部banner
-- (void)httpBannerScrollViewDataSourceWithBannerSuccess:(SuccessResult)bannerSuccess withBannerFail:(FailResult)bannerFail;
+- (void)httpBannerScrollViewDataSourceWithBannerType:(NSString *)bannerType withBannerSuccess:(SuccessResult)bannerSuccess withBannerFail:(FailResult)bannerFail ;
 
 //广告条
 - (void)httpAdScrollViewDataSourceWithAdSuccess:(SuccessResult)adSuccess withAdFail:(FailResult)adFail;

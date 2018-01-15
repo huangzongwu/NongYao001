@@ -20,8 +20,8 @@
 }
 
 #pragma mark - 首页 -
-- (void)httpBannerScrollViewDataSourceWithBannerSuccess:(SuccessResult)bannerSuccess withBannerFail:(FailResult)bannerFail {
-    NSString *url = [NSString stringWithFormat:@"%@?id=&type=3",[[InterfaceManager shareInstance]linkManageBase]];
+- (void)httpBannerScrollViewDataSourceWithBannerType:(NSString *)bannerType withBannerSuccess:(SuccessResult)bannerSuccess withBannerFail:(FailResult)bannerFail {
+    NSString *url = [NSString stringWithFormat:@"%@?id=&type=%@",[[InterfaceManager shareInstance]linkManageBase],bannerType];
     [[NetManager shareInstance] getRequestWithURL:url withParameters:nil withContentTypes:nil withHeaderArr:nil withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
         NSLog(@"%ld",operation.response.statusCode);
         NSLog(@"%@",[self dictionaryToJson:successResult]);

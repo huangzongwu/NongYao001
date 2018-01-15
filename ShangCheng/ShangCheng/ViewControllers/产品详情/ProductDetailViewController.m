@@ -68,11 +68,13 @@
 //是否收藏了
 @property (nonatomic,assign)BOOL isFavorite;
 //收藏按钮
-@property (weak, nonatomic) IBOutlet UIButton *favoriteButton;
+
 @property (weak, nonatomic) IBOutlet UIImageView *isActivityImageView;
 @property (weak, nonatomic) IBOutlet UILabel *gwcNumberLabel;
 //webView通过cellHeight修改cell的高度
 @property(nonatomic,assign)float cellHeight;
+//头部视图，即产品图片 产品信息 规格选择三部分
+@property (weak, nonatomic) IBOutlet UIView *tableViewHeaderView;
 
 @end
 
@@ -138,6 +140,9 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
+    //计算头部视图高度 图片高度kScreenW 产品信息148 规格选择46 
+    self.tableViewHeaderView.frame = CGRectMake(0, 0, kScreenW, kScreenW + 2 + 148 + 13 + 46 );
+    
     //刷新此页面购物车的角标
     //
     Manager *manager = [Manager shareInstance];

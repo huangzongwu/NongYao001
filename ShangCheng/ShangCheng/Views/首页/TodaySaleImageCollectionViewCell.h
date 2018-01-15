@@ -9,5 +9,7 @@
 #import <UIKit/UIKit.h>
 
 @interface TodaySaleImageCollectionViewCell : UICollectionViewCell
+@property (weak, nonatomic) IBOutlet UIImageView *todayBannerSaleImgView;
 
+- (void)updateTodayBannerImg:(NSString *)imgStr;
 @end
