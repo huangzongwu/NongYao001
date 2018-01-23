@@ -24,8 +24,8 @@
 }
 
 - (IBAction)nextButtonAction:(UIButton *)sender {
-    //进入应用了，就要把plist标记的首次进入应用修改一下状态
     
+    //进入应用了，就要把plist标记的首次进入应用修改一下状态
     Manager *manager = [Manager shareInstance];
     [manager setFirstJoinAppWithStatus:@"NO"];
     
