@@ -28,6 +28,9 @@
 #endif
 #import "LeadViewController.h"
 
+#import <AddressBook/AddressBook.h>
+#import <Contacts/Contacts.h>
+
 
 @interface AppDelegate ()<WXApiDelegate,JPUSHRegisterDelegate>
 @end
@@ -61,6 +64,10 @@
     //获取本地购物车 和 数量
     [manager getLocationShoppingCar];
     [manager getLocationShoppingCarNumber];
+    
+  
+    [self requestAuthorizationAddressBookForIOS9Before];
+        
     
     
     
@@ -350,6 +357,51 @@
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"支付结果" message:@"支付验证失败，请联系客服" delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
         [alert show];
     }];
+}
+
+
+#pragma mark - 通讯录授权 -
+- (void)requestAuthorizationAddressBookForIOS9Before {
+    
+    // 判断是否授权
+    ABAuthorizationStatus authorizationStatus = ABAddressBookGetAuthorizationStatus();
+    //如果没有授权，就请求一下授权
+    if (authorizationStatus == kABAuthorizationStatusNotDetermined) {
+        // 请求授权
+        ABAddressBookRef addressBookRef =  ABAddressBookCreate();
+        ABAddressBookRequestAccessWithCompletion(addressBookRef, ^(bool granted, CFErrorRef error) {
+            if (granted) {  // 授权成功
+                NSLog(@"ios8授权成功！");
+                
+            } else {        // 授权失败
+                NSLog(@"ios8授权失败！");
+            }
+        });
+    }
+}
+
+
+- (void)requestAuthorizationAddressBookForIOS9Later {
+    // 判断是否授权
+    CNAuthorizationStatus status = [CNContactStore authorizationStatusForEntityType:CNEntityTypeContacts];
+    //如果没有授权，就请求一下授权
+    if (status == CNAuthorizationStatusNotDetermined) {
+        // 请求授权
+        CNContactStore * store = [[CNContactStore alloc] init];
+        [store requestAccessForEntityType:CNEntityTypeContacts completionHandler:^(BOOL granted, NSError * _Nullable error) {
+            if (granted) {
+                // 授权成功
+                NSLog(@"ios9授权成功！");
+                
+            }else{
+                // 授权失败
+                NSLog(@"ios9授权失败！");
+                
+            }
+        }];
+        
+    }
+    
 }
 
 

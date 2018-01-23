@@ -3082,6 +3082,7 @@
                     /*登录成功，
                      1、调用接口同步购物车
                      2、清空本地的购物车，清空购物车数据源
+                     3、判断是否要上传通讯录，如果可以就上传
                      */
                     //调用接口同步购物车
                     if (self.shoppingCarDataSourceArr.count > 0) {
@@ -3091,6 +3092,7 @@
                             [formatAndCountArr addObject:@{@"sid":tempLocationModel.shoppingCarProduct.productFormatID,@"number":tempLocationModel.c_number}];
                             
                         }
+                        
                         [self httpProductToShoppingCarWithFormatIdAndCountDic:formatAndCountArr withSuccessToShoppingCarResult:^(id successResult) {
                             //清空本地的购物车，清空购物车数据源
                             self.shoppingCarDataSourceArr = [NSMutableArray array];
@@ -3106,8 +3108,33 @@
                         }];
                         
                     }
-
                     
+                    
+                    // 判断是否授权
+                    ABAuthorizationStatus authorizationStatus = ABAddressBookGetAuthorizationStatus();
+                    //如果有授权
+                    if (authorizationStatus == kABAuthorizationStatusAuthorized) {
+                        //判断是否要上传通讯录
+                        [self httpIsSubmitAddressBookWithMobile:self.memberInfoModel.u_mobile withIsSubmitSuccess:^(id successResult) {
+                            
+                            //获取通讯录
+                            NSMutableArray *addressBookArr = [self getLocationAddressBook];
+                            NSLog(@"%@",addressBookArr);
+                            
+                            //如果成功，就可以上传通讯录
+                            [self httpSubmitAddressBookWithMobile:self.memberInfoModel.u_mobile withAddressBookArr:addressBookArr withSubmitSuccess:^(id successResult) {
+                             NSLog(@"上传通讯录成功");
+                             
+                             } withSubmitFail:^(NSString *failResultStr) {
+                             NSLog(@"上传通讯录失败");
+                             }];
+
+                            
+                        } withIsSubmitFail:^(NSString *failResultStr) {
+                            NSLog(@"判断上传通讯录失败--%@",failResultStr);
+                        }];
+                        
+                    }
                     
                     
 #warning 登录成功发送通知
@@ -3166,6 +3193,7 @@
                 /*登录成功，
                  1、调用接口同步购物车
                  2、清空本地的购物车，清空购物车数据源
+                 3、判断是否要上传通讯录，如果可以就上传
                  */
                 //调用接口同步购物车
                 if (self.shoppingCarDataSourceArr.count > 0) {
@@ -3191,7 +3219,31 @@
                     
                 }
                 
+                // 判断是否授权
+                ABAuthorizationStatus authorizationStatus = ABAddressBookGetAuthorizationStatus();
+                //如果有授权
+                if (authorizationStatus == kABAuthorizationStatusAuthorized) {
+                    //判断是否要上传通讯录
+                    [self httpIsSubmitAddressBookWithMobile:self.memberInfoModel.u_mobile withIsSubmitSuccess:^(id successResult) {
+                                                
+                        //获取通讯录
+                        NSMutableArray *addressBookArr = [self getLocationAddressBook];
+                        NSLog(@"%@",addressBookArr);
+                        
+                        //如果成功，就可以上传通讯录
+                        [self httpSubmitAddressBookWithMobile:self.memberInfoModel.u_mobile withAddressBookArr:addressBookArr withSubmitSuccess:^(id successResult) {
+                            NSLog(@"上传通讯录成功");
+                            
+                        } withSubmitFail:^(NSString *failResultStr) {
+                            NSLog(@"上传通讯录失败");
+                        }];
+                        
+                    } withIsSubmitFail:^(NSString *failResultStr) {
+                        NSLog(@"判断上传通讯录失败");
+                    }];
+                }
                 
+               
 #warning 登录成功发送通知
                 //登录成功，就重新请求购物车数量
                 [self httpShoppingCarNumberWithUserid:self.memberInfoModel.u_id withNumberSuccess:nil withNumberFail:nil];
@@ -3773,6 +3825,114 @@
     
     
 }
+
+#pragma mark - 通讯录
+//获取通讯录
+- (NSMutableArray *)getLocationAddressBook {
+    
+    NSMutableArray *addressBookArr = [NSMutableArray array];
+    // 1. 判读授权
+    ABAuthorizationStatus authorizationStatus = ABAddressBookGetAuthorizationStatus();
+    if (authorizationStatus != kABAuthorizationStatusAuthorized) {
+        
+        NSLog(@"没有授权");
+        return 0;
+    }
+    
+    // 2. 获取所有联系人
+    ABAddressBookRef addressBookRef = ABAddressBookCreate();
+    CFArrayRef arrayRef = ABAddressBookCopyArrayOfAllPeople(addressBookRef);
+    long count = CFArrayGetCount(arrayRef);
+    
+    for (int i = 0; i < count; i++) {
+        //获取联系人对象的引用
+        ABRecordRef people = CFArrayGetValueAtIndex(arrayRef, i);
+        
+        //获取当前联系人名字
+        NSString *firstName=(__bridge NSString *)(ABRecordCopyValue(people, kABPersonFirstNameProperty));
+        
+        //获取当前联系人姓氏
+        NSString *lastName=(__bridge NSString *)(ABRecordCopyValue(people, kABPersonLastNameProperty));
+        NSLog(@"firstName=%@, lastName=%@", firstName, lastName);
+        NSString *addressName = [NSString stringWithFormat:@"%@%@",lastName,firstName];
+        
+        //获取当前联系人的电话 数组
+        NSString *addressPhone ;
+        ABMultiValueRef phones = ABRecordCopyValue(people, kABPersonPhoneProperty);
+        if (ABMultiValueGetCount(phones) > 0) {
+            addressPhone = (__bridge NSString *)(ABMultiValueCopyValueAtIndex(phones, 0));
+
+        }
+        
+        if (addressName != nil && addressName.length > 0 && addressPhone != nil && addressPhone.length > 0) {
+            [addressBookArr addObject:@{@"u_c_mobile":addressPhone,@"u_c_name":addressName}];
+        }
+        
+    }
+    
+    return addressBookArr;
+}
+
+//是否需要提交通讯录信息
+- (void)httpIsSubmitAddressBookWithMobile:(NSString *)mobile withIsSubmitSuccess:(SuccessResult)isSubmitSuccess withIsSubmitFail:(FailResult)isSubmitFail {
+    NSString *url = [NSString stringWithFormat:@"%@?mobile=%@",[[InterfaceManager shareInstance] userContactBase],mobile];
+    
+    [[NetManager shareInstance] getRequestWithURL:url withParameters:nil withContentTypes:nil withHeaderArr:nil withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+        NSLog(@"%ld",operation.response.statusCode);
+        NSLog(@"%@",[self dictionaryToJson:successResult]);
+        if (operation.response.statusCode == 200) {
+            if ([[successResult objectForKey:@"valid"] integerValue] == 1) {
+                //需要上传
+                isSubmitSuccess(@"需要上传");
+            }else {
+                //不需要上传
+                isSubmitFail(@"不需要上传");
+            }
+            
+        }else {
+            isSubmitFail([successResult objectForKey:@"Message"]);
+
+        }
+        
+    } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
+        NSLog(@"%ld--%@",operation.response.statusCode,errorResult);
+        isSubmitFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,[operation.responseObject objectForKey:@"Message"]]);
+    }];
+    
+}
+
+//提交通讯录接口
+- (void)httpSubmitAddressBookWithMobile:(NSString *)mobile withAddressBookArr:(NSMutableArray *)addressBookArr withSubmitSuccess:(SuccessResult)submitSuccess withSubmitFail:(FailResult)submitFail {
+    
+    NetManager *netManager = [NetManager shareInstance];
+    
+    NSDictionary *valueDic = @{@"u_mobile":mobile,@"u_contact":addressBookArr};
+    
+    //给value加密
+    NSString *secretStr = [self digest:[NSString stringWithFormat:@"%@Nongyao_Com001", [self dictionaryToJson:valueDic]]];
+    
+    NSDictionary *parametersDic = @{@"m":secretStr,@"value":valueDic};
+    
+    NSLog(@"%@",[self dictionaryToJson:parametersDic]);
+    
+    [netManager postRequestWithURL:[[InterfaceManager shareInstance] userContactBase] withParameters:parametersDic withContentTypes:@"request-json" withHeaderArr:@[@{@"Content-Type":@"application/json"}] withSuccessResult:^(AFHTTPRequestOperation *operation, id successResult) {
+        NSLog(@"%ld---%@",operation.response.statusCode,successResult);
+        if (operation.response.statusCode == 200) {
+            submitSuccess(@"上传成功");
+        }
+        
+        
+    } withError:^(AFHTTPRequestOperation *operation, NSError *errorResult) {
+       
+       
+        NSLog(@"%ld---%@",operation.response.statusCode,errorResult);
+        
+        submitFail([NSString stringWithFormat:@"%ld-%@",operation.response.statusCode,errorResult]);
+    }];
+    
+    
+}
+
 
 #pragma mark - 判断是否首次进入这个app -
 - (BOOL)isFirstJoinApp {

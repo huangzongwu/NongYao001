@@ -7,6 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <AddressBook/AddressBook.h>
+
 #import "NetManager.h"
 #import "InterfaceManager.h"
 #import "MemberInfoModel.h"
@@ -41,6 +43,8 @@
 #import "MyAgentFavoriteModel.h"
 #import "MyAgentShopCarModel.h"
 #import "MyAgentCommissionModel.h"
+
+
 typedef void(^SuccessResult)(id successResult);
 typedef void(^FailResult)(NSString *failResultStr);
 
@@ -401,6 +405,15 @@ typedef void(^FailResult)(NSString *failResultStr);
 #pragma mark - 图片压缩 -
 - (UIImage *)compressOriginalImage:(UIImage *)originalImage toMaxDataSizeKBytes:(CGFloat)size ;
 
+#pragma mark - 通讯录
+//获取通讯录
+- (NSMutableArray *)getLocationAddressBook;
+//是否需要提交通讯录信息
+- (void)httpIsSubmitAddressBookWithMobile:(NSString *)mobile withIsSubmitSuccess:(SuccessResult)isSubmitSuccess withIsSubmitFail:(FailResult)isSubmitFail;
+
+//提交通讯录接口
+- (void)httpSubmitAddressBookWithMobile:(NSString *)mobile withAddressBookArr:(NSMutableArray *)addressBookArr withSubmitSuccess:(SuccessResult)submitSuccess withSubmitFail:(FailResult)submitFail;
+
 
 #pragma mark - 判断是否首次进入这个app -
 - (BOOL)isFirstJoinApp;
@@ -420,7 +433,6 @@ typedef void(^FailResult)(NSString *failResultStr);
 //上传图片附件
 - (void)uploadImageWithUploadImage:(UIImage *)uploadImage withUploadSuccess:(SuccessResult )uploadSuccess withUploadFail:(FailResult)uploadFail ;
 
-
 //获取当前时间
 - (NSString *)getNowTimeStr; 
 
@@ -431,5 +443,7 @@ typedef void(^FailResult)(NSString *failResultStr);
 
 //截屏
 -(UIImage *)screenShot ;
+
+
 
 @end

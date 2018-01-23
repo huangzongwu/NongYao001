@@ -22,6 +22,8 @@
 		450B45911FD69A50001911F5 /* TradeRecordTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 450B458F1FD69A50001911F5 /* TradeRecordTableViewCell.xib */; };
 		450E10381FBD65590053D0A7 /* TradeTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 450E10371FBD65590053D0A7 /* TradeTableViewCell.m */; };
 		450E103B1FBD665B0053D0A7 /* BannerTradeModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 450E103A1FBD665B0053D0A7 /* BannerTradeModel.m */; };
+		450F91E920143E6400709B2A /* AddressBook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 450F91E820143E6400709B2A /* AddressBook.framework */; };
+		450F91EB2014477300709B2A /* apishop.cer in Resources */ = {isa = PBXBuildFile; fileRef = 450F91EA2014477200709B2A /* apishop.cer */; };
 		4512C5701ED2D92D00EC61B3 /* LeadViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4512C56F1ED2D92D00EC61B3 /* LeadViewController.m */; };
 		4512C5761ED2E5DF00EC61B3 /* lead2.png in Resources */ = {isa = PBXBuildFile; fileRef = 4512C5731ED2E5DF00EC61B3 /* lead2.png */; };
 		4512C5771ED2E5DF00EC61B3 /* lead3.png in Resources */ = {isa = PBXBuildFile; fileRef = 4512C5741ED2E5DF00EC61B3 /* lead3.png */; };
@@ -637,6 +639,8 @@
 		450E10371FBD65590053D0A7 /* TradeTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TradeTableViewCell.m; sourceTree = "<group>"; };
 		450E10391FBD665B0053D0A7 /* BannerTradeModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BannerTradeModel.h; sourceTree = "<group>"; };
 		450E103A1FBD665B0053D0A7 /* BannerTradeModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BannerTradeModel.m; sourceTree = "<group>"; };
+		450F91E820143E6400709B2A /* AddressBook.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AddressBook.framework; path = System/Library/Frameworks/AddressBook.framework; sourceTree = SDKROOT; };
+		450F91EA2014477200709B2A /* apishop.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = apishop.cer; sourceTree = "<group>"; };
 		4512C56E1ED2D92D00EC61B3 /* LeadViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LeadViewController.h; sourceTree = "<group>"; };
 		4512C56F1ED2D92D00EC61B3 /* LeadViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LeadViewController.m; sourceTree = "<group>"; };
 		4512C5731ED2E5DF00EC61B3 /* lead2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lead2.png; sourceTree = "<group>"; };
@@ -1551,6 +1555,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				450F91E920143E6400709B2A /* AddressBook.framework in Frameworks */,
 				45A1B1E61E9CBBE800518FA6 /* MessageUI.framework in Frameworks */,
 				45A1B1E41E9CBBDC00518FA6 /* libsqlite3.tbd in Frameworks */,
 				45A1B1E21E9CBBCF00518FA6 /* ImageIO.framework in Frameworks */,
@@ -2130,6 +2135,7 @@
 		457F34F91DBF3E0600809062 /* ShangCheng */ = {
 			isa = PBXGroup;
 			children = (
+				450F91EA2014477200709B2A /* apishop.cer */,
 				450211331FDFDA6D0023E4F0 /* wapnongyao001.cer */,
 				45CD8B781F933E0600DE947A /* server.cer */,
 				45CD8B7A1F933ECF00DE947A /* ima.cer */,
@@ -2447,6 +2453,7 @@
 		4584C2471DFFEB75000AC275 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				450F91E820143E6400709B2A /* AddressBook.framework */,
 				45A1B1E51E9CBBE800518FA6 /* MessageUI.framework */,
 				45A1B1E31E9CBBDC00518FA6 /* libsqlite3.tbd */,
 				45A1B1E11E9CBBCF00518FA6 /* ImageIO.framework */,
@@ -3228,6 +3235,7 @@
 				451409D61E5594560092D3F1 /* w_icon_lljl@3x.png in Resources */,
 				45F6FFC51E5ECA900017FDEB /* w_icon_yhq@2x.png in Resources */,
 				456DA9B91E49BE2A0097CFFB /* w_icon_txjl@3x.png in Resources */,
+				450F91EB2014477300709B2A /* apishop.cer in Resources */,
 				457C314F1E6E96CA009254C2 /* s_btn_up@2x.png in Resources */,
 				45A322341E124D4B009F239E /* g_btn_normal@2x.png in Resources */,
 				45FD3B2F1E7F68E500FCFC92 /* d_pic_spot_1@2x.png in Resources */,

@@ -10,7 +10,11 @@
 
 @interface InterfaceManager ()
 @property (nonatomic,strong)NSString *mainUrl;
+@property (nonatomic,strong)NSString *mainUrlNew;
+
 @property (nonatomic,strong)NSString *baseUrl;
+@property (nonatomic,strong)NSString *baseUrlNew;
+
 
 @end
 
@@ -37,8 +41,18 @@
 
 }
 
+- (NSString *)mainUrlNew {
+    return @"https://apishop.nongyao001.com:7443/";
+}
+
+
 - (NSString *)baseUrl {
     return [NSString stringWithFormat:@"%@api",self.mainUrl];
+}
+
+
+- (NSString *)baseUrlNew {
+    return [NSString stringWithFormat:@"%@api",self.mainUrlNew];
 }
 
 #pragma mark - 首页 -
@@ -320,6 +334,12 @@
 //提成流水（老数据库）
 - (NSString *)myAgentCommissionOldBase {
     return [NSString stringWithFormat:@"%@/UserAccountOld",self.baseUrl];
+}
+
+#pragma mark - 发送通讯录信息 -
+- (NSString *)userContactBase {
+    return [NSString stringWithFormat:@"%@/UserContact",self.baseUrlNew];
+
 }
 
 #pragma mark - 登录注册 -

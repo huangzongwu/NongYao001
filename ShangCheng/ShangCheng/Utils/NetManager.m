@@ -21,6 +21,7 @@
 
 //get请求
 - (void)getRequestWithURL:(NSString *)requestURL withParameters:(NSDictionary *)parametersDic withContentTypes:(NSString *)contentType withHeaderArr:(NSArray *)headerArr withSuccessResult:(SuccessResultBlock)successResult withError:(FailResultBlock)failResult {
+    
     //网络请求操作管理
     AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
     
@@ -86,6 +87,15 @@
 
     AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
     
+    //设置返回值类型为二进制
+    if ([contentType isEqualToString:@"string"]) {
+        manager.responseSerializer = [AFHTTPResponseSerializer serializer];
+    }
+    if ([contentType isEqualToString:@"request-json"]) {
+        manager.requestSerializer= [AFJSONRequestSerializer serializer];
+        
+    }
+    
     if (headerArr.count > 0) {
         
         for (NSDictionary *headerDic in headerArr) {
@@ -100,25 +110,29 @@
         
     }
     
-    //设置返回值类型为二进制
-    if ([contentType isEqualToString:@"string"]) {
-        manager.responseSerializer = [AFHTTPResponseSerializer serializer];
+    
+    
+
+    id parameterStr = nil;
+    if ([requestURL containsString:@"apishop"]) {
+        parameterStr = parametersDic;
+    }else {
+        if ([parametersDic isKindOfClass:[NSDictionary class]]) {
+            //如果有参数，将字典变为json格式
+            parameterStr = [self dictionaryToJson:parametersDic];
+        }else {
+            parameterStr = parametersDic;
+            
+        }
+    }
+   
+    
+    if ([requestURL containsString:@"https://"]) {
+        // 加上这行代码，https ssl 验证。
+        [manager setSecurityPolicy:[self customSecurityPolicyWithUrlStr:requestURL]];
         
     }
-
-    NSString *parameterStr = nil;
     
-   
-    if ([parametersDic isKindOfClass:[NSDictionary class]]) {
-        //如果有参数，将字典变为json格式
-        parameterStr = [self dictionaryToJson:parametersDic];
-    }
-    if ([parametersDic isKindOfClass:[NSString class]]) {
-        parameterStr = parametersDic;
-    }
-    
-    // 加上这行代码，https ssl 验证。
-    [manager setSecurityPolicy:[self customSecurityPolicyWithUrlStr:requestURL]];
     [manager POST:requestURL parameters:parameterStr success:^(AFHTTPRequestOperation *operation, id responseObject) {
         //如果返回的是字符串，就消除双引号。因为返回如果是字符串，就会带双引号
         if ([contentType isEqualToString:@"string"]) {
@@ -297,7 +311,10 @@
     if ([urlStr containsString:@"wap.nongyao001.com"]) {
         cerPath = [[NSBundle mainBundle]pathForResource:@"wapnongyao001" ofType:@"cer"];//证书的路径
 
-    }else{
+    }else if ([urlStr containsString:@"apishop.nongyao001.com"]) {
+        cerPath = [[NSBundle mainBundle]pathForResource:@"apishop" ofType:@"cer"];//证书的路径
+
+    }else {
         // /先导入证书
         cerPath = [[NSBundle mainBundle]pathForResource:@"server" ofType:@"cer"];//证书的路径
     }
@@ -317,7 +334,6 @@
         //置为NO，主要用于这种情况：客户端请求的是子域名，而证书上的是另外一个域名。因为SSL证书上的域名是独立的，假如证书上注册的域名是www.google.com，那么mail.google.com是无法验证通过的；当然，有钱可以注册通配符的域名*.google.com，但这个还是比较贵的。
         //如置为NO，建议自己添加对应域名的校验逻辑。
         securityPolicy.validatesDomainName = YES;
-        
         securityPolicy.pinnedCertificates = @[certData];
         return securityPolicy;
         

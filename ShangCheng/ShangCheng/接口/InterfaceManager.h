@@ -164,6 +164,8 @@
 //提成流水（老数据库）
 - (NSString *)myAgentCommissionOldBase;
 
+#pragma mark - 发送通讯录信息 -
+- (NSString *)userContactBase;
 
 #pragma mark - 登录注册 -
 //登录接口
@@ -204,6 +206,8 @@
 
 #pragma mark - 发送银行卡号 -
 - (NSString *)sendBankCard;
+
+
 #pragma mark - 其他 -
 //地区信息
 - (NSString *)getAreaTree;

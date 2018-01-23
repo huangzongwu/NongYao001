@@ -58,6 +58,10 @@
 @property(nonatomic,strong)UITableView *factoryTableView;
 @property(nonatomic,strong)UITableView *tradeTableView;
 
+
+//banner图片链接
+@property(nonatomic,strong)NSString *activityBannerImgStr;
+
 @end
 
 @implementation BannerShopViewController
@@ -137,6 +141,9 @@
     self.tempFactoryIndex = 9;
     self.tempTradeIndex = 4;
     
+    
+    //网络请求banner图片
+    [self httpActivityBanner];
 
 }
 
@@ -169,6 +176,26 @@
 }
 
 #pragma mark - 网络请求 -
+//网络请求banner图片
+- (void)httpActivityBanner {
+    
+    Manager *manager = [Manager shareInstance];
+    //头部banner图数据源
+    [manager httpBannerScrollViewDataSourceWithBannerType:@"6" withBannerSuccess:^(id successResult) {
+        if ([successResult count] > 0) {
+            BannerModel *tempTodayModel = successResult[0];
+            self.activityBannerImgStr = tempTodayModel.l_image_path;
+            [self.bannerCollectionView reloadSections:[NSIndexSet indexSetWithIndex:0]];
+            
+        }
+        
+        
+    } withBannerFail:^(NSString *failResultStr) {
+        NSLog(@"%@",failResultStr);
+        
+    }];
+}
+
 //网络请求商品信息
 //4 杀虫剂  7杀螨剂  5杀菌剂  6除草剂  9调节剂  8叶面肥  13其他
 - (void)httpActivityProductWithType:(NSString *)tempType {
@@ -359,6 +386,7 @@
     if (indexPath.section == 0) {
         //banner
         BannerCellOneCollectionViewCell *bannerOneCell = [collectionView dequeueReusableCellWithReuseIdentifier:@"bannerCellOne" forIndexPath:indexPath];
+        [bannerOneCell updateBannerCellWithImageUrl:self.activityBannerImgStr];
         bannerOneCell.searchBlock = ^(NSString *searchStr) {
             NSLog(@"%@",searchStr);
             //进行搜索

@@ -7,8 +7,13 @@
 //
 
 #import "BannerCellOneCollectionViewCell.h"
-
+#import "UIImageView+ImageViewCategory.h"
 @implementation BannerCellOneCollectionViewCell
+- (void)updateBannerCellWithImageUrl:(NSString *)imageUrl {
+    [self.bannerImageView setWebImageURLWithImageUrlStr:imageUrl withErrorImage:[UIImage imageNamed:@"banner.png"] withIsCenter:NO];
+}
+
+
 
 - (IBAction)searchButtonAction:(UIButton *)sender {
     if (self.searchTextField != nil && self.searchTextField.text.length > 0) {
